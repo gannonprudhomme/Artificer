@@ -14,8 +14,8 @@ class InputConstants {
     public const string Sprint = "Sprint";
     public const string Jump = "Jump";
     public const string Dash = "Jump";
-    public const string AttackPrimary = "AttackPrimary";
-    public const string AttackSecondary = "AttackSecondary";
+    public const string FirstAttack = "FirstAttack";
+    public const string SecondAttack = "SecondAttack";
 }
 
 // Note that the previous code had a bunch of checks for CanProcessInput()
@@ -28,7 +28,8 @@ public class InputHandler : MonoBehaviour {
     public float TriggerAxisThreshold = 0.4f;
 
     // bool fireInputWasHeld;
-    bool attackPrimaryInputWasHeld;
+    bool firstAttackWasHeld;
+    bool secondAttackWasHeld;
 
     // Start is called before the first frame update
     void Start()
@@ -39,7 +40,7 @@ public class InputHandler : MonoBehaviour {
 
     // Wtf is this
     void LateUpdate() {
-        attackPrimaryInputWasHeld = GetAttackPrimaryInputHeld();
+        firstAttackWasHeld = GetFirstAttackInputHeld();
     }
 
     public bool CanProcessInput() {
@@ -56,7 +57,6 @@ public class InputHandler : MonoBehaviour {
             // constrain move input to a maximum mangitude of 1, otherwise diagonal movemenet
             // might exceed the max move speed defined
             move = Vector3.ClampMagnitude(move, 1);
-            print(move);
 
             return move;
         }
@@ -84,16 +84,26 @@ public class InputHandler : MonoBehaviour {
         return Input.GetButton(InputConstants.Jump);
     }
 
-    public bool GetAttackPrimaryInputDown() {
-        return GetAttackPrimaryInputHeld() && !attackPrimaryInputWasHeld;
+    public bool GetFirstAttackInputDown() {
+        return GetFirstAttackInputHeld() && !firstAttackWasHeld;
+    }
+    public bool GetFirstAttackInputHeld() {
+        return Input.GetButton(InputConstants.FirstAttack);
     }
 
-    public bool GetAttackPrimaryInputReleased() {
-        return !GetAttackPrimaryInputHeld() && attackPrimaryInputWasHeld;
+    public bool GetFirstAttackInputReleased() {
+        return !GetFirstAttackInputHeld() && firstAttackWasHeld;
+    }
+    
+    public bool GetSecondAttackInputDown() {
+        return GetSecondAttackInputHeld() && !secondAttackWasHeld;
+    }
+    public bool GetSecondAttackInputHeld() {
+        return Input.GetButton(InputConstants.SecondAttack);
     }
 
-    public bool GetAttackPrimaryInputHeld() {
-        return Input.GetButton(InputConstants.AttackPrimary);
+    public bool GetSecondAttackInputReleased() {
+        return !GetSecondAttackInputHeld() && secondAttackWasHeld;
     }
 
     public bool GetAimInputHeld() {
