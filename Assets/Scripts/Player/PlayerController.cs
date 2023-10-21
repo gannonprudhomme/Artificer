@@ -5,6 +5,8 @@ using UnityEngine;
 
 [RequireComponent(typeof(CharacterController), typeof(InputHandler))]
 public class PlayerController : MonoBehaviour {
+    /** PROPERTIES **/
+
     [Header("References")]
     [Tooltip("Reference to the main camera used for the player")]
     public Camera PlayerCamera;
@@ -256,6 +258,7 @@ public class PlayerController : MonoBehaviour {
         // Apply the final calculated velocity value as a character movement
         Vector3 capsuleBottomBeforeMove = GetCapsuleBottomHemisphere();
         Vector3 capsuleTopBeforeMove = GetCapsuleTopHemisphere(characterController.height);
+
         characterController.Move(CharacterVelocity * Time.unscaledDeltaTime);
 
         // detect obstructions to adjust velocity accordingly
@@ -309,15 +312,16 @@ public class PlayerController : MonoBehaviour {
         bool shouldJump = inputHandler.GetJumpInputDown() && isGrounded;
         if (shouldJump) {
             // start by cancelling out the vertical component of our velocity
-            // Note that we also want to do this when we're in the air (aka falling)
+            // Note that we also want to do this when we're in the
+            // air (aka falling) - I assume for double jumping (this is probably an old comment)
             Vector3 retCharacterVelocity = new Vector3(
                 previousCharacterVelocity.x,
-                0f,
+                0f, // I'm not sure if we want to cancel this out? But hey maybe we do
                 previousCharacterVelocity.z
             );
 
             // then, add the jumpSpeed value upwards
-            retCharacterVelocity += Vector3.up * jumpForce;
+            retCharacterVelocity.y = jumpForce;
 
             // play sound
             // AudioSource.PlayOneShot(JumpSfx);
