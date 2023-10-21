@@ -60,6 +60,8 @@ public interface IHoldManualSpell : ISpell {
 // Spells have to be "dumb" (externally controlled), otherwise they'd be able to fire at the same time
 // as such the spells manager has to manage them all
 public abstract class Spell : MonoBehaviour {
+    [Tooltip("Audio clip that plays when the spell is fired")]
+    public AudioClip ShootSfx;
 
     // TODO: This is editable in the UI, and we def don't want that
     public float CurrentCharge = 0.0f; 
