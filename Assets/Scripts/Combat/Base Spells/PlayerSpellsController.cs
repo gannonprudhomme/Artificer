@@ -23,9 +23,17 @@ public class PlayerSpellsController : MonoBehaviour {
     [Header("References")]
     public InputHandler inputHandler;
 
+    // SpellMuzzle was under Internal References, but idk what internal was supposed to mean in this case
+    [Tooltip("Where the spell should be spawned / shot out of")] // Tooltip won't apply to lightning jump or ice wall
+    public Transform SpellSpawnPoint;
+
+    // I still don't really understand this
+    [Tooltip("Secondary camera used to avoid seeing weapon go through geometries?")]
+    public Camera SpellCamera;
+
     [Header("Spells")]
-    public Spell FirstSpell; // These have to be MonoBehaviors to be able to be assigned in Unity btw
-    public Spell SecondSpell;
+    public Spell FirstSpellPrefab; // These have to be MonoBehaviors to be able to be assigned in Unity btw
+    public Spell SecondSpellPrefab;
     // public Spell ThirdSpell;
     // public Spell FourthSpell;
 
@@ -35,22 +43,27 @@ public class PlayerSpellsController : MonoBehaviour {
     private bool IsBlockingSpellActive = false;
 
     // Start is called before the first frame update
-    void Start() {
-        inputHandler = GetComponent<InputHandler>();
+    void Awake() {
 
         // This is obviously a shit way of doing this
         // really we should be able to provide spells as an array in Unity
         // but that array/list should be a fixed size. Surely that's possible
-        spells[0] = FirstSpell;
-        spells[1] = SecondSpell;
+        spells[0] = Instantiate(FirstSpellPrefab, SpellSpawnPoint);
+        if (SecondSpellPrefab != null) { // probs just want to yell if this is null, idk
+            spells[1] = Instantiate(SecondSpellPrefab, SpellSpawnPoint);
+        }
         // spells[2] = ThirdSpell;
         // spells[3] = FourthSpell;
+    }
+
+    void Start() {
+        // Can we do this in Awake()?
+        inputHandler = GetComponent<InputHandler>();
     }
 
     // Update is called once per frame
     void Update() {
         HandleAttackInput();
-        
     }
 
     void HandleAttackInput() {
@@ -60,11 +73,34 @@ public class PlayerSpellsController : MonoBehaviour {
         //if (inputHandler.GetFirstAttackInputDown()) { // Honestly idk how to handle this so I'm just going to do held for now
 
         //}
+        /*
         if (inputHandler.GetFirstAttackInputHeld()) {
             // Do we really want to call this every frame?
+
             FirstSpell.AttackButtonHeld();
         } else if (inputHandler.GetFirstAttackInputReleased()) {
             FirstSpell.AttackButtonReleased();
+        }
+        */
+
+        // How I do this is going to have to change for the Ice Wall
+        // but it'll work for now for getting the Fireball Spell working
+        if (inputHandler.GetFirstAttackInputHeld()) {
+            // print("first attack held");
+            if (spells[0].CanShoot()) {
+                print("can shoot");
+                spells[0].ShootSpell(
+                    SpellSpawnPoint.transform.position,
+                    this.gameObject,
+                    SpellCamera
+                );
+            } else {
+                // print("can't shoot");
+            }
+        }
+
+        if (inputHandler.GetFirstAttackInputDown()) {
+            print("first attack down");
         }
         
         // Maybe I should get the spells working first before preventing them from working at the same time?
@@ -72,6 +108,7 @@ public class PlayerSpellsController : MonoBehaviour {
         // but Ice Wall and Lightning Jump should be a good challenge
     }
 
+    // We probably don't want this
     void RestoreSpellCharges() {
 
     }

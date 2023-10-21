@@ -83,10 +83,10 @@ public abstract class Projectile : MonoBehaviour {
         ignoredColliders = new List<Collider>(); // Idk why we need to do this frankly it's not like this gets reused
 
         // Ignore colliders of owner
-        Collider[] ownerColliders = owner.GetComponentsInChildren<Collider>();
-        ignoredColliders.AddRange(ownerColliders);
-
-        // 
+        //Collider[] ownerColliders = owner.GetComponents<Collider>();
+        Collider[] ownerChildColliders = owner.GetComponentsInChildren<Collider>();
+        // ignoredColliders.AddRange(ownerColliders);
+        ignoredColliders.AddRange(ownerChildColliders);
     }
 
     void Update() {
@@ -121,7 +121,7 @@ public abstract class Projectile : MonoBehaviour {
         );
 
         foreach(var hit in hits) {
-            if (IsHitValid(hit) && hit.distance < closestHit.distance) { 
+            if (IsHitValid(hit) && hit.distance < closestHit.distance) {
                 foundHit = true;
                 closestHit = hit;
             }
@@ -183,7 +183,7 @@ public abstract class Projectile : MonoBehaviour {
         }
 
         if (ImpactSfxClip) {
-            // TODO: Play audio through AudioUtility
+            AudioUtility.shared.CreateSFX(ImpactSfxClip, point, AudioUtility.AudioGroups.Impact, 1f, 5f);
         }
 
         // TODO: Call some OnHitAction?.Invoke() so we can apply affects per projectile

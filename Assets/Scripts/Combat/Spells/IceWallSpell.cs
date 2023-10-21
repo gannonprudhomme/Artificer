@@ -35,4 +35,15 @@ public class IceWallSpell : Spell {
 
     public override void AttackButtonPressed() {
     }
+
+    public override bool CanShoot()
+    {
+        throw new System.NotImplementedException();
+        return false;
+    }
+
+    public override void ShootSpell(Vector3 muzzlePosition, GameObject owner, Camera spellCamera)
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -60,7 +60,11 @@ public interface IHoldManualSpell : ISpell {
 // Spells have to be "dumb" (externally controlled), otherwise they'd be able to fire at the same time
 // as such the spells manager has to manage them all
 public abstract class Spell : MonoBehaviour {
-    public float CurrentCharge = 0.0f;
+
+    // TODO: This is editable in the UI, and we def don't want that
+    public float CurrentCharge = 0.0f; 
+
+    public const float CHARGE_PER_SHOT = 1f;
 
     public abstract float ChargeRate { get; }
     public abstract int MaxNumberOfCharges { get; }
@@ -74,4 +78,12 @@ public abstract class Spell : MonoBehaviour {
     public abstract void AttackButtonPressed();
     public abstract void AttackButtonHeld();
     public abstract void AttackButtonReleased();
+
+    public abstract bool CanShoot();
+
+    public abstract void ShootSpell(
+        Vector3 muzzlePosition,
+        GameObject owner,
+        Camera spellCamera
+    );
 }
