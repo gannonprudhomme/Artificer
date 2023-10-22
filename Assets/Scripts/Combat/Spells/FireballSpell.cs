@@ -18,7 +18,7 @@ public class FireballSpell : Spell {
 
     /** Abstract Spell Properties **/
 
-    public override float ChargeRate => 2f;
+    public override float ChargeRate => 0.5f;
     public override int MaxNumberOfCharges => 5; // Maybe rename to MaxCharge
     public override bool DoesBlockOtherSpells => true;
     public override bool IsBlockedByOtherSpells => true;
@@ -57,10 +57,10 @@ public class FireballSpell : Spell {
         // We should probably check if we need to rProjectileecharge in the first place
 
         if (CurrentCharge < MaxNumberOfCharges) {
-            CurrentCharge += ChargeRate;
+            CurrentCharge += ChargeRate * Time.deltaTime;
 
             // Don't let it get above MaxNumberOfCharges
-            CurrentCharge = Mathf.Max(CurrentCharge, MaxNumberOfCharges);
+            CurrentCharge = Mathf.Min(CurrentCharge, MaxNumberOfCharges);
         }
     }
 

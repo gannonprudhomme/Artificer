@@ -2,20 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IPlayerSpellsController {
-    // What is needed externally?
-
-    // Should the UI go through this to get the spells? I figure probably
-
-    // Needed for the UI to get the spells
-    // Honestly it might be worth to split these out into GetPrimarySpell, ..., GetQuaternarySpell
-    // but that fixes us to 4, so whatever
-    public ISpell FirstSpell { get; protected set; } // I think if I do this I can't set it in the Unity UI, which I def want to do
-    public ISpell SecondSpell { get; protected set; }
-    public ISpell ThirdSpell { get; protected set; }
-    public ISpell FourthSpell { get; protected set; }
-}
-
 // We might want this to live in the Player module
 // [RequireComponent(typeof(PlayerController))] // Idk if we actually need this? Maybe PlayerController should require this? Regardless they should be attach on the same GameObject
 [RequireComponent(typeof(InputHandler))]
@@ -37,8 +23,7 @@ public class PlayerSpellsController : MonoBehaviour {
     // public Spell ThirdSpell;
     // public Spell FourthSpell;
 
-    // This is proof that we really shouldn't have an interface _and_ an abstract class
-    private Spell[] spells = new Spell[2];
+    public Spell[] spells = new Spell[2];
 
     private bool IsBlockingSpellActive = false;
 
