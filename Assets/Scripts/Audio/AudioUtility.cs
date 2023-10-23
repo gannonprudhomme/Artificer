@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using PlasticPipe.PlasticProtocol.Messages;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -44,6 +46,8 @@ public class AudioUtility {
         source.Play();
 
         source.outputAudioMixerGroup = GetAudioGroup(audioGroup);
+
+        GameObject.Destroy(sfxInstance, clip.length); // Destroy the game object after it's done playing
     }
 
     public AudioMixerGroup GetAudioGroup(AudioGroups group) {

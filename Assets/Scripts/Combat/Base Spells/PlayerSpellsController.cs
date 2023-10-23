@@ -84,8 +84,16 @@ public class PlayerSpellsController : MonoBehaviour {
             }
         }
 
-        if (inputHandler.GetFirstAttackInputDown()) {
-            print("first attack down");
+        if (inputHandler.GetSecondAttackInputHeld()) {
+            if (spells[1].CanShoot()) {
+                spells[1].ShootSpell(
+                    SpellSpawnPoint.transform.position,
+                    this.gameObject,
+                    SpellCamera
+                );
+            }
+        } else if (inputHandler.GetSecondAttackInputReleased()) {
+            spells[1].AttackButtonReleased();
         }
         
         // Maybe I should get the spells working first before preventing them from working at the same time?

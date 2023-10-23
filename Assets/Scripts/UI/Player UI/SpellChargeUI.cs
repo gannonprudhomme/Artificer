@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class SpellChargeUI : MonoBehaviour {
     public Image SpellFillImage;
-    public TMPro.TextMeshProUGUI SpellChargeText;
+    public TextMeshProUGUI SpellChargeText;
 
     public Spell spell { get; set; }
 
@@ -22,8 +22,6 @@ public class SpellChargeUI : MonoBehaviour {
         if (spell.CurrentCharge == spell.MaxNumberOfCharges) {
             fillAmount = 1;
         }
-
-        print(fillAmount);
 
         SpellFillImage.fillAmount = fillAmount;
         SpellChargeText.text = $"{(int) spell.CurrentCharge}";

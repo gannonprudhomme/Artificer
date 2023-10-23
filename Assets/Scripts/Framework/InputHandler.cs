@@ -41,6 +41,7 @@ public class InputHandler : MonoBehaviour {
     // Wtf is this
     void LateUpdate() {
         firstAttackWasHeld = GetFirstAttackInputHeld();
+        secondAttackWasHeld = GetSecondAttackInputHeld();
     }
 
     public bool CanProcessInput() {
