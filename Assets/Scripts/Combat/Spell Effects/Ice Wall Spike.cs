@@ -8,7 +8,17 @@ public class IceWallSpike : MonoBehaviour {
 
     private const float damage = DamageEconomy.MediumDamage;
 
-    void Start() {
+    // We expose the BoxCollider since it's needed by the IceWall
+    // in order to place it correctly
+    // (it might not be though, this is just the strategy I picked for now)
+    public BoxCollider boxCollider { get; private set; }
+
+    // Must be called on awake b/c Start() will be too late
+    void Awake() {
+        boxCollider = GetComponent<BoxCollider>();
+        if (boxCollider == null) {
+            Debug.LogError("IceWallSpike didn't have a BoxCollider");
+        }
     }
 
     void Update() {
