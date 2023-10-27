@@ -27,7 +27,7 @@ public class IceWallSpell : Spell {
     private bool isAimValid = false;
 
     // We really shouldn't have to rely on this boolean - should just do it when it's first pressed?
-    private bool hasPlayedAudioThisCharge = false;
+    private bool hasPlayedChargeAudioThisCharge = false;
 
     // Where the ice wall should be spawned (when we finished aiming)
     private Vector3 aimingPoint;
@@ -54,12 +54,22 @@ public class IceWallSpell : Spell {
         // If we were aiming at it was released, spawn the Ice Wall
         if (wasAimingLastFrame) {
             wasAimingLastFrame = false;
+
+            // Play shoot sound ('around' the player - being offset doesn't really matter)
+            AudioUtility.shared.CreateSFX(
+                ShootSfx,
+                transform.position,
+                AudioUtility.AudioGroups.WeaponShoot,
+                0f,
+                10f
+            );
+
             // Destroy the aiming thing since we're firing
             Destroy(aimingDecalProjectorInstance);
 
             SpawnIceWall();
 
-            hasPlayedAudioThisCharge = false;
+            hasPlayedChargeAudioThisCharge = false;
         }
     }
 
@@ -127,8 +137,8 @@ public class IceWallSpell : Spell {
         }
 
 
-        if (!hasPlayedAudioThisCharge) {
-            hasPlayedAudioThisCharge = true;
+        if (!hasPlayedChargeAudioThisCharge) {
+            hasPlayedChargeAudioThisCharge = true;
 
             AudioUtility.shared.CreateSFX(
                 StartChageSfx,

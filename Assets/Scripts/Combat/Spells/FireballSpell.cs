@@ -81,6 +81,14 @@ public class FireballSpell : Spell {
         GameObject owner,
         Camera spellCamera
     ) {
+        AudioUtility.shared.CreateSFX(
+            ShootSfx,
+            spellCamera.transform.position,
+            AudioUtility.AudioGroups.WeaponShoot,
+            0f,
+            10f
+        );
+
         print($"shooting, current charge is now at {CurrentCharge}");
         // reduce # of charges
         CurrentCharge -= 1;
