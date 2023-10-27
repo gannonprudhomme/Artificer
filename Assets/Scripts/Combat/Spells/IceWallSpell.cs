@@ -11,6 +11,9 @@ public class IceWallSpell : Spell {
 
     public IceWall IceWallPrefab; // We need a better name than Projectile (it's not a projectile really?)
 
+    [Tooltip("The sound that plays when the button is pressed")]
+    public AudioClip StartChageSfx;
+
     /** Abstract Spell Properties **/
     public override float ChargeRate => 0.2f;
     public override int MaxNumberOfCharges => 1;
@@ -21,6 +24,10 @@ public class IceWallSpell : Spell {
     /** Local variables **/
 
     private bool wasAimingLastFrame = false;
+    private bool isAimValid = false;
+
+    // We really shouldn't have to rely on this boolean - should just do it when it's first pressed?
+    private bool hasPlayedAudioThisCharge = false;
 
     // Where the ice wall should be spawned (when we finished aiming)
     private Vector3 aimingPoint;
@@ -46,13 +53,13 @@ public class IceWallSpell : Spell {
     public override void AttackButtonReleased() {
         // If we were aiming at it was released, spawn the Ice Wall
         if (wasAimingLastFrame) {
-            print("done!");
             wasAimingLastFrame = false;
-
             // Destroy the aiming thing since we're firing
             Destroy(aimingDecalProjectorInstance);
 
             SpawnIceWall();
+
+            hasPlayedAudioThisCharge = false;
         }
     }
 
@@ -73,7 +80,7 @@ public class IceWallSpell : Spell {
         }
     }
 
-    // For the IceWall spell, consider this more of an "aiming" state
+    // For the IceWall spell, consider this more of an "aiming" stan = Vector3.zerote
     // it's when we're constantly calling this then release it when we actually spawn the projectile
     public override void ShootSpell(Vector3 muzzlePosition, GameObject owner, Camera spellCamera) {
         // Determine the aiming point
@@ -98,6 +105,12 @@ public class IceWallSpell : Spell {
         aimingPoint = bestHit.point;
         aimingRotation = Quaternion.LookRotation(spellCamera.transform.right);
 
+        // We should only be able to aim on floors, not walls,
+        // so mark this as an invalid hit (and hide the aimingDecalProjectorInstance)
+        // if we're aiming at a wall.
+        // I figure we can do some math operation on
+        // maybe a dot/cross product? Shouldn't be able to do it on any surface that's > 40deg or something
+
         // Spawn the aiming decal if it doesn't exist (or maybe if we weren't aimming last frame?)
         if (!wasAimingLastFrame) {
             wasAimingLastFrame = true;
@@ -111,6 +124,19 @@ public class IceWallSpell : Spell {
             // Move it if the instance already exists
             aimingDecalProjectorInstance.transform.position = aimingPoint;
             aimingDecalProjectorInstance.transform.rotation = spellCamera.transform.rotation;
+        }
+
+
+        if (!hasPlayedAudioThisCharge) {
+            hasPlayedAudioThisCharge = true;
+
+            AudioUtility.shared.CreateSFX(
+                StartChageSfx,
+                spellCamera.transform.position, // position shouldn't matter b/c spatialBlend == 0
+                AudioUtility.AudioGroups.WeaponShoot,
+                0.0f, // we don't want any spatial?
+                5f // isn't relevant
+            );
         }
     }
 

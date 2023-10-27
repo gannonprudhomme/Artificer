@@ -34,7 +34,7 @@ public class AudioUtility {
         AudioClip clip,
         Vector3 position,
         AudioGroups audioGroup,
-        float spatialBlend,
+        float spatialBlend, // I think I always want this to be 1? Idk 2D vs 3D audio
         float rolloffDistanceMin = 1f
     ) {
         GameObject sfxInstance = new();

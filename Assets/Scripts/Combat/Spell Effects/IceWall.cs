@@ -9,9 +9,6 @@ public class IceWall : MonoBehaviour {
     // [Tooltip("Max lifetime of the ice wall")]
     // public float MaxLifeTime = 5f;
 
-    [Tooltip("Sfx which plays when something runs into this")]
-    public AudioClip CollisionSfx;
-
     [Tooltip("Layers this can collide with")]
     public LayerMask HittableLayers = -1;
 

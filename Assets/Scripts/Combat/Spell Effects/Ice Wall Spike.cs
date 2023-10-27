@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider))]
 public class IceWallSpike : MonoBehaviour {
     public AudioClip CollisionSfx;
+    public AudioClip SpawnSfx;
 
     private const float damage = DamageEconomy.MediumDamage;
 
@@ -19,6 +20,17 @@ public class IceWallSpike : MonoBehaviour {
         if (boxCollider == null) {
             Debug.LogError("IceWallSpike didn't have a BoxCollider");
         }
+    }
+
+    void OnEnable() {
+        //  do OnEnable since that's when/how the Ice Wall animation "spawns" this
+        AudioUtility.shared.CreateSFX(
+            SpawnSfx,
+            transform.position,
+            AudioUtility.AudioGroups.Impact,
+            1f,
+            1f
+        );
     }
 
     void Update() {
