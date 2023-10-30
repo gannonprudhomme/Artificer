@@ -1,11 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
+// Downside of modularization (or really, how I architectured this?
+// we don't want this to dependon the UI module, so we can't define this in the UI module like we should
+public interface AimDelegate {
+    public Texture2D CurrentAimTexture { get; }
+}
 
 // We might want this to live in the Player module
 // [RequireComponent(typeof(PlayerController))] // Idk if we actually need this? Maybe PlayerController should require this? Regardless they should be attach on the same GameObject
 [RequireComponent(typeof(InputHandler))]
-public class PlayerSpellsController : MonoBehaviour {
+public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     [Header("References")]
     public InputHandler inputHandler;
 
@@ -17,6 +24,13 @@ public class PlayerSpellsController : MonoBehaviour {
     [Tooltip("Secondary camera used to avoid seeing weapon go through geometries?")]
     public Camera SpellCamera;
 
+    [Header("UI")]
+    [Tooltip("The normal aim indicator image which displays by default (when the user can shoot")]
+    public Texture2D NormalAimTexture;
+
+    [Tooltip("The aim indicator image which displays when the user can't shoot at a target")]
+    public Texture2D CantShootTexture;
+
     [Header("Spells")]
     public Spell FirstSpellPrefab; // These have to be MonoBehaviors to be able to be assigned in Unity btw
     public Spell SecondSpellPrefab;
@@ -25,7 +39,19 @@ public class PlayerSpellsController : MonoBehaviour {
 
     public Spell[] spells = new Spell[2];
 
-    private bool IsBlockingSpellActive = false;
+    // Spells have to be able to set this - how?
+    private bool canShootWhereAiming = false;
+
+
+    public Texture2D CurrentAimTexture {
+        get {
+            if (canShootWhereAiming) {
+                return NormalAimTexture;
+            }
+
+            return CantShootTexture;
+        }
+    }
 
     // Start is called before the first frame update
     void Awake() {
@@ -49,6 +75,21 @@ public class PlayerSpellsController : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         HandleAttackInput();
+
+        // Check all of the spells and see if it's okay to shoot where we're aiming
+        // if it's not we se canShootWhereAiming to false so the aim indicator changes
+        var didChange = false;
+        foreach (var spell in spells) {
+            if (!spell.CanShootWhereAiming(SpellSpawnPoint.transform.position, SpellCamera)) {
+                canShootWhereAiming = false;
+                didChange = true;
+                break;
+            }
+        }
+
+        if (!didChange) {
+            canShootWhereAiming = true;
+        }
     }
 
     void HandleAttackInput() {

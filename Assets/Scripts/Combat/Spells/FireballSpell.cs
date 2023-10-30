@@ -108,4 +108,7 @@ public class FireballSpell : Spell {
 
         lastTimeShot = Time.time;
     }
+    public override bool CanShootWhereAiming(Vector3 muzzlePosition, Camera SpellCamera) {
+        return true;
+    }
 }

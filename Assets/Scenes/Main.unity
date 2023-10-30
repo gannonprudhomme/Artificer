@@ -3013,6 +3013,8 @@ MonoBehaviour:
   inputHandler: {fileID: 748733765}
   SpellSpawnPoint: {fileID: 971624314}
   SpellCamera: {fileID: 855670467}
+  NormalAimTexture: {fileID: 2800000, guid: a24c355999c30944d8a5fabda2e7a98e, type: 3}
+  CantShootTexture: {fileID: 2800000, guid: 3021ee26b9881c64bbad23406832b4f6, type: 3}
   FirstSpellPrefab: {fileID: 8397145886222599420, guid: e1193c464af1ab646be9b3b49fca3674,
     type: 3}
   SecondSpellPrefab: {fileID: 5227877792274781671, guid: ddab98e7c19b12e4f9dd90cc7afbb5b2,
@@ -8890,6 +8892,7 @@ GameObject:
   - component: {fileID: 2077488989}
   - component: {fileID: 2077488990}
   - component: {fileID: 2077488991}
+  - component: {fileID: 2077488992}
   m_Layer: 0
   m_Name: Game HUD / Manager
   m_TagString: Untagged
@@ -8943,6 +8946,20 @@ MonoBehaviour:
   - {fileID: 1929857106}
   - {fileID: 2112272102}
   SpellsController: {fileID: 748733766}
+--- !u!114 &2077488992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2077488988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b1cd190a8f5350478b44e6ef3f6f9d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AimImage: {fileID: 1984087516}
+  aimDelegate: {fileID: 748733766}
 --- !u!1001 &2094197113
 PrefabInstance:
   m_ObjectHideFlags: 0

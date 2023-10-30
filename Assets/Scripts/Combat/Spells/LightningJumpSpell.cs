@@ -43,4 +43,6 @@ public class LightningJumpSpell : Spell {
     {
         throw new System.NotImplementedException();
     }
+
+    public override bool CanShootWhereAiming(Vector3 muzzlePosition, Camera SpellCamera) { return true; }
 }

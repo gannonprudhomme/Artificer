@@ -37,6 +37,8 @@ public class IceWallSpell : Spell {
     // will be destroyed after we fire
     private GameObject aimingDecalProjectorInstance;
 
+    private bool canShootWhereAiming = true;
+
     void Start() {
         CurrentCharge = MaxNumberOfCharges;
     }
@@ -54,6 +56,16 @@ public class IceWallSpell : Spell {
         // If we were aiming at it was released, spawn the Ice Wall
         if (wasAimingLastFrame) {
             wasAimingLastFrame = false;
+            hasPlayedChargeAudioThisCharge = false;
+
+            // Destroy the aiming thing as we're not aiming anymore
+            Destroy(aimingDecalProjectorInstance);
+
+            if (!canShootWhereAiming) {
+                // Reset it since we're not aiming anymore
+                canShootWhereAiming = true;
+                return;
+            }
 
             // Play shoot sound ('around' the player - being offset doesn't really matter)
             AudioUtility.shared.CreateSFX(
@@ -64,12 +76,7 @@ public class IceWallSpell : Spell {
                 10f
             );
 
-            // Destroy the aiming thing since we're firing
-            Destroy(aimingDecalProjectorInstance);
-
             SpawnIceWall();
-
-            hasPlayedChargeAudioThisCharge = false;
         }
     }
 
@@ -90,9 +97,26 @@ public class IceWallSpell : Spell {
         }
     }
 
+    public override bool CanShootWhereAiming(Vector3 muzzlePosition, Camera spellCamera) {
+        return canShootWhereAiming;
+    }
+
     // For the IceWall spell, consider this more of an "aiming" stan = Vector3.zerote
     // it's when we're constantly calling this then release it when we actually spawn the projectile
     public override void ShootSpell(Vector3 muzzlePosition, GameObject owner, Camera spellCamera) {
+        // We want to play the audio no matter what
+        if (!hasPlayedChargeAudioThisCharge) {
+            hasPlayedChargeAudioThisCharge = true;
+
+            AudioUtility.shared.CreateSFX(
+                StartChageSfx,
+                spellCamera.transform.position, // position shouldn't matter b/c spatialBlend == 0
+                AudioUtility.AudioGroups.WeaponShoot,
+                0.0f, // we don't want any spatial?
+                5f // isn't relevant
+            );
+        }
+
         // Determine the aiming point
 
         var raycastHit = Physics.RaycastAll(
@@ -111,13 +135,11 @@ public class IceWallSpell : Spell {
 
         RaycastHit bestHit = raycastHit[0];
 
+
         // Draw the decal on whatever we hit?
         aimingPoint = bestHit.point;
         aimingRotation = Quaternion.LookRotation(spellCamera.transform.right);
 
-        // We should only be able to aim on floors, not walls,
-        // so mark this as an invalid hit (and hide the aimingDecalProjectorInstance)
-        // if we're aiming at a wall.
         // I figure we can do some math operation on
         // maybe a dot/cross product? Shouldn't be able to do it on any surface that's > 40deg or something
 
@@ -125,8 +147,6 @@ public class IceWallSpell : Spell {
         var eulerAngles = spellCamera.transform.rotation.eulerAngles;
         eulerAngles.x = 0;
         var rotation = Quaternion.Euler(eulerAngles);
-        print($"{spellCamera.transform.rotation.eulerAngles} {eulerAngles}");
-        
 
         if (!wasAimingLastFrame) {
             wasAimingLastFrame = true;
@@ -142,18 +162,19 @@ public class IceWallSpell : Spell {
             aimingDecalProjectorInstance.transform.rotation = rotation;
         }
 
-
-        if (!hasPlayedChargeAudioThisCharge) {
-            hasPlayedChargeAudioThisCharge = true;
-
-            AudioUtility.shared.CreateSFX(
-                StartChageSfx,
-                spellCamera.transform.position, // position shouldn't matter b/c spatialBlend == 0
-                AudioUtility.AudioGroups.WeaponShoot,
-                0.0f, // we don't want any spatial?
-                5f // isn't relevant
-            );
+        // Check if it's a wall - if it is we don't want to aim there
+        // We should only be able to aim on floors, not walls,
+        // so mark this as an invalid hit (and hide the aimingDecalProjectorInstance)
+        if (IsWall(bestHit.normal)) {
+            canShootWhereAiming = false;
+            aimingDecalProjectorInstance.SetActive(false);
+            return;
         }
+
+        aimingDecalProjectorInstance.SetActive(true);
+
+        // Wasn't a wall - we can shoot here!
+        canShootWhereAiming = true;
     }
 
     public override bool CanShoot() {
@@ -169,5 +190,14 @@ public class IceWallSpell : Spell {
             aimingPoint,
             aimingRotation
         );
+    }
+
+    private bool IsWall(Vector3 normal) {
+        var angle = Vector3.Angle(Vector3.up, normal);
+        if (angle > 45.0f) {
+            return true;
+        }
+
+        return false;
     }
 }

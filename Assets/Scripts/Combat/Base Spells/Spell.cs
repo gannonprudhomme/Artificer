@@ -88,4 +88,6 @@ public abstract class Spell : MonoBehaviour {
         GameObject owner,
         Camera spellCamera
     );
+
+    public abstract bool CanShootWhereAiming(Vector3 muzzlePosition, Camera spellCamera);
 }
