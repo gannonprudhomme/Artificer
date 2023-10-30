@@ -122,18 +122,24 @@ public class IceWallSpell : Spell {
         // maybe a dot/cross product? Shouldn't be able to do it on any surface that's > 40deg or something
 
         // Spawn the aiming decal if it doesn't exist (or maybe if we weren't aimming last frame?)
+        var eulerAngles = spellCamera.transform.rotation.eulerAngles;
+        eulerAngles.x = 0;
+        var rotation = Quaternion.Euler(eulerAngles);
+        print($"{spellCamera.transform.rotation.eulerAngles} {eulerAngles}");
+        
+
         if (!wasAimingLastFrame) {
             wasAimingLastFrame = true;
 
             aimingDecalProjectorInstance = Instantiate(
                 AimingDecalProjectorPrefab,
                 aimingPoint,
-                spellCamera.transform.rotation // idk if this is what we want
+                rotation
             );
         } else {
             // Move it if the instance already exists
             aimingDecalProjectorInstance.transform.position = aimingPoint;
-            aimingDecalProjectorInstance.transform.rotation = spellCamera.transform.rotation;
+            aimingDecalProjectorInstance.transform.rotation = rotation;
         }
 
 
