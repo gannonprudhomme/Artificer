@@ -89,8 +89,11 @@ public class IceWallSpike : MonoBehaviour {
         // We should be able to do this with Layers / a Collider LayerMask hopefully
         Health health = collider.GetComponent<Health>();
         if (health == null) {
-            print("collider doesn't have Health component! ignoring");
-            return; 
+            health = collider.GetComponentInParent<Health>();
+            if (health == null) {
+                print("collider and it's parent doesn't have Health component! ignoring");
+                return; 
+            }
         }
 
         health.TakeDamage(damage, this.gameObject);

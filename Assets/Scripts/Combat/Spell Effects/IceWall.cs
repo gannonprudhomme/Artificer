@@ -45,13 +45,11 @@ public class IceWall : MonoBehaviour {
     // Determine Y-value for each ice spike
     // so they're not all in a line
     private void PlaceIceSpikes() {
-        print("placing");
         // I need to go up some amount from the ice spike
         // (maybe it's height?)
         // then raycast downwards, find the position it collides
         // and set that to be where the ice spike spawns
         for(int i = 0; i < iceSpikesParents.Length; i++) {
-            print($"doing {i}");
             // If this is false we really fucked up, but check anyways
             if (i >= iceSpikesChildren.Length) {
                 Debug.LogError("There's not enough children in the iceSpikesChildren array, returning");

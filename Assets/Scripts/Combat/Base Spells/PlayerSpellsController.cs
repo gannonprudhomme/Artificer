@@ -114,7 +114,6 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         if (inputHandler.GetFirstAttackInputHeld()) {
             // print("first attack held");
             if (spells[0].CanShoot()) {
-                print("can shoot");
                 spells[0].ShootSpell(
                     SpellSpawnPoint.transform.position,
                     this.gameObject,

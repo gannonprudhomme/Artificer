@@ -89,11 +89,8 @@ public class FireballSpell : Spell {
             10f
         );
 
-        print($"shooting, current charge is now at {CurrentCharge}");
         // reduce # of charges
         CurrentCharge -= 1;
-
-        print($"muzzle pos: {muzzlePosition.ToString()}");
 
         Vector3 direction = spellCamera.transform.forward;
 
