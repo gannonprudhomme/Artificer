@@ -44,25 +44,18 @@ public class StoneGolem : MonoBehaviour {
 
     public float BaseMoveSpeed = 5f;
 
-    // we have to set this because of the origin being weird and this not being centered. Annoying.
     private NavMeshAgent navMeshAgent;
     private Health health;
     private Animator animator;
 
-    // Theoretically should set this up for multiplayer, but that is hard
-    // We might need a guarantee that this has a Health that we can damage
-    private Transform currentTarget;
-
     private Vector3 lastTargetPosition = Vector3.positiveInfinity;
 
-    private static int ANIMATOR_PARAM_MOVEMENT_SPEED = Animator.StringToHash("MovementSpeed");
-    
-    private static int ANIMATOR_PARAM_IS_MOVING = Animator.StringToHash("IsMoving");
-
+    // Used for synchronizing between Animator's root motion and the NavMeshAgent
     private Vector2 velocity;
     private Vector2 smoothDeltaPosition;
-
     private const float isMovingMin = 0.5f;
+
+    private EnemyManager enemyManager;
 
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator.rootPosition;
@@ -78,6 +71,13 @@ public class StoneGolem : MonoBehaviour {
         health = GetComponent<Health>();
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        enemyManager = FindObjectOfType<EnemyManager>();
+
+        if (enemyManager == null) {
+            Debug.LogError("Couldn't find EnemyManager!");
+        }
+
+        enemyManager.AddEnemy(this.gameObject);
 
         animator.applyRootMotion = true;
         // Want animator to drive movement, not agent
@@ -93,9 +93,9 @@ public class StoneGolem : MonoBehaviour {
         if (Destination) {
             print("Setting destination");
             navMeshAgent.SetDestination(Destination.transform.position);
-        } else {
-            print("Destination not passed");
         }
+
+        health.OnDeath += OnDeath;
     }
 
     void Update() {
@@ -109,6 +109,9 @@ public class StoneGolem : MonoBehaviour {
         SynchronizeAnimatorAndAgent();
     }
 
+    // Synchronize the Animator's RootMotion with the NavMeshAgent
+    // TODO: How does this work?
+    // 
     // Source: https://www.youtube.com/watch?v=uAGjKxH4sDQ
     private void SynchronizeAnimatorAndAgent() {
         Vector3 worldDeltaPosition = navMeshAgent.nextPosition - transform.position;
@@ -161,5 +164,12 @@ public class StoneGolem : MonoBehaviour {
 
             lastTargetPosition = Destination.transform.position;
         }
+    }
+
+    // All Enemies need to do this - we probably can do this in the abstract Enemy class
+    private void OnDeath() {
+        enemyManager.RemoveEnemy(this.gameObject);
+
+        Destroy(this.gameObject);
     }
 }

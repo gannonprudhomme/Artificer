@@ -138,8 +138,6 @@ public class IceWallSpike : MonoBehaviour {
 
         float speed = Mathf.Lerp(startSpeed, endSpeed, lerpFactor);
 
-        print(speed);
-
         // I should really calculate this
         // it should be like "how long is a shake loop"
         // Should do how many degrees should this rotate in a certain amount of time (a loop?)
