@@ -15,6 +15,12 @@ public class Health : MonoBehaviour {
     [Tooltip("If we should ignore damage")]
     public bool Invincible;
 
+    // Enemies are going to have to play their own sounds, so we might as well put it in there
+    // but players need to have an on hit sound too, so this might make sense?
+    [Header("References")]
+    [Tooltip("Sound that plays on damaged")]
+    public AudioClip OnDamageSfx;
+
     public float CurrentHealth { get; private set; }
 
     // public UnityAction<float, GameObject> OnDamaged;
@@ -45,7 +51,23 @@ public class Health : MonoBehaviour {
         CurrentHealth -= damage;
         CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, MaxHealth);
 
-        OnDamaged?.Invoke();
+        // Check if damagePosition is null maybe?
+
+        OnDamaged?.Invoke(damage, damagePosition);
+
+
+        // Play audio clip
+        if (OnDamageSfx) {
+            AudioUtility.shared.CreateSFX(
+                OnDamageSfx,
+                transform.position,
+                AudioUtility.AudioGroups.DamageTick,
+                // Still don't know what to put for these
+                1f,
+                1f
+            );
+        }
+
 
         HandleDeath();
     }

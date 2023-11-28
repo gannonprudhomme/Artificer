@@ -16,7 +16,7 @@ public class EnemyManager : MonoBehaviour {
 
     public UnityAction<GameObject> OnEnemyAdded;
 
-    void Start() {
+    void Awake() {
         activeEnemies = new();
     }
 

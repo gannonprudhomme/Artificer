@@ -56,7 +56,7 @@ public class AudioUtility {
 
         var groups = s_AudioManager.FindMatchingGroups(group.ToString());
 
-        if (groups.Length == 0) { // guard
+        if (groups != null && groups.Length == 0) { // guard
             Debug.LogWarning("Didn't find audio group for " + group.ToString());
             return null;
         }
