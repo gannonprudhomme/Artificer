@@ -23,9 +23,8 @@ public class Health : MonoBehaviour {
 
     public float CurrentHealth { get; private set; }
 
-    // public UnityAction<float, GameObject> OnDamaged;
-    public UnityAction OnDamaged;
-    public UnityAction OnDie;
+    public UnityAction<float, Vector3> OnDamaged;
+    public UnityAction OnDeath;
 
     private bool isDead;
 
@@ -83,7 +82,7 @@ public class Health : MonoBehaviour {
 
         if (CurrentHealth <= 0f) {
             isDead = true;
-            OnDie?.Invoke();
+            OnDeath?.Invoke();
         }
     }
 }
