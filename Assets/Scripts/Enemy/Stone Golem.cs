@@ -6,10 +6,27 @@ using UnityEngine.AI;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.Apple;
 
-public interface IEnemy
-{
-    // RequireComponent Health
-    // Might need access to the Player, but hopefully not? It just has to be able to target something which can get damaged
+/*
+[RequireComponent(
+    typeof(Health),
+    typeof(NavMeshAgent),
+    typeof(Animator) // I think all will need this?
+)]
+
+public abstract class Enemy: MonoBehaviour {
+    [Tooltip("The GameObject of the player we're going to attack")]
+    public GameObject TargetForNavigation;
+
+    [Tooltip("The Mesh Rendered used to display this enemy. Used to set properties on its shader (material)")]
+    public SkinnedMeshRenderer MainMeshRenderer;
+
+    // I guess this is going to be on Health rather than here?
+    // I could see it work for either, but Health probably makes sense since it has to apply to the player
+    public List<StatusEffect> statusEffects { get; set; } 
+
+    // should call EnemyManager.RemoveEnemy(this);
+    // then destroy itself
+    public void Die();
 }
 */
 
@@ -38,11 +55,20 @@ public interface IEnemy
 public class StoneGolem : MonoBehaviour {
 
     [Header("References")]
+    [Tooltip("The Mesh Rendered used to display this enemy. Used to set properties on its shader (material)")]
+    public SkinnedMeshRenderer MainMeshRenderer;
+
     // We probably don't want this
     [Tooltip("Where the NavMeshAgent is going to navigate to")]
     public GameObject Destination;
 
-    public float BaseMoveSpeed = 5f;
+    [Tooltip("Where on the Stone Golem we're going to aim its laser from")]
+    public Transform AimPoint;
+
+
+    // TODO: We might want this to be in here instead of Health, but this is fine for now
+    // [Tooltip("Sound that plays on damaged")]
+    // public AudioClip OnDamageClip;
 
     private NavMeshAgent navMeshAgent;
     private Health health;
@@ -96,6 +122,7 @@ public class StoneGolem : MonoBehaviour {
         }
 
         health.OnDeath += OnDeath;
+        health.EntityMaterial = MainMeshRenderer.material;
     }
 
     void Update() {

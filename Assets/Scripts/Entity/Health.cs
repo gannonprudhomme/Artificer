@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-
 // I'm combining this and Damageable - idk why Damageable exists
 public class Health : MonoBehaviour {
+    [Header("Health Data")]
     [Tooltip("Maximum amount of health")]
     public float MaxHealth = 100f;
 
@@ -21,6 +21,10 @@ public class Health : MonoBehaviour {
     [Tooltip("Sound that plays on damaged")]
     public AudioClip OnDamageSfx;
 
+    // Material set by the Entity which the Health belongs to
+    // I don't like how we have to do this
+    public Material EntityMaterial { get; set; }
+
     public float CurrentHealth { get; private set; }
 
     public UnityAction<float, Vector3> OnDamaged;
@@ -28,11 +32,12 @@ public class Health : MonoBehaviour {
 
     private bool isDead;
 
-    // Start is called before the first frame update
+    // This should really be a Set rather than a List
+    // We should only have one StatusEffect and when they stack they should modify the "main" one
+    private List<BaseStatusEffect> statusEffects = new();
+
     void Start() {
         CurrentHealth = MaxHealth;
-
-
     }
 
     public void Heal(float healAmount) {
@@ -42,7 +47,44 @@ public class Health : MonoBehaviour {
         // Call OnHealed
     }
 
-    public void TakeDamage(float damage, GameObject damageSource) {
+    // This is what damage "appliers" (e.g. Projectiles / Spells) actually call.
+    public void TakeDamage(
+        float damage,
+        GameObject damageSource, // Currently unused
+        BaseStatusEffect appliedStatusEffect,
+        Vector3 damagePosition // Used to place where the damage text spawns from
+    ) {
+        ApplyDamage(damage, damagePosition);
+
+        // Handle status effects
+        if (appliedStatusEffect != null) {
+            /*
+            if (statusEffects.Contains(appliedStatusEffect)) {
+                statusEffects.Get(statusEffectType).StackEffect(appliedStatusEffect)
+            }
+            */
+
+            print($"Adding status effect {appliedStatusEffect}");
+            statusEffects.Add(appliedStatusEffect);
+        }
+    }
+
+    // Available so we can apply damage if we don't know where exactly on the Collider it happened
+    public void TakeDamage(
+        float damage,
+        GameObject damageSource,
+        BaseStatusEffect appliedStatusEffect
+    ) {
+        TakeDamage(damage, damageSource, appliedStatusEffect, Vector3.negativeInfinity);
+    }
+
+    // Underlying function which subtracts the health from CurrentHealth, plays audio, and handles dying
+    // 
+    // Don't set the damagePosition (use default value) if the damage isn't applied in a specific "place"
+    // e.g. for damage over time effects
+    //
+    // This is needed as status effects need to be able to apply damage without re-applying/stacking the status effect
+    private void ApplyDamage(float damage, Vector3 damagePosition) {
         if (Invincible)
             return;
 
@@ -53,7 +95,6 @@ public class Health : MonoBehaviour {
         // Check if damagePosition is null maybe?
 
         OnDamaged?.Invoke(damage, damagePosition);
-
 
         // Play audio clip
         if (OnDamageSfx) {
@@ -67,13 +108,35 @@ public class Health : MonoBehaviour {
             );
         }
 
-
         HandleDeath();
     }
 
-    void Update() {
+    void FixedUpdate() {
         // Need to see if this renegerates over time
         // though honestly that could just be in a HealthRegen component
+        // Note that some status effects will disable it
+
+        // Handle OnTick for status effects
+        HashSet<BaseStatusEffect> toRemove = new();
+        foreach (var statusEffect in statusEffects) {
+            if (!statusEffect.HasEffectFinished()) {
+
+                // There are better ways to do this
+                // ideally we just wouldn't call this if it wasn't a Tick
+                float damage = statusEffect.OnFixedUpdate(EntityMaterial);
+                if (damage > 0.0f) {
+                    ApplyDamage(damage, Vector3.negativeInfinity);
+                    print($"Applying damage {damage}");
+                }
+
+            } else {
+                print($"Removing status effect {statusEffect}");
+                statusEffect.Finished(EntityMaterial);
+                toRemove.Add(statusEffect);
+            }
+        }
+
+        statusEffects.RemoveAll(effect => toRemove.Contains(effect));
     }
 
     private void HandleDeath() {

@@ -10,6 +10,10 @@ public class FireballProjectile : Projectile {
         // add our on hit to OnHitActions
     //}
 
+    protected override BaseStatusEffect GetStatusEffect() {
+        return new BurnStatusEffect(10f);
+    }
+
     void FireballOnHit() {
         // Apply fire or something
     }

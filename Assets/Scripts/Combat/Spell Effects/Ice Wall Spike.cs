@@ -96,7 +96,7 @@ public class IceWallSpike : MonoBehaviour {
             }
         }
 
-        health.TakeDamage(damage, this.gameObject);
+        health.TakeDamage(damage, this.gameObject, null);
 
         Detonate();
     }

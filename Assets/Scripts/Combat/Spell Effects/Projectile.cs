@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using PlasticGui.WorkspaceWindow;
 using UnityEngine;
 
 // Again ideally this would be an interface,
@@ -67,6 +68,8 @@ public abstract class Projectile : MonoBehaviour {
     private Vector3 velocity;
     private List<Collider> ignoredColliders;
 
+    private GameObject owner;
+
     /** Functions **/
     void OnEnable() { // We do this instead of Start() for some reason
         Destroy(this.gameObject, MaxLifeTime);
@@ -81,6 +84,7 @@ public abstract class Projectile : MonoBehaviour {
         lastRootPosition = Root.position;
         velocity = transform.forward * Speed;
         ignoredColliders = new List<Collider>(); // Idk why we need to do this frankly it's not like this gets reused
+        this.owner = owner;
 
         // Ignore colliders of owner
         //Collider[] ownerColliders = owner.GetComponents<Collider>();
@@ -161,13 +165,12 @@ public abstract class Projectile : MonoBehaviour {
         // For now, we're not going to
 
         // point damage
-        /*
-        Damageable damageable = collider.GetComponent<Damageable>();
-        if (damageable)
-        {
-            damageable.InflictDamage(Damage, false, owner)
+        ColliderParentPointer colliderParentPointer = collider.GetComponent<ColliderParentPointer>();
+        if (colliderParentPointer) {
+            Health health = colliderParentPointer.health;
+
+            health.TakeDamage(Damage, owner, GetStatusEffect(), point);
         }
-        */
 
         // impact vfx
         if (ImpactVfx) {
@@ -196,4 +199,6 @@ public abstract class Projectile : MonoBehaviour {
         Gizmos.color = RadiusColor;
         Gizmos.DrawSphere(transform.position, Radius); // Shouldn't thsi be in the tip since that's where we do collision?
     }
+
+    protected abstract BaseStatusEffect GetStatusEffect();
 }
