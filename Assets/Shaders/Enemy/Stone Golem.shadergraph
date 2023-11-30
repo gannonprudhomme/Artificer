@@ -1082,10 +1082,10 @@
     "m_Type": "UnityEditor.ShaderGraph.BooleanMaterialSlot",
     "m_ObjectId": "0ac42fba6ff54d7f8f11c5ba026cfb6f",
     "m_Id": 447038102,
-    "m_DisplayName": "IsOnFire",
+    "m_DisplayName": "IsBurning",
     "m_SlotType": 0,
     "m_Hidden": false,
-    "m_ShaderOutputName": "_IsOnFire",
+    "m_ShaderOutputName": "_IsBurning",
     "m_StageCapability": 2,
     "m_Value": false,
     "m_DefaultValue": false
@@ -1626,10 +1626,10 @@
     "m_Type": "UnityEditor.ShaderGraph.Texture2DInputMaterialSlot",
     "m_ObjectId": "19b802e0d46e4bf6b1f2e75928bc69cd",
     "m_Id": -1634660466,
-    "m_DisplayName": "Flash Sheet",
+    "m_DisplayName": "Burn Tick Flash Sheet",
     "m_SlotType": 0,
     "m_Hidden": false,
-    "m_ShaderOutputName": "_Flash_Sheet",
+    "m_ShaderOutputName": "_Burn_Tick_Flash_Sheet",
     "m_StageCapability": 2,
     "m_BareResource": false,
     "m_Texture": {
@@ -2748,7 +2748,7 @@
     "m_Group": {
         "m_Id": "5456f341504741f3b7ea6b5acb5fc62b"
     },
-    "m_Name": "Fire Red Flame Outline",
+    "m_Name": "Burn Red Flame Outline",
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
@@ -3006,7 +3006,7 @@
     "m_Type": "UnityEditor.ShaderGraph.BooleanMaterialSlot",
     "m_ObjectId": "3e26187a93cc47329f03ff72c5907001",
     "m_Id": 0,
-    "m_DisplayName": "IsOnFire",
+    "m_DisplayName": "IsBurning",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -3893,10 +3893,10 @@
     "m_Guid": {
         "m_GuidSerialized": "6a029063-8420-4c12-bb04-d9da0e2c74f1"
     },
-    "m_Name": "IsOnFire",
+    "m_Name": "IsBurning",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "IsOnFire",
-    "m_DefaultReferenceName": "_IsOnFire",
+    "m_RefNameGeneratedByDisplayName": "IsBurning",
+    "m_DefaultReferenceName": "_IsBurning",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
@@ -4178,7 +4178,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Texture2DMaterialSlot",
     "m_ObjectId": "6fc4698cac3f4967925374575d1e0a3f",
     "m_Id": 0,
-    "m_DisplayName": "Fire Outline Texture",
+    "m_DisplayName": "Flames  Outline Texture",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -4766,7 +4766,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Texture2DMaterialSlot",
     "m_ObjectId": "81f43ce9ef6847609d397f7874efd670",
     "m_Id": 0,
-    "m_DisplayName": "Fire Outline Texture",
+    "m_DisplayName": "Flames  Outline Texture",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -5171,7 +5171,7 @@
     "m_Group": {
         "m_Id": "6215894b128a4b7fa2aec6a3b9018bcd"
     },
-    "m_Name": "Fire Tick Flash Sub Graph",
+    "m_Name": "Burn Tick Flash Sub Graph",
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
@@ -5813,10 +5813,10 @@
     "m_Guid": {
         "m_GuidSerialized": "46397bcd-4487-467d-a6c5-bcc83201a8a9"
     },
-    "m_Name": "Fire Outline Texture",
+    "m_Name": "Flames  Outline Texture",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "Fire Outline Texture",
-    "m_DefaultReferenceName": "_Fire_Outline_Texture",
+    "m_RefNameGeneratedByDisplayName": "Flames  Outline Texture",
+    "m_DefaultReferenceName": "_Flames_Outline_Texture",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
@@ -7605,7 +7605,7 @@
     "m_Type": "UnityEditor.ShaderGraph.BooleanMaterialSlot",
     "m_ObjectId": "f0d8b5f86d644eeaa73b5c436ec91e25",
     "m_Id": 0,
-    "m_DisplayName": "IsOnFire",
+    "m_DisplayName": "IsBurning",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
