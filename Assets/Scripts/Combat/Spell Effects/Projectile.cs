@@ -48,8 +48,8 @@ public abstract class Projectile : MonoBehaviour {
     public float GravityDownAcceleration = 0f;
 
     [Header("Damage")]
-    [Tooltip("How much damage this does on collision")]
-    public float Damage = 10f;
+    [Tooltip("Damage Multiplier relative to base damage")]
+    public float DamageMultipler = 2.8f;
 
     // [Tooltip("Area of Damage. Keep it empty if you dont' want area damage")]
     // public DamageArea AreaOfDamage;
@@ -169,7 +169,7 @@ public abstract class Projectile : MonoBehaviour {
         if (colliderParentPointer) {
             Health health = colliderParentPointer.health;
 
-            health.TakeDamage(Damage, owner, GetStatusEffect(), point);
+            health.TakeDamage(DamageEconomy.PlayerBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
         }
 
         // impact vfx

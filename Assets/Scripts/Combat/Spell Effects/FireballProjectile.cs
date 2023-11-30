@@ -11,7 +11,8 @@ public class FireballProjectile : Projectile {
     //}
 
     protected override BaseStatusEffect GetStatusEffect() {
-        return new BurnStatusEffect(10f);
+        // It does 50% of the damage the Fireball does
+        return new BurnStatusEffect(DamageMultipler * DamageEconomy.PlayerBaseDamage * 0.5f);
     }
 
     void FireballOnHit() {

@@ -42,6 +42,9 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     // Spells have to be able to set this - how?
     private bool canShootWhereAiming = false;
 
+    // Starts out at 12, increases by 2.4 every level
+    // Setting this as constant for now, but it won't be later
+    public const float baseDamage = 12.0f;
 
     public Texture2D CurrentAimTexture {
         get {
