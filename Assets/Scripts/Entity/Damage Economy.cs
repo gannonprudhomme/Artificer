@@ -2,8 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// This isn't how this is going to work
+// Everything is going to be a multiplier of the character's "base damage",
+// which increases every level
+// E.g. the artificer starts with 12 base damage, and gains +2.4 every level.
+// The flame bolt appies 280% damage which applies Burn (Ignite), which applies 50% extra total damage
 public static class DamageEconomy {
     /** Damage **/
+    public const float PlayerBaseDamage = 12.0f;
 
     // Should this be per hit, or per damage-per-second?
     // Probably per hit, though dps might be better for per-tick stuff?
