@@ -32,9 +32,9 @@ public class Health : MonoBehaviour {
 
     private bool isDead;
 
-    // This should really be a Set rather than a List
     // We should only have one StatusEffect and when they stack they should modify the "main" one
-    private List<BaseStatusEffect> statusEffects = new();
+    // thus stores the status effects based on their name as the key
+    private readonly Dictionary<string, BaseStatusEffect> statusEffects = new();
 
     void Start() {
         CurrentHealth = MaxHealth;
@@ -58,14 +58,11 @@ public class Health : MonoBehaviour {
 
         // Handle status effects
         if (appliedStatusEffect != null) {
-            /*
-            if (statusEffects.Contains(appliedStatusEffect)) {
-                statusEffects.Get(statusEffectType).StackEffect(appliedStatusEffect)
+            if (statusEffects.ContainsKey(appliedStatusEffect.Name)) {
+                statusEffects[appliedStatusEffect.Name].StackEffect(appliedStatusEffect);
+            } else {
+                statusEffects[appliedStatusEffect.Name] = appliedStatusEffect;
             }
-            */
-
-            print($"Adding status effect {appliedStatusEffect}");
-            statusEffects.Add(appliedStatusEffect);
         }
     }
 
@@ -117,8 +114,10 @@ public class Health : MonoBehaviour {
         // Note that some status effects will disable it
 
         // Handle OnTick for status effects
-        HashSet<BaseStatusEffect> toRemove = new();
-        foreach (var statusEffect in statusEffects) {
+        HashSet<string> toRemove = new();
+        foreach (var statusEffectName in statusEffects.Keys) {
+            BaseStatusEffect statusEffect = statusEffects[statusEffectName];
+
             if (!statusEffect.HasEffectFinished()) {
 
                 // There are better ways to do this
@@ -126,17 +125,18 @@ public class Health : MonoBehaviour {
                 float damage = statusEffect.OnFixedUpdate(EntityMaterial);
                 if (damage > 0.0f) {
                     ApplyDamage(damage, Vector3.negativeInfinity);
-                    print($"Applying damage {damage}");
                 }
 
             } else {
-                print($"Removing status effect {statusEffect}");
                 statusEffect.Finished(EntityMaterial);
-                toRemove.Add(statusEffect);
+                toRemove.Add(statusEffectName);
             }
         }
 
-        statusEffects.RemoveAll(effect => toRemove.Contains(effect));
+        // Remove all of the keys
+        foreach(var toRemoveName in toRemove) {
+            statusEffects.Remove(toRemoveName);
+        }
     }
 
     private void HandleDeath() {

@@ -46,22 +46,23 @@ public class BurnStatusEffect: BaseStatusEffect {
     private const string SHADER_IS_ON_FIRE_PARAM = "_IsOnFire";
 
     public BurnStatusEffect(
-        float totalDamage
-        // float intensity = 1 // base intensity (100%)
+        // For now it's going to be 12.0f * 2.8
+        float damage
     ) {
-        // this.owner = owner;
-        this.totalDamage = totalDamage;
+        this.damageLeftToApply = damage;
+        this.damagePerStack = damage;
+    }
 
-        // Store the current time
-        this.effectStart = Time.time;
-        this.effectDuration = 2.0f; // totalDamage / 10;
-        // this.intensity = intensity;
+    public override string Name {
+        // Doesn't matter what this is, as long it's unique
+        get {
+            return "Burn";
+        }
     }
 
     public override bool HasEffectFinished() {
-        float currentDuration = Time.time - effectStart;
-
-        return currentDuration >= effectDuration;
+        return damageLeftToApply <= 0f;
+    }
     }
 
     // This isn't a MonoBehaviour, so the Health component will call this OnUpdate
@@ -90,12 +91,11 @@ public class BurnStatusEffect: BaseStatusEffect {
 
     // Apply damage (or heal)
     private float OnTick(Material material) {
-        float damagePerTick = totalDamage / effectDuration / TicksPerSecond;
+        damageLeftToApply -= DamagePerTick;
+        // TODO: Check this depending on what we want the "start" of the animation to be
+        tickNumber += 1;
 
-        // Set some tick property on the shader
-
-        // health.TakeDamage(damagePerTick, owner);
-        return damagePerTick;
+        return DamagePerTick;
     }
 
     // Called in Health when HasEffectFinished() returns false
@@ -109,6 +109,14 @@ public class BurnStatusEffect: BaseStatusEffect {
 
     public override void StackEffect(BaseStatusEffect effect) {
         // Ensure they're the same type - if they're not do nothing (and log an error)
+        if (effect.GetType() != typeof(BurnStatusEffect)) {
+            Debug.LogError($"Trying to stack an effect of type {effect} with BurnStatusEffect");
+            return;
+        }
+
+        BurnStatusEffect newBurnEffect = (BurnStatusEffect) effect;
+
+        this.damageLeftToApply += newBurnEffect.damageLeftToApply;
     }
 
     // Returns true if this frame should be considered a tick
