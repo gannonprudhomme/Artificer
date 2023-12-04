@@ -23,27 +23,52 @@ using UnityEngine;
 //   (for instance, a stack of Ignite inflicted by the above 1000% base damage attack would deal an additional 500% base damage over its duration)
 //
 // To keep things simple to start I'm just going to make it last for a bit
+
+// The duration of this is a dependent on the amount of damage we need to apply
+// totalDurationInSec = totalDamageToApply / DamagePerTick / TicksPerSecond
+// not that totalDamageToApply is 50% of the damage applied on the fireball, but thats applied in FireballProjectile not here
+//
+// Note that b/c Fireball does 280% (2.8x) of base damage and it applies ignite for 50% of that damage, 140% = 1.4 sec
 public class BurnStatusEffect: BaseStatusEffect {
-    // The entity which caused this damage (the player or an enemy)
-    // I need to know if this is being applied to an enemy or a player
+    public int CurrentStacks {
+        get {
+            float numStacks = damageLeftToApply / damagePerStack;
+            numStacks = Mathf.Ceil(numStacks);
+            return (int)numStacks;
+        }
+    }
+
+
+    // TODO: This is going to change as the player levels up
+    // We also need to get this from somewhere dynamically
+    private const float PlayerBaseDamage = 12.0f;
+    private const int TicksPerSecond = 5;
+
+    // Each tick is 10% of *player* base damage - or is it the base damage of the fireball / attack?
+    private const float DamagePerTick = PlayerBaseDamage * 0.1f; 
+    
+    // We're going to consider damagePerStack to be the base damage that is initially applied when this is created
+    // This will make it so if we have different things which apply Burn the meaning of stack will change, but it will work for now since we only have Fireball.
+    private float damagePerStack;
 
     // How much damage this is going to apply over the duration of the effect
-    private float totalDamage;
+    private float damageLeftToApply;
 
-    // How long the effect is going to last for
-    private float effectDuration;
+    // Used to count what frame should be considered a tick
+    private float lastTickTime = Mathf.NegativeInfinity;
 
-    // When the effect started.
-    //
-    // Used so we know when we should end the effect
-    private float effectStart;
+    private const string SHADER_IS_BURNING_PARAM = "_IsBurning";
+    private const string SHADER_TIME_SINCE_LAST_TICK_PARAM = "_TimeSinceLastBurnTick";
+    private const string SHADER_FLASH_TEXTURE_INDEX_1 = "_BurnFlashTextureIndex1";
+    private const string SHADER_FLASH_TEXTURE_INDEX_2 = "_BurnFlashTextureIndex2";
 
-    private float timeSinceLastTick = Mathf.NegativeInfinity;
+    // Used so we can iterate through the available textures for the burn tick-flash shader effect
+    private int tickNumber = 0;
+    private const int numberOfBurnFlashTextures = 2;
 
-    // private float intensity;
-
-    private const float TicksPerSecond = 5;
-    private const string SHADER_IS_ON_FIRE_PARAM = "_IsOnFire";
+    // TODO: I need to do this
+    // We need to wait ~8 frames (~0.133... sec) to apply the burn effect
+    private bool hasWaitedToApply = false;
 
     public BurnStatusEffect(
         // For now it's going to be 12.0f * 2.8
@@ -63,26 +88,63 @@ public class BurnStatusEffect: BaseStatusEffect {
     public override bool HasEffectFinished() {
         return damageLeftToApply <= 0f;
     }
+
+    // Multipled by (Time.time - lastTickTime) * TicksPerSecond
+    // The tick flash lasts for 6 frames, and there are 2 frames before the next one starts
+    // If I set below to 1 then there will be 0 frames between, if I set it to 1.5 there will be 4 frames between, so 1.25 it is
+    private const float ticksPerSecondModifier = 1.5f;
+
+    public override void OnUpdate(Material material) {
+        // We could just pass lastTickTime and have the shader do this
+        // that way it being smooth is guaranteed
+        // No variable names in a shader makes it a tougher sell tho
+        float modifiedTimeSinceLastTick = (Time.time - lastTickTime) * TicksPerSecond * ticksPerSecondModifier;
+        material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, modifiedTimeSinceLastTick);
     }
 
     // This isn't a MonoBehaviour, so the Health component will call this OnUpdate
     // so this can handle its own OnTick functionality (as diff status effects have diff tick rates)
     public override float OnFixedUpdate(Material material) {
-        // Check if we should be done
-        float currentDuration = Time.time - effectStart;
+        material.SetInt(SHADER_IS_BURNING_PARAM, 1);
 
-        material.SetInt(SHADER_IS_ON_FIRE_PARAM, 1);
+        // I need to get this in the range of [0,1] (really [1 -> 0]) so it blends correctly between ticks
+        float modifiedTimeSinceLastTick = (Time.time - lastTickTime);
+        modifiedTimeSinceLastTick *= TicksPerSecond; // Why do we do this?
+        modifiedTimeSinceLastTick *= ticksPerSecondModifier; // See doc for ticksPerSecondModifier above for details
 
-        if (currentDuration > effectDuration) {
-            // This isn't going to happen - it's handled by Health
-            // we're done
-            // Remove this status effect from Health
+        // The first 4 frames it should go through this animation
+        // next 2 it'll be fading out
+        // last 2 (before next tick starts) it won't do anything.
+        // This should be a function of TicksPerSecond
+        // modifiedTimeSinceLastTick is in 1 -> 0, I need to make it [0, 1]
+        // (it doesn't do this rn, remove this comment once I fix it)
+        float frameStart = Mathf.Min(modifiedTimeSinceLastTick / ticksPerSecondModifier, 1.0f); // Ensure it doesn't get above 1. This also helps us so the last 4? frames are the last one
+        frameStart *= 4; // multiply by # of frames
+        frameStart = (int) frameStart; // [0, 1] range
+
+        frameStart = Mathf.Min(frameStart, 3);
+        float frameEnd = Mathf.Min(frameStart + 1, 3);
+
+        Debug.Log($"{(int) frameStart} {frameEnd} {modifiedTimeSinceLastTick / ticksPerSecondModifier}");
+
+        material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_1, frameStart);
+        material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_2, frameEnd);
+
+        if (damageLeftToApply == 0) {
+            // This isn't going to happen - it's handled by Health,
+            // but we still need a base case
             return 0f;
         }
 
         // See if this is a tick
         // TODO: I wonder if I should use Coroutines for this?
         if (IsFrameATick()) {
+        // material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_1, tickNumber % numberOfBurnFlashTextures);
+        // material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_1, 0); // hardcoded for now
+        // I don't think we want to blend
+        // material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_2, (tickNumber % numberOfBurnFlashTextures) - 1);
+
+            material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, 0);
             return OnTick(material);
         }
 
@@ -104,7 +166,7 @@ public class BurnStatusEffect: BaseStatusEffect {
         // though hopefully the shader would do it on its own?
 
         // Remove this from the list of status effects on Health somehow
-        material.SetInt(SHADER_IS_ON_FIRE_PARAM, 0);
+        material.SetInt(SHADER_IS_BURNING_PARAM, 0);
     }
 
     public override void StackEffect(BaseStatusEffect effect) {
@@ -121,10 +183,10 @@ public class BurnStatusEffect: BaseStatusEffect {
 
     // Returns true if this frame should be considered a tick
     private bool IsFrameATick() {
-        float timeDiff = Time.time - timeSinceLastTick;
+        float timeDiff = Time.time - lastTickTime;
 
         if (timeDiff > (1f / TicksPerSecond)) {
-            timeSinceLastTick = Time.time;
+            lastTickTime = Time.time;
             return true;
         }
 
