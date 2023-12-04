@@ -18,7 +18,7 @@ public class DamageText : MonoBehaviour {
     private Vector3 endPosition;
 
     // How long this lasts
-    private const float Lifetime = 2f;
+    private const float Lifetime = 1f;
 
     // The time when this was spawned
     private float startTime;
@@ -34,14 +34,11 @@ public class DamageText : MonoBehaviour {
         // Random value between [-2.0, 2.0]
         float horizontalMove = (Random.value * 4f) - 2f;
 
-        Vector3 modifiedStartPos = transform.position;
-        modifiedStartPos.x += (Random.value * 2f) - 1f; // Random value between [-1f, 1f]
-        modifiedStartPos.y += (Random.value - 0.5f); // Random value between [-0.5f, 0.5f]
 
         // Get the end position of this - it should move upwards & horizontally
-        endPosition = modifiedStartPos + (Vector3.up * upMove) + (Vector3.right * horizontalMove);
+        startPosition = transform.position;
+        endPosition = startPosition + (Vector3.up * upMove) + (Vector3.right * horizontalMove);
 
-        startPosition = modifiedStartPos;
         startTime = Time.time;
     }
 
