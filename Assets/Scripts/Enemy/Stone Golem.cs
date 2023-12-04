@@ -125,6 +125,7 @@ public class StoneGolem : MonoBehaviour {
             navMeshAgent.SetDestination(Destination.transform.position);
         }
 
+        health.OnDamaged += OnDamaged;
         health.OnDeath += OnDeath;
         health.EntityMaterial = MainMeshRenderer.material;
     }
@@ -138,6 +139,16 @@ public class StoneGolem : MonoBehaviour {
         SetPosition();
 
         SynchronizeAnimatorAndAgent();
+
+        RotateToTargetWhenWithinStoppinDistance();
+
+        // Set the animator's TimeSinceLastDamaged
+        if (lastDamagedTime < Mathf.Infinity) {
+            animator.SetFloat("TimeSinceLastDamaged", (Time.time - lastDamagedTime));
+        } else {
+            // Not positive if we need to do this
+            animator.SetFloat("TimeSinceLastDamaged", Mathf.Infinity);
+        }
     }
 
     // Synchronize the Animator's RootMotion with the NavMeshAgent
@@ -207,7 +218,6 @@ public class StoneGolem : MonoBehaviour {
     private void OnDamaged(float damage, Vector3 damagedPos) {
         lastDamagedTime = Time.time;
     }
-
 
     // When the NavMeshAgent is within it's stopping distance, it won't rotate anymore.
     // This rotates the Golem when it's within the stoping distance.

@@ -9,6 +9,8 @@ public abstract class BaseStatusEffect {
     public abstract string Name { get; }
 
     public abstract float OnFixedUpdate(Material material);
+    
+    public abstract void OnUpdate(Material material);
 
     public abstract bool HasEffectFinished();
 

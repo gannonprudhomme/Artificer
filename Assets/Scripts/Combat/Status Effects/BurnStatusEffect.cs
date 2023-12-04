@@ -61,6 +61,7 @@ public class BurnStatusEffect: BaseStatusEffect {
     private const string SHADER_TIME_SINCE_LAST_TICK_PARAM = "_TimeSinceLastBurnTick";
     private const string SHADER_FLASH_TEXTURE_INDEX_1 = "_BurnFlashTextureIndex1";
     private const string SHADER_FLASH_TEXTURE_INDEX_2 = "_BurnFlashTextureIndex2";
+    private const string SHADER_WAS_DAMAGED = "_WasDamaged";
 
     // Used so we can iterate through the available textures for the burn tick-flash shader effect
     private int tickNumber = 0;
@@ -156,6 +157,8 @@ public class BurnStatusEffect: BaseStatusEffect {
         damageLeftToApply -= DamagePerTick;
         // TODO: Check this depending on what we want the "start" of the animation to be
         tickNumber += 1;
+
+        material.SetInt(SHADER_WAS_DAMAGED, 1);
 
         return DamagePerTick;
     }
