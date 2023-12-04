@@ -65,6 +65,8 @@ public class StoneGolem : MonoBehaviour {
     [Tooltip("Where on the Stone Golem we're going to aim its laser from")]
     public Transform AimPoint;
 
+    [Tooltip("Rotation speed when the target is within NavMeshAgent's stopping distance")]
+    public float RotationSpeed = 0.1f;
 
     // TODO: We might want this to be in here instead of Health, but this is fine for now
     // [Tooltip("Sound that plays on damaged")]
@@ -82,6 +84,8 @@ public class StoneGolem : MonoBehaviour {
     private const float isMovingMin = 0.5f;
 
     private EnemyManager enemyManager;
+
+    private float lastDamagedTime = Mathf.Infinity;
 
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator.rootPosition;
@@ -184,7 +188,7 @@ public class StoneGolem : MonoBehaviour {
     // Remove this it was just for testing
     private void SetPosition() {
         float dist = Vector3.Distance(Destination.transform.position, lastTargetPosition);
-        float minDist = 5f;
+        float minDist = 0.5f;
 
         if (dist > minDist) {
             navMeshAgent.SetDestination(Destination.transform.position);
@@ -198,5 +202,27 @@ public class StoneGolem : MonoBehaviour {
         enemyManager.RemoveEnemy(this.gameObject);
 
         Destroy(this.gameObject);
+    }
+
+    private void OnDamaged(float damage, Vector3 damagedPos) {
+        lastDamagedTime = Time.time;
+    }
+
+
+    // When the NavMeshAgent is within it's stopping distance, it won't rotate anymore.
+    // This rotates the Golem when it's within the stoping distance.
+    private void RotateToTargetWhenWithinStoppinDistance() {
+        float rotationSpeed = RotationSpeed;
+        float stoppingDistance = navMeshAgent.stoppingDistance;
+        float distanceToTarget = Vector3.Distance(transform.position, navMeshAgent.destination);
+        
+        if (distanceToTarget < stoppingDistance) {
+            // Do the movement
+
+            Vector3 direction = (navMeshAgent.destination - transform.position).normalized;
+            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+        }
     }
 }
