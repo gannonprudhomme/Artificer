@@ -45,7 +45,7 @@ public class GolemLaserAttack {
     private Transform startAimPoint;
     // What we're aiming at (the player)
     // The end of the line
-    private Health target;
+    private Transform target;
 
     // How far we can move (per second?) to try to aim towards the target
     // Probably going to be divided by Time.deltaTime, but idk
@@ -85,7 +85,7 @@ public class GolemLaserAttack {
     public GolemLaserAttack(
         LineRenderer lineRenderer,
         Transform aimPoint,
-        Health target,
+        Transform target,
         AnimationCurve firingSizeCurve
     ) {
         this.lineRenderer = lineRenderer;
@@ -158,7 +158,6 @@ public class GolemLaserAttack {
         if (secondsIntoFiring < fireDuration) { // Are we in the middle of the firing (animation)
             float percentIntoFiring = secondsIntoFiring / fireDuration;
             float size = firingSizeCurve.Evaluate(percentIntoFiring);
-            Debug.Log($"Size is {size}");
             lineRenderer.material.SetFloat(SHADER_FIRING_LASER_SIZE, size);
             
         } else { // we're done, wrap up
@@ -183,7 +182,7 @@ public class GolemLaserAttack {
 
         // We should really use the Stone Golem's main transform, not the aim point (it's gonna be farther away from the target?)
         // probs negligible though (REMOVE THIS)
-        float distanceToTarget = Vector3.Distance(startAimPoint.position, target.transform.position);
+        float distanceToTarget = Vector3.Distance(startAimPoint.position, target.position);
         // Are we within 10 - 45m of the target (lets say 2m for the min for now, or whatever I set the stopping distance to)
         if (distanceToTarget < 45f) {
             // Debug.Log("Within distance, can attack!");
@@ -203,6 +202,9 @@ public class GolemLaserAttack {
 
         timeOfChargeStart = Time.time;
         lineRenderer.enabled = true;
+
+        // When we start to fire, set the position to the target immediately
+        lastEndAimPoint = target.position;
     }
 
     // The laser is done charging, "fire" it!
@@ -220,18 +222,18 @@ public class GolemLaserAttack {
 
         // We could do this much easier if we just used a layer mask for the player
         // Vector3 fromEyeToEndPoint = lastEndAimPoint - startAimPoint.position;
-        Vector3 fromEyeToEndPoint = target.transform.position - startAimPoint.position;
-        Debug.DrawLine(target.transform.position, startAimPoint.position, Color.red, 3f);
+        Vector3 fromEyeToEndPoint = target.position - startAimPoint.position;
         RaycastHit[] hits = Physics.SphereCastAll(
             startAimPoint.position,
-            1.0f, // radius, idk
+            0.5f, // radius, idk what to set this to (TODO)
             fromEyeToEndPoint.normalized,
             fromEyeToEndPoint.magnitude,
             -1,
             QueryTriggerInteraction.Ignore
         );
 
-        // Find Health
+        // In actuality DamageArea should be the thing doing this
+        // we should just spawn DamageArea where-ever we hit, and if it hits the player then it hits the player
         bool didHit = false;
         foreach ( RaycastHit hit in hits ) {
             if (hit.collider.TryGetComponent<Health>(out Health health)) {
@@ -249,7 +251,23 @@ public class GolemLaserAttack {
 
     private void SetLinePositions() {
         lineRenderer.SetPosition(0, startAimPoint.position);
-        // lineRenderer.SetPosition(1, lastEndAimPoint);
-        lineRenderer.SetPosition(1, target.transform.position);
+
+        // Need to calculate the end position each time - it's a raycast
+        // it should basically go on for infinity (it's a ray after all), but we'll set the max to like 500 or something
+        const float maxDist = 100.0f;
+        Vector3 direction = (lastEndAimPoint - startAimPoint.position).normalized;
+        if (Physics.Raycast(
+            startAimPoint.position,
+            direction,
+            out RaycastHit hit,
+            maxDist, -1
+        )) { // Ideally we hit a player, but who knows!
+            lineRenderer.SetPosition(1, hit.point);
+        } else {
+            Vector3 endPos = startAimPoint.position + (direction * maxDist);
+            lineRenderer.SetPosition(1, endPos);
+        }
+
+        // lineRenderer.SetPosition(1, target.transform.position);
     }
 }
