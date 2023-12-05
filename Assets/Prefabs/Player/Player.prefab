@@ -341,11 +341,11 @@ MonoBehaviour:
   PlayerCamera: {fileID: 366630357402829461}
   GravityDownForce: 25
   GroundCheckDistance: 1
-  MaxSpeedOnGround: 20
+  MaxSpeedOnGround: 15
   MovementSharpnessOnGround: 15
   MaxSpeedInAir: 13
   MovementSharpnessInAir: 4
-  SprintSpeedModifier: 2
+  SprintSpeedModifier: 1.5
   RotationSpeed: 200
   JumpForce: 20
   CameraHeightRatio: 0.8
@@ -403,6 +403,7 @@ MonoBehaviour:
   MaxHealth: 100
   CriticalHealthRatio: 0.3
   Invincible: 0
+  OnDamageSfx: {fileID: 0}
 --- !u!1 &5228743878646976421
 GameObject:
   m_ObjectHideFlags: 0
