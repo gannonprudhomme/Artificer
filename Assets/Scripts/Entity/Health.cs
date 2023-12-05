@@ -5,6 +5,10 @@ using UnityEngine.Events;
 
 // I'm combining this and Damageable - idk why Damageable exists
 public class Health : MonoBehaviour {
+    [Header("References")]
+    [Tooltip("Where on the entity other entities should aim at")]
+    public Transform AimPoint;
+
     [Header("Health Data")]
     [Tooltip("Maximum amount of health")]
     public float MaxHealth = 100f;
