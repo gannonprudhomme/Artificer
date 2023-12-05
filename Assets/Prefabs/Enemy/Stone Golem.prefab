@@ -329,8 +329,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MainMeshRenderer: {fileID: 17677098403421449}
   Destination: {fileID: 0}
-  AimPoint: {fileID: 0}
+  AimPoint: {fileID: 3244650871039522762}
   RotationSpeed: 1
+  LaserSizeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.8089622
+      inSlope: 1.5723275
+      outSlope: 1.5723275
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.30223688
+    - serializedVersion: 3
+      time: 0.24814974
+      value: 1.0000095
+      inSlope: -0.011731632
+      outSlope: -0.011731632
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.27301034
+    - serializedVersion: 3
+      time: 0.98749995
+      value: 0.061320834
+      inSlope: 0.25233033
+      outSlope: 0.25233033
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.46775302
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &2889862978088140803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -497,7 +530,7 @@ LineRenderer:
   - {x: 0, y: 0, z: 1}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.2
+    widthMultiplier: 1
     widthCurve:
       serializedVersion: 2
       m_Curve:

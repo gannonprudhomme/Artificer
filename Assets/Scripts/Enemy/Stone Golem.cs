@@ -69,6 +69,9 @@ public class StoneGolem : MonoBehaviour {
     [Tooltip("Rotation speed when the target is within NavMeshAgent's stopping distance")]
     public float RotationSpeed = 0.1f;
 
+    [Tooltip("The curve which controls the size of the laser when it fires")]
+    public AnimationCurve LaserSizeCurve;
+
     // TODO: We might want this to be in here instead of Health, but this is fine for now
     // [Tooltip("Sound that plays on damaged")]
     // public AudioClip OnDamageClip;
@@ -109,7 +112,7 @@ public class StoneGolem : MonoBehaviour {
         enemyManager = FindObjectOfType<EnemyManager>();
         laserLineRenderer = GetComponent<LineRenderer>();
 
-        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Destination);
+        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Destination, LaserSizeCurve);
 
         if (enemyManager == null) {
             Debug.LogError("Couldn't find EnemyManager!");

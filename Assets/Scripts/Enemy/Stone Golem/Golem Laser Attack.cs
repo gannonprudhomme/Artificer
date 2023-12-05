@@ -38,6 +38,7 @@ public class GolemLaserAttack {
     // We should get the damage from the Stone Golem
     public const float damage = 2.5f * 20;
 
+    private AnimationCurve firingSizeCurve;
     private LineRenderer lineRenderer;
     // Where on the stone golem we're aiming from
     // the start of the line
@@ -64,7 +65,7 @@ public class GolemLaserAttack {
     private float timeOfFireStart = Mathf.NegativeInfinity;
     // How long we play the "firing" animation for(?), before we start recharging again?
     // When timeOfFireStart > fireTime, we hide the line renderer
-    private const float fireDuration = 1.0f;
+    private const float fireDuration = 0.25f;
     // When we started charging this attack
     private float timeOfChargeStart = Mathf.NegativeInfinity;
     // Charge the laser for 3 seconds before firing
@@ -76,15 +77,21 @@ public class GolemLaserAttack {
     private float timeOfLastFire = Mathf.NegativeInfinity;
     private const float cooldown = 5.0f; // In seconds
 
+    private const string SHADER_IS_FIRING = "_IsFiring";
+    private const string SHADER_SHOULD_CHARGE_FLASH = "_ShouldChargeFlash";
+    private const string SHADER_FIRING_LASER_SIZE = "_FiringLaserSize";
+
     // Expect this to be called in Start() (or Awake()?) in the Stone Golem
     public GolemLaserAttack(
         LineRenderer lineRenderer,
         Transform aimPoint,
-        Health target
+        Health target,
+        AnimationCurve firingSizeCurve
     ) {
         this.lineRenderer = lineRenderer;
         this.startAimPoint = aimPoint;
         this.target = target;
+        this.firingSizeCurve = firingSizeCurve;
 
         this.lineRenderer.enabled = true;
         this.lineRenderer.useWorldSpace = true;
@@ -132,13 +139,13 @@ public class GolemLaserAttack {
             return;
         }
 
-        lineRenderer.material.SetInt("_IsFiring", 0);
+        lineRenderer.material.SetInt(SHADER_IS_FIRING, 0);
         
         if (secondsIntoCharge >= aboutToFireFlashDuration) {
             // Tell the shader (material) to start flashing
-            lineRenderer.material.SetInt("_ShouldChargeFlash", 1);
+            lineRenderer.material.SetInt(SHADER_SHOULD_CHARGE_FLASH, 1);
         } else { // We're charging normally (not flashing) so animate accordingly?
-            lineRenderer.material.SetInt("_ShouldChargeFlash", 0);
+            lineRenderer.material.SetInt(SHADER_SHOULD_CHARGE_FLASH, 0);
         }
     }
 
@@ -149,12 +156,15 @@ public class GolemLaserAttack {
         float secondsIntoFiring = Time.time - timeOfFireStart;
 
         if (secondsIntoFiring < fireDuration) { // Are we in the middle of the firing (animation)
-          // Set shader stuff I guess
-
+            float percentIntoFiring = secondsIntoFiring / fireDuration;
+            float size = firingSizeCurve.Evaluate(percentIntoFiring);
+            Debug.Log($"Size is {size}");
+            lineRenderer.material.SetFloat(SHADER_FIRING_LASER_SIZE, size);
+            
         } else { // we're done, wrap up
             isFiring = false;
             lineRenderer.enabled = false;
-            lineRenderer.material.SetInt("_IsFiring", 0);
+            lineRenderer.material.SetInt(SHADER_IS_FIRING, 0);
         }
     }
 
@@ -204,7 +214,7 @@ public class GolemLaserAttack {
         timeOfLastFire = Time.time; // I suppose we don't need two of these
         // Hide it when this is all over
 
-        lineRenderer.material.SetInt("_IsFiring", 1);
+        lineRenderer.material.SetInt(SHADER_IS_FIRING, 1);
 
         // For now just damage the target, assuming we hit them
 
