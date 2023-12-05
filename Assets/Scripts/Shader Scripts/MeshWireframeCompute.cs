@@ -26,7 +26,6 @@ public class MeshWireframeCompute : MonoBehaviour {
         Color[] colors = sortedColoring(m);
 
         if (colors != null) {
-            print("Setting colors");
             m.SetColors(colors);
         } else {
             Debug.LogError("Colors were null");

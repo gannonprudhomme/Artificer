@@ -126,7 +126,7 @@ public class BurnStatusEffect: BaseStatusEffect {
         frameStart = Mathf.Min(frameStart, 3);
         float frameEnd = Mathf.Min(frameStart + 1, 3);
 
-        Debug.Log($"{(int) frameStart} {frameEnd} {modifiedTimeSinceLastTick / ticksPerSecondModifier}");
+        // Debug.Log($"{(int) frameStart} {frameEnd} {modifiedTimeSinceLastTick / ticksPerSecondModifier}");
 
         material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_1, frameStart);
         material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_2, frameEnd);

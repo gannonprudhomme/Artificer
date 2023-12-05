@@ -121,7 +121,6 @@ public class StoneGolem : MonoBehaviour {
         }
 
         if (Destination) {
-            print("Setting destination");
             navMeshAgent.SetDestination(Destination.transform.position);
         }
 
