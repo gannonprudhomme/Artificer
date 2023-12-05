@@ -118,6 +118,22 @@ public class Health : MonoBehaviour {
         HandleDeath();
     }
 
+    void Update()
+    {
+        foreach (var statusEffectName in statusEffects.Keys)
+        {
+            BaseStatusEffect statusEffect = statusEffects[statusEffectName];
+
+            if (!statusEffect.HasEffectFinished())
+            {
+
+                // There are better ways to do this
+                // ideally we just wouldn't call this if it wasn't a Tick
+                statusEffect.OnUpdate(EntityMaterial);
+            }
+        }
+    }
+
     void FixedUpdate() {
         // Need to see if this renegerates over time
         // though honestly that could just be in a HealthRegen component
