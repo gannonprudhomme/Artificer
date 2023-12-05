@@ -50,7 +50,8 @@ public abstract class Enemy: MonoBehaviour {
 [RequireComponent(typeof(Health), typeof(NavMeshAgent), typeof(Animator))]
 [RequireComponent(
     // typeof(Rigidbody), // So it hits triggers collider triggers (e.g. Ice Wall Spike)
-    typeof(RigBuilder) // For controlling IK like the head look-at
+    typeof(RigBuilder), // For controlling IK like the head look-at
+    typeof(LineRenderer) // For displaying the laser
 )] 
 public class StoneGolem : MonoBehaviour {
 
@@ -60,7 +61,7 @@ public class StoneGolem : MonoBehaviour {
 
     // We probably don't want this
     [Tooltip("Where the NavMeshAgent is going to navigate to")]
-    public GameObject Destination;
+    public Health Destination; // Yes I did this to Health. Yes this is hacky. Yes I should do something else.
 
     [Tooltip("Where on the Stone Golem we're going to aim its laser from")]
     public Transform AimPoint;
@@ -75,6 +76,7 @@ public class StoneGolem : MonoBehaviour {
     private NavMeshAgent navMeshAgent;
     private Health health;
     private Animator animator;
+    private LineRenderer laserLineRenderer;
 
     private Vector3 lastTargetPosition = Vector3.positiveInfinity;
 
@@ -86,6 +88,9 @@ public class StoneGolem : MonoBehaviour {
     private EnemyManager enemyManager;
 
     private float lastDamagedTime = Mathf.Infinity;
+
+    // Attacks
+    private GolemLaserAttack laserAttack;
 
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator.rootPosition;
@@ -102,6 +107,9 @@ public class StoneGolem : MonoBehaviour {
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         enemyManager = FindObjectOfType<EnemyManager>();
+        laserLineRenderer = GetComponent<LineRenderer>();
+
+        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Destination);
 
         if (enemyManager == null) {
             Debug.LogError("Couldn't find EnemyManager!");
@@ -148,6 +156,8 @@ public class StoneGolem : MonoBehaviour {
             // Not positive if we need to do this
             animator.SetFloat("TimeSinceLastDamaged", Mathf.Infinity);
         }
+
+        laserAttack.OnUpdate();
     }
 
     // Synchronize the Animator's RootMotion with the NavMeshAgent

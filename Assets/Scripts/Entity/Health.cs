@@ -55,7 +55,7 @@ public class Health : MonoBehaviour {
     public void TakeDamage(
         float damage,
         GameObject damageSource, // Currently unused
-        BaseStatusEffect appliedStatusEffect,
+        BaseStatusEffect appliedStatusEffect, // Optional
         Vector3 damagePosition // Used to place where the damage text spawns from
     ) {
         ApplyDamage(damage, damagePosition);
@@ -77,6 +77,12 @@ public class Health : MonoBehaviour {
         BaseStatusEffect appliedStatusEffect
     ) {
         TakeDamage(damage, damageSource, appliedStatusEffect, Vector3.negativeInfinity);
+    }
+
+    // Take flat damage
+    // TODO: Do I actually want this? I suppose I might?
+    public void TakeDamage(float damage) {
+        TakeDamage(damage, null, null);
     }
 
     // Underlying function which subtracts the health from CurrentHealth, plays audio, and handles dying
