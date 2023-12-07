@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Codice.CM.SEIDInfo;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Animations;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.Apple;
 

@@ -6,12 +6,12 @@ using UnityEngine.UI;
 public class EnemyHealthBar : MonoBehaviour {
     public Image FillImage;
 
-    // I need to set this dynamically ugh
-    [Tooltip("Transform of the target this should look at")]
-    public Transform Target;
-
     [Tooltip("Health of the enemy this is displaying for")]
     public Health health;
+
+    // Transform of the target this should look at
+    // Set by the Enemy that owns this
+    public Transform Target { get; set; }
 
     void Update() {
         if (health == null) {
