@@ -196,7 +196,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FillImage: {fileID: 2223944003364195234}
-  Target: {fileID: 0}
   health: {fileID: 2889862978088140803}
 --- !u!1 &5407357002589787708
 GameObject:
@@ -330,6 +329,8 @@ MonoBehaviour:
   MainMeshRenderer: {fileID: 17677098403421449}
   Destination: {fileID: 0}
   AimPoint: {fileID: 3244650871039522762}
+  healthBar: {fileID: 7926923336265575741}
+  positionConstraint: {fileID: 5831821557236258256}
   RotationSpeed: 1
   LaserChargeSfx: {fileID: 8300000, guid: 28fed9560a574194d9bbec7ad2b7e88f, type: 3}
   LaserFireSfx: {fileID: 8300000, guid: 7fb195ae24788c347b6e96d8b401bb57, type: 3}

@@ -61,11 +61,18 @@ public class StoneGolem : MonoBehaviour {
 
     // We probably don't want this
     [Tooltip("Where the NavMeshAgent is going to navigate to")]
-    public Health Destination; // Yes I did this to Health. Yes this is hacky. Yes I should do something else.
+    public Transform Destination;
 
     [Tooltip("Where on the Stone Golem we're going to aim its laser from")]
     public Transform AimPoint;
 
+    [Tooltip("Reference to the HealthBar. Needed so we can set the target on the health bar (so it looks at the player)")]
+    public EnemyHealthBar healthBar;
+
+    [Tooltip("Reference to the AimTarget PositionConstraint for the look-at constraint. Needed so we can set it to copy the location of the player")]
+    public PositionConstraint positionConstraint;
+
+    [Header("Navigation")]
     [Tooltip("Rotation speed when the target is within NavMeshAgent's stopping distance")]
     public float RotationSpeed = 0.1f;
 
@@ -140,7 +147,19 @@ public class StoneGolem : MonoBehaviour {
 
         if (Destination) {
             navMeshAgent.SetDestination(Destination.transform.position);
-        }
+            healthBar.Target = Destination;
+
+            // Make the TargetAim PositionConstraint copy the Destination's location
+            // so the MultiAimConstraint correctly looks at the Destination (the player)
+            ConstraintSource constraintSource = new() {
+                sourceTransform = Destination,
+                weight = 1.0f
+            };
+            positionConstraint.SetSource(0, constraintSource);
+
+            // Zero the offset so it matches the position of the target (the player)
+            positionConstraint.translationOffset = Vector3.zero;
+        } 
 
         health.OnDamaged += OnDamaged;
         health.OnDeath += OnDeath;
@@ -217,13 +236,13 @@ public class StoneGolem : MonoBehaviour {
 
     // Remove this it was just for testing
     private void SetPosition() {
-        float dist = Vector3.Distance(Destination.transform.position, lastTargetPosition);
+        float dist = Vector3.Distance(Destination.position, lastTargetPosition);
         float minDist = 0.5f;
 
         if (dist > minDist) {
-            navMeshAgent.SetDestination(Destination.transform.position);
+            navMeshAgent.SetDestination(Destination.position);
 
-            lastTargetPosition = Destination.transform.position;
+            lastTargetPosition = Destination.position;
         }
     }
 
