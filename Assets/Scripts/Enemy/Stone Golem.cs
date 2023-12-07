@@ -69,6 +69,13 @@ public class StoneGolem : MonoBehaviour {
     [Tooltip("Rotation speed when the target is within NavMeshAgent's stopping distance")]
     public float RotationSpeed = 0.1f;
 
+    [Header("Laser Attack")]
+    [Tooltip("Audio clip that plays when the laser begins charging the laser (starts the attack)")]
+    public AudioClip LaserChargeSfx;
+
+    [Tooltip("Audio clip that plays when the laser is finished charging & fires")]
+    public AudioClip LaserFireSfx;
+
     [Tooltip("The curve which controls the size of the laser when it fires")]
     public AnimationCurve LaserSizeCurve;
 
@@ -112,7 +119,7 @@ public class StoneGolem : MonoBehaviour {
         enemyManager = FindObjectOfType<EnemyManager>();
         laserLineRenderer = GetComponent<LineRenderer>();
 
-        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Destination, LaserSizeCurve);
+        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Destination, LaserSizeCurve, LaserChargeSfx, LaserFireSfx);
 
         if (enemyManager == null) {
             Debug.LogError("Couldn't find EnemyManager!");

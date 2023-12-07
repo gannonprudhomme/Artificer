@@ -331,6 +331,8 @@ MonoBehaviour:
   Destination: {fileID: 0}
   AimPoint: {fileID: 3244650871039522762}
   RotationSpeed: 1
+  LaserChargeSfx: {fileID: 8300000, guid: 28fed9560a574194d9bbec7ad2b7e88f, type: 3}
+  LaserFireSfx: {fileID: 8300000, guid: 7fb195ae24788c347b6e96d8b401bb57, type: 3}
   LaserSizeCurve:
     serializedVersion: 2
     m_Curve:
@@ -364,6 +366,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  AimMoveSpeed: 15
 --- !u!114 &2889862978088140803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -376,7 +379,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33bd9b8184447304baf8751a3036dac6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AimPoint: {fileID: 0}
   MaxHealth: 500
   CriticalHealthRatio: 0.3
   Invincible: 0

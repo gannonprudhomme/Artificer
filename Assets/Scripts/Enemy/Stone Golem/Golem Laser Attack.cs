@@ -47,6 +47,11 @@ public class GolemLaserAttack {
     // The end of the line
     private Transform target;
 
+    // AudioClip that plays when the laser begins to charge
+    private AudioClip chargingSfx;
+    // AudioClip that plays when the laser fires
+    private AudioClip fireSfx;
+
     // How far we can move (per second?) to try to aim towards the target
     // Probably going to be divided by Time.deltaTime, but idk
     private const float aimMoveSpeed = 1f;
@@ -86,12 +91,16 @@ public class GolemLaserAttack {
         LineRenderer lineRenderer,
         Transform aimPoint,
         Transform target,
-        AnimationCurve firingSizeCurve
+        AnimationCurve firingSizeCurve,
+        AudioClip chargingSfx,
+        AudioClip fireSfx
     ) {
         this.lineRenderer = lineRenderer;
         this.startAimPoint = aimPoint;
         this.target = target;
         this.firingSizeCurve = firingSizeCurve;
+        this.chargingSfx = chargingSfx;
+        this.fireSfx = fireSfx;
 
         this.lineRenderer.enabled = true;
         this.lineRenderer.useWorldSpace = true;
@@ -112,7 +121,7 @@ public class GolemLaserAttack {
         // boolean checks are just to prevent unnecessary checking
         // we don't need to check if we can attack if we're currently attacking
         if (!isCharging && !isFiring && CanAttack()) {
-            StartAttack();
+            StartCharging();
         }
 
         if (isCharging) {
@@ -196,7 +205,7 @@ public class GolemLaserAttack {
 
     // In this case, start charging the laser.
     // The StoneGolem is handing over the reigns to the attack at this point
-    public void StartAttack() {
+    public void StartCharging() {
         // Debug.Log("Starting to charge laser");
         isCharging = true;
 
@@ -205,6 +214,15 @@ public class GolemLaserAttack {
 
         // When we start to fire, set the position to the target immediately
         lastEndAimPoint = target.position;
+
+        // Play audioclip
+        AudioUtility.shared.CreateSFX(
+            chargingSfx,
+            startAimPoint.position,
+            AudioUtility.AudioGroups.EnemyAttack,
+            1f,
+            1f
+        );
     }
 
     // The laser is done charging, "fire" it!
@@ -217,6 +235,14 @@ public class GolemLaserAttack {
         // Hide it when this is all over
 
         lineRenderer.material.SetInt(SHADER_IS_FIRING, 1);
+
+        AudioUtility.shared.CreateSFX(
+            fireSfx,
+            startAimPoint.position,
+            AudioUtility.AudioGroups.EnemyAttack,
+            1f,
+            1f
+        );
 
         // For now just damage the target, assuming we hit them
 
