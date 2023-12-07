@@ -54,10 +54,12 @@ public class GolemLaserAttack {
 
     // How far we can move (per second?) to try to aim towards the target
     // Probably going to be divided by Time.deltaTime, but idk
-    private const float aimMoveSpeed = 1f;
+    // private const float aimSpeed = 1f;
+    public float aimSpeed = 1f;
     // Where the end of the laser / line was last frame
     // though we can just read this from the line renderer really
-    private Vector3 lastEndAimPoint; // TODO: Find a better name 
+    // Only public so we can do OnDrawGizmos() in Stone Golem
+    public Vector3 lastEndAimPoint = Vector3.positiveInfinity; // TODO: Find a better name 
 
     // TODO: Put this shit below into structs we have too many
 
@@ -135,7 +137,7 @@ public class GolemLaserAttack {
         }
 
         // Runs whenever we're charging or firing
-        SetLinePositions();
+        AimAtTarget();
     }
 
     // The laser is getting ready to fire (apply damage)
@@ -176,8 +178,22 @@ public class GolemLaserAttack {
         }
     }
 
+    // TODO: This still sucks, I want to improve it
     private void AimAtTarget() {
         // Attempt to move as much as we can this frame to aim at the target
+
+        // We don't want to lerp,
+        // we want to mvoe the lastEndAimPoint in the direction of the player at a certain speed (Time.deltaTime * aimSpeed);
+        // This way it's a constant movement (Lerp will make it dependent on player speed)
+        Vector3 directionToPlayer = (target.position - lastEndAimPoint).normalized;
+        float distanceToPlayer = Vector3.Distance(target.position, lastEndAimPoint);
+
+        // Ensure we don't over-shoot the player by doing Min with the distanceToPlayer
+        float aimSpeedPerFrame = Mathf.Min(Time.deltaTime * aimSpeed, distanceToPlayer);
+        
+        lastEndAimPoint += directionToPlayer * aimSpeedPerFrame;
+
+        SetLinePositions();
     }
 
     // This shouldn't modify anything
@@ -247,8 +263,8 @@ public class GolemLaserAttack {
         // For now just damage the target, assuming we hit them
 
         // We could do this much easier if we just used a layer mask for the player
-        // Vector3 fromEyeToEndPoint = lastEndAimPoint - startAimPoint.position;
-        Vector3 fromEyeToEndPoint = target.position - startAimPoint.position;
+        Vector3 fromEyeToEndPoint = lastEndAimPoint - startAimPoint.position;
+        // Vector3 fromEyeToEndPoint = target.position - startAimPoint.position;
         RaycastHit[] hits = Physics.SphereCastAll(
             startAimPoint.position,
             0.5f, // radius, idk what to set this to (TODO)
