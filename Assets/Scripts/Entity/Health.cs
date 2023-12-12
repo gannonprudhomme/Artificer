@@ -30,11 +30,16 @@ public class Health : MonoBehaviour {
     public UnityAction<float, Vector3> OnDamaged;
     public UnityAction OnDeath;
 
+    // Called when a new status effect is applied to this entity
+    public UnityAction<BaseStatusEffect> OnStatusEffectAdded;
+    // Called when a status effect is done applying to an entity & is being removed
+    public UnityAction<BaseStatusEffect> OnStatusEffectRemoved;
+
     private bool isDead;
 
     // We should only have one StatusEffect and when they stack they should modify the "main" one
     // thus stores the status effects based on their name as the key
-    private readonly Dictionary<string, BaseStatusEffect> statusEffects = new();
+    public readonly Dictionary<string, BaseStatusEffect> statusEffects = new();
 
     void Start() {
         CurrentHealth = MaxHealth;
@@ -62,6 +67,8 @@ public class Health : MonoBehaviour {
                 statusEffects[appliedStatusEffect.Name].StackEffect(appliedStatusEffect);
             } else {
                 statusEffects[appliedStatusEffect.Name] = appliedStatusEffect;
+
+                OnStatusEffectAdded?.Invoke(appliedStatusEffect);
             }
         }
     }
@@ -114,14 +121,11 @@ public class Health : MonoBehaviour {
         HandleDeath();
     }
 
-    void Update()
-    {
-        foreach (var statusEffectName in statusEffects.Keys)
-        {
+    void Update() {
+        foreach (var statusEffectName in statusEffects.Keys) {
             BaseStatusEffect statusEffect = statusEffects[statusEffectName];
 
-            if (!statusEffect.HasEffectFinished())
-            {
+            if (!statusEffect.HasEffectFinished()) {
 
                 // There are better ways to do this
                 // ideally we just wouldn't call this if it wasn't a Tick
@@ -152,6 +156,7 @@ public class Health : MonoBehaviour {
             } else {
                 statusEffect.Finished(EntityMaterial);
                 toRemove.Add(statusEffectName);
+                OnStatusEffectRemoved?.Invoke(statusEffect);
             }
         }
 

@@ -243,7 +243,6 @@ public class GolemLaserAttack {
 
     // The laser is done charging, "fire" it!
     private void StartFiring() {
-        Debug.Log("Starting to fire!");
         isCharging = false;
         isFiring = true;
         timeOfFireStart = Time.time;

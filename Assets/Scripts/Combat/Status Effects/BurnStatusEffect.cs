@@ -30,7 +30,7 @@ using UnityEngine;
 //
 // Note that b/c Fireball does 280% (2.8x) of base damage and it applies ignite for 50% of that damage, 140% = 1.4 sec
 public class BurnStatusEffect: BaseStatusEffect {
-    public int CurrentStacks {
+    public override int CurrentStacks {
         get {
             float numStacks = damageLeftToApply / damagePerStack;
             numStacks = Mathf.Ceil(numStacks);
@@ -38,6 +38,7 @@ public class BurnStatusEffect: BaseStatusEffect {
         }
     }
 
+    public override string ImageName => "Burning Status Icon";
 
     // TODO: This is going to change as the player levels up
     // We also need to get this from somewhere dynamically
@@ -103,7 +104,7 @@ public class BurnStatusEffect: BaseStatusEffect {
         material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, modifiedTimeSinceLastTick);
     }
 
-    // This isn't a MonoBehaviour, so the Health component will call this OnUpdate
+    // This isn't a MonoBehaviour, so the Health component will call this FixedUpdate()
     // so this can handle its own OnTick functionality (as diff status effects have diff tick rates)
     public override float OnFixedUpdate(Material material) {
         material.SetInt(SHADER_IS_BURNING_PARAM, 1);

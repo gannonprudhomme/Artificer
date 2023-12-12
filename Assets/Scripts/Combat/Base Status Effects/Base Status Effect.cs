@@ -8,6 +8,12 @@ public abstract class BaseStatusEffect {
     // Returns how much damage it should do
     public abstract string Name { get; }
 
+    public abstract int CurrentStacks { get; }
+
+    // The name of the image in the Resources/Status Effects/ folder
+    // for displaying in the UI
+    public abstract string ImageName { get; }
+
     public abstract float OnFixedUpdate(Material material);
     
     public abstract void OnUpdate(Material material);

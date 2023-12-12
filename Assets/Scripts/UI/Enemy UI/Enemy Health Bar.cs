@@ -21,9 +21,5 @@ public class EnemyHealthBar : MonoBehaviour {
 
         // Set fill based on % of health the enemy has
         FillImage.fillAmount = (int) health.CurrentHealth / health.MaxHealth;
-
-        // Make the health bar look at the player at all times
-        // transform.rotation = Quaternion.Inverse(Quaternion.LookRotation(Target.position));
-        transform.LookAt(Target.position);
     }
 }
