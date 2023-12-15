@@ -14,6 +14,8 @@ public abstract class BaseStatusEffect {
     // for displaying in the UI
     public abstract string ImageName { get; }
 
+    public virtual void OnStart(Entity entity) { } // Don't have to override it if you don't want!
+
     /// <summary>
     /// Returns the damage afflicted on that tick
     /// </summary>
@@ -23,10 +25,9 @@ public abstract class BaseStatusEffect {
     
     public abstract void OnUpdate(Entity entity);
 
-
     public abstract bool HasEffectFinished();
 
-    public abstract void Finished(Entity entity);
+    public abstract void OnFinished(Entity entity);
 
     // Stack the effect if it's already active on the Entity / Health
     public abstract void StackEffect(BaseStatusEffect effect);

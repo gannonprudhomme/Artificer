@@ -140,7 +140,7 @@ public class BurnStatusEffect: BaseStatusEffect {
     }
 
     // Called in Health when HasEffectFinished() returns false
-    public override void Finished(Entity entity) {
+    public override void OnFinished(Entity entity) {
         // If this is an enemy, reset the shader
         // though hopefully the shader would do it on its own?
 

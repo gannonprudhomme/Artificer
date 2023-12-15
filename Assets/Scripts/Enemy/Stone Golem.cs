@@ -87,6 +87,9 @@ public class StoneGolem : Entity {
     [Tooltip("The curve which controls the size of the laser when it fires")]
     public AnimationCurve LaserSizeCurve;
 
+    // TODO: Remove this later, it was just for testing
+    public float AimMoveSpeed = 15f;
+
     // TODO: We might want this to be in here instead of Health, but this is fine for now
     // [Tooltip("Sound that plays on damaged")]
     // public AudioClip OnDamageClip;
@@ -105,6 +108,12 @@ public class StoneGolem : Entity {
     private EnemyManager enemyManager;
 
     private float lastDamagedTime = Mathf.Infinity;
+
+    // I should probably
+    // Used so I don't reset the Animator's speed back to 0 / 1 every time canMove is true
+    // as well as Play() / Stop() for nav mesh agent
+    // I could use a UnityAction for this, but this is less code
+    private bool couldMoveLastFrame = true;
 
     // Attacks
     private GolemLaserAttack laserAttack;
@@ -171,10 +180,31 @@ public class StoneGolem : Entity {
         // See if we have enough charge and search for the player
         SetNavMeshDestination();
 
+        if (canMove) {
+            // If we can move this frame but couldn't last frame
+            if (!couldMoveLastFrame) {
+                couldMoveLastFrame = true;
+                // start up the animator & nav mesh agent
+                animator.speed = 1;
+                navMeshAgent.isStopped = false;
+                
+                // Make LookAt start working again (by moving the target, aka the player)
+                positionConstraint.constraintActive = true;
+            }
 
-        SynchronizeAnimatorAndAgent();
+            SynchronizeAnimatorAndAgent();
 
-        RotateToTargetWhenWithinStoppinDistance();
+            RotateToTargetWhenWithinStoppinDistance();
+        } else if (couldMoveLastFrame) { // if we could move last frame but can't now
+            couldMoveLastFrame = false;
+
+            // stop animator & nav mesh agent
+            animator.speed = 0;
+            navMeshAgent.isStopped = true;
+
+            // Stop the LookAt from moving by keeping the target in place
+            positionConstraint.constraintActive = false;
+        }
 
         // Set the animator's TimeSinceLastDamaged
         if (lastDamagedTime < Mathf.Infinity) {
@@ -184,6 +214,7 @@ public class StoneGolem : Entity {
             animator.SetFloat("TimeSinceLastDamaged", Mathf.Infinity);
         }
 
+        laserAttack.aimSpeed = AimMoveSpeed;
         laserAttack.OnUpdate();
     }
 
@@ -273,6 +304,13 @@ public class StoneGolem : Entity {
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
 
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+        }
+    }
+
+    private void OnDrawGizmos() {
+        if (laserAttack != null) {
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(laserAttack.lastEndAimPoint, 1.0f);
         }
     }
     public override Material GetMaterial() {

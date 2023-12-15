@@ -13,8 +13,9 @@ public abstract class Attack {
     // damage?
     // Doesn't work b/c damage over time
     // could have an enum tho (associated enums plss)
+    public bool canAttack;
 
-    public abstract void DoAttack();
+    public abstract void OnUpdate();
 }
 
 // I don't really think this should be a MonoBehaviour? It's not going to be a component or anything
@@ -33,7 +34,7 @@ public abstract class Attack {
 // - Deals 250% of base damage (20, +4 per level)
 // - Must be within 10-45m of the target, and have line of sight
 // - Has a cooldown of 5 seconds
-public class GolemLaserAttack {
+public class GolemLaserAttack: Attack {
     // This should really be damage area
     // We should get the damage from the Stone Golem
     public const float damage = 2.5f * 20;
@@ -116,9 +117,15 @@ public class GolemLaserAttack {
     }
 
     // Called in Update() in Stone Golem
-    public void OnUpdate() {
+    public override void OnUpdate() {
         //SetLinePositions();
         // return;
+
+        // We do this a ton of unnecessary times doing it this way
+        if (!canAttack) {
+            ResetAttack();
+            return;
+        }
 
         // boolean checks are just to prevent unnecessary checking
         // we don't need to check if we can attack if we're currently attacking
@@ -172,9 +179,7 @@ public class GolemLaserAttack {
             lineRenderer.material.SetFloat(SHADER_FIRING_LASER_SIZE, size);
             
         } else { // we're done, wrap up
-            isFiring = false;
-            lineRenderer.enabled = false;
-            lineRenderer.material.SetInt(SHADER_IS_FIRING, 0);
+            ResetAttack();
         }
     }
 
@@ -213,8 +218,6 @@ public class GolemLaserAttack {
             // Debug.Log("Within distance, can attack!");
             return true;
         }
-
-        // Debug.Log("Can't attack!");
 
         return false;
     }
@@ -303,5 +306,11 @@ public class GolemLaserAttack {
         }
 
         // lineRenderer.SetPosition(1, target.transform.position);
+    }
+
+    private void ResetAttack() {
+        isFiring = false;
+        lineRenderer.enabled = false;
+        lineRenderer.material.SetInt(SHADER_IS_FIRING, 0);
     }
 }

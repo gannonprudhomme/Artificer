@@ -33,7 +33,6 @@ public abstract class Entity : MonoBehaviour {
 
             if (!statusEffect.HasEffectFinished()) {
 
-                // TODO: We should probably just cache the material?
                 // TODO: There are better ways to do this
                 // ideally we just wouldn't call this if it wasn't a Tick
                 statusEffect.OnUpdate(this);
@@ -54,7 +53,7 @@ public abstract class Entity : MonoBehaviour {
                 // ideally we just wouldn't call this if it wasn't a Tick
                 statusEffect.OnFixedUpdate(this);
             } else {
-                statusEffect.Finished(this);
+                statusEffect.OnFinished(this);
                 toRemove.Add(statusEffectName);
                 OnStatusEffectRemoved?.Invoke(statusEffect);
             }
@@ -81,12 +80,14 @@ public abstract class Entity : MonoBehaviour {
 
         // Handle status effects
         if (appliedStatusEffect != null) {
+            // If we already have a stack of this type applied, stack them
             if (statusEffects.ContainsKey(appliedStatusEffect.Name)) {
                 statusEffects[appliedStatusEffect.Name].StackEffect(appliedStatusEffect);
-            } else {
-                statusEffects[appliedStatusEffect.Name] = appliedStatusEffect;
-
+            } else { // If we don't, trigger it & add it to the dictionary
+                appliedStatusEffect.OnStart(this);
                 OnStatusEffectAdded?.Invoke(appliedStatusEffect);
+
+                statusEffects[appliedStatusEffect.Name] = appliedStatusEffect;
             }
         }
     }
