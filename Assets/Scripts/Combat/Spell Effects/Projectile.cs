@@ -141,6 +141,8 @@ public abstract class Projectile : MonoBehaviour {
                 
             OnHit(closestHit.point, closestHit.normal, closestHit.collider);
         }
+
+        lastRootPosition = Root.position;
     }
 
     private bool IsHitValid(RaycastHit hit) {
