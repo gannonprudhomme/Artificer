@@ -45,10 +45,20 @@ public class FreezeStatusEffect : BaseStatusEffect {
         // Might have to do some weird stuff w/ durationRemaining to do that though
         entity.SetCanMove(true);
         entity.GetMaterial().SetInt(SHADER_IS_FROZEN, 0);
+
+        // Add the particle effect
+        entity.AddParticleEffect(entity.OnEndFreezeParticleSystemPrefab);
+
+        AudioUtility.shared.CreateSFX(
+            entity.OnEndFreezeSfx,
+            entity.transform.position,
+            AudioUtility.AudioGroups.EnemyEffects,
+            1f,
+            1f
+        );
     }
 
     public override bool HasEffectFinished() {
-        Debug.Log($"{Time.time - lastTimeTriggered}");
         return (Time.time - lastTimeTriggered) >= effectDuration;
     }
 

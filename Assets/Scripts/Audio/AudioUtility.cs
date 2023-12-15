@@ -22,7 +22,8 @@ public class AudioUtility {
         WeaponChargeLoop,
         HUDVictory,
         HUDObjective,
-        EnemyAttack
+        EnemyAttack,
+        EnemyEffects
     }
 
     AudioUtility() {

@@ -81,6 +81,7 @@ public class StoneGolem : Entity {
     [Tooltip("Audio clip that plays when the lasfalseer begins charging the laser (starts the attack)")]
     public AudioClip LaserChargeSfx;
 
+
     [Tooltip("Audio clip that plays when the laser is finished charging & fires")]
     public AudioClip LaserFireSfx;
 
@@ -217,6 +218,11 @@ public class StoneGolem : Entity {
         laserAttack.aimSpeed = AimMoveSpeed;
         laserAttack.OnUpdate();
     }
+
+    public override Vector3 GetMiddleOfMesh() {
+        return MainMeshRenderer.bounds.center;
+    }
+
 
     // Synchronize the Animator's RootMotion with the NavMeshAgent
     // TODO: How does this work?

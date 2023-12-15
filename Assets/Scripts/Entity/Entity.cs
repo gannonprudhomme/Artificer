@@ -7,6 +7,13 @@ using UnityEngine.Events;
 // basically anything that has Health and status effects can apply to
 [RequireComponent(typeof(Health))]
 public abstract class Entity : MonoBehaviour {
+    [Header("Entity (Inherited)")]
+    [Tooltip("Prefab for the particle system which plays when the freeze status effect ends")]
+    public ParticleSystem OnEndFreezeParticleSystemPrefab;
+
+    [Tooltip("AudioClip which plays when the freeze status effect ends")]
+    public AudioClip OnEndFreezeSfx;
+
     public Health health { get; private set; }
 
     // We should only have one StatusEffect and when they stack they should modify the "main" one
@@ -22,6 +29,7 @@ public abstract class Entity : MonoBehaviour {
     protected bool canMove = true;
 
     public abstract Material GetMaterial();
+    public abstract Vector3 GetMiddleOfMesh();
 
     protected virtual void Start() {
         health = GetComponent<Health>();
@@ -106,5 +114,15 @@ public abstract class Entity : MonoBehaviour {
     public void TakeDamage(float damage) {
         print($"entity doing damage {damage}");
         TakeDamage(damage, null, null);
+    }
+
+    public void AddParticleEffect(ParticleSystem particlePrefab) {
+        ParticleSystem particlesInstance = Instantiate(particlePrefab, transform);
+        particlesInstance.transform.position = GetMiddleOfMesh();
+
+        // Set it to happen in the middle of the mesh, but we should probably change this later
+
+        // Well I guess this won't work for looping particles shat
+        Destroy(particlesInstance, particlesInstance.main.duration);
     }
 }
