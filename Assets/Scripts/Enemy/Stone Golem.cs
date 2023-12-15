@@ -221,10 +221,13 @@ public class StoneGolem : MonoBehaviour {
         animator.SetBool("IsMoving", shouldMove);
         animator.SetFloat("MovementSpeed", velocity.magnitude); // Based on 1D blend tree, need to pass in velocity.x & velocity.y separately for 2D
 
+        // This is causing a bug
         // TODO: Rename this cause I'm still not 100% sure what this boolean does
         // This 2f is a ratio which we need to play with
+        /*
         bool isWithinNavMeshRadius = worldDeltaPosition.magnitude > navMeshAgent.radius / 2f;
         if (isWithinNavMeshRadius) {
+            print("Within nav mesh radius or something");
             // Move position between where the animator root position and where the nav mesh agent can go
             // Without this the thing might walk through things not on the nav mesh
             transform.position = Vector2.Lerp(
@@ -233,6 +236,7 @@ public class StoneGolem : MonoBehaviour {
                 smooth
             );
         }
+        */
     }
 
     // Remove this it was just for testing
