@@ -10,12 +10,7 @@ using UnityEngine;
 // Might not need this: attacks aren't reusable by other enemies (I don't think - there base logic might)
 // and each enemy will only have like 1-4 attacks which we'll manually balance (not iterate over)
 public abstract class Attack {
-    // damage?
-    // Doesn't work b/c damage over time
-    // could have an enum tho (associated enums plss)
-    public bool canAttack;
-
-    public abstract void OnUpdate();
+    public bool canAttack = true;
 }
 
 // I don't really think this should be a MonoBehaviour? It's not going to be a component or anything
@@ -117,11 +112,9 @@ public class GolemLaserAttack: Attack {
     }
 
     // Called in Update() in Stone Golem
-    public override void OnUpdate() {
-        //SetLinePositions();
-        // return;
-
+    public void OnUpdate() {
         // We do this a ton of unnecessary times doing it this way
+        // But it's probably fine? For now at least
         if (!canAttack) {
             ResetAttack();
             return;
