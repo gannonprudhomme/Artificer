@@ -1130,6 +1130,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 252133407}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &309133057 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 227309694435722584, guid: 0db40c0dd54e96045b23b1695a405c38,
+    type: 3}
+  m_PrefabInstance: {fileID: 697824414}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b075fddab3c5224b9d41f352f443cb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &349071594
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3216,6 +3228,11 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5747589260444459778, guid: 0db40c0dd54e96045b23b1695a405c38,
+        type: 3}
+      propertyPath: entity
+      value: 
+      objectReference: {fileID: 309133057}
     - target: {fileID: 5769348052880080399, guid: 0db40c0dd54e96045b23b1695a405c38,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -3244,41 +3261,6 @@ PrefabInstance:
     - target: {fileID: 5769348052880080399, guid: 0db40c0dd54e96045b23b1695a405c38,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
-        type: 3}
-      propertyPath: m_IsLocked
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
-        type: 3}
-      propertyPath: m_TranslationAtRest.x
-      value: 0.00093798863
-      objectReference: {fileID: 0}
-    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
-        type: 3}
-      propertyPath: m_TranslationAtRest.y
-      value: -0.0026899856
-      objectReference: {fileID: 0}
-    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
-        type: 3}
-      propertyPath: m_TranslationAtRest.z
-      value: 0.0009174703
-      objectReference: {fileID: 0}
-    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
-        type: 3}
-      propertyPath: m_TranslationOffset.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
-        type: 3}
-      propertyPath: m_TranslationOffset.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
-        type: 3}
-      propertyPath: m_TranslationOffset.z
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,

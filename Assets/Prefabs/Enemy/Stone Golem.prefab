@@ -603,13 +603,13 @@ PositionConstraint:
   m_Enabled: 1
   serializedVersion: 2
   m_Weight: 1
-  m_TranslationAtRest: {x: -0.0044239988, y: -0.006400001, z: 0.0018574371}
+  m_TranslationAtRest: {x: 0.00093798863, y: -0.0026899856, z: 0.0009174703}
   m_TranslationOffset: {x: 0, y: 0, z: 0}
   m_AffectTranslationX: 1
   m_AffectTranslationY: 1
   m_AffectTranslationZ: 1
   m_Active: 1
-  m_IsLocked: 1
+  m_IsLocked: 0
   m_Sources:
   - sourceTransform: {fileID: 0}
     weight: 1
@@ -691,6 +691,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6804268400101595415, guid: 309b275cd78eb99458a72fbdc25f0c00,
+        type: 3}
+      propertyPath: Entity
+      value: 
+      objectReference: {fileID: 227309694435722584}
     - target: {fileID: 6804268400101595415, guid: 309b275cd78eb99458a72fbdc25f0c00,
         type: 3}
       propertyPath: EnemyHealth
@@ -1521,7 +1526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b7e26fd086472440bbaa8a6d0b67765, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: {fileID: 2889862978088140803}
+  entity: {fileID: 0}
 --- !u!4 &8251620429350316434 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2958817221983685307, guid: 69d5f21fa28b24b41a1954cc85b58acb,

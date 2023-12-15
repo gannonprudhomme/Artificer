@@ -54,7 +54,7 @@ public abstract class Enemy: MonoBehaviour {
     typeof(RigBuilder), // For controlling IK like the head look-at
     typeof(LineRenderer) // For displaying the laser
 )] 
-public class StoneGolem : MonoBehaviour {
+public class StoneGolem : Entity {
 
     [Header("References")]
     [Tooltip("The Mesh Rendered used to display this enemy. Used to set properties on its shader (material)")]
@@ -78,7 +78,7 @@ public class StoneGolem : MonoBehaviour {
     public float RotationSpeed = 0.1f;
 
     [Header("Laser Attack")]
-    [Tooltip("Audio clip that plays when the laser begins charging the laser (starts the attack)")]
+    [Tooltip("Audio clip that plays when the lasfalseer begins charging the laser (starts the attack)")]
     public AudioClip LaserChargeSfx;
 
     [Tooltip("Audio clip that plays when the laser is finished charging & fires")]
@@ -92,7 +92,6 @@ public class StoneGolem : MonoBehaviour {
     // public AudioClip OnDamageClip;
 
     private NavMeshAgent navMeshAgent;
-    private Health health;
     private Animator animator;
     private LineRenderer laserLineRenderer;
 
@@ -120,8 +119,9 @@ public class StoneGolem : MonoBehaviour {
         // Set rotation if animator includes rotations here if needed, same as above
     }
 
-    void Start() {
-        health = GetComponent<Health>();
+    protected override void Start() {
+        base.Start();
+
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         enemyManager = FindObjectOfType<EnemyManager>();
@@ -141,11 +141,6 @@ public class StoneGolem : MonoBehaviour {
         // So it's aligned where we're going (he has notes later in the video for setting this to false / when)
         navMeshAgent.updateRotation = true;
 
-        // Don't need
-        if (navMeshAgent == null) {
-            Debug.LogError("Stone Golem was not passed a NavMeshAgent!!");
-        }
-
         if (Destination) {
             navMeshAgent.SetDestination(Destination.transform.position);
             healthBar.Target = Destination;
@@ -164,16 +159,18 @@ public class StoneGolem : MonoBehaviour {
 
         health.OnDamaged += OnDamaged;
         health.OnDeath += OnDeath;
-        health.EntityMaterial = MainMeshRenderer.material;
     }
 
-    void Update() {
+    protected override void Update() {
+        base.Update();
+
         // Search for the player
 
         // If we have a target, do pathfinding? (Ensure we're in a good spot to shoot)
 
         // See if we have enough charge and search for the player
-        SetPosition();
+        SetNavMeshDestination();
+
 
         SynchronizeAnimatorAndAgent();
 
@@ -240,7 +237,7 @@ public class StoneGolem : MonoBehaviour {
     }
 
     // Remove this it was just for testing
-    private void SetPosition() {
+    private void SetNavMeshDestination() {
         float dist = Vector3.Distance(Destination.position, lastTargetPosition);
         float minDist = 0.5f;
 
@@ -277,5 +274,8 @@ public class StoneGolem : MonoBehaviour {
 
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
         }
+    }
+    public override Material GetMaterial() {
+        return MainMeshRenderer.material;
     }
 }

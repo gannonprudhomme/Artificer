@@ -169,9 +169,9 @@ public abstract class Projectile : MonoBehaviour {
         // point damage
         ColliderParentPointer colliderParentPointer = collider.GetComponent<ColliderParentPointer>();
         if (colliderParentPointer) {
-            Health health = colliderParentPointer.health;
+            Entity entity = colliderParentPointer.entity;
 
-            health.TakeDamage(DamageEconomy.PlayerBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
+            entity.TakeDamage(DamageEconomy.PlayerBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
         }
 
         // impact vfx

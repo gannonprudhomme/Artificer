@@ -87,16 +87,16 @@ public class IceWallSpike : MonoBehaviour {
         // We collided! See if this is an enemy / has a Damageable component
         // otherwise, ignore it!
         // We should be able to do this with Layers / a Collider LayerMask hopefully
-        Health health = collider.GetComponent<Health>();
-        if (health == null) {
-            health = collider.GetComponentInParent<Health>();
-            if (health == null) {
-                print("collider and it's parent doesn't have Health component! ignoring");
+        Entity entity = collider.GetComponent<Entity>();
+        if (entity == null) {
+            entity = collider.GetComponentInParent<Entity>();
+            if (entity == null) {
+                print("collider and it's parent doesn't have Entity component! ignoring");
                 return; 
             }
         }
 
-        health.TakeDamage(damage, this.gameObject, null);
+        entity.TakeDamage(damage, this.gameObject, new FreezeStatusEffect());
 
         Detonate();
     }

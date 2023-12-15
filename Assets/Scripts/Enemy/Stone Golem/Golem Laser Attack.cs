@@ -276,8 +276,8 @@ public class GolemLaserAttack {
         // In actuality DamageArea should be the thing doing this
         // we should just spawn DamageArea where-ever we hit, and if it hits the player then it hits the player
         foreach ( RaycastHit hit in hits ) {
-            if (hit.collider.TryGetComponent<Health>(out Health health)) {
-                health.TakeDamage(damage);
+            if (hit.collider.TryGetComponent<Entity>(out Entity entity)) {
+                entity.TakeDamage(damage);
                 break;
             }
         }

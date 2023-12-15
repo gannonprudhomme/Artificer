@@ -6,7 +6,7 @@ using UnityEngine;
 // and adds / removes them all
 public class EnemyStatusEffectBarUI : MonoBehaviour {
     [Tooltip("Reference to the Health component for the enemy we're displaying this for")]
-    public Health EnemyHealth; 
+    public Entity Entity; 
 
     [Tooltip("The prefab of the EnemyStatusEffectUI we'll use to make new ones")]
     public EnemyStatusEffectUI EnemyStatusEffectUIPrefab;
@@ -15,8 +15,8 @@ public class EnemyStatusEffectBarUI : MonoBehaviour {
     private Dictionary<string, EnemyStatusEffectUI> statusEffectUIDict = new();
 
     void Start() {
-        EnemyHealth.OnStatusEffectAdded += OnStatusEffectAdded;
-        EnemyHealth.OnStatusEffectRemoved += OnStatusEffectRemoved;
+        Entity.OnStatusEffectAdded += OnStatusEffectAdded;
+        Entity.OnStatusEffectRemoved += OnStatusEffectRemoved;
     }
 
     void Update() {
@@ -24,6 +24,11 @@ public class EnemyStatusEffectBarUI : MonoBehaviour {
     }
 
     private void OnStatusEffectAdded(BaseStatusEffect effect) {
+        // Some effects won't display anything, so don't do anything
+        if (effect.ImageName == null) {
+            return;
+        }
+
         // Create an instance
         EnemyStatusEffectUI uiInstance = Instantiate(EnemyStatusEffectUIPrefab, transform);
         uiInstance.StatusEffect = effect;
@@ -33,6 +38,10 @@ public class EnemyStatusEffectBarUI : MonoBehaviour {
     }
 
     private void OnStatusEffectRemoved(BaseStatusEffect effect) {
+        if (effect.ImageName == null) {
+            return;
+        }
+
         // Remove it, and destroy the instance
         if(statusEffectUIDict.TryGetValue(effect.Name, out EnemyStatusEffectUI uiInstance)) {
             Destroy(uiInstance.gameObject);

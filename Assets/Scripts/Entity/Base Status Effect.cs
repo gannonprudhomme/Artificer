@@ -14,13 +14,19 @@ public abstract class BaseStatusEffect {
     // for displaying in the UI
     public abstract string ImageName { get; }
 
-    public abstract float OnFixedUpdate(Material material);
+    /// <summary>
+    /// Returns the damage afflicted on that tick
+    /// </summary>
+    /// <param name="material"></param>
+    /// <returns></returns>
+    public abstract void OnFixedUpdate(Entity entity);
     
-    public abstract void OnUpdate(Material material);
+    public abstract void OnUpdate(Entity entity);
+
 
     public abstract bool HasEffectFinished();
 
-    public abstract void Finished(Material material);
+    public abstract void Finished(Entity entity);
 
     // Stack the effect if it's already active on the Entity / Health
     public abstract void StackEffect(BaseStatusEffect effect);

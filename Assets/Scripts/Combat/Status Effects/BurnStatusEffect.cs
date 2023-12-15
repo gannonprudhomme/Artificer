@@ -46,6 +46,7 @@ public class BurnStatusEffect: BaseStatusEffect {
     private const int TicksPerSecond = 5;
 
     // Each tick is 10% of *player* base damage - or is it the base damage of the fireball / attack?
+    // This doesn't seem right
     private const float DamagePerTick = PlayerBaseDamage * 0.1f; 
     
     // We're going to consider damagePerStack to be the base damage that is initially applied when this is created
@@ -96,17 +97,82 @@ public class BurnStatusEffect: BaseStatusEffect {
     // If I set below to 1 then there will be 0 frames between, if I set it to 1.5 there will be 4 frames between, so 1.25 it is
     private const float ticksPerSecondModifier = 1.5f;
 
-    public override void OnUpdate(Material material) {
+    public override void OnUpdate(Entity entity) {
         // We could just pass lastTickTime and have the shader do this
         // that way it being smooth is guaranteed
         // No variable names in a shader makes it a tougher sell tho
         float modifiedTimeSinceLastTick = (Time.time - lastTickTime) * TicksPerSecond * ticksPerSecondModifier;
-        material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, modifiedTimeSinceLastTick);
+        entity.GetMaterial().SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, modifiedTimeSinceLastTick);
     }
 
-    // This isn't a MonoBehaviour, so the Health component will call this FixedUpdate()
+    // This isn't a MonoBehaviour, so the Entity component will call this FixedUpdate()
     // so this can handle its own OnTick functionality (as diff status effects have diff tick rates)
-    public override float OnFixedUpdate(Material material) {
+    public override void OnFixedUpdate(Entity entity) {
+        Material material = entity.GetMaterial();
+
+        HandleBurnTickAnimation(material);
+
+        if (damageLeftToApply == 0) {
+            // This isn't going to happen - it's handled by Entity,
+            // but we still need a base case
+            return;
+        }
+
+        // See if this is a tick
+        // TODO: I wonder if I should use Coroutines for this?
+        if (IsFrameATick()) {
+            material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, 0);
+            float damage = OnTick(material);
+
+            entity.TakeDamage(damage);
+        }
+    }
+
+    // Apply damage (or heal)
+    private float OnTick(Material material) {
+        damageLeftToApply -= DamagePerTick;
+        // TODO: Check this depending on what we want the "start" of the animation to be
+        tickNumber += 1;
+
+        material.SetInt(SHADER_WAS_DAMAGED, 1);
+
+        return DamagePerTick;
+    }
+
+    // Called in Health when HasEffectFinished() returns false
+    public override void Finished(Entity entity) {
+        // If this is an enemy, reset the shader
+        // though hopefully the shader would do it on its own?
+
+        // Remove this from the list of status effects on Health somehow
+        entity.GetMaterial().SetInt(SHADER_IS_BURNING_PARAM, 0);
+    }
+
+    public override void StackEffect(BaseStatusEffect effect) {
+        // Ensure they're the same type - if they're not do nothing (and log an error)
+        if (effect.GetType() != typeof(BurnStatusEffect)) {
+            Debug.LogError($"Trying to stack an effect of type {effect} with BurnStatusEffect");
+            return;
+        }
+
+        BurnStatusEffect newBurnEffect = (BurnStatusEffect) effect;
+
+        this.damageLeftToApply += newBurnEffect.damageLeftToApply;
+    }
+
+    // Returns true if this frame should be considered a tick
+    private bool IsFrameATick() {
+        float timeDiff = Time.time - lastTickTime;
+
+        if (timeDiff > (1f / TicksPerSecond)) {
+            lastTickTime = Time.time;
+            return true;
+        }
+
+        return false;
+    }
+
+    private void HandleBurnTickAnimation(Material material) {
         material.SetInt(SHADER_IS_BURNING_PARAM, 1);
 
         // I need to get this in the range of [0,1] (really [1 -> 0]) so it blends correctly between ticks
@@ -132,68 +198,5 @@ public class BurnStatusEffect: BaseStatusEffect {
         material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_1, frameStart);
         material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_2, frameEnd);
 
-        if (damageLeftToApply == 0) {
-            // This isn't going to happen - it's handled by Health,
-            // but we still need a base case
-            return 0f;
-        }
-
-        // See if this is a tick
-        // TODO: I wonder if I should use Coroutines for this?
-        if (IsFrameATick()) {
-        // material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_1, tickNumber % numberOfBurnFlashTextures);
-        // material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_1, 0); // hardcoded for now
-        // I don't think we want to blend
-        // material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_2, (tickNumber % numberOfBurnFlashTextures) - 1);
-
-            material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, 0);
-            return OnTick(material);
-        }
-
-        return 0f;
-    }
-
-    // Apply damage (or heal)
-    private float OnTick(Material material) {
-        damageLeftToApply -= DamagePerTick;
-        // TODO: Check this depending on what we want the "start" of the animation to be
-        tickNumber += 1;
-
-        material.SetInt(SHADER_WAS_DAMAGED, 1);
-
-        return DamagePerTick;
-    }
-
-    // Called in Health when HasEffectFinished() returns false
-    public override void Finished(Material material) {
-        // If this is an enemy, reset the shader
-        // though hopefully the shader would do it on its own?
-
-        // Remove this from the list of status effects on Health somehow
-        material.SetInt(SHADER_IS_BURNING_PARAM, 0);
-    }
-
-    public override void StackEffect(BaseStatusEffect effect) {
-        // Ensure they're the same type - if they're not do nothing (and log an error)
-        if (effect.GetType() != typeof(BurnStatusEffect)) {
-            Debug.LogError($"Trying to stack an effect of type {effect} with BurnStatusEffect");
-            return;
-        }
-
-        BurnStatusEffect newBurnEffect = (BurnStatusEffect) effect;
-
-        this.damageLeftToApply += newBurnEffect.damageLeftToApply;
-    }
-
-    // Returns true if this frame should be considered a tick
-    private bool IsFrameATick() {
-        float timeDiff = Time.time - lastTickTime;
-
-        if (timeDiff > (1f / TicksPerSecond)) {
-            lastTickTime = Time.time;
-            return true;
-        }
-
-        return false;
     }
 }
