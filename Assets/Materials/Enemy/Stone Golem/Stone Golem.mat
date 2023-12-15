@@ -96,6 +96,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Freeze_Texture:
+        m_Texture: {fileID: 2800000, guid: 280b15025e542b4449241ba5f3f2b9e5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -176,6 +180,7 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _IsBurning: 0
+    - _IsFrozen: 0
     - _IsOnFire: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
