@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+public enum DamageType { 
+     Normal,
+     Burn
+}
+
 // I'm combining this and Damageable - idk why Damageable exists
 public class Health : MonoBehaviour {
     [Header("Health Data")]
@@ -23,7 +28,7 @@ public class Health : MonoBehaviour {
 
     public float CurrentHealth { get; private set; }
 
-    public UnityAction<float, Vector3> OnDamaged;
+    public UnityAction<float, Vector3, DamageType> OnDamaged;
     public UnityAction OnDeath;
 
     private bool isDead;
@@ -39,11 +44,6 @@ public class Health : MonoBehaviour {
         // Call OnHealed
     }
 
-
-    public void TakeDamage(float damage, Vector3 damagePosition) {
-        ApplyDamage(damage, damagePosition);
-    }
-
     // Underlying function which subtracts the health from CurrentHealth, plays audio, and handles dying
     // 
     // Don't set the damagePosition (use default value) if the damage isn't applied in a specific "place"
@@ -52,7 +52,7 @@ public class Health : MonoBehaviour {
     // This is needed as status effects need to be able to apply damage without re-applying/stacking the status effect
     //
     // Pass Vector3.negativeInfinity if damagePosition isn't relevant
-    private void ApplyDamage(float damage, Vector3 damagePosition) {
+    public void TakeDamage(float damage, Vector3 damagePosition, DamageType damageType) {
         if (Invincible)
             return;
 
@@ -62,7 +62,7 @@ public class Health : MonoBehaviour {
 
         // Check if damagePosition is null maybe?
 
-        OnDamaged?.Invoke(damage, damagePosition);
+        OnDamaged?.Invoke(damage, damagePosition, damageType);
 
         // Play audio clip
         if (OnDamageSfx) {
@@ -80,7 +80,7 @@ public class Health : MonoBehaviour {
     }
 
     public void Kill() {
-        TakeDamage(Mathf.Infinity, Vector3.negativeInfinity);
+        TakeDamage(Mathf.Infinity, Vector3.negativeInfinity, DamageType.Normal);
     }
 
     void FixedUpdate() {

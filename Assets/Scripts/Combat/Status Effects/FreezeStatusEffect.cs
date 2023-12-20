@@ -75,7 +75,6 @@ public class FreezeStatusEffect : BaseStatusEffect {
     }
 
     public override void StackEffect(BaseStatusEffect effect) {
-        Debug.Log("stacking");
         lastTimeTriggered = Time.time;
     }
 }

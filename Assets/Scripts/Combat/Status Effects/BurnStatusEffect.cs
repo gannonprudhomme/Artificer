@@ -124,7 +124,7 @@ public class BurnStatusEffect: BaseStatusEffect {
             material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, 0);
             float damage = OnTick(material);
 
-            entity.TakeDamage(damage);
+            entity.TakeDamage(damage, DamageType.Burn);
         }
     }
 

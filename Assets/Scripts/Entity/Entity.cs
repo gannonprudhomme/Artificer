@@ -86,11 +86,12 @@ public abstract class Entity : MonoBehaviour {
     // This is what damage "appliers" (e.g. Projectiles / Spells) actually call.
     public void TakeDamage(
         float damage,
-        GameObject damageSource, // Currently unused
+        GameObject damageSourcel, // Currently unused
         BaseStatusEffect appliedStatusEffect, // Optional
-        Vector3 damagePosition // Used to place where the damage text spawns from
+        Vector3 damagePosition, // Used to place where the damage text spawns from
+        DamageType damageType = DamageType.Normal
     ) {
-        health.TakeDamage(damage, damagePosition);
+        health.TakeDamage(damage, damagePosition, damageType);
 
         // Handle status effects
         if (appliedStatusEffect != null) {
@@ -110,15 +111,17 @@ public abstract class Entity : MonoBehaviour {
     public void TakeDamage(
         float damage,
         GameObject damageSource,
-        BaseStatusEffect appliedStatusEffect
+        BaseStatusEffect appliedStatusEffect,
+        DamageType damageType = DamageType.Normal
     ) {
-        TakeDamage(damage, damageSource, appliedStatusEffect, Vector3.negativeInfinity);
+        TakeDamage(damage, damageSource, appliedStatusEffect, Vector3.negativeInfinity, damageType);
     }
 
+    // TODO: I don't actually think I need this, I can just make default-values for above null
     // Take flat damage
     // TODO: Do I actually want this? I suppose I might?
-    public void TakeDamage(float damage) {
-        TakeDamage(damage, null, null);
+    public void TakeDamage(float damage, DamageType damageType = DamageType.Normal) {
+        TakeDamage(damage, null, null, damageType);
     }
 
     public void AddParticleEffect(ParticleSystem particlePrefab) {

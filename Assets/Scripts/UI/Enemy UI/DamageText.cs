@@ -23,9 +23,14 @@ public class DamageText : MonoBehaviour {
     // The time when this was spawned
     private float startTime;
 
+    private Color textColor = Color.magenta;
+
     // Start is called before the first frame update
     void Start() {
         damageText = GetComponent<TextMeshProUGUI>();
+        // We're assuming this is always going to be set by the time Start() is called
+		damageText.color = textColor;
+
         // damageText.text = $"{Damage}";
 
         // Random value between [2.0, 4.0]
@@ -84,5 +89,13 @@ public class DamageText : MonoBehaviour {
             (Time.time - startTime) / Lifetime
         );
         */
+    }
+
+    public void SetTextColor(Color color) {
+        if (damageText != null) {
+			damageText.color = color;
+		}
+
+        textColor = color;
     }
 }
