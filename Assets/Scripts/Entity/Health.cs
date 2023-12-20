@@ -50,6 +50,8 @@ public class Health : MonoBehaviour {
     // e.g. for damage over time effects
     //
     // This is needed as status effects need to be able to apply damage without re-applying/stacking the status effect
+    //
+    // Pass Vector3.negativeInfinity if damagePosition isn't relevant
     private void ApplyDamage(float damage, Vector3 damagePosition) {
         if (Invincible)
             return;
@@ -76,6 +78,11 @@ public class Health : MonoBehaviour {
 
         HandleDeath();
     }
+
+    public void Kill() {
+        TakeDamage(Mathf.Infinity, Vector3.negativeInfinity);
+    }
+
     void FixedUpdate() {
         // Need to see if this renegerates over time
         // though honestly that could just be in a HealthRegen component

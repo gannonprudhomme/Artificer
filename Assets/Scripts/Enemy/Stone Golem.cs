@@ -48,7 +48,7 @@ public abstract class Enemy: MonoBehaviour {
 // - More complex logic where it chooses where to stop (or backup) for the lazer,
 //   know how to pathfind with the lazer in mind (?)
 // 
-[RequireComponent(typeof(Health), typeof(NavMeshAgent), typeof(Animator))]
+[RequireComponent(typeof(NavMeshAgent), typeof(Animator))]
 [RequireComponent(
     // typeof(Rigidbody), // So it hits triggers collider triggers (e.g. Ice Wall Spike)
     typeof(RigBuilder), // For controlling IK like the head look-at
@@ -136,7 +136,6 @@ public class StoneGolem : Enemy {
         laserLineRenderer = GetComponent<LineRenderer>();
 
         laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Destination, LaserSizeCurve, LaserChargeSfx, LaserFireSfx);
-
 
         animator.applyRootMotion = true;
         // Want animator to drive movement, not agent

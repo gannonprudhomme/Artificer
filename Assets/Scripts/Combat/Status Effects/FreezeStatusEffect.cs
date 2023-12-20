@@ -66,6 +66,12 @@ public class FreezeStatusEffect : BaseStatusEffect {
 
     public override void OnUpdate(Entity entity) {
         // If at any point this entity's health is at 30%, kill it
+        float healthPercentage = entity.health.CurrentHealth / entity.health.MaxHealth;
+        
+        if (healthPercentage <= 0.3f) {
+            // We should really only go through entity, not entity.health
+            entity.health.Kill();
+		}
     }
 
     public override void StackEffect(BaseStatusEffect effect) {

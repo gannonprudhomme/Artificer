@@ -22,6 +22,6 @@ public abstract class Enemy : Entity {
     private void OnDeath() {
         enemyManager.RemoveEnemy(this);
 
-        Destroy(this);
+        Destroy(this.gameObject);
     }
 }
