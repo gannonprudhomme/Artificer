@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController), typeof(InputHandler))]
-public class PlayerController : MonoBehaviour {
+public class PlayerController : Entity {
     /** PROPERTIES **/
 
     [Header("References")]
@@ -99,7 +99,9 @@ public class PlayerController : MonoBehaviour {
     }
 
 
-    void Start() {
+    protected override void Start() {
+        base.Start();
+
         characterController = GetComponent<CharacterController>();
         // Handle null
 
@@ -111,7 +113,9 @@ public class PlayerController : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
+    protected override void Update() {
+        base.Update();
+
         (bool newIsGrounded, Vector3 newGroundNormal) = GroundCheck(
             IsGrounded,
             characterController,
@@ -362,6 +366,14 @@ public class PlayerController : MonoBehaviour {
     ) {
         Vector3 directionRight = Vector3.Cross(direction, transformUp);
         return Vector3.Cross(slopeNormal, directionRight).normalized;
+    }
+
+    public override Material GetMaterial() {
+        throw new NotImplementedException();
+    }
+
+    public override Vector3 GetMiddleOfMesh() {
+        throw new NotImplementedException();
     }
 }
 
