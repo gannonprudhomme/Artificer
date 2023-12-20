@@ -204,6 +204,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b075fddab3c5224b9d41f352f443cb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnEndFreezeParticleSystemPrefab: {fileID: 0}
+  OnEndFreezeSfx: {fileID: 0}
   MainMeshRenderer: {fileID: 17677098403421449}
   Destination: {fileID: 0}
   AimPoint: {fileID: 3244650871039522762}
@@ -1526,7 +1528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b7e26fd086472440bbaa8a6d0b67765, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entity: {fileID: 0}
+  entity: {fileID: 227309694435722584}
 --- !u!4 &8251620429350316434 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2958817221983685307, guid: 69d5f21fa28b24b41a1954cc85b58acb,
@@ -1614,6 +1616,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5411524421023769956, guid: 47c8fb6f008537b45af58c265f32ae8c,
+        type: 3}
+      propertyPath: entity
+      value: 
+      objectReference: {fileID: 227309694435722584}
     - target: {fileID: 5411524421023769956, guid: 47c8fb6f008537b45af58c265f32ae8c,
         type: 3}
       propertyPath: health
