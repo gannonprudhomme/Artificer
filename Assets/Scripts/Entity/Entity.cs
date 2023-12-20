@@ -26,7 +26,9 @@ public abstract class Entity : MonoBehaviour {
     public UnityAction<BaseStatusEffect> OnStatusEffectRemoved;
 
     // How should we handle this? We're going to have a *lot* of these
-    protected bool canMove = true;
+    // I initially called this canMove, but changed to isFrozen since EnemyHealthBar
+    // needs to read this.
+    protected bool isFrozen = false;
 
     public abstract Material GetMaterial();
     public abstract Vector3 GetMiddleOfMesh();
@@ -73,8 +75,12 @@ public abstract class Entity : MonoBehaviour {
         }
     }
 
-    public void SetCanMove(bool canMove) {
-        this.canMove = canMove;
+    public virtual void SetIsFrozen(bool isFrozen) {
+        this.isFrozen = isFrozen;
+    }
+
+    public bool GetIsFrozen() {
+        return isFrozen;
     }
 
     // This is what damage "appliers" (e.g. Projectiles / Spells) actually call.
@@ -112,7 +118,6 @@ public abstract class Entity : MonoBehaviour {
     // Take flat damage
     // TODO: Do I actually want this? I suppose I might?
     public void TakeDamage(float damage) {
-        print($"entity doing damage {damage}");
         TakeDamage(damage, null, null);
     }
 

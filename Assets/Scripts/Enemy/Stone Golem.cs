@@ -181,7 +181,7 @@ public class StoneGolem : Entity {
         // See if we have enough charge and search for the player
         SetNavMeshDestination();
 
-        if (canMove) {
+        if (!isFrozen) {
             // If we can move this frame but couldn't last frame
             if (!couldMoveLastFrame) {
                 couldMoveLastFrame = true;
@@ -294,6 +294,13 @@ public class StoneGolem : Entity {
 
     private void OnDamaged(float damage, Vector3 damagedPos) {
         lastDamagedTime = Time.time;
+    }
+
+    public override void SetIsFrozen(bool isFrozen) {
+        base.SetIsFrozen(isFrozen);
+
+        // May not be the best way to do this, idrk
+        laserAttack.canAttack = !isFrozen;
     }
 
     // When the NavMeshAgent is within it's stopping distance, it won't rotate anymore.

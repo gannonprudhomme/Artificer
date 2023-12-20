@@ -113,9 +113,9 @@ public class GolemLaserAttack: Attack {
 
     // Called in Update() in Stone Golem
     public void OnUpdate() {
-        // We do this a ton of unnecessary times doing it this way
-        // But it's probably fine? For now at least
         if (!canAttack) {
+			// We do this a ton of unnecessary times doing it this way
+			// But it's probably fine? For now at least (don't optimize early and shit)
             ResetAttack();
             return;
         }
@@ -237,7 +237,6 @@ public class GolemLaserAttack: Attack {
         );
     }
 
-    // The laser is done charging, "fire" it!
     private void StartFiring() {
         isCharging = false;
         isFiring = true;

@@ -31,19 +31,17 @@ public class FreezeStatusEffect : BaseStatusEffect {
     public const string SHADER_IS_FROZEN = "_IsFrozen";
 
     public override void OnStart(Entity entity) {
-        Debug.Log("Starting");
         entity.GetMaterial().SetInt(SHADER_IS_FROZEN, 1);
-        entity.SetCanMove(false);
+        entity.SetIsFrozen(true);
 
         lastTimeTriggered = Time.time;
     }
 
     public override void OnFinished(Entity entity) {
-        Debug.Log("Finished");
         // Trigger the explosion particles
         // When that's done, destroy this
         // Might have to do some weird stuff w/ durationRemaining to do that though
-        entity.SetCanMove(true);
+        entity.SetIsFrozen(false);
         entity.GetMaterial().SetInt(SHADER_IS_FROZEN, 0);
 
         // Add the particle effect
