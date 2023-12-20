@@ -12,9 +12,9 @@ public class EnemyManager : MonoBehaviour {
     // public static EnemyManager shared;
 
     // TODO: Change this to be List<Enemy>
-    public List<GameObject> activeEnemies { get; private set; }
+    public List<Enemy> activeEnemies { get; private set; }
 
-    public UnityAction<GameObject> OnEnemyAdded;
+    public UnityAction<Enemy> OnEnemyAdded;
 
     void Awake() {
         activeEnemies = new();
@@ -23,14 +23,15 @@ public class EnemyManager : MonoBehaviour {
     void Update() {
     }
 
-    public void AddEnemy(GameObject enemy) {
+    // Should probably be an actual Enemy object?
+    public void AddEnemy(Enemy enemy) {
         activeEnemies.Add(enemy);
 
         OnEnemyAdded?.Invoke(enemy);
     }
 
     // Remove an enemy from the list (when they die)
-    public void RemoveEnemy(GameObject enemy) {
+    public void RemoveEnemy(Enemy enemy) {
         activeEnemies.Remove(enemy);
     }
 }

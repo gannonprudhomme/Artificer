@@ -54,7 +54,7 @@ public abstract class Enemy: MonoBehaviour {
     typeof(RigBuilder), // For controlling IK like the head look-at
     typeof(LineRenderer) // For displaying the laser
 )] 
-public class StoneGolem : Entity {
+public class StoneGolem : Enemy {
 
     [Header("References")]
     [Tooltip("The Mesh Rendered used to display this enemy. Used to set properties on its shader (material)")]
@@ -106,7 +106,6 @@ public class StoneGolem : Entity {
     private Vector2 smoothDeltaPosition;
     private const float isMovingMin = 0.5f;
 
-    private EnemyManager enemyManager;
 
     private float lastDamagedTime = Mathf.Infinity;
 
@@ -134,16 +133,10 @@ public class StoneGolem : Entity {
 
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-        enemyManager = FindObjectOfType<EnemyManager>();
         laserLineRenderer = GetComponent<LineRenderer>();
 
         laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Destination, LaserSizeCurve, LaserChargeSfx, LaserFireSfx);
 
-        if (enemyManager == null) {
-            Debug.LogError("Couldn't find EnemyManager!");
-        }
-
-        enemyManager.AddEnemy(this.gameObject);
 
         animator.applyRootMotion = true;
         // Want animator to drive movement, not agent
@@ -168,7 +161,6 @@ public class StoneGolem : Entity {
         } 
 
         health.OnDamaged += OnDamaged;
-        health.OnDeath += OnDeath;
     }
 
     protected override void Update() {
@@ -283,13 +275,6 @@ public class StoneGolem : Entity {
 
             lastTargetPosition = Destination.position;
         }
-    }
-
-    // All Enemies need to do this - we probably can do this in the abstract Enemy class
-    private void OnDeath() {
-        enemyManager.RemoveEnemy(this.gameObject);
-
-        Destroy(this.gameObject);
     }
 
     private void OnDamaged(float damage, Vector3 damagedPos) {

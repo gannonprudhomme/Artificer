@@ -68,15 +68,8 @@ public class CrosshairDamageIndicatorUI : MonoBehaviour {
         }
     }
 
-    private void OnEnemyAdded(GameObject enemy) {
-        Health health = enemy.GetComponent<Health>();
-
-        if (health == null) {
-            Debug.LogError($"Enemy {enemy} didn't have Health, returning");
-            return;
-        }
-
-        health.OnDamaged += OnEnemyDamaged;
+    private void OnEnemyAdded(Enemy enemy) {
+        enemy.health.OnDamaged += OnEnemyDamaged;
     }
 
     // We don't care about these parameters
