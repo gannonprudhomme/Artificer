@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Codice.CM.Client.Differences.Merge;
 using UnityEngine;
 
+#nullable enable
+
 // A status effect should be able to:
 // - Apply damage to an entity at whatever pace they want
 // - Apply particle effects to the entity, however the particle (or entity?) wants?
@@ -20,7 +22,7 @@ public class FreezeStatusEffect : BaseStatusEffect {
 
     public override int CurrentStacks => 0;
 
-    public override string ImageName => null;
+    public override string? ImageName => null;
 
     // We'll reset this each time a stack gets applied
     private float lastTimeTriggered = Mathf.NegativeInfinity;
@@ -31,21 +33,29 @@ public class FreezeStatusEffect : BaseStatusEffect {
     public const string SHADER_IS_FROZEN = "_IsFrozen";
 
     public override void OnStart(Entity entity) {
-        entity.GetMaterial().SetInt(SHADER_IS_FROZEN, 1);
+        Material? entityMaterial = entity.GetMaterial();
+        if (entityMaterial is Material _entityMaterial) { 
+			_entityMaterial.SetInt(SHADER_IS_FROZEN, 1);
+		}
+
         entity.SetIsFrozen(true);
 
         lastTimeTriggered = Time.time;
     }
 
     public override void OnFinished(Entity entity) {
+        Material? entityMaterial = entity.GetMaterial();
+        if (entityMaterial is Material _entityMaterial) {
+			_entityMaterial.SetInt(SHADER_IS_FROZEN, 0);
+		}
+
         // Trigger the explosion particles
         // When that's done, destroy this
         // Might have to do some weird stuff w/ durationRemaining to do that though
         entity.SetIsFrozen(false);
-        entity.GetMaterial().SetInt(SHADER_IS_FROZEN, 0);
 
         // Add the particle effect
-        entity.AddParticleEffect(entity.OnEndFreezeParticleSystemPrefab);
+        entity.AddParticleEffect(entity.OnEndFreezeParticleSystemPrefab!);
 
         AudioUtility.shared.CreateSFX(
             entity.OnEndFreezeSfx,

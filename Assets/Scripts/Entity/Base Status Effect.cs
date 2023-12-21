@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#nullable enable
+
 // We need like a "Base Damage" which this is a subclass of
 // as some damage sources will just be flat damage, like the first hit from the fireball
 public abstract class BaseStatusEffect {
@@ -12,7 +14,7 @@ public abstract class BaseStatusEffect {
 
     // The name of the image in the Resources/Status Effects/ folder
     // for displaying in the UI
-    public abstract string ImageName { get; }
+    public abstract string? ImageName { get; }
 
     public virtual void OnStart(Entity entity) { } // Don't have to override it if you don't want!
 

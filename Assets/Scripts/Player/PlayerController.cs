@@ -368,8 +368,8 @@ public class PlayerController : Entity {
         return Vector3.Cross(slopeNormal, directionRight).normalized;
     }
 
-    public override Material GetMaterial() {
-        throw new NotImplementedException();
+    public override Material? GetMaterial() {
+        return null;
     }
 
     public override Vector3 GetMiddleOfMesh() {

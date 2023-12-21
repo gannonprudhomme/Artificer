@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using PlasticGui.WorkspaceWindow;
 using UnityEngine;
 
+#nullable enable
+
 // Again ideally this would be an interface,
 // but this has to be an abstract class since it has to be a MonoBehavior (man fuck C# I miss protocols)
 
@@ -66,9 +68,9 @@ public abstract class Projectile : MonoBehaviour {
 
     private Vector3 lastRootPosition;
     private Vector3 velocity;
-    private List<Collider> ignoredColliders;
+    private List<Collider> ignoredColliders = new();
 
-    private GameObject owner;
+    private GameObject? owner;
 
     /** Functions **/
     void OnEnable() { // We do this instead of Start() for some reason

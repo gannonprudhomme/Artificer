@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+#nullable enable
+
 // Parent of all players & enemies
 // basically anything that has Health and status effects can apply to
 [RequireComponent(typeof(Health))]
 public abstract class Entity : MonoBehaviour {
     [Header("Entity (Inherited)")]
     [Tooltip("Prefab for the particle system which plays when the freeze status effect ends")]
-    public ParticleSystem OnEndFreezeParticleSystemPrefab;
+    public ParticleSystem? OnEndFreezeParticleSystemPrefab;
 
     [Tooltip("AudioClip which plays when the freeze status effect ends")]
-    public AudioClip OnEndFreezeSfx;
+    public AudioClip? OnEndFreezeSfx;
 
     public Health health { get; private set; }
 
@@ -30,7 +32,7 @@ public abstract class Entity : MonoBehaviour {
     // needs to read this.
     protected bool isFrozen = false;
 
-    public abstract Material GetMaterial();
+    public abstract Material? GetMaterial();
     public abstract Vector3 GetMiddleOfMesh();
 
     protected virtual void Start() {
@@ -54,8 +56,6 @@ public abstract class Entity : MonoBehaviour {
         HashSet<string> toRemove = new();
         foreach (var statusEffectName in statusEffects.Keys) {
             BaseStatusEffect statusEffect = statusEffects[statusEffectName];
-
-            Material material = GetMaterial();
 
             if (!statusEffect.HasEffectFinished()) {
 
@@ -86,8 +86,8 @@ public abstract class Entity : MonoBehaviour {
     // This is what damage "appliers" (e.g. Projectiles / Spells) actually call.
     public void TakeDamage(
         float damage,
-        GameObject damageSourcel, // Currently unused
-        BaseStatusEffect appliedStatusEffect, // Optional
+        GameObject? damageSource, // Currently unused
+        BaseStatusEffect? appliedStatusEffect, // Optional
         Vector3 damagePosition, // Used to place where the damage text spawns from
         DamageType damageType = DamageType.Normal
     ) {
@@ -110,8 +110,8 @@ public abstract class Entity : MonoBehaviour {
     // Available so we can apply damage if we don't know where exactly on the Collider it happened
     public void TakeDamage(
         float damage,
-        GameObject damageSource,
-        BaseStatusEffect appliedStatusEffect,
+        GameObject? damageSource,
+        BaseStatusEffect? appliedStatusEffect,
         DamageType damageType = DamageType.Normal
     ) {
         TakeDamage(damage, damageSource, appliedStatusEffect, Vector3.negativeInfinity, damageType);

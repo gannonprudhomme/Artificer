@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#nullable enable
+
 // The only reason this has to be a MonoBehavior in the first place
 // is so we can assign it a projectile
 // Is there really no other way? Ugh I want this to just be input/output

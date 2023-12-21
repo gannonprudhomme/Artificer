@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Codice.Client.BaseCommands.CheckIn.Progress;
 using UnityEngine;
 
+#nullable enable
+
 [RequireComponent(typeof(BoxCollider))]
 public class IceWallSpike : MonoBehaviour {
     [Tooltip("SFX to play when the ice spike detonates (by collision or after lifetime is reached)")]
