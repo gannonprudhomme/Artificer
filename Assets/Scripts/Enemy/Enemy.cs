@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// we might want this? So it triggers Collider triggers
+// [RequireComponent(typeof(RigidBody))]
 public abstract class Enemy : Entity {
     [Header("Enemy (inherited)")]
     [Tooltip("Where the NavMeshAgent is going to navigate to. Should be the player")]

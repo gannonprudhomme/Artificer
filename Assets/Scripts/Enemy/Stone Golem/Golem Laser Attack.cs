@@ -11,6 +11,8 @@ using UnityEngine;
 // and each enemy will only have like 1-4 attacks which we'll manually balance (not iterate over)
 public abstract class Attack {
     public bool canAttack = true;
+
+    public virtual void OnUpdate() { }
 }
 
 // I don't really think this should be a MonoBehaviour? It's not going to be a component or anything
@@ -112,7 +114,7 @@ public class GolemLaserAttack: Attack {
     }
 
     // Called in Update() in Stone Golem
-    public void OnUpdate() {
+    public override void OnUpdate() {
         if (!canAttack) {
 			// We do this a ton of unnecessary times doing it this way
 			// But it's probably fine? For now at least (don't optimize early and shit)
@@ -218,7 +220,6 @@ public class GolemLaserAttack: Attack {
     // In this case, start charging the laser.
     // The StoneGolem is handing over the reigns to the attack at this point
     public void StartCharging() {
-        // Debug.Log("Starting to charge laser");
         isCharging = true;
 
         timeOfChargeStart = Time.time;
@@ -301,6 +302,7 @@ public class GolemLaserAttack: Attack {
     }
 
     private void ResetAttack() {
+        isCharging = false;
         isFiring = false;
         lineRenderer.enabled = false;
         lineRenderer.material.SetInt(SHADER_IS_FIRING, 0);

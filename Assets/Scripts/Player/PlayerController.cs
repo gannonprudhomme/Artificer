@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#nullable enable
+
 [RequireComponent(typeof(CharacterController), typeof(InputHandler))]
 public class PlayerController : Entity {
     /** PROPERTIES **/

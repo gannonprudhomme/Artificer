@@ -81,7 +81,7 @@ public abstract class Projectile : MonoBehaviour {
     // Was originally OnShoot() I guess
     public void Shoot(
         GameObject owner, // (Root) Player game object
-        Camera spellCamera  // 
+        Camera spellCamera  // don't actually need, remove this
     ) {
         lastRootPosition = Root.position;
         velocity = transform.forward * Speed;
@@ -169,12 +169,13 @@ public abstract class Projectile : MonoBehaviour {
         // For now, we're not going to
 
         // point damage
-        ColliderParentPointer colliderParentPointer = collider.GetComponent<ColliderParentPointer>();
-        if (colliderParentPointer) {
+        if (collider.TryGetComponent<ColliderParentPointer>(out var colliderParentPointer)) {
             Entity entity = colliderParentPointer.entity;
 
             entity.TakeDamage(DamageEconomy.PlayerBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
-        }
+        } else if (collider.TryGetComponent<Entity>(out var entity)) {
+            entity.TakeDamage(DamageEconomy.PlayerBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
+		}
 
         // impact vfx
         if (ImpactVfx) {

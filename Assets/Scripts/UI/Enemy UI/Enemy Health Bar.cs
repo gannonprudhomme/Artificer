@@ -13,10 +13,6 @@ public class EnemyHealthBar : MonoBehaviour {
     [Tooltip("The entity (enemy) this is displaying for")]
     public Entity entity;
 
-    // Transform of the target this should look at
-    // Set by the Enemy that owns this
-    public Transform Target { get; set; }
-
     void Update() {
         if (entity.health == null) {
             Debug.LogError($"{this.name}'s health was not passed, returning");

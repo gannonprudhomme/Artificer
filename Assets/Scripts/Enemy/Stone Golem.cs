@@ -60,15 +60,8 @@ public class StoneGolem : Enemy {
     [Tooltip("The Mesh Rendered used to display this enemy. Used to set properties on its shader (material)")]
     public SkinnedMeshRenderer MainMeshRenderer;
 
-    // We probably don't want this
-    [Tooltip("Where the NavMeshAgent is going to navigate to")]
-    public Transform Destination;
-
     [Tooltip("Where on the Stone Golem we're going to aim its laser from")]
     public Transform AimPoint;
-
-    [Tooltip("Reference to the HealthBar. Needed so we can set the target on the health bar (so it looks at the player)")]
-    public EnemyHealthBar healthBar;
 
     [Tooltip("Reference to the AimTarget PositionConstraint for the look-at constraint. Needed so we can set it to copy the location of the player")]
     public PositionConstraint positionConstraint;
@@ -80,7 +73,6 @@ public class StoneGolem : Enemy {
     [Header("Laser Attack")]
     [Tooltip("Audio clip that plays when the lasfalseer begins charging the laser (starts the attack)")]
     public AudioClip LaserChargeSfx;
-
 
     [Tooltip("Audio clip that plays when the laser is finished charging & fires")]
     public AudioClip LaserFireSfx;
@@ -106,10 +98,8 @@ public class StoneGolem : Enemy {
     private Vector2 smoothDeltaPosition;
     private const float isMovingMin = 0.5f;
 
-
     private float lastDamagedTime = Mathf.Infinity;
 
-    // I should probably
     // Used so I don't reset the Animator's speed back to 0 / 1 every time canMove is true
     // as well as Play() / Stop() for nav mesh agent
     // I could use a UnityAction for this, but this is less code
@@ -135,7 +125,7 @@ public class StoneGolem : Enemy {
         animator = GetComponent<Animator>();
         laserLineRenderer = GetComponent<LineRenderer>();
 
-        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Destination, LaserSizeCurve, LaserChargeSfx, LaserFireSfx);
+        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Target, LaserSizeCurve, LaserChargeSfx, LaserFireSfx);
 
         animator.applyRootMotion = true;
         // Want animator to drive movement, not agent
@@ -143,14 +133,13 @@ public class StoneGolem : Enemy {
         // So it's aligned where we're going (he has notes later in the video for setting this to false / when)
         navMeshAgent.updateRotation = true;
 
-        if (Destination) {
-            navMeshAgent.SetDestination(Destination.transform.position);
-            healthBar.Target = Destination;
+        if (Target) {
+            navMeshAgent.SetDestination(Target.transform.position);
 
             // Make the TargetAim PositionConstraint copy the Destination's location
             // so the MultiAimConstraint correctly looks at the Destination (the player)
             ConstraintSource constraintSource = new() {
-                sourceTransform = Destination,
+                sourceTransform = Target,
                 weight = 1.0f
             };
             positionConstraint.SetSource(0, constraintSource);
@@ -266,13 +255,13 @@ public class StoneGolem : Enemy {
 
     // Remove this it was just for testing
     private void SetNavMeshDestination() {
-        float dist = Vector3.Distance(Destination.position, lastTargetPosition);
+        float dist = Vector3.Distance(Target.position, lastTargetPosition);
         float minDist = 0.5f;
 
         if (dist > minDist) {
-            navMeshAgent.SetDestination(Destination.position);
+            navMeshAgent.SetDestination(Target.position);
 
-            lastTargetPosition = Destination.position;
+            lastTargetPosition = Target.position;
         }
     }
 

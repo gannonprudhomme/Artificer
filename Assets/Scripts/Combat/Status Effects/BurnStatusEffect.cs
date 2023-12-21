@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Codice.CM.Client.Differences.Merge;
 using UnityEngine;
 
+#nullable enable
+
 // This should:
 // - Handle the timing of the shader effects?
 // - Have an OnTick function which applies the damage?
@@ -101,16 +103,19 @@ public class BurnStatusEffect: BaseStatusEffect {
         // We could just pass lastTickTime and have the shader do this
         // that way it being smooth is guaranteed
         // No variable names in a shader makes it a tougher sell tho
-        float modifiedTimeSinceLastTick = (Time.time - lastTickTime) * TicksPerSecond * ticksPerSecondModifier;
-        entity.GetMaterial().SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, modifiedTimeSinceLastTick);
+        if (entity.GetMaterial() is Material material) {
+            float modifiedTimeSinceLastTick = (Time.time - lastTickTime) * TicksPerSecond * ticksPerSecondModifier;
+            material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, modifiedTimeSinceLastTick);
+        }
     }
 
     // This isn't a MonoBehaviour, so the Entity component will call this FixedUpdate()
     // so this can handle its own OnTick functionality (as diff status effects have diff tick rates)
     public override void OnFixedUpdate(Entity entity) {
-        Material material = entity.GetMaterial();
-
-        HandleBurnTickAnimation(material);
+        Material? material = entity.GetMaterial();
+        if (material is Material _material) { 
+			HandleBurnTickAnimation(_material);
+		} 
 
         if (damageLeftToApply == 0) {
             // This isn't going to happen - it's handled by Entity,
@@ -121,7 +126,9 @@ public class BurnStatusEffect: BaseStatusEffect {
         // See if this is a tick
         // TODO: I wonder if I should use Coroutines for this?
         if (IsFrameATick()) {
-            material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, 0);
+            if (material is Material _material1) {
+                _material1.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, 0);
+            }
             float damage = OnTick(material);
 
             entity.TakeDamage(damage, DamageType.Burn);
@@ -129,12 +136,14 @@ public class BurnStatusEffect: BaseStatusEffect {
     }
 
     // Apply damage (or heal)
-    private float OnTick(Material material) {
+    private float OnTick(Material? material) {
         damageLeftToApply -= DamagePerTick;
         // TODO: Check this depending on what we want the "start" of the animation to be
         tickNumber += 1;
 
-        material.SetInt(SHADER_WAS_DAMAGED, 1);
+        if (material is Material _material) {
+            material.SetInt(SHADER_WAS_DAMAGED, 1);
+        }
 
         return DamagePerTick;
     }
@@ -145,7 +154,9 @@ public class BurnStatusEffect: BaseStatusEffect {
         // though hopefully the shader would do it on its own?
 
         // Remove this from the list of status effects on Health somehow
-        entity.GetMaterial().SetInt(SHADER_IS_BURNING_PARAM, 0);
+        if (entity.GetMaterial() is Material material) {
+            material.SetInt(SHADER_IS_BURNING_PARAM, 0);
+        }
     }
 
     public override void StackEffect(BaseStatusEffect effect) {

@@ -5,7 +5,7 @@ using UnityEngine;
 // This gets all of the status effects UI for the Enemy it belongs to
 // and adds / removes them all
 public class EnemyStatusEffectBarUI : MonoBehaviour {
-    [Tooltip("Reference to the Health component for the enemy we're displaying this for")]
+    [Tooltip("Reference to the Entity component for the enemy we're displaying this for")]
     public Entity Entity; 
 
     [Tooltip("The prefab of the EnemyStatusEffectUI we'll use to make new ones")]
