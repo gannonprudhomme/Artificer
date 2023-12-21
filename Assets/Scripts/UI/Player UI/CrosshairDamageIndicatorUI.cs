@@ -73,7 +73,7 @@ public class CrosshairDamageIndicatorUI : MonoBehaviour {
     }
 
     // We don't care about these parameters
-    private void OnEnemyDamaged(float damage, Vector3 damagePosition) {
+    private void OnEnemyDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
         lastTimeDamageDealt = Time.time;
     }
 

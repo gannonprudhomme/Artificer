@@ -24,7 +24,6 @@ public class IceWallSpell : Spell {
     /** Local variables **/
 
     private bool wasAimingLastFrame = false;
-    private bool isAimValid = false;
 
     // We really shouldn't have to rely on this boolean - should just do it when it's first pressed?
     private bool hasPlayedChargeAudioThisCharge = false;

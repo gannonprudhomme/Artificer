@@ -22,7 +22,7 @@ public class HealthBarUI : MonoBehaviour {
 
     // TODO: Should this increase with damage taken? Ugh
     // How long in seconds we want to animate the damage taken fill image
-    private const float DamageTakenAnimationDuration = 0.5f;
+    public const float DamageTakenAnimationDuration = 0.5f;
     // When the last time we took damage was
     // Does this reset every time we take damage? Or just the first time we (recently) took damage
     private float lastDamageTakenTime = Mathf.Infinity;
@@ -88,7 +88,7 @@ public class HealthBarUI : MonoBehaviour {
     }
 
     // Every time we get damaged 
-    private void OnDamaged(float damage, Vector3 damagedPos) {
+    private void OnDamaged(float damage, Vector3 damagedPos, DamageType damageType) {
         damageToAnimate += damage;
         lastDamageTakenTime = Time.time;
     } 
