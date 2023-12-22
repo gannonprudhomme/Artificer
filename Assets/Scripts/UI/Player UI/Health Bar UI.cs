@@ -20,9 +20,11 @@ public class HealthBarUI : MonoBehaviour {
     [Tooltip("Reference to the Player's health component")]
     public Health health;
 
-    // TODO: Should this increase with damage taken? Ugh
+    // TODO: Should this increase with damage taken? Yes!
     // How long in seconds we want to animate the damage taken fill image
-    public const float DamageTakenAnimationDuration = 0.5f;
+    // public const float DamageTakenAnimationDuration = 0.5f;
+    private float durationToAnimate = 0.0f;
+
     // When the last time we took damage was
     // Does this reset every time we take damage? Or just the first time we (recently) took damage
     private float lastDamageTakenTime = Mathf.Infinity;
@@ -63,33 +65,22 @@ public class HealthBarUI : MonoBehaviour {
     private void AnimateDamageTaken() {
         float healthFillAmount = ((int) health.CurrentHealth) / health.MaxHealth;
 
-        // we need to know how much of the health was filled
-        // as the fill amount is going to be added onto it
-        float t = (Time.time - lastDamageTakenTime) / DamageTakenAnimationDuration;
+        // We should remove a certain amount of damage in one frame (seconds * Time.deltaTime)
+        // And that remaining damage is how big the thing bar should be. No Lerp'ing!
+        // (and that amount should be change based on a curve, but that's for later)
 
-        if (t > 1.0f) {
-            damageToAnimate = 0;
-            DamageFillImage.fillAmount = 0;
-            return;
-        }
+        // Remove 30% of the max health per second from the damageToAnimate
+        float ratePerSec = health.MaxHealth * 0.3f;
 
-        // TODO: Rather than lerp'ing, lets use a curve!
+        damageToAnimate -= (ratePerSec * Time.deltaTime); // Convert to per-frame value
+        damageToAnimate = Mathf.Max(0.0f, damageToAnimate); // Prevent it from being negative
 
-        // Start at what % health we were at before we got damaged
-        // Animate from (% of health we just lost -> 0)
-        float curr = Mathf.Lerp(damageToAnimate / health.MaxHealth, 0, t);
-
-        // TODO: I think we this needs to be agnostic to player's curr health,
-        // as the player might get damaged in the middle of the animation
-        // Edit: this doesn't really matter it seems
-        curr += healthFillAmount; 
-
+        float curr = (damageToAnimate / health.MaxHealth) + healthFillAmount;
         DamageFillImage.fillAmount = curr;
     }
 
     // Every time we get damaged 
     private void OnDamaged(float damage, Vector3 damagedPos, DamageType damageType) {
         damageToAnimate += damage;
-        lastDamageTakenTime = Time.time;
     } 
 }

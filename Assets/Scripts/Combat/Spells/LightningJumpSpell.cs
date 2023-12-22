@@ -39,7 +39,7 @@ public class LightningJumpSpell : Spell {
         return false;
     }
 
-    public override void ShootSpell(Vector3 muzzlePosition, GameObject owner, Camera spellCamera)
+    public override void ShootSpell(Vector3 muzzlePosition, GameObject owner, Camera spellCamera, float entityBaseDamage)
     {
         throw new System.NotImplementedException();
     }

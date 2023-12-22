@@ -72,6 +72,11 @@ public abstract class Projectile : MonoBehaviour {
 
     private GameObject? owner;
 
+    // This is set every time we shoot rather than when a collision happens
+    // so it could technically be out of date if the player levels up when this is in flight
+    // but I think that's fine
+    private float entityBaseDamage = 0.0f;
+
     /** Functions **/
     void OnEnable() { // We do this instead of Start() for some reason
         Destroy(this.gameObject, MaxLifeTime);
@@ -81,7 +86,8 @@ public abstract class Projectile : MonoBehaviour {
     // Was originally OnShoot() I guess
     public void Shoot(
         GameObject owner, // (Root) Player game object
-        Camera spellCamera  // don't actually need, remove this
+        Camera spellCamera,  // don't actually need, remove this
+	    float entityBaseDamage
     ) {
         lastRootPosition = Root.position;
         velocity = transform.forward * Speed;
@@ -93,6 +99,8 @@ public abstract class Projectile : MonoBehaviour {
         Collider[] ownerChildColliders = owner.GetComponentsInChildren<Collider>();
         // ignoredColliders.AddRange(ownerColliders);
         ignoredColliders.AddRange(ownerChildColliders);
+
+		this.entityBaseDamage = entityBaseDamage;
     }
 
     void Update() {
@@ -172,9 +180,9 @@ public abstract class Projectile : MonoBehaviour {
         if (collider.TryGetComponent<ColliderParentPointer>(out var colliderParentPointer)) {
             Entity entity = colliderParentPointer.entity;
 
-            entity.TakeDamage(DamageEconomy.PlayerBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
+            entity.TakeDamage(entityBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
         } else if (collider.TryGetComponent<Entity>(out var entity)) {
-            entity.TakeDamage(DamageEconomy.PlayerBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
+            entity.TakeDamage(entityBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
 		}
 
         // impact vfx

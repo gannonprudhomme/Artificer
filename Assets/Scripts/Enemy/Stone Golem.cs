@@ -108,6 +108,9 @@ public class StoneGolem : Enemy {
     // Attacks
     private GolemLaserAttack laserAttack;
 
+    protected override float StartingBaseDamage => 20f;
+    public override float CurrentBaseDamage => StartingBaseDamage;
+
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator.rootPosition;
         // gotta ensure it matches the height
@@ -196,7 +199,7 @@ public class StoneGolem : Enemy {
         }
 
         laserAttack.aimSpeed = AimMoveSpeed;
-        laserAttack.OnUpdate();
+        laserAttack.OnUpdate(CurrentBaseDamage);
     }
 
     public override Vector3 GetMiddleOfMesh() {

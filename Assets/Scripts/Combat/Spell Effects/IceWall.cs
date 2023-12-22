@@ -12,8 +12,7 @@ public class IceWall : MonoBehaviour {
     [Tooltip("Layers this can collide with")]
     public LayerMask HittableLayers = -1;
 
-    [Tooltip("How much damage each ice spike does on collision")]
-    public float Damage = 10f;
+    public float DamagePerSpike { get; set; };
 
     private IceWallSpike[] iceSpikesChildren;
     private GameObject[] iceSpikesParents;
@@ -58,8 +57,7 @@ public class IceWall : MonoBehaviour {
 
             var parent = iceSpikesParents[i];
             IceWallSpike child = iceSpikesChildren[i];
-
-            var size = child.boxCollider.size.y;
+		    child.damage = DamagePerSpike;
 
             // Raycast from the middle of the top face of the box collider
             // Vector3 rayCastPos = child.boxCollider.center + (Vector3.up * size / 2.0f);

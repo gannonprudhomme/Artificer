@@ -70,6 +70,11 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         }
         // spells[2] = ThirdSpell;
         // spells[3] = FourthSpell;
+
+		player = GetComponent<PlayerController>();
+	    if (!player) {
+		    Debug.LogError("Should have a PlayerController!");
+		}
     }
 
     void Start() {

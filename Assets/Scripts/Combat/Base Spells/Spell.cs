@@ -87,7 +87,9 @@ public abstract class Spell : MonoBehaviour {
     public abstract void ShootSpell(
         Vector3 muzzlePosition,
         GameObject owner,
-        Camera spellCamera
+        Camera spellCamera,
+	    // Current damage of the entity that owns this (Player)
+	    float currDamage
     );
 
     public abstract bool CanShootWhereAiming(Vector3 muzzlePosition, Camera spellCamera);

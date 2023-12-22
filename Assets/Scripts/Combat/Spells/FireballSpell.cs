@@ -20,6 +20,8 @@ public class FireballSpell : Spell {
 
     /** Abstract Spell Properties **/
 
+    // How much charge (1.0f is a charge) is restored a second
+    // This should be set so it takes 1.3 sec to restore a charge (it's not rn)
     public override float ChargeRate => 0.5f;
     public override int MaxNumberOfCharges => 5; // Maybe rename to MaxCharge
     public override bool DoesBlockOtherSpells => true;
@@ -81,7 +83,8 @@ public class FireballSpell : Spell {
     public override void ShootSpell(
         Vector3 muzzlePosition,
         GameObject owner,
-        Camera spellCamera
+        Camera spellCamera,
+		float playerBaseDamage
     ) {
         AudioUtility.shared.CreateSFX(
             ShootSfx,
@@ -103,7 +106,7 @@ public class FireballSpell : Spell {
             Quaternion.LookRotation(direction)
         );
 
-        newProjectile.Shoot(owner, spellCamera);
+        newProjectile.Shoot(owner, spellCamera, playerBaseDamage);
 
         lastTimeShot = Time.time;
     }

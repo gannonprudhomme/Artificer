@@ -17,7 +17,8 @@ public class IceWallSpike : MonoBehaviour {
     public GameObject DetonateParticlePrefab;
 
     // How much damage this does on collision
-    private const float damage = DamageEconomy.MediumDamage;
+    // Set in IceWall
+    public float damage { get; set; }
 
     // We expose the BoxCollider since it's needed by the IceWall in order to place it correctly vertically on a surface
     // (it might not be necessary though, this is just the strategy I picked for now)

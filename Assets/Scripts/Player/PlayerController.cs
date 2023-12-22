@@ -61,7 +61,7 @@ public class PlayerController : Entity {
     private Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
 
     private InputHandler inputHandler;
-    private CharacterController characterController;
+    private CharacterController? characterController;
     private Vector3 groundNormal;
     private float cameraVerticalAngle = 0f;
 
@@ -77,11 +77,16 @@ public class PlayerController : Entity {
     // TODO: Describe this
     private const float GROUND_CHECK_DISTANCE_IN_AIR = 0.15f;
 
+    /** ABSTRACT PROPERTIES **/
+
+    protected override float StartingBaseDamage => 12f;
+    public override float CurrentBaseDamage => StartingBaseDamage;
+
     /** COMPUTED PROPERTIES **/
 
     private Vector3 capsuleBottomHemisphere {
         get {
-            return transform.position + (transform.up * characterController.radius);
+            return transform.position + (transform.up * characterController!.radius);
         }
     }
 
@@ -120,11 +125,11 @@ public class PlayerController : Entity {
 
         (bool newIsGrounded, Vector3 newGroundNormal) = GroundCheck(
             IsGrounded,
-            characterController,
+            characterController!,
             GroundCheckDistance,
             lastTimeJumped,
             transform.up,
-            GetCapsuleTopHemisphere(characterController.height),
+            GetCapsuleTopHemisphere(characterController!.height),
             GetCapsuleBottomHemisphere()
         );
         IsGrounded = newIsGrounded;
@@ -263,7 +268,7 @@ public class PlayerController : Entity {
 
         // Apply the final calculated velocity value as a character movement
         Vector3 capsuleBottomBeforeMove = GetCapsuleBottomHemisphere();
-        Vector3 capsuleTopBeforeMove = GetCapsuleTopHemisphere(characterController.height);
+        Vector3 capsuleTopBeforeMove = GetCapsuleTopHemisphere(characterController!.height);
 
         characterController.Move(CharacterVelocity * Time.unscaledDeltaTime);
 
@@ -341,12 +346,12 @@ public class PlayerController : Entity {
 
     // Gets the center point of the bottom hemisphere of the character controller capsule
     private Vector3 GetCapsuleBottomHemisphere() {
-        return transform.position + (transform.up * characterController.radius);
+        return transform.position + (transform.up * characterController!.radius);
     }
 
     // Gets the center point of the top hemisphere of the character controller capsule
     private Vector3 GetCapsuleTopHemisphere(float atHeight) {
-        return transform.position + (transform.up * (atHeight - characterController.radius));
+        return transform.position + (transform.up * (atHeight - characterController!.radius));
     }
 
 

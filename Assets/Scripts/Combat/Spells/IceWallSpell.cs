@@ -14,7 +14,10 @@ public class IceWallSpell : Spell {
     [Tooltip("The sound that plays when the button is pressed")]
     public AudioClip StartChageSfx;
 
+    private const float DamageCoefficient = 1.0f;
+
     /** Abstract Spell Properties **/
+
     public override float ChargeRate => 0.2f;
     public override int MaxNumberOfCharges => 1;
     public override bool DoesBlockOtherSpells => true;
@@ -22,6 +25,8 @@ public class IceWallSpell : Spell {
     public override Color SpellColor => ExternalSpellColor;
 
     /** Local variables **/
+
+    private float entityBaseDamage = 0.0f;
 
     private bool wasAimingLastFrame = false;
 
@@ -75,7 +80,7 @@ public class IceWallSpell : Spell {
                 10f
             );
 
-            SpawnIceWall();
+            SpawnIceWall(entityBaseDamage * DamageCoefficient);
         }
     }
 
@@ -102,7 +107,9 @@ public class IceWallSpell : Spell {
 
     // For the IceWall spell, consider this more of an "aiming" stan = Vector3.zerote
     // it's when we're constantly calling this then release it when we actually spawn the projectile
-    public override void ShootSpell(Vector3 muzzlePosition, GameObject owner, Camera spellCamera) {
+    public override void ShootSpell(Vector3 muzzlePosition, GameObject owner, Camera spellCamera, float entityBaseDamage) {
+        this.entityBaseDamage = entityBaseDamage;
+
         // We want to play the audio no matter what
         if (!hasPlayedChargeAudioThisCharge) {
             hasPlayedChargeAudioThisCharge = true;
@@ -181,7 +188,7 @@ public class IceWallSpell : Spell {
         return hasEnoughCharge;
     }
 
-    private void SpawnIceWall() {
+    private void SpawnIceWall(float damagePerSpike) {
         CurrentCharge -= 1;
 
         IceWall iceWall = Instantiate(
@@ -189,6 +196,8 @@ public class IceWallSpell : Spell {
             aimingPoint,
             aimingRotation
         );
+
+        iceWall.DamagePerSpike = damagePerSpike;
     }
 
     private bool IsWall(Vector3 normal) {

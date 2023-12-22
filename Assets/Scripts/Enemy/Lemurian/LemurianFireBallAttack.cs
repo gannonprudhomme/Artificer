@@ -11,6 +11,8 @@ public class LemurianFireballProjectile : Projectile {
 }
 
 public class LemurianFireballAttack: Attack {
+    private const float DamageCoefficient = 1.0f; // 100%
+
     // ugh if I want to provide this it has to be a MonoBehavior
     // Can I assign this?
     private readonly Projectile ProjectilePrefab;
@@ -33,6 +35,8 @@ public class LemurianFireballAttack: Attack {
 
     private bool isCharging = false;
 
+    private float entityBaseDamage = 0.0f;
+
     public LemurianFireballAttack(
         Projectile projectilePrefab,
         GameObject owner,
@@ -44,11 +48,13 @@ public class LemurianFireballAttack: Attack {
         this.Target = targetTransform;
 	}
 
-    public override void OnUpdate() {
+    public override void OnUpdate(float entityBaseDamage) {
         if (!canAttack) {
             ResetAttack();
             return;
 	    }
+
+		this.entityBaseDamage = entityBaseDamage;
 
         if (isCharging) {
             HandleCharging();
@@ -105,7 +111,8 @@ public class LemurianFireballAttack: Attack {
             Quaternion.LookRotation(directionToTarget)
         );
 
-        newProjectile.Shoot(Owner, null);
+		// TODO:
+        newProjectile.Shoot(Owner, null, -1f);
     }
 
     private void ResetAttack() {

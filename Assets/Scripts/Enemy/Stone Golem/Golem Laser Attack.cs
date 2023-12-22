@@ -12,7 +12,7 @@ using UnityEngine;
 public abstract class Attack {
     public bool canAttack = true;
 
-    public virtual void OnUpdate() { }
+    public virtual void OnUpdate(float entityBaseDamage) { }
 }
 
 // I don't really think this should be a MonoBehaviour? It's not going to be a component or anything
@@ -32,9 +32,11 @@ public abstract class Attack {
 // - Must be within 10-45m of the target, and have line of sight
 // - Has a cooldown of 5 seconds
 public class GolemLaserAttack: Attack {
+    private const float DamageCoefficient = 3.0f; // 300%
+
     // This should really be damage area
     // We should get the damage from the Stone Golem
-    public const float damage = 2.5f * 20;
+    private float entityBaseDamage;
 
     private AnimationCurve firingSizeCurve;
     private LineRenderer lineRenderer;
@@ -114,13 +116,15 @@ public class GolemLaserAttack: Attack {
     }
 
     // Called in Update() in Stone Golem
-    public override void OnUpdate() {
+    public override void OnUpdate(float entityBaseDamage) {
         if (!canAttack) {
 			// We do this a ton of unnecessary times doing it this way
 			// But it's probably fine? For now at least (don't optimize early and shit)
             ResetAttack();
             return;
         }
+
+	    this.entityBaseDamage = entityBaseDamage;
 
         // boolean checks are just to prevent unnecessary checking
         // we don't need to check if we can attack if we're currently attacking
@@ -219,7 +223,7 @@ public class GolemLaserAttack: Attack {
 
     // In this case, start charging the laser.
     // The StoneGolem is handing over the reigns to the attack at this point
-    public void StartCharging() {
+    private void StartCharging() {
         isCharging = true;
 
         timeOfChargeStart = Time.time;
@@ -273,7 +277,7 @@ public class GolemLaserAttack: Attack {
         // we should just spawn DamageArea where-ever we hit, and if it hits the player then it hits the player
         foreach ( RaycastHit hit in hits ) {
             if (hit.collider.TryGetComponent<Entity>(out Entity entity)) {
-                entity.TakeDamage(damage);
+                entity.TakeDamage(entityBaseDamage * DamageCoefficient);
                 break;
             }
         }

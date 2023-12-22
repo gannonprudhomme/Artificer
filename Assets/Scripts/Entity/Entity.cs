@@ -32,6 +32,10 @@ public abstract class Entity : MonoBehaviour {
     // needs to read this.
     protected bool isFrozen = false;
 
+    // Later add damage increase per level and stuff. Same with health
+    protected abstract float StartingBaseDamage { get; }
+    public abstract float CurrentBaseDamage { get; }
+
     public abstract Material? GetMaterial();
     public abstract Vector3 GetMiddleOfMesh();
 

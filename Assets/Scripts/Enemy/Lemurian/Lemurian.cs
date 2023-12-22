@@ -34,6 +34,9 @@ public class Lemurian : Enemy {
     // This isn't *really* optional since it's assigned in Start()
     private LemurianFireballAttack? fireballAttack;
 
+    protected override float StartingBaseDamage => 12;
+    public override float CurrentBaseDamage => StartingBaseDamage;
+
     protected override void Start() {
         base.Start();
 
@@ -42,6 +45,8 @@ public class Lemurian : Enemy {
         SetDestination();
 
         fireballAttack = new(FireballProjectilePrefab, this.gameObject, Target);
+
+	    health.OnDamaged += OnDamaged;
     }
 
     protected override void Update() {
@@ -58,7 +63,7 @@ public class Lemurian : Enemy {
 			SetDestination();
 		}
 
-        fireballAttack!.OnUpdate();
+        fireballAttack!.OnUpdate(CurrentBaseDamage);
         fireballAttack!.StartCharging();
     }
 
@@ -75,4 +80,8 @@ public class Lemurian : Enemy {
     public override Vector3 GetMiddleOfMesh() {
         return MainMeshRenderer.bounds.center;
     }
+
+    private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
+        // if damage was > 15% of max health, Lemurian should be stunned (but for how long?)
+	}
 }
