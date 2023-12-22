@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+#nullable enable
+
 // Downside of modularization (or really, how I architectured this?
 // we don't want this to dependon the UI module, so we can't define this in the UI module like we should
 public interface AimDelegate {
@@ -34,10 +36,10 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     [Header("Spells")]
     public Spell FirstSpellPrefab; // These have to be MonoBehaviors to be able to be assigned in Unity btw
     public Spell SecondSpellPrefab;
-    // public Spell ThirdSpell;
-    // public Spell FourthSpell;
 
     public Spell[] spells = new Spell[2];
+    
+    private Entity player;
 
     // Spells have to be able to set this - how?
     private bool canShootWhereAiming = false;
@@ -120,7 +122,8 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
                 spells[0].ShootSpell(
                     SpellSpawnPoint.transform.position,
                     this.gameObject,
-                    SpellCamera
+                    SpellCamera,
+		            player.CurrentBaseDamage
                 );
             } else {
                 // print("can't shoot");
@@ -132,7 +135,8 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
                 spells[1].ShootSpell(
                     SpellSpawnPoint.transform.position,
                     this.gameObject,
-                    SpellCamera
+                    SpellCamera,
+				    player.CurrentBaseDamage
                 );
             }
         } else if (inputHandler.GetSecondAttackInputReleased()) {
