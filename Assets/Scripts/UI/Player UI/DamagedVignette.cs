@@ -16,18 +16,18 @@ public class DamagedVignette : MonoBehaviour {
     [Tooltip("The curve for how the vignette fades out over time")]
     public AnimationCurve FadeOutCurve;
 
-    [Tooltip("The inner radius for the vignette shader")]
-    public float VignetteInnerRadiusStart = 0.4f;
-    
-    [Tooltip("The outer radius for the vignette shader")]
-    public float VignetteOuterRadius = 1.4f;
+    [Tooltip("What the strength for the shader starts at")]
+    public float MaxStrength = 1;
 
-    public float StrengthStart = 1.4f;
+    // The minimum strength this can be
+    // Set depending on if the player is at "critical health"
+    // private float MinStrength = 0.0f;
 
+    // TODO: This should scale with the damage taken (just like the starting strength)
     // public const float DamageTakenAnimationDuration = HealthBarUI.DamageTakenAnimationDuration;
-    public const float DamageTakenAnimationDuration = 1f;
+    public const float DamageTakenAnimationDuration = 0.5f;
 
-    private float lastDamageTakenTime = Mathf.NegativeInfinity;
+    private float damageLeftToAnimate = 0.0f;
 
     private const string SHADER_STRENGTH = "_Strength";
 
@@ -42,18 +42,29 @@ public class DamagedVignette : MonoBehaviour {
 
     private void AnimateDamageTaken() { 
         // Calculate the time ([0, 1]) that has elapsed to feed into the animation curve
-        float t = (Time.time - lastDamageTakenTime) / DamageTakenAnimationDuration;
+	    float ratePerSec = PlayerHealth.MaxHealth * 0.3f;
 
+	    damageLeftToAnimate -= (ratePerSec * Time.deltaTime);
+	    damageLeftToAnimate = Mathf.Max(0.0f, damageLeftToAnimate); // Prevent it from being negative
+
+	    const float multiplier = 12.0f; // I could probably do this more logically
+        float percent = (damageLeftToAnimate * multiplier) / (PlayerHealth.MaxHealth);
+	    percent = Mathf.Clamp(percent, 0, 1);
+
+        float strength = MaxStrength * percent;
         // Evalulate the animation curve to determine how much this should have faded out
         // Curve is 1 -> 0
-        float percentFaded = FadeOutCurve.Evaluate(t);
-        float strength = StrengthStart * percentFaded;
+        // float percentFaded = FadeOutCurve.Evaluate(t);
+        // This is [0, 1] (since StrengthStart is 1.0f)
+        // This is [0, MaxStrength]
+        // We need to move it to [MinimumStrength, StrengthStart]
+        // float strength = MaxStrength * percentFaded;
 
         VignetteMaterial.SetFloat(SHADER_STRENGTH, strength);
     }
 
     private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
-        lastDamageTakenTime = Time.time;
+	    damageLeftToAnimate += damage;
     }
 
     private void ResetShader() { 

@@ -112,7 +112,7 @@ public class LemurianFireballAttack: Attack {
         );
 
 		// TODO:
-        newProjectile.Shoot(Owner, null, -1f);
+        newProjectile.Shoot(Owner, null, entityBaseDamage * DamageCoefficient);
     }
 
     private void ResetAttack() {

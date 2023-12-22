@@ -12,7 +12,7 @@ public class IceWall : MonoBehaviour {
     [Tooltip("Layers this can collide with")]
     public LayerMask HittableLayers = -1;
 
-    public float DamagePerSpike { get; set; };
+    public float DamagePerSpike { get; set; }
 
     private IceWallSpike[] iceSpikesChildren;
     private GameObject[] iceSpikesParents;
