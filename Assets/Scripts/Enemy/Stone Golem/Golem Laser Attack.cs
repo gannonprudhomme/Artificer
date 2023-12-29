@@ -9,7 +9,7 @@ using UnityEngine;
 // Attacks should be "dumb" since the Enemy will be controlling between diff attacks
 // Might not need this: attacks aren't reusable by other enemies (I don't think - there base logic might)
 // and each enemy will only have like 1-4 attacks which we'll manually balance (not iterate over)
-public abstract class Attack {
+public abstract class EnemyAttack {
     public bool canAttack = true;
 
     public virtual void OnUpdate(float entityBaseDamage) { }
@@ -31,7 +31,7 @@ public abstract class Attack {
 // - Deals 250% of base damage (20, +4 per level)
 // - Must be within 10-45m of the target, and have line of sight
 // - Has a cooldown of 5 seconds
-public class GolemLaserAttack: Attack {
+public class GolemLaserAttack: EnemyAttack {
     private const float DamageCoefficient = 3.0f; // 300%
 
     // This should really be damage area

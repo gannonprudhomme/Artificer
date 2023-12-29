@@ -28,7 +28,7 @@ public abstract class Projectile : MonoBehaviour {
     public float MaxLifeTime = 5f; // I feel like this should be externally controlled
 
     [Tooltip("VFX prefab to spawn upon impact")]
-    public GameObject ImpactVfx;
+    public GameObject? ImpactVfx;
 
     [Tooltip("Lifetime of the VFX before being destroyed")]
     public float ImpactVfxLifetime = 5f;
@@ -37,7 +37,7 @@ public abstract class Projectile : MonoBehaviour {
     // public float ImpactVfxSpawnOffset = 0.1f;
 
     [Tooltip("Clip to play on impact")]
-    public AudioClip ImpactSfxClip;
+    public AudioClip? ImpactSfxClip;
 
     [Tooltip("Layers this projectile can collide with")]
     public LayerMask HittableLayers = -1;
@@ -191,7 +191,7 @@ public abstract class Projectile : MonoBehaviour {
         // impact vfx
         if (ImpactVfx) {
             GameObject impactVfxInstance = Instantiate(
-                ImpactVfx,
+                ImpactVfx!,
                 point + (normal * 1.0f /*ImpactVfxSpawnOffset*/),
                 Quaternion.LookRotation(normal)
             );

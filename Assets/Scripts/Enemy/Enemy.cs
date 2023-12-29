@@ -7,7 +7,7 @@ using UnityEngine;
 public abstract class Enemy : Entity {
     [Header("Enemy (inherited)")]
     [Tooltip("Where the NavMeshAgent is going to navigate to. Should be the player")]
-    public Transform Target;
+    public Target Target;
 
     [Tooltip("Reference to the UIFollowPlayer component for the Enemy Health & Status Bar. Needed so we can set the target on the health bar (so it looks at the player)")]
     // public EnemyHealthBar healthBar;
@@ -29,7 +29,7 @@ public abstract class Enemy : Entity {
         health.OnDeath += OnDeath;
 
         if (Target) {
-            HealthAndStatusBarFollowPlayer.Target = Target;
+            HealthAndStatusBarFollowPlayer.Target = Target.AimPoint;
 		}
     }
 

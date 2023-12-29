@@ -16,7 +16,7 @@ public abstract class Entity : MonoBehaviour {
     [Tooltip("AudioClip which plays when the freeze status effect ends")]
     public AudioClip? OnEndFreezeSfx;
 
-    public Health health { get; private set; }
+    public Health? health { get; private set; }
 
     // We should only have one StatusEffect and when they stack they should modify the "main" one
     // thus stores the status effects based on their name as the key
@@ -95,7 +95,7 @@ public abstract class Entity : MonoBehaviour {
         Vector3 damagePosition, // Used to place where the damage text spawns from
         DamageType damageType = DamageType.Normal
     ) {
-        health.TakeDamage(damage, damagePosition, damageType);
+        health!.TakeDamage(damage, damagePosition, damageType);
 
         // Handle status effects
         if (appliedStatusEffect != null) {

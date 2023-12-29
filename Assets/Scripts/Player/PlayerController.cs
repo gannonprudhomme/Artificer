@@ -5,7 +5,10 @@ using UnityEngine;
 
 #nullable enable
 
-[RequireComponent(typeof(CharacterController), typeof(InputHandler))]
+[RequireComponent(typeof(CharacterController), typeof(InputHandler), typeof(PlayerSpellsController))]
+[RequireComponent(
+    typeof(Target) // Not referenced in code, but required for Enemies
+)]
 public class PlayerController : Entity {
     /** PROPERTIES **/
 

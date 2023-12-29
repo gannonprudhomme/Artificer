@@ -128,7 +128,7 @@ public class StoneGolem : Enemy {
         animator = GetComponent<Animator>();
         laserLineRenderer = GetComponent<LineRenderer>();
 
-        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Target, LaserSizeCurve, LaserChargeSfx, LaserFireSfx);
+        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Target.AimPoint, LaserSizeCurve, LaserChargeSfx, LaserFireSfx);
 
         animator.applyRootMotion = true;
         // Want animator to drive movement, not agent
@@ -142,7 +142,7 @@ public class StoneGolem : Enemy {
             // Make the TargetAim PositionConstraint copy the Destination's location
             // so the MultiAimConstraint correctly looks at the Destination (the player)
             ConstraintSource constraintSource = new() {
-                sourceTransform = Target,
+                sourceTransform = Target.AimPoint,
                 weight = 1.0f
             };
             positionConstraint.SetSource(0, constraintSource);
@@ -258,13 +258,13 @@ public class StoneGolem : Enemy {
 
     // Remove this it was just for testing
     private void SetNavMeshDestination() {
-        float dist = Vector3.Distance(Target.position, lastTargetPosition);
+        float dist = Vector3.Distance(Target.AimPoint.position, lastTargetPosition);
         float minDist = 0.5f;
 
         if (dist > minDist) {
-            navMeshAgent.SetDestination(Target.position);
+            navMeshAgent.SetDestination(Target.AimPoint.position);
 
-            lastTargetPosition = Target.position;
+            lastTargetPosition = Target.AimPoint.position;
         }
     }
 

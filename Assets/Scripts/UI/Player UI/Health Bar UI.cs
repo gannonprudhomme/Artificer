@@ -23,11 +23,11 @@ public class HealthBarUI : MonoBehaviour {
     // TODO: Should this increase with damage taken? Yes!
     // How long in seconds we want to animate the damage taken fill image
     // public const float DamageTakenAnimationDuration = 0.5f;
-    private float durationToAnimate = 0.0f;
+    // private float durationToAnimate = 0.0f;
 
     // When the last time we took damage was
     // Does this reset every time we take damage? Or just the first time we (recently) took damage
-    private float lastDamageTakenTime = Mathf.Infinity;
+    // private float lastDamageTakenTime = Mathf.Infinity;
 
     // How much damage is left to animate
     // Stacks with each damage we take
