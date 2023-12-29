@@ -1,0 +1,227 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Lemurian
+  m_Shader: {fileID: -6465566751694194690, guid: fbf48ca4ceca3b34ca5269262893c40e,
+    type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Base_Texture:
+        m_Texture: {fileID: 2800000, guid: 7598d13a6b4a7ec49970b0c9ae06a385, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BurnRedFlameOutline_385b8b25f299407682d23f00eceb9c3d_FlameOutlineTexture_1241936283_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BurnRedFlameOutline_385b8b25f299407682d23f00eceb9c3d_InnerParticleTexture_3612400061_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 969a19accde24af4792ae08260792d00, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BurnRedFlameOutline_385b8b25f299407682d23f00eceb9c3d_ParticleTexture_1682355812_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 8f410fb0662bd0d4bb18a4b2b3f281c8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Emission_Texture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FireRedFlameOutline_385b8b25f299407682d23f00eceb9c3d_FlameOutlneTexture_3293513779_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FireRedFlameOutline_385b8b25f299407682d23f00eceb9c3d_InnerParticleTexture_3612400061_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 969a19accde24af4792ae08260792d00, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FireRedFlameOutline_385b8b25f299407682d23f00eceb9c3d_ParticleTexture_1682355812_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 8f410fb0662bd0d4bb18a4b2b3f281c8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Fire_Outline_Texture:
+        m_Texture: {fileID: 2800000, guid: 591430562bad11f46b8d1633c4c7e5c6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Flame_Flash_Sheet:
+        m_Texture: {fileID: 2800000, guid: e3b7dec96fbc51443a4cecf7db0dc220, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Flame_Flash_Texture_1:
+        m_Texture: {fileID: 2800000, guid: c288eeb9beaeaf04f85df12554ee3ad7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Flames_Outline_Texture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Freeze_Texture:
+        m_Texture: {fileID: 2800000, guid: 280b15025e542b4449241ba5f3f2b9e5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_0bb56d62bd304e7e881d67d8f89c49fe_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 8f410fb0662bd0d4bb18a4b2b3f281c8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_4ab6bb39378f4ce7a081b2b9e6073cd3_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 8f410fb0662bd0d4bb18a4b2b3f281c8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_921b90b21d024db593cde438d678e4bb_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 7a4aaed19e37357449645c8310f254ed, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_b32d8f50d0f247349b5ddadd599192fe_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 5aa606fcf468c8d47ae17b9760625f90, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_e9a4e87d243c494c89252dd35217dcd9_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 7598d13a6b4a7ec49970b0c9ae06a385, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_86a602d3867b4d65a197216bdaee5992_Out_0_Texture2D:
+        m_Texture: {fileID: 2800000, guid: d8fd31957418c4b4794016f695e242ca, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _Blend: 0
+    - _BlendModePreserveSpecular: 1
+    - _BumpScale: 1
+    - _BurnFlashTextureIndex1: 0
+    - _BurnFlashTextureIndex2: 1
+    - _ClearCoatMask: 0
+    - _ClearCoatSmoothness: 0
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DetailAlbedoMapScale: 1
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _DstBlendAlpha: 0
+    - _EnvironmentReflections: 1
+    - _FlashTextureIndex1: 0
+    - _FlashTextureIndex2: 0
+    - _GlossMapScale: 0
+    - _Glossiness: 0
+    - _GlossyReflections: 0
+    - _IsBurning: 0
+    - _IsFrozen: 0
+    - _IsOnFire: 0
+    - _Metallic: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.005
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _Smoothness: 0.5
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
+    - _Static_Fire_Lerp_Amount: 0.32
+    - _Surface: 0
+    - _TimeSinceLastBurnTick: 1.45
+    - _TimeSinceLastTick: 0
+    - _Time_SInce_Last_HIt: 0
+    - _Time_SInce_Last_Hit: 1
+    - _Time_Since_Last_Hit: 1.75
+    - _WorkflowMode: 1
+    - _ZWrite: 1
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Emission_Eye_Color: {r: 0, g: 0, b: 0, a: 0}
+    - _Inner_Flame_Color: {r: 1.4980394, g: 0.43834013, b: 0, a: 1}
+    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _Static_Fire_Noise_Speed: {r: 0.34, g: 0, b: 0, a: 0}
+    - _Tick_Flash_Color: {r: 1.4980392, g: 0.4392157, b: 0, a: 0}
+  m_BuildTextureStacks: []
+--- !u!114 &5705318559750237722
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 7
