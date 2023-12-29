@@ -44,7 +44,7 @@ public class Lemurian : Enemy {
 
         SetDestination();
 
-        fireballAttack = new(FireballProjectilePrefab, this.gameObject, Target);
+        fireballAttack = new(FireballProjectilePrefab!, this.gameObject, Target);
 
 	    health.OnDamaged += OnDamaged;
     }

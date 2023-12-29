@@ -2,22 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LemurianFireballProjectile : Projectile {
-
-    // Just base damage
-    protected override BaseStatusEffect GetStatusEffect() {
-        return null;
-    }
-}
+#nullable enable
 
 public class LemurianFireballAttack: Attack {
     private const float DamageCoefficient = 1.0f; // 100%
 
-    // ugh if I want to provide this it has to be a MonoBehavior
-    // Can I assign this?
     private readonly Projectile ProjectilePrefab;
 
-    private AudioClip ShootSfx;
+    // private AudioClip ShootSfx;
 
     // Transform of the lemurian so we can get the direction to the target
     private readonly GameObject Owner;

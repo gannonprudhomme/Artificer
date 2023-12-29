@@ -77,6 +77,9 @@ public abstract class Projectile : MonoBehaviour {
     // but I think that's fine
     private float entityBaseDamage = 0.0f;
 
+    /** Abstract functions **/
+    protected abstract BaseStatusEffect? GetStatusEffect();
+
     /** Functions **/
     void OnEnable() { // We do this instead of Start() for some reason
         Destroy(this.gameObject, MaxLifeTime);
@@ -86,7 +89,7 @@ public abstract class Projectile : MonoBehaviour {
     // Was originally OnShoot() I guess
     public void Shoot(
         GameObject owner, // (Root) Player game object
-        Camera spellCamera,  // don't actually need, remove this
+        Camera? spellCamera,  // don't actually need, remove this
 	    float entityBaseDamage
     ) {
         lastRootPosition = Root.position;
@@ -212,6 +215,4 @@ public abstract class Projectile : MonoBehaviour {
         Gizmos.color = RadiusColor;
         Gizmos.DrawSphere(transform.position, Radius); // Shouldn't thsi be in the tip since that's where we do collision?
     }
-
-    protected abstract BaseStatusEffect GetStatusEffect();
 }

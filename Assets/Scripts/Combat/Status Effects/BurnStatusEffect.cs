@@ -73,7 +73,7 @@ public class BurnStatusEffect: BaseStatusEffect {
 
     // TODO: I need to do this
     // We need to wait ~8 frames (~0.133... sec) to apply the burn effect
-    private bool hasWaitedToApply = false;
+    // private bool hasWaitedToApply = false;
 
     public BurnStatusEffect(
         // For now it's going to be 12.0f * 2.8

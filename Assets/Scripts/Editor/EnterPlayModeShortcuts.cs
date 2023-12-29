@@ -8,8 +8,8 @@ using UnityEngine;
 // From: https://forum.unity.com/threads/unwanted-editor-hotkeys-in-game-mode.182073/
 [InitializeOnLoad]
 public static class EnterPlayModeShortcuts {
-    private static const playModeID = "Play Mode";
-    private static const editModeID = "Default copy";
+    private static readonly string playModeID = "Play Mode";
+    private static readonly string editModeID = "Default copy";
 
     static EnterPlayModeShortcuts() {
         EditorApplication.playModeStateChanged += ModeChanged;
