@@ -18,18 +18,18 @@ public abstract class GroundedEnemy: Enemy {
 public class Lemurian : Enemy {
     [Header("References")]
     [Tooltip("The mesh renderer used to display this")]
-    public MeshRenderer MainMeshRenderer;
+    public MeshRenderer? MainMeshRenderer;
 
     [Tooltip("Where on the Lemurian we're going to shoot projectiles")]
-    public Transform AimPoint;
+    public Transform? AimPoint;
 
     //[Tooltip("Rotation speed when the target is within NavMeshAgent's stopping distance")]
     //public float RotationSpeed = 0.1f;
 
     [Tooltip("Prefab for the fireball attack projectile")]
-    public Projectile FireballProjectilePrefab;
+    public Projectile? FireballProjectilePrefab;
 
-    private NavMeshAgent navMeshAgent;
+    private NavMeshAgent? navMeshAgent;
 
     // This isn't *really* optional since it's assigned in Start()
     private LemurianFireballAttack? fireballAttack;
@@ -57,9 +57,9 @@ public class Lemurian : Enemy {
         if (!gameObject.activeSelf) { return; }
 
         if (isFrozen) {
-            navMeshAgent.isStopped = true;
+            navMeshAgent!.isStopped = true;
         } else { 
-            navMeshAgent.isStopped = false;
+            navMeshAgent!.isStopped = false;
 			SetDestination();
 		}
 
@@ -69,16 +69,16 @@ public class Lemurian : Enemy {
 
     private void SetDestination() { 
         if (Target) {
-            navMeshAgent.SetDestination(Target.transform.position);
+            navMeshAgent!.SetDestination(Target.transform.position);
 		}
     }
 
     public override Material? GetMaterial() {
-        return MainMeshRenderer.material;
+        return MainMeshRenderer!.material;
     }
 
     public override Vector3 GetMiddleOfMesh() {
-        return MainMeshRenderer.bounds.center;
+        return MainMeshRenderer!.bounds.center;
     }
 
     private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
