@@ -296,7 +296,7 @@ public class StoneGolem : Enemy {
         }
     }
 
-    private void OnDrawGizmos() {
+    private void OnDrawGizmosSelected() {
         if (laserAttack != null) {
             Gizmos.color = Color.green;
             Gizmos.DrawSphere(laserAttack.lastEndAimPoint, 1.0f);

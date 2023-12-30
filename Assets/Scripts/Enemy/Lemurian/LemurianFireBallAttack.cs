@@ -4,7 +4,7 @@ using UnityEngine;
 
 #nullable enable
 
-public class LemurianFireballAttack: Attack {
+public class LemurianFireballAttack: EnemyAttack {
     private const float DamageCoefficient = 1.0f; // 100%
 
     private readonly Projectile ProjectilePrefab;

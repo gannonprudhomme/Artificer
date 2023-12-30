@@ -10,6 +10,9 @@ using UnityEngine;
 public class Target : MonoBehaviour {
     [Tooltip("Where the enemies will aim at")]
     public Transform AimPoint;
+
+    // Must be a CapsuleCollider otherwise it gets set to the CharacterController collider on the player
+    // there's gotta be a better way to do this
     [Tooltip("Colliders enemies will use to determine line of sight")]
-    public Collider TargetCollider;
+    public CapsuleCollider TargetCollider;
 }
