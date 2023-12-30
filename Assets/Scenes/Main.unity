@@ -1944,6 +1944,11 @@ PrefabInstance:
       propertyPath: Target
       value: 
       objectReference: {fileID: 7857456915802866195}
+    - target: {fileID: 4558969074218550852, guid: 0db40c0dd54e96045b23b1695a405c38,
+        type: 3}
+      propertyPath: m_Effectors.Array.data[1].m_Visible
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
         type: 3}
       propertyPath: m_TranslationOffset.x
@@ -2385,6 +2390,12 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7415863221677314702, guid: 84b5167cc2eefa848bdfdfdf68c723e1,
     type: 3}
   m_PrefabInstance: {fileID: 783127102}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &805601913 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 4842342327016102216, guid: 413499d33476b4bdf84b8890e63e4acd,
+    type: 3}
+  m_PrefabInstance: {fileID: 8801132795719620931}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &807201732
 PrefabInstance:
@@ -8214,41 +8225,21 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 794272022251185024, guid: 413499d33476b4bdf84b8890e63e4acd,
-        type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
     - target: {fileID: 4761360719447886901, guid: 413499d33476b4bdf84b8890e63e4acd,
         type: 3}
       propertyPath: MaxHealth
       value: 300
-      objectReference: {fileID: 0}
-    - target: {fileID: 5342824403599562671, guid: 413499d33476b4bdf84b8890e63e4acd,
-        type: 3}
-      propertyPath: m_Layer
-      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6455767772848805017, guid: 413499d33476b4bdf84b8890e63e4acd,
         type: 3}
       propertyPath: Target
       value: 
       objectReference: {fileID: 7857456915802866195}
-    - target: {fileID: 7203626583727673445, guid: 413499d33476b4bdf84b8890e63e4acd,
+    - target: {fileID: 6455767772848805017, guid: 413499d33476b4bdf84b8890e63e4acd,
         type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 7658417551465166785, guid: 413499d33476b4bdf84b8890e63e4acd,
-        type: 3}
-      propertyPath: m_Speed
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 7658417551465166785, guid: 413499d33476b4bdf84b8890e63e4acd,
-        type: 3}
-      propertyPath: m_StoppingDistance
-      value: 1.7
-      objectReference: {fileID: 0}
+      propertyPath: MeleeParticleSystemPrefab
+      value: 
+      objectReference: {fileID: 805601913}
     - target: {fileID: 9087454603687740991, guid: 413499d33476b4bdf84b8890e63e4acd,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -8257,7 +8248,7 @@ PrefabInstance:
     - target: {fileID: 9087454603687740991, guid: 413499d33476b4bdf84b8890e63e4acd,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.54
+      value: -1.99
       objectReference: {fileID: 0}
     - target: {fileID: 9087454603687740991, guid: 413499d33476b4bdf84b8890e63e4acd,
         type: 3}
