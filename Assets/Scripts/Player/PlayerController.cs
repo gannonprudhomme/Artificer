@@ -45,20 +45,9 @@ public class PlayerController : Entity {
     [Tooltip("Rotation speed for moving the camera")]
     public float RotationSpeed = 200f;
 
-    //[Tooltip("Rotation speed multiplier when aiming")]
-    //[Range(0.1f, 1f)]
-    //public float AimingRotationMultiplier = 0.4f;
-
     [Header("Jump")]
     [Tooltip("Force applied upward when jumping")]
     public float JumpForce = 20f;
-
-    [Header("Stance")]
-    [Tooltip("Ratio (0-1) of the character height where the camera will be at")]
-    public float CameraHeightRatio = 0.9f;
-
-    [Tooltip("Height of character when standing")]
-    public float CapsuleHeightStanding = 4f;
 
     /** LOCAL VARIABLES **/
     private Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
@@ -86,13 +75,6 @@ public class PlayerController : Entity {
     public override float CurrentBaseDamage => StartingBaseDamage;
 
     /** COMPUTED PROPERTIES **/
-
-    private Vector3 capsuleBottomHemisphere {
-        get {
-            return transform.position + (transform.up * characterController!.radius);
-        }
-    }
-
     private float RotationMultiplier {
         get {
             // if we're aiming, return AimingRotationMultipler (not implemented)
@@ -107,7 +89,6 @@ public class PlayerController : Entity {
         // add this as an actor I guess?
         // I find it a little odd that we have to do that
     }
-
 
     protected override void Start() {
         base.Start();
@@ -145,6 +126,7 @@ public class PlayerController : Entity {
         // UpdateCharacterHeight(false) ???
     }
 
+    // Future self here - I think this actually makes things harder cause I have to see where stuff comes from. We should just return values instead of modifying them in functions
     // Future self: does making this static make this better or worse? (Especially since we call characterController.Move in here since we're passing a reference - blehhh)
     // this used to be an instance method for context
     // Returns (IsGrounded, groundNormal)
@@ -385,5 +367,19 @@ public class PlayerController : Entity {
     public override Vector3 GetMiddleOfMesh() {
         throw new NotImplementedException();
     }
+
+    // Uncomment this if you change the height / radius of the CharacterController and the player isn't being considered grounded
+    // odds are you need to change the center value
+    /*
+    private void OnDrawGizmosSelected() {
+        if (characterController == null) characterController = GetComponent<CharacterController>();
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(GetCapsuleTopHemisphere(characterController!.height), characterController!.radius);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(GetCapsuleBottomHemisphere(), characterController!.radius);
+    }
+    */
 }
 

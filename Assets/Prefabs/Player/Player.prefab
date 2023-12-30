@@ -135,7 +135,7 @@ Transform:
   m_GameObject: {fileID: 3859848406646783890}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.689, z: 0}
+  m_LocalPosition: {x: 0, y: 2.218, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -278,6 +278,7 @@ GameObject:
   - component: {fileID: 282552007835234813}
   - component: {fileID: 6764804481775821007}
   - component: {fileID: 1162894015005027175}
+  - component: {fileID: 2876704207433603849}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -293,7 +294,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5020162517813680371}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.032401074, y: 0.7049658, z: 0.039442338, w: 0.70740217}
+  m_LocalRotation: {x: 0.03239939, y: 0.70496684, z: 0.039443314, w: 0.7074011}
   m_LocalPosition: {x: -1044.6589, y: 0.19, z: 232.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -301,7 +302,7 @@ Transform:
   - {fileID: 3876747061441040754}
   - {fileID: 3891283934947796380}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 36.173, z: 0}
+  m_LocalEulerAnglesHint: {x: -0.56, y: 89.774, z: 5.825}
 --- !u!143 &2692957549008379818
 CharacterController:
   m_ObjectHideFlags: 0
@@ -321,13 +322,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.35
+  m_Height: 5
+  m_Radius: 0.875
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.001
+  m_SkinWidth: 0.0525
   m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 2.5, z: 0}
 --- !u!114 &5062329747764622900
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -352,8 +353,6 @@ MonoBehaviour:
   SprintSpeedModifier: 1.5
   RotationSpeed: 200
   JumpForce: 20
-  CameraHeightRatio: 0.8
-  CapsuleHeightStanding: 2
 --- !u!114 &6908111738488462613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,7 +403,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33bd9b8184447304baf8751a3036dac6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 100
+  MaxHealth: 300
   CriticalHealthRatio: 0.3
   Invincible: 0
   OnDamageSfx: {fileID: 0}
@@ -427,10 +426,24 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.35
-  m_Height: 2
+  m_Radius: 0.875
+  m_Height: 5
   m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 2.5, z: 0}
+--- !u!114 &2876704207433603849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5020162517813680371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1a6956098b604e4fbac929156dd9889, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AimPoint: {fileID: 3891283934947796380}
+  TargetCollider: {fileID: 1162894015005027175}
 --- !u!1 &5228743878646976421
 GameObject:
   m_ObjectHideFlags: 0
