@@ -32,6 +32,9 @@ public class Lemurian : Enemy {
     [Tooltip("Prefab for the fireball attack projectile")]
     public Projectile? FireballProjectilePrefab;
 
+    [Tooltip("Reference to the melee (swipe) particle system instance")]
+    public ParticleSystem? MeleeParticleSystemInstance;
+
     private NavMeshAgent? navMeshAgent;
 
     // This isn't *really* optional since it's assigned in Start()
@@ -53,6 +56,9 @@ public class Lemurian : Enemy {
     private const float minPrimaryDistance = 25.0f; // original is 15
     private const float maxPrimaryDistance = 60.0f; // original is 30
 
+    private const float strafeStoppingDistance = 0.5f;
+    private const float chaseStoppingDistance = 3.5f;
+
     protected override void Start() {
         base.Start();
 
@@ -62,7 +68,7 @@ public class Lemurian : Enemy {
         SetDestination();
 
         fireballAttack = new(FireballProjectilePrefab!, this.gameObject, Target.AimPoint);
-        meleeAttack = new();
+        meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, Target, lemurianMask!);
 
 	    health!.OnDamaged += OnDamaged;
     }
@@ -80,7 +86,6 @@ public class Lemurian : Enemy {
         } else { 
             navMeshAgent!.isStopped = false;
             fireballAttack!.canAttack = true;
-            // SetDestination();
 		}
 
         currentState = DetermineCurrentState();
@@ -96,21 +101,21 @@ public class Lemurian : Enemy {
         bool hasLineOfSightToTarget = DoesHaveLineOfSightToTarget();
 
         if (!hasLineOfSightToTarget) {
-            if (currentState != State.CHASE) Debug.Log("Changing to chase b/c no line of sight");
+            // if (currentState != State.CHASE) Debug.Log("Changing to chase b/c no line of sight");
 
             return State.CHASE;
         }
 
         if (distanceFromTarget <= 3.0f) {
-            if (currentState != State.USE_SECONDARY_AND_CHASE_SLOWING_DOWN) Debug.Log("Changing to use secondary & chase slowing down");
+            // if (currentState != State.USE_SECONDARY_AND_CHASE_SLOWING_DOWN) Debug.Log("Changing to use secondary & chase slowing down");
 
             return State.USE_SECONDARY_AND_CHASE_SLOWING_DOWN;
         } else if (distanceFromTarget <= minSecondaryDistance) {
-            if (currentState != State.USE_SECONDARY_AND_CHASE) Debug.Log("Changing to use secondary & chase");
+            // if (currentState != State.USE_SECONDARY_AND_CHASE) Debug.Log("Changing to use secondary & chase");
 
             return State.USE_SECONDARY_AND_CHASE;
         } else if (distanceFromTarget >= minPrimaryDistance && distanceFromTarget <= maxPrimaryDistance) {
-            if (currentState != State.USE_PRIMARY_AND_STRAFE) Debug.Log("Changing to primary & strafe");
+            // if (currentState != State.USE_PRIMARY_AND_STRAFE) Debug.Log("Changing to primary & strafe");
 
             return State.USE_PRIMARY_AND_STRAFE;
         // } else if (distanceFromTarget <= 7.0f) {
@@ -118,7 +123,7 @@ public class Lemurian : Enemy {
 
         //    return State.CHASE_OFF_NODEGRAPH;
         } else { // Only chase if we have line of sight and dist is >= 30.0f
-            if (currentState != State.CHASE) Debug.Log($"Changing to chase b/c dist is {distanceFromTarget}");
+            // if (currentState != State.CHASE) Debug.Log($"Changing to chase b/c dist is {distanceFromTarget}");
 
             // Debug.Log($"Chasing b/c distance is {distanceFromTarget}");
             return State.CHASE;
@@ -137,6 +142,9 @@ public class Lemurian : Enemy {
 
                 fireballAttack!.canAttack = false;
                 meleeAttack!.canAttack = true;
+
+                // Should probably rename to BeginAttackIfPossible
+                meleeAttack!.BeginAttack();
 
                 DoChase();
                 break;
@@ -167,6 +175,7 @@ public class Lemurian : Enemy {
 
     private void DoStrafe() {
         navMeshAgent!.updateRotation = false;
+        navMeshAgent!.stoppingDistance = strafeStoppingDistance;
 
         const float lemurianHeight = 2.57f; // Should retrieve dynamically
         float distToStrafePosition = Vector3.Distance(transform.position, strafePosition);
@@ -199,7 +208,7 @@ public class Lemurian : Enemy {
                 strafePosition = hit.position;
                 navMeshAgent!.SetDestination(strafePosition);
             } else {
-                Debug.LogError($"Can't find closest point from {targetPos}");
+                Debug.LogError($"Lemurian: Can't find closest point from {targetPos}");
                 // Force it to re-chose next time
                 strafePosition = Vector3.negativeInfinity;
             }
@@ -218,6 +227,7 @@ public class Lemurian : Enemy {
         // Reset strafe position
         strafePosition = Vector3.negativeInfinity;
         navMeshAgent!.updateRotation = true;
+        navMeshAgent!.stoppingDistance = chaseStoppingDistance;
 
         // Set the destination to be at the player
         // Set stopping distance
@@ -291,5 +301,11 @@ public class Lemurian : Enemy {
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, maxPrimaryDistance);
+
+        // Visualize melee attack range
+        // Gizmos.color = Color.yellow;
+        // float hitRange = LemurianMeleeAttack.hitRange;
+        // Vector3 origin = AimPoint!.position + (Vector3.forward * (hitRange / 2.0f));
+        // Gizmos.DrawSphere(origin, hitRange);
     }
 }

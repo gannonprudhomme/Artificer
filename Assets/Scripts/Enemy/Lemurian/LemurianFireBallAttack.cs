@@ -41,6 +41,8 @@ public class LemurianFireballAttack: EnemyAttack {
 	}
 
     public override void OnUpdate(float entityBaseDamage) {
+        base.OnUpdate(entityBaseDamage);
+
         if (!canAttack) {
             ResetAttack();
             return;
@@ -62,6 +64,7 @@ public class LemurianFireballAttack: EnemyAttack {
         isCharging = true;
     }
 
+    // TODO: Currently unused
     // We need to give access to this as the Lemurian strafes while it's charging
     public bool IsCharging() {
         return isCharging;
@@ -72,7 +75,7 @@ public class LemurianFireballAttack: EnemyAttack {
 
         // TODO: Check line of sight to target
         float secondsSinceLastFired = Time.time - timeOfLastFire;
-        return secondsSinceLastFired >+ cooldown;
+        return secondsSinceLastFired >= cooldown;
     }
 
     private void HandleCharging() {
