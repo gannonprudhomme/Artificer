@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Codice.CM.Client.Differences.Merge;
 using UnityEngine;
 
@@ -63,13 +64,15 @@ public class BurnStatusEffect: BaseStatusEffect {
 
     private const string SHADER_IS_BURNING_PARAM = "_IsBurning";
     private const string SHADER_TIME_SINCE_LAST_TICK_PARAM = "_TimeSinceLastBurnTick";
-    private const string SHADER_FLASH_TEXTURE_INDEX_1 = "_BurnFlashTextureIndex1";
-    private const string SHADER_FLASH_TEXTURE_INDEX_2 = "_BurnFlashTextureIndex2";
     private const string SHADER_WAS_DAMAGED = "_WasDamaged";
+    private const string SHADER_TICK_SEED_1 = "_TickSeed1";
+    private const string SHADER_TICK_SEED_2 = "_TickSeed2";
+    private const string SHADER_BURN_SEED = "_BurnSeed";
 
-    // Used so we can iterate through the available textures for the burn tick-flash shader effect
-    private int tickNumber = 0;
-    private const int numberOfBurnFlashTextures = 2;
+    // Random seed used to change the base burn texture for the shader
+    // so each burn looks slightly different
+    // Generated on init
+    private float burnSeed;
 
     // TODO: I need to do this
     // We need to wait ~8 frames (~0.133... sec) to apply the burn effect
@@ -81,13 +84,13 @@ public class BurnStatusEffect: BaseStatusEffect {
     ) {
         this.damageLeftToApply = damage;
         this.damagePerStack = damage;
+
+        this.burnSeed = Random.value * 100;
     }
 
     public override string Name {
-        // Doesn't matter what this is, as long it's unique
-        get {
-            return "Burn";
-        }
+        // Doesn't matter what this is, as long it's unique to the status effect
+        get { return "Burn"; }
     }
 
     public override bool HasEffectFinished() {
@@ -114,7 +117,8 @@ public class BurnStatusEffect: BaseStatusEffect {
     public override void OnFixedUpdate(Entity entity) {
         Material? material = entity.GetMaterial();
         if (material is Material _material) { 
-			HandleBurnTickAnimation(_material);
+            material.SetInt(SHADER_IS_BURNING_PARAM, 1);
+            material.SetFloat(SHADER_BURN_SEED, burnSeed);
 		} 
 
         if (damageLeftToApply == 0) {
@@ -127,22 +131,24 @@ public class BurnStatusEffect: BaseStatusEffect {
         // TODO: I wonder if I should use Coroutines for this?
         if (IsFrameATick()) {
             if (material is Material _material1) {
+                _material1.SetFloat(SHADER_TICK_SEED_1, Random.value * 100);
+                _material1.SetFloat(SHADER_TICK_SEED_2, Random.value * 100);
                 _material1.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, 0);
             }
-            float damage = OnTick(material);
 
+            float damage = OnTick(material);
             entity.TakeDamage(damage, DamageType.Burn);
+
+            lastTickTime = Time.time;
         }
     }
 
     // Apply damage (or heal)
     private float OnTick(Material? material) {
         damageLeftToApply -= DamagePerTick;
-        // TODO: Check this depending on what we want the "start" of the animation to be
-        tickNumber += 1;
 
         if (material is Material _material) {
-            material.SetInt(SHADER_WAS_DAMAGED, 1);
+            _material.SetInt(SHADER_WAS_DAMAGED, 1);
         }
 
         return DamagePerTick;
@@ -174,40 +180,12 @@ public class BurnStatusEffect: BaseStatusEffect {
     // Returns true if this frame should be considered a tick
     private bool IsFrameATick() {
         float timeDiff = Time.time - lastTickTime;
+        float secondsPerTick = 1f / TicksPerSecond;
 
-        if (timeDiff > (1f / TicksPerSecond)) {
-            lastTickTime = Time.time;
+        if (timeDiff > secondsPerTick) {
             return true;
         }
 
         return false;
-    }
-
-    private void HandleBurnTickAnimation(Material material) {
-        material.SetInt(SHADER_IS_BURNING_PARAM, 1);
-
-        // I need to get this in the range of [0,1] (really [1 -> 0]) so it blends correctly between ticks
-        float modifiedTimeSinceLastTick = (Time.time - lastTickTime);
-        modifiedTimeSinceLastTick *= TicksPerSecond; // Why do we do this?
-        modifiedTimeSinceLastTick *= ticksPerSecondModifier; // See doc for ticksPerSecondModifier above for details
-
-        // The first 4 frames it should go through this animation
-        // next 2 it'll be fading out
-        // last 2 (before next tick starts) it won't do anything.
-        // This should be a function of TicksPerSecond
-        // modifiedTimeSinceLastTick is in 1 -> 0, I need to make it [0, 1]
-        // (it doesn't do this rn, remove this comment once I fix it)
-        float frameStart = Mathf.Min(modifiedTimeSinceLastTick / ticksPerSecondModifier, 1.0f); // Ensure it doesn't get above 1. This also helps us so the last 4? frames are the last one
-        frameStart *= 4; // multiply by # of frames
-        frameStart = (int) frameStart; // [0, 1] range
-
-        frameStart = Mathf.Min(frameStart, 3);
-        float frameEnd = Mathf.Min(frameStart + 1, 3);
-
-        // Debug.Log($"{(int) frameStart} {frameEnd} {modifiedTimeSinceLastTick / ticksPerSecondModifier}");
-
-        material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_1, frameStart);
-        material.SetFloat(SHADER_FLASH_TEXTURE_INDEX_2, frameEnd);
-
     }
 }
