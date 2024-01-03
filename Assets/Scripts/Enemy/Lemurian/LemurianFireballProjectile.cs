@@ -7,14 +7,19 @@ using UnityEngine.VFX;
 
 public class LemurianFireballProjectile : Projectile {
     [Header("Lemurian Fireball Projectile")]
-    [Tooltip("Reference to the visual effect")]
+    [Tooltip("Reference to the visual effect for the fireball projectile")]
     public VisualEffect MainFireballVisualEffect;
 
+    [Tooltip("Reference to the visual effect for the explosion (that's played on hit)")]
+    public VisualEffect FireballExplosionVisualEffect;
+
+    private const float FireballExplosionParticleLifetime = 1.0f;
     private const float MainFireballParticleLifetime = 0.5f;
 
     // Should be equal to the lifetime from the particle system
     // So the last particle emitted keeps animating when we collide
-    private float TimeTillDestroyFromHit => MainFireballParticleLifetime;
+    // And the explosion vfx can play out
+    private float TimeTillDestroyFromHit => Mathf.Max(MainFireballParticleLifetime, FireballExplosionParticleLifetime);
 
     public override void Shoot(GameObject owner, Camera? spellCamera, float entityBaseDamage) {
         base.Shoot(owner, spellCamera, entityBaseDamage);
@@ -36,8 +41,8 @@ public class LemurianFireballProjectile : Projectile {
         MainFireballVisualEffect.Stop();
         // Make the existing particles stop moving
         MainFireballVisualEffect.SetInt("IsMoving", 0);
-        
-        // TODO: Play the OnHit particle system
+
+        FireballExplosionVisualEffect.Play();
     }
 
     protected override void OnDeath() {
