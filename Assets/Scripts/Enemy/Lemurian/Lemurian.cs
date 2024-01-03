@@ -5,6 +5,7 @@ using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer.Search;
 using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.VFX;
 
 #nullable enable
 
@@ -30,10 +31,12 @@ public class Lemurian : Enemy {
     //public float RotationSpeed = 0.1f;
 
     [Tooltip("Prefab for the fireball attack projectile")]
-    public Projectile? FireballProjectilePrefab;
+    public LemurianFireballProjectile? FireballProjectilePrefab;
 
     [Tooltip("Reference to the melee (swipe) particle system instance")]
     public ParticleSystem? MeleeParticleSystemInstance;
+
+    public VisualEffect? FireballChargeVisualEffectInstance;
 
     private NavMeshAgent? navMeshAgent;
 
@@ -67,7 +70,7 @@ public class Lemurian : Enemy {
 
         SetDestination();
 
-        fireballAttack = new(FireballProjectilePrefab!, this.gameObject, Target.AimPoint);
+        fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, this.gameObject, Target.AimPoint);
         meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, Target, lemurianMask!);
 
 	    health!.OnDamaged += OnDamaged;

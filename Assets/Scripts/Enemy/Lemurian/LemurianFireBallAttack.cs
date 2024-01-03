@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 #nullable enable
 
@@ -8,6 +9,7 @@ public class LemurianFireballAttack: EnemyAttack {
     private const float DamageCoefficient = 1.0f; // 100%
 
     private readonly LemurianFireballProjectile ProjectilePrefab;
+    private readonly VisualEffect ChargeVisualEffectInstance;
 
     // private AudioClip ShootSfx;
 
@@ -31,13 +33,18 @@ public class LemurianFireballAttack: EnemyAttack {
 
     public LemurianFireballAttack(
         LemurianFireballProjectile projectilePrefab,
+        VisualEffect chargeVisualEffectInstance,
         GameObject owner,
         Transform targetTransform
         // Pass in ShootSfx
 	) {
         this.ProjectilePrefab = projectilePrefab;
+        this.ChargeVisualEffectInstance = chargeVisualEffectInstance;
         this.Owner = owner;
         this.Target = targetTransform;
+
+        chargeVisualEffectInstance.Stop();
+
 	}
 
     public override void OnUpdate(float entityBaseDamage) {
@@ -59,6 +66,8 @@ public class LemurianFireballAttack: EnemyAttack {
     // Maybe rename this to Begin()? Cause that could be charging or fire
     public void StartCharging() {
         if (!CanStartCharging()) { return; }
+
+        ChargeVisualEffectInstance.Play();
 
         timeOfChargeStart = Time.time;
         isCharging = true;
@@ -105,6 +114,8 @@ public class LemurianFireballAttack: EnemyAttack {
             Owner.transform.position,
             Quaternion.LookRotation(directionToTarget)
         );
+
+        ChargeVisualEffectInstance.Stop();
 
 		// TODO:
         newProjectile.Shoot(Owner, null, entityBaseDamage * DamageCoefficient);
