@@ -72,13 +72,16 @@ public abstract class Projectile : MonoBehaviour {
 
     private GameObject? owner;
 
+    // Used so we can let effects wrap up playing after a collision
+    protected bool IsDead = false;
+
     // This is set every time we shoot rather than when a collision happens
     // so it could technically be out of date if the player levels up when this is in flight
     // but I think that's fine
     private float entityBaseDamage = 0.0f;
 
     /** Abstract functions **/
-    protected abstract BaseStatusEffect? GetStatusEffect();
+    protected virtual BaseStatusEffect? GetStatusEffect() { return null; }
 
     /** Functions **/
     void OnEnable() { // We do this instead of Start() for some reason
@@ -87,7 +90,7 @@ public abstract class Projectile : MonoBehaviour {
 
     // I intentionally put this above Update() since this will be called before it (probably)
     // Was originally OnShoot() I guess
-    public void Shoot(
+    public virtual void Shoot(
         GameObject owner, // (Root) Player game object
         Camera? spellCamera,  // don't actually need, remove this
 	    float entityBaseDamage
@@ -106,7 +109,9 @@ public abstract class Projectile : MonoBehaviour {
 		this.entityBaseDamage = entityBaseDamage;
     }
 
-    void Update() {
+    protected virtual void Update() {
+        if (IsDead) return;
+
         transform.position += velocity * Time.deltaTime;
 
         // Drift towards trajectory override
@@ -174,7 +179,7 @@ public abstract class Projectile : MonoBehaviour {
         return true;
     }
 
-    private void OnHit(Vector3 point, Vector3 normal, Collider collider) {
+    protected virtual void OnHit(Vector3 point, Vector3 normal, Collider collider) {
         // damage
         // Check if we do AoE or not
         // For now, we're not going to
@@ -206,6 +211,11 @@ public abstract class Projectile : MonoBehaviour {
         }
 
         // TODO: Call some OnHitAction?.Invoke() so we can apply affects per projectile
+        OnDeath();
+    }
+
+    protected virtual void OnDeath() {
+        IsDead = true;
 
         // Self destruct
         Destroy(this.gameObject);

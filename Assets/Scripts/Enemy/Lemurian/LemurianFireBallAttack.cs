@@ -7,7 +7,7 @@ using UnityEngine;
 public class LemurianFireballAttack: EnemyAttack {
     private const float DamageCoefficient = 1.0f; // 100%
 
-    private readonly Projectile ProjectilePrefab;
+    private readonly LemurianFireballProjectile ProjectilePrefab;
 
     // private AudioClip ShootSfx;
 
@@ -30,7 +30,7 @@ public class LemurianFireballAttack: EnemyAttack {
     private float entityBaseDamage = 0.0f;
 
     public LemurianFireballAttack(
-        Projectile projectilePrefab,
+        LemurianFireballProjectile projectilePrefab,
         GameObject owner,
         Transform targetTransform
         // Pass in ShootSfx
