@@ -14,7 +14,7 @@ public class LemurianFireballProjectile : Projectile {
     public VisualEffect FireballExplosionVisualEffect;
 
     private const float FireballExplosionParticleLifetime = 1.0f;
-    private const float MainFireballParticleLifetime = 0.5f;
+    private const float MainFireballParticleLifetime = 0.7f;
 
     // Should be equal to the lifetime from the particle system
     // So the last particle emitted keeps animating when we collide
