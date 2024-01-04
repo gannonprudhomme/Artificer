@@ -24,19 +24,10 @@ MonoBehaviour:
     - model: {fileID: 8926484042661614608}
       id: 0
       isStickyNote: 0
-    - model: {fileID: 8926484042661614610}
-      id: 0
-      isStickyNote: 0
     - model: {fileID: 8926484042661614674}
       id: 0
       isStickyNote: 0
     - model: {fileID: 8926484042661614699}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614701}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614909}
       id: 0
       isStickyNote: 0
     - model: {fileID: 8926484042661614756}
@@ -45,22 +36,7 @@ MonoBehaviour:
     - model: {fileID: 8926484042661614613}
       id: 0
       isStickyNote: 0
-    - model: {fileID: 8926484042661614758}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614864}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614822}
-      id: 0
-      isStickyNote: 0
     - model: {fileID: 8926484042661614647}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614649}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614670}
       id: 0
       isStickyNote: 0
     - model: {fileID: 8926484042661614887}
@@ -84,28 +60,7 @@ MonoBehaviour:
     - model: {fileID: 8926484042661614677}
       id: 0
       isStickyNote: 0
-    - model: {fileID: 8926484042661614692}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614694}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614921}
-      id: 0
-      isStickyNote: 0
     - model: {fileID: 8926484042661614722}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614926}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614725}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614730}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614923}
       id: 0
       isStickyNote: 0
     - model: {fileID: 8926484042661614929}
@@ -137,9 +92,6 @@ MonoBehaviour:
     - model: {fileID: 8926484042661614944}
       id: 0
       isStickyNote: 0
-    - model: {fileID: 8926484042661614968}
-      id: 0
-      isStickyNote: 0
     - model: {fileID: 8926484042661614959}
       id: 0
       isStickyNote: 0
@@ -152,15 +104,6 @@ MonoBehaviour:
     - model: {fileID: 8926484042661614961}
       id: 0
       isStickyNote: 0
-    - model: {fileID: 8926484042661614971}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661615056}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614978}
-      id: 0
-      isStickyNote: 0
     - model: {fileID: 8926484042661614778}
       id: 1
       isStickyNote: 0
@@ -170,9 +113,6 @@ MonoBehaviour:
     - model: {fileID: 8926484042661614942}
       id: 0
       isStickyNote: 0
-    - model: {fileID: 8926484042661614964}
-      id: 0
-      isStickyNote: 0
   stickyNoteInfos: []
   categories: []
   uiBounds:
@@ -180,7 +120,7 @@ MonoBehaviour:
     x: -446
     y: 341
     width: 4904
-    height: 2589
+    height: 2608
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -191,7 +131,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d4c867f6b72b714dbb5fd1780afe208, type: 3}
-  m_Name: Fireball Player Shoot
+  m_Name: Lightning Sphere (tutorial)
   m_EditorClassIdentifier: 
   m_UIIgnoredErrors: []
   m_Parent: {fileID: 0}
@@ -320,7 +260,7 @@ VisualEffectResource:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Fireball Player Shoot
+  m_Name: Lightning Sphere (tutorial)
   m_Graph: {fileID: 114350483966674976}
   m_Infos:
     m_RendererSettings:

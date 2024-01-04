@@ -149,9 +149,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  VignetteInnerRadiusStart: 0.3
-  VignetteOuterRadius: 1.4
-  StrengthStart: 1
+  MaxStrength: 1
 --- !u!1 &432463387540992155
 GameObject:
   m_ObjectHideFlags: 0
@@ -286,8 +284,8 @@ MonoBehaviour:
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 1
-  m_ChildControlHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -635,10 +633,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 4607294920219972971}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 42.14, y: -23.95}
+  m_SizeDelta: {x: 68.28, y: 31.900002}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1308312326548502892
 CanvasRenderer:
@@ -824,7 +822,7 @@ GameObject:
   - component: {fileID: 4816632121890471027}
   - component: {fileID: 47701380723941852}
   m_Layer: 0
-  m_Name: Dollar Sign (1)
+  m_Name: Money Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -844,10 +842,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 4607294920219972971}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 113.14, y: -23.95}
+  m_SizeDelta: {x: 73.72, y: 31.900002}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4816632121890471027
 CanvasRenderer:
@@ -940,7 +938,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -0.16246033, w: 0}
+  m_margin: {x: -28.147644, y: 0, z: -0.16246033, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
