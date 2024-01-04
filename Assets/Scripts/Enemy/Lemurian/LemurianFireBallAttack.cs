@@ -44,7 +44,6 @@ public class LemurianFireballAttack: EnemyAttack {
         this.Target = targetTransform;
 
         chargeVisualEffectInstance.Stop();
-
 	}
 
     public override void OnUpdate(float entityBaseDamage) {

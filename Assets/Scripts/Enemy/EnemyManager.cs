@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -9,7 +10,7 @@ using UnityEngine.Events;
 // so we get CrosshairDamageIndicatorUI.OnDamaged anytime an enemy is damaged
 public class EnemyManager : MonoBehaviour {
     // This should really be a singleton
-    // public static EnemyManager shared;
+    public static EnemyManager shared;
 
     // TODO: Change this to be List<Enemy>
     public List<Enemy> activeEnemies { get; private set; }
@@ -18,12 +19,14 @@ public class EnemyManager : MonoBehaviour {
 
     void Awake() {
         activeEnemies = new();
+
+        if (shared != null) {
+            Debug.LogError("There are two instances of Enemy Manager!");
+        }
+
+        shared = this;
     }
 
-    void Update() {
-    }
-
-    // Should probably be an actual Enemy object?
     public void AddEnemy(Enemy enemy) {
         activeEnemies.Add(enemy);
 

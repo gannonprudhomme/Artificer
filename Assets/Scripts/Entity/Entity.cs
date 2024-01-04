@@ -27,7 +27,7 @@ public abstract class Entity : MonoBehaviour {
     // Called when a status effect is done applying to an entity & is being removed
     public UnityAction<BaseStatusEffect> OnStatusEffectRemoved;
 
-    // How should we handle this? We're going to have a *lot* of these
+    // How should we handle this? We're going to have a *lot* of these b/c of items
     // I initially called this canMove, but changed to isFrozen since EnemyHealthBar
     // needs to read this.
     protected bool isFrozen = false;
