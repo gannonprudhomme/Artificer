@@ -29,7 +29,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Base_Texture:
-        m_Texture: {fileID: 2800000, guid: 7598d13a6b4a7ec49970b0c9ae06a385, type: 3}
+        m_Texture: {fileID: 2800000, guid: 05149b2020c65ca448cd38b1cef4633b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -108,6 +108,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Normals:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -165,6 +169,7 @@ Material:
     - _BumpScale: 1
     - _BurnFlashTextureIndex1: 0
     - _BurnFlashTextureIndex2: 1
+    - _BurnSeed: 0
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -195,6 +200,8 @@ Material:
     - _SrcBlendAlpha: 1
     - _Static_Fire_Lerp_Amount: 0.32
     - _Surface: 0
+    - _TickSeed1: 0
+    - _TickSeed2: 1
     - _TimeSinceLastBurnTick: 1.45
     - _TimeSinceLastTick: 0
     - _Time_SInce_Last_HIt: 0
