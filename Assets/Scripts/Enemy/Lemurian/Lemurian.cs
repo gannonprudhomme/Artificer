@@ -5,6 +5,8 @@ using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer.Search;
 using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Animations;
+using UnityEngine.Animations.Rigging;
 using UnityEngine.VFX;
 
 #nullable enable
@@ -18,7 +20,11 @@ public abstract class GroundedEnemy: Enemy {
     // public Transform Target;
 }
 
-[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(
+    typeof(NavMeshAgent),
+    typeof(Animator),
+    typeof(RigBuilder)
+)]
 public class Lemurian : Enemy {
     [Header("References")]
     [Tooltip("The mesh renderer used to display this")]
@@ -26,6 +32,9 @@ public class Lemurian : Enemy {
 
     [Tooltip("Where on the Lemurian we're going to shoot projectiles")]
     public Transform? AimPoint;
+
+    [Tooltip("Reference to the AimTarget PositionConstraint for the look-at constraint. Needed so we can set it to copy the location of the player")]
+    public PositionConstraint PositionConstraint;
 
     //[Tooltip("Rotation speed when the target is within NavMeshAgent's stopping distance")]
     //public float RotationSpeed = 0.1f;
@@ -39,6 +48,7 @@ public class Lemurian : Enemy {
     public VisualEffect? FireballChargeVisualEffectInstance;
 
     private NavMeshAgent? navMeshAgent;
+    private Animator animator;
 
     // This isn't *really* optional since it's assigned in Start()
     private LemurianFireballAttack? fireballAttack;
@@ -53,6 +63,11 @@ public class Lemurian : Enemy {
     private Vector3 strafePosition = Vector3.negativeInfinity;
     private State currentState = State.CHASE;
 
+    // Used for synchronizing between Animator's root motion and the NavMeshAgent
+    private Vector2 velocity;
+    private Vector2 smoothDeltaPosition;
+    private const float isMovingMin = 0.5f;
+
     private LayerMask lemurianMask;
 
     private const float minSecondaryDistance = 18.0f; // original is 6
@@ -62,13 +77,27 @@ public class Lemurian : Enemy {
     private const float strafeStoppingDistance = 0.5f;
     private const float chaseStoppingDistance = 3.5f;
 
+
+    private void OnAnimatorMove() {
+        Vector3 rootPosition = animator.rootPosition;
+        // gotta ensure it matches the height
+        rootPosition.y = navMeshAgent!.nextPosition.y;
+        transform.position = rootPosition;
+        navMeshAgent.nextPosition = rootPosition;
+
+        // Set rotation if animator includes rotations here if needed, same as above
+    }
+
     protected override void Start() {
         base.Start();
 
         navMeshAgent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+
         lemurianMask = LayerMask.GetMask("Lemurian");
 
         SetDestination();
+        ConfigureAnimatorAndNavMeshAgent();
 
         fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, this.gameObject, Target.AimPoint);
         meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, Target, lemurianMask!);
@@ -85,10 +114,21 @@ public class Lemurian : Enemy {
 
         if (isFrozen) {
             navMeshAgent!.isStopped = true;
+            animator.speed = 0;
             fireballAttack!.canAttack = false;
-        } else { 
+
+            PositionConstraint.constraintActive = false;
+
+        } else { // Not frozen, we can move!
             navMeshAgent!.isStopped = false;
+            animator.speed = 1;
             fireballAttack!.canAttack = true;
+
+            PositionConstraint.constraintActive = true;
+
+            SynchronizeAnimatorAndAgent();
+
+            // RotateToTargetWhenWithinStoppinDistance();
 		}
 
         currentState = DetermineCurrentState();
@@ -151,6 +191,7 @@ public class Lemurian : Enemy {
 
                 DoChase();
                 break;
+
             case State.STRAFE_WHILE_CHARGING_PRIMARY: // Falthrough for now
             case State.USE_PRIMARY_AND_STRAFE:
                 if (isFrozen) break;
@@ -177,11 +218,12 @@ public class Lemurian : Enemy {
     }
 
     private void DoStrafe() {
-        navMeshAgent!.updateRotation = false;
+        // avMeshAgent!.updateRotation = false;
         navMeshAgent!.stoppingDistance = strafeStoppingDistance;
 
         const float lemurianHeight = 2.57f; // Should retrieve dynamically
         float distToStrafePosition = Vector3.Distance(transform.position, strafePosition);
+
         // Ensure we're not including the height in the distance calculation by subtracting it
         bool hasReachedStrafePosition = (distToStrafePosition - lemurianHeight) <= 0.5f; // Random value
 
@@ -207,6 +249,7 @@ public class Lemurian : Enemy {
             targetPos += (dirToTarget * deltaForward);
 
             // SamplePosition's maxiumumDistance is recommended to be twice the agent's height
+
             if(NavMesh.SamplePosition(targetPos, out NavMeshHit hit, lemurianHeight * 2, -1)) { // Try to find a position close to it on the navmesh
                 strafePosition = hit.position;
                 navMeshAgent!.SetDestination(strafePosition);
@@ -218,12 +261,12 @@ public class Lemurian : Enemy {
         }
 
         // Force it to look at the player
-        Vector3 lookPos = Target.AimPoint.position - transform.position; // Should probably use AimPoint instead?
-        lookPos.y = 0; // We want it to look up & down so might not want to do this
-        strafeRotation = Quaternion.LookRotation(lookPos);
+        // Vector3 lookPos = Target.AimPoint.position - transform.position; // Should probably use AimPoint instead?
+        // lookPos.y = 0; // We want it to look up & down so might not want to do this.
+        // strafeRotation = Quaternion.LookRotation(lookPos);
 
-        const float angularSpeed = 5.0f;
-        transform.rotation = Quaternion.Slerp(transform.rotation, strafeRotation, Time.deltaTime * angularSpeed);
+        // const float angularSpeed = 5.0f;
+        // transform.rotation = Quaternion.Slerp(transform.rotation, strafeRotation, Time.deltaTime * angularSpeed);
     }
 
     private void DoChase() {
@@ -236,6 +279,74 @@ public class Lemurian : Enemy {
         // Set stopping distance
         SetDestination();
     }
+    private void ConfigureAnimatorAndNavMeshAgent() {
+        animator.applyRootMotion = true;
+        // Want animator to drive movement, not agent
+        navMeshAgent!.updatePosition = false;
+        // So it's aligned where we're going (he has notes later in the video for setting this to false / when)
+        navMeshAgent.updateRotation = true;
+
+        if (Target) {
+            navMeshAgent.SetDestination(Target.transform.position);
+
+            // Make the TargetAim PositionConstraint copy the Destination's location
+            // so the MultiAimConstraint correctly looks at the Destination (the player)
+            ConstraintSource constraintSource = new() {
+                sourceTransform = Target.AimPoint,
+                weight = 1.0f
+            };
+            PositionConstraint.SetSource(0, constraintSource);
+
+            // Zero the offset so it matches the position of the target (the player)
+            PositionConstraint.translationOffset = Vector3.zero;
+        } 
+    }
+
+    private void SynchronizeAnimatorAndAgent() {
+        Vector3 worldDeltaPosition = navMeshAgent!.nextPosition - transform.position;
+        worldDeltaPosition.y = 0;
+
+        float dx = Vector3.Dot(transform.right, worldDeltaPosition);
+        float dy = Vector3.Dot(transform.forward, worldDeltaPosition);
+        Vector2 deltaPosition = new(dx, dy);
+
+        float smooth = Mathf.Min(1, Time.deltaTime / 0.1f);
+        smoothDeltaPosition = Vector2.Lerp(smoothDeltaPosition, deltaPosition, smooth);
+
+        velocity = smoothDeltaPosition / Time.deltaTime;
+
+        // So we perfectly come to a stop at the end of the path
+        if (navMeshAgent!.remainingDistance <= navMeshAgent!.stoppingDistance) {
+            velocity = Vector2.Lerp(
+                Vector2.zero,
+                velocity,
+                navMeshAgent.remainingDistance / navMeshAgent.stoppingDistance
+            );
+        }
+
+        bool shouldMove = velocity.magnitude > isMovingMin && navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance;
+
+        animator.SetBool("IsMoving", shouldMove);
+        animator.SetFloat("MovementSpeed", velocity.magnitude); // Based on 1D blend tree, need to pass in velocity.x & velocity.y separately for 2D
+
+        // This is causing a bug
+        // TODO: Rename this cause I'm still not 100% sure what this boolean does
+        // This 2f is a ratio which we need to play with
+        /*
+        bool isWithinNavMeshRadius = worldDeltaPosition.magnitude > navMeshAgent.radius / 2f;
+        if (isWithinNavMeshRadius) {
+            print("Within nav mesh radius or something");
+            // Move position between where the animator root position and where the nav mesh agent can go
+            // Without this the thing might walk through things not on the nav mesh
+            transform.position = Vector2.Lerp(
+                animator.rootPosition,
+                navMeshAgent.nextPosition,
+                smooth
+            );
+        }
+        */
+    }
+
 
     private void SetDestination() { 
         if (Target) {
@@ -269,11 +380,13 @@ public class Lemurian : Enemy {
         return false;
     }
     public override Material? GetMaterial() {
-        return MainMeshRenderer!.material;
+        // return MainMeshRenderer!.material;
+        return null;
     }
 
     public override Vector3 GetMiddleOfMesh() {
-        return MainMeshRenderer!.bounds.center;
+        return Vector3.one;
+        // return MainMeshRenderer!.bounds.center;
     }
 
     enum State {
