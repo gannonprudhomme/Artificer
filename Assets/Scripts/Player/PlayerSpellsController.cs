@@ -18,6 +18,9 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     [Header("References")]
     public InputHandler inputHandler;
 
+    [Tooltip("Where to spawn spell fire effects")]
+    public Transform SpellEffectsFireSpawnPoint;
+
     // SpellMuzzle was under Internal References, but idk what internal was supposed to mean in this case
     [Tooltip("Where the spell should be spawned / shot out of")] // Tooltip won't apply to lightning jump or ice wall
     public Transform SpellSpawnPoint;
@@ -75,6 +78,10 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
 	    if (!player) {
 		    Debug.LogError("Should have a PlayerController!");
 		}
+
+        foreach(var spell in spells) {
+            spell.SpellEffectsSpawnPoint = SpellEffectsFireSpawnPoint;
+        }
     }
 
     void Start() {

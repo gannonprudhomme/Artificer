@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+#nullable enable
+
 // Don't actually use this - just brainstorming
 enum SpellTypes {
     Manual, // Idk if we need this
@@ -63,6 +65,7 @@ public interface IHoldManualSpell : ISpell {
 public abstract class Spell : MonoBehaviour {
     [Tooltip("Audio clip that plays when the spell is fired")]
     public AudioClip ShootSfx;
+    public Transform? SpellEffectsSpawnPoint { get; set; }
 
     // TODO: This is editable in the UI, and we def don't want that
     public float CurrentCharge = 0.0f;
