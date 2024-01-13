@@ -15,6 +15,8 @@ public abstract class Enemy : Entity {
 
     private EnemyManager enemyManager;
 
+    public abstract string EnemyIdentifier { get; }
+
     protected override void Start() {
         base.Start();
 

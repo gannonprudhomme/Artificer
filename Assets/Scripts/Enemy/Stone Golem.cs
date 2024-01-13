@@ -111,6 +111,8 @@ public class StoneGolem : Enemy {
     protected override float StartingBaseDamage => 20f;
     public override float CurrentBaseDamage => StartingBaseDamage;
 
+    public override string EnemyIdentifier => "Stone Golem";
+
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator.rootPosition;
         // gotta ensure it matches the height
@@ -130,26 +132,7 @@ public class StoneGolem : Enemy {
 
         laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Target.AimPoint, LaserSizeCurve, LaserChargeSfx, LaserFireSfx);
 
-        animator.applyRootMotion = true;
-        // Want animator to drive movement, not agent
-        navMeshAgent.updatePosition = false;
-        // So it's aligned where we're going (he has notes later in the video for setting this to false / when)
-        navMeshAgent.updateRotation = true;
-
-        if (Target) {
-            navMeshAgent.SetDestination(Target.transform.position);
-
-            // Make the TargetAim PositionConstraint copy the Destination's location
-            // so the MultiAimConstraint correctly looks at the Destination (the player)
-            ConstraintSource constraintSource = new() {
-                sourceTransform = Target.AimPoint,
-                weight = 1.0f
-            };
-            positionConstraint.SetSource(0, constraintSource);
-
-            // Zero the offset so it matches the position of the target (the player)
-            positionConstraint.translationOffset = Vector3.zero;
-        } 
+        ConfigureAnimatorAndNavMeshAgent();
 
         health.OnDamaged += OnDamaged;
     }
@@ -206,6 +189,28 @@ public class StoneGolem : Enemy {
         return MainMeshRenderer.bounds.center;
     }
 
+    private void ConfigureAnimatorAndNavMeshAgent() {
+        animator.applyRootMotion = true;
+        // Want animator to drive movement, not agent
+        navMeshAgent.updatePosition = false;
+        // So it's aligned where we're going (he has notes later in the video for setting this to false / when)
+        navMeshAgent.updateRotation = true;
+
+        if (Target) {
+            navMeshAgent.SetDestination(Target.transform.position);
+
+            // Make the TargetAim PositionConstraint copy the Destination's location
+            // so the MultiAimConstraint correctly looks at the Destination (the player)
+            ConstraintSource constraintSource = new() {
+                sourceTransform = Target.AimPoint,
+                weight = 1.0f
+            };
+            positionConstraint.SetSource(0, constraintSource);
+
+            // Zero the offset so it matches the position of the target (the player)
+            positionConstraint.translationOffset = Vector3.zero;
+        } 
+    }
 
     // Synchronize the Animator's RootMotion with the NavMeshAgent
     // TODO: How does this work?

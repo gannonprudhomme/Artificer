@@ -4,7 +4,7 @@ using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.Events;
 
-// Contains all of the Enemies in the
+// Contains all of the Enemies in the (...level?)
 //
 // Currently used for getting access to the Health object of all enemies
 // so we get CrosshairDamageIndicatorUI.OnDamaged anytime an enemy is damaged

@@ -311,6 +311,7 @@ GameObject:
   - component: {fileID: 6764804481775821007}
   - component: {fileID: 1162894015005027175}
   - component: {fileID: 2876704207433603849}
+  - component: {fileID: 7115923844761297679}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -477,6 +478,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AimPoint: {fileID: 3891283934947796380}
   TargetCollider: {fileID: 1162894015005027175}
+--- !u!114 &7115923844761297679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5020162517813680371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3b057deeaab0484fad6d8ac6874e527, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerCamera: {fileID: 366630357402829461}
+  PlayerTarget: {fileID: 2876704207433603849}
+  StoneGolemPrefab: {fileID: 227309694435722584, guid: 0db40c0dd54e96045b23b1695a405c38,
+    type: 3}
+  LemurianPrefab: {fileID: 6455767772848805017, guid: 413499d33476b4bdf84b8890e63e4acd,
+    type: 3}
+  SpawnTransform: {fileID: 0}
 --- !u!1 &5228743878646976421
 GameObject:
   m_ObjectHideFlags: 0

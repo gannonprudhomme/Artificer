@@ -28,7 +28,7 @@ public abstract class GroundedEnemy: Enemy {
 public class Lemurian : Enemy {
     [Header("References")]
     [Tooltip("The mesh renderer used to display this")]
-    public MeshRenderer? MainMeshRenderer;
+    public SkinnedMeshRenderer? MainMeshRenderer;
 
     [Tooltip("Where on the Lemurian we're going to shoot projectiles")]
     public Transform? AimPoint;
@@ -76,7 +76,7 @@ public class Lemurian : Enemy {
 
     private const float strafeStoppingDistance = 0.5f;
     private const float chaseStoppingDistance = 3.5f;
-
+    public override string EnemyIdentifier => "Lemurian";
 
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator.rootPosition;
@@ -259,14 +259,6 @@ public class Lemurian : Enemy {
                 strafePosition = Vector3.negativeInfinity;
             }
         }
-
-        // Force it to look at the player
-        // Vector3 lookPos = Target.AimPoint.position - transform.position; // Should probably use AimPoint instead?
-        // lookPos.y = 0; // We want it to look up & down so might not want to do this.
-        // strafeRotation = Quaternion.LookRotation(lookPos);
-
-        // const float angularSpeed = 5.0f;
-        // transform.rotation = Quaternion.Slerp(transform.rotation, strafeRotation, Time.deltaTime * angularSpeed);
     }
 
     private void DoChase() {
@@ -380,13 +372,11 @@ public class Lemurian : Enemy {
         return false;
     }
     public override Material? GetMaterial() {
-        // return MainMeshRenderer!.material;
-        return null;
+        return MainMeshRenderer!.material;
     }
 
     public override Vector3 GetMiddleOfMesh() {
-        return Vector3.one;
-        // return MainMeshRenderer!.bounds.center;
+        return MainMeshRenderer!.bounds.center;
     }
 
     enum State {

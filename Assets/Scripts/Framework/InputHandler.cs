@@ -32,8 +32,7 @@ public class InputHandler : MonoBehaviour {
     bool secondAttackWasHeld;
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
