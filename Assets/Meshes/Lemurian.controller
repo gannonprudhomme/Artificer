@@ -15,7 +15,7 @@ BlendTree:
     m_Position: {x: 0, y: 0}
     m_TimeScale: 0.5
     m_CycleOffset: 0
-    m_DirectBlendParameter: Blend
+    m_DirectBlendParameter: MovementSpeed
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: -8171181046022026428, guid: 7075056e505f0b640b447b4a72d8dad8,
@@ -24,7 +24,7 @@ BlendTree:
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
-    m_DirectBlendParameter: Blend
+    m_DirectBlendParameter: MovementSpeed
     m_Mirror: 0
   m_BlendParameter: MovementSpeed
   m_BlendParameterY: Blend
@@ -44,7 +44,7 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: -7106949831774429309}
-    m_Position: {x: 310, y: 230, z: 0}
+    m_Position: {x: 310, y: 220, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4940039339502310400}
     m_Position: {x: 310, y: 110, z: 0}
@@ -54,7 +54,7 @@ AnimatorStateMachine:
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: 50, y: 20, z: 0}
-  m_EntryPosition: {x: 50, y: 120, z: 0}
+  m_EntryPosition: {x: 60, y: 120, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: 4940039339502310400}
@@ -135,7 +135,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Lemurian (2)
+  m_Name: Lemurian
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: MovementSpeed
