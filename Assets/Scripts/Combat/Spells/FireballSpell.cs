@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 #nullable enable
 
@@ -11,6 +12,9 @@ public class FireballSpell : Spell {
     [Header("Idk")]
     public Color SpellColorForUI;
 
+    [Tooltip("Visual effect to spawn when this spell is fired")]
+    public VisualEffect FireVisualEffectPrefab;
+    
     [Tooltip("The Fireball projectile we shoot out")]
     // This should really be FireballProjectile, but tbh to FireballSpell it doesn't matter
     public Projectile ProjectilePrefab; // Projectile will determine it's damage? Or should this? How dumb should the Projectile be?
@@ -32,12 +36,17 @@ public class FireballSpell : Spell {
 
     /** Local variables **/
 
+    private VisualEffect fireVisualEffectInstance;
     private float lastTimeShot = Mathf.NegativeInfinity;
     private bool isAttackButtonHeld = false;
 
     void Start() {
         // Start off with max charges
         CurrentCharge = MaxNumberOfCharges;
+
+        fireVisualEffectInstance = Instantiate(FireVisualEffectPrefab, SpellEffectsSpawnPoint);
+        fireVisualEffectInstance.Stop();
+        fireVisualEffectInstance.enabled = true;
     }
 
     void Update() {
@@ -109,6 +118,9 @@ public class FireballSpell : Spell {
         newProjectile.Shoot(owner, spellCamera, playerBaseDamage);
 
         lastTimeShot = Time.time;
+
+        // Play VFX
+        fireVisualEffectInstance.Play();
     }
     public override bool CanShootWhereAiming(Vector3 muzzlePosition, Camera SpellCamera) {
         return true;
