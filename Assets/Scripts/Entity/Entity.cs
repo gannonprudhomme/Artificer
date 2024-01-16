@@ -39,8 +39,11 @@ public abstract class Entity : MonoBehaviour {
     public abstract Material? GetMaterial();
     public abstract Vector3 GetMiddleOfMesh();
 
-    protected virtual void Start() {
+    private void Awake() {
         health = GetComponent<Health>();
+    }
+
+    protected virtual void Start() {
     }
 
     protected virtual void Update() {
@@ -95,6 +98,8 @@ public abstract class Entity : MonoBehaviour {
         Vector3 damagePosition, // Used to place where the damage text spawns from
         DamageType damageType = DamageType.Normal
     ) {
+        if (health!.IsDead) return;
+
         health!.TakeDamage(damage, damagePosition, damageType);
 
         // Handle status effects
@@ -129,6 +134,8 @@ public abstract class Entity : MonoBehaviour {
     }
 
     public void AddParticleEffect(ParticleSystem particlePrefab) {
+        if (health!.IsDead) return;
+
         ParticleSystem particlesInstance = Instantiate(particlePrefab, transform);
         particlesInstance.transform.position = GetMiddleOfMesh();
 

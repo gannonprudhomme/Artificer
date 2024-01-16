@@ -13,6 +13,10 @@ public class EnemyHealthBar : MonoBehaviour {
     [Tooltip("The entity (enemy) this is displaying for")]
     public Entity entity;
 
+    private void Start() {
+        entity.health.OnDeath += OnDeath;
+    }
+
     void Update() {
         if (entity.health == null) {
             Debug.LogError($"{this.name}'s health was not passed, returning");
@@ -24,5 +28,9 @@ public class EnemyHealthBar : MonoBehaviour {
 
         // Hide / show the health bar frozen "outline" if the enemy is frozen
         FrozenOutline.SetActive(entity.GetIsFrozen());
+    }
+
+    private void OnDeath() {
+        Destroy(this.gameObject);
     }
 }

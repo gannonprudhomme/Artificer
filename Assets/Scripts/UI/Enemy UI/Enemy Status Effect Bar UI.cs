@@ -17,10 +17,8 @@ public class EnemyStatusEffectBarUI : MonoBehaviour {
     void Start() {
         Entity.OnStatusEffectAdded += OnStatusEffectAdded;
         Entity.OnStatusEffectRemoved += OnStatusEffectRemoved;
-    }
 
-    void Update() {
-        // Don't think we need to do anything in here
+        Entity.health.OnDeath += OnDeath;
     }
 
     private void OnStatusEffectAdded(BaseStatusEffect effect) {
@@ -48,5 +46,12 @@ public class EnemyStatusEffectBarUI : MonoBehaviour {
         } else {
             Debug.LogError($"Failed to delete status effect UI instance of {effect.Name} on {this.gameObject}");
         }
+    }
+
+    private void OnDeath() {
+        Entity.OnStatusEffectAdded -= OnStatusEffectAdded;
+        Entity.OnStatusEffectRemoved -= OnStatusEffectRemoved;
+
+        Destroy(this.gameObject);
     }
 }

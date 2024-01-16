@@ -45,6 +45,9 @@ public class Lemurian : Enemy {
     [Tooltip("Reference to the melee (swipe) particle system instance")]
     public ParticleSystem? MeleeParticleSystemInstance;
 
+    [Tooltip("The list of colliders on this so we can disable all of them when this dies")]
+    public List<BoxCollider> Colliders;
+
     public VisualEffect? FireballChargeVisualEffectInstance;
 
     private NavMeshAgent? navMeshAgent;
@@ -78,6 +81,8 @@ public class Lemurian : Enemy {
     private const float chaseStoppingDistance = 3.5f;
     public override string EnemyIdentifier => "Lemurian";
 
+    private const string ANIM_PARAM_IS_DEAD = "IsDead";
+
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator.rootPosition;
         // gotta ensure it matches the height
@@ -96,6 +101,8 @@ public class Lemurian : Enemy {
 
         lemurianMask = LayerMask.GetMask("Lemurian");
 
+        animator.SetBool(ANIM_PARAM_IS_DEAD, false);
+
         SetDestination();
         ConfigureAnimatorAndNavMeshAgent();
 
@@ -107,6 +114,8 @@ public class Lemurian : Enemy {
 
     protected override void Update() {
         base.Update();
+
+        if (health!.IsDead) { return; }
 
         // Sometimes this runs after Destroy is called,
         // so prevent that from happening
@@ -350,19 +359,37 @@ public class Lemurian : Enemy {
         // if damage was > 15% of max health, Lemurian should be stunned (but for how long?)
 	}
 
+    protected override void OnDeath() {
+        // Note we're intentionally not calling base.OnDeath() cause we don't want to Destroy this (yet)
+
+        // I do think we want to do this?
+        EnemyManager.shared.RemoveEnemy(this);
+
+        animator.SetBool(ANIM_IS_DEAD, true);
+
+        PositionConstraint.constraintActive = false;
+
+        foreach(var collider in Colliders) {
+            collider.enabled = false;
+        }
+
+        Destroy(this.gameObject, 5f); // Destroy it in 5 seconds I guess? Probably should have an effect but w/e
+    }
+
     // Returns true if we have line of sight to the target
     private bool DoesHaveLineOfSightToTarget() {
         // Didn't work when it was set to Target.AimPoint so just doing the center of the collider
         // Vector3 direction = Target.AimPoint.position - AimPoint!.position;
         Vector3 direction = Target.TargetCollider.bounds.center - AimPoint!.position;
 
+        // TODO: Shit this is going to ignore all Lemurians, we need to do better than this
         // We need this to ignore itself
         if (Physics.Raycast(
             AimPoint!.position,
             direction.normalized,
             out RaycastHit hit,
             Mathf.Infinity,
-            ~lemurianMask // Ignore its own colliders
+            ~lemurianMask // Ignore its own colliders...shit
         )) {
             if (hit.collider == Target.TargetCollider) {
                 return true;

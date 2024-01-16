@@ -31,7 +31,7 @@ public class Health : MonoBehaviour {
     public UnityAction<float, Vector3, DamageType> OnDamaged;
     public UnityAction OnDeath;
 
-    private bool isDead;
+    public bool IsDead { get; private set; }
 
     void Start() {
         CurrentHealth = MaxHealth;
@@ -53,7 +53,7 @@ public class Health : MonoBehaviour {
     //
     // Pass Vector3.negativeInfinity if damagePosition isn't relevant
     public void TakeDamage(float damage, Vector3 damagePosition, DamageType damageType) {
-        if (Invincible)
+        if (Invincible || IsDead)
             return;
 
         float healthBefore = CurrentHealth;
@@ -92,11 +92,12 @@ public class Health : MonoBehaviour {
     }
 
     private void HandleDeath() {
-        if (isDead) // idk why we have this check
+        if (IsDead) // idk why we have this check
             return;
 
         if (CurrentHealth <= 0f) {
-            isDead = true;
+            Debug.Log("We dead!");
+            IsDead = true;
             OnDeath?.Invoke();
         }
     }

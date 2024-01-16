@@ -35,7 +35,7 @@ public abstract class Enemy : Entity {
 		}
     }
 
-    private void OnDeath() {
+    protected virtual void OnDeath() {
         enemyManager.RemoveEnemy(this);
 
         Destroy(this.gameObject);
