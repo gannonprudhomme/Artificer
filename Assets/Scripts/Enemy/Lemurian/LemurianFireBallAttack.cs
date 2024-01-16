@@ -13,10 +13,13 @@ public class LemurianFireballAttack: EnemyAttack {
 
     // private AudioClip ShootSfx;
 
+    // Animator of the Lemurian so we can start the fireball animation
+    private readonly Animator animator;
     // Transform of the lemurian so we can get the direction to the target
     private readonly GameObject Owner;
     // Transform of the target so we can get the direction to the target
     private readonly Transform Target;
+    private readonly Transform FirePoint;
 
     // Scales with attack speed
     private const float chargeDuration = 0.6f; // in seconds
@@ -31,19 +34,29 @@ public class LemurianFireballAttack: EnemyAttack {
 
     private float entityBaseDamage = 0.0f;
 
+    private const string ANIM_IS_CHARGING_FIREBALL = "IsChargingFireball";
+    private const string ANIM_IS_FIRING_FIREBALL = "IsFiringFireball";
+
     public LemurianFireballAttack(
         LemurianFireballProjectile projectilePrefab,
         VisualEffect chargeVisualEffectInstance,
+        Animator animator,
         GameObject owner,
-        Transform targetTransform
-        // Pass in ShootSfx
+        Transform targetTransform,
+        Transform firePoint
 	) {
         this.ProjectilePrefab = projectilePrefab;
         this.ChargeVisualEffectInstance = chargeVisualEffectInstance;
+        this.animator = animator;
         this.Owner = owner;
         this.Target = targetTransform;
+        this.FirePoint = firePoint;
 
+        // We shouldn't have to do this, but it's just a safety
         chargeVisualEffectInstance.Stop();
+        // By default set it to false
+        animator.SetBool(ANIM_IS_CHARGING_FIREBALL, false);
+        animator.SetBool(ANIM_IS_FIRING_FIREBALL, false);
 	}
 
     public override void OnUpdate(float entityBaseDamage) {
@@ -59,6 +72,11 @@ public class LemurianFireballAttack: EnemyAttack {
         if (isCharging) {
             HandleCharging();
         }
+
+        // I really don't know when I should reset this. Doing it 0.1 sec after it fires I guess
+        if (Time.time - timeOfLastFire >= 0.1f) {
+            animator.SetBool(ANIM_IS_FIRING_FIREBALL, false);
+        }
     }
 
     // The Lemurian of this will call this when it's ready to fire
@@ -67,6 +85,10 @@ public class LemurianFireballAttack: EnemyAttack {
         if (!CanStartCharging()) { return; }
 
         ChargeVisualEffectInstance.Play();
+
+        // Start the charging (skeleton) animation
+        animator.SetBool(ANIM_IS_CHARGING_FIREBALL, true);
+        animator.SetBool(ANIM_IS_FIRING_FIREBALL, false); // Set firing to false just in case
 
         timeOfChargeStart = Time.time;
         isCharging = true;
@@ -104,23 +126,34 @@ public class LemurianFireballAttack: EnemyAttack {
         timeOfLastFire = Time.time;
 
         // Play fired sfx
-        Vector3 directionToTarget = (Target.position - Owner.transform.position).normalized;
+        Vector3 directionToTarget = (Target.position - FirePoint.position).normalized;
 
         // Spawn projectile and shoot it
         Projectile newProjectile = Object.Instantiate(
             ProjectilePrefab,
             // TODO: This should be the muzzle position
-            Owner.transform.position,
+            FirePoint.position,
             Quaternion.LookRotation(directionToTarget)
         );
 
+        // Debug.Log("Firing, setting to false");
         ChargeVisualEffectInstance.Stop();
+        
+        animator.SetBool(ANIM_IS_CHARGING_FIREBALL, false);
+        animator.SetBool(ANIM_IS_FIRING_FIREBALL, true);
 
-		// TODO:
         newProjectile.Shoot(Owner, null, entityBaseDamage * DamageCoefficient);
     }
 
     private void ResetAttack() {
+        if (isCharging) {
+            Debug.Log("Resetting attack");
+        }
         isCharging = false;
+        animator.SetBool(ANIM_IS_CHARGING_FIREBALL, false);
+        animator.SetBool(ANIM_IS_FIRING_FIREBALL, false);
+
+        // We should actually let it finish firing if we reset it, but this will work for now?
+        ChargeVisualEffectInstance.Stop();
 	}
 }

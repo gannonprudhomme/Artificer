@@ -99,8 +99,8 @@ public class Lemurian : Enemy {
         SetDestination();
         ConfigureAnimatorAndNavMeshAgent();
 
-        fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, this.gameObject, Target.AimPoint);
-        meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, Target, lemurianMask!);
+        fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, animator, this.gameObject, Target.AimPoint, AimPoint!);
+        meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, animator, Target, lemurianMask!);
 
 	    health!.OnDamaged += OnDamaged;
     }
@@ -121,7 +121,7 @@ public class Lemurian : Enemy {
 
         } else { // Not frozen, we can move!
             navMeshAgent!.isStopped = false;
-            animator.speed = 1;
+            animator.speed = 1.25f;
             fireballAttack!.canAttack = true;
 
             PositionConstraint.constraintActive = true;

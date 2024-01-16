@@ -13,6 +13,8 @@ public class LemurianMeleeAttack: EnemyAttack {
     // Transform of the target so we can see if we hit them
     private readonly Target Target;
 
+    // Animator of the Lemurian so we can control the Melee animation
+    private readonly Animator animator;
     // Reference to the lemurian (owner) so we can get distance to target
     // and spawn the particle system under it
     private readonly GameObject Owner;
@@ -44,18 +46,26 @@ public class LemurianMeleeAttack: EnemyAttack {
 
     private LayerMask lemurianMask;
 
+    private const string ANIM_IS_CHARGING_MELEE = "IsChargingMelee";
+    private const string ANIM_IS_FIRING_MELEE = "IsFiringMelee";
+
     public LemurianMeleeAttack(
         ParticleSystem swipeParticleInstance,
         GameObject owner,
         Transform ownerAimPoint,
+        Animator animator,
         Target target,
         LayerMask lemurianMask
     ) {
         this.SwipeParticleInstance = swipeParticleInstance;
         this.Owner = owner;
+        this.animator = animator;
         this.OwnerAimPoint = ownerAimPoint;
         this.Target = target;
         this.lemurianMask = lemurianMask;
+
+        animator.SetBool(ANIM_IS_CHARGING_MELEE, false);
+        animator.SetBool(ANIM_IS_FIRING_MELEE, false);
     }
 
     public override void OnUpdate(float entityBaseDamage) {
@@ -79,6 +89,9 @@ public class LemurianMeleeAttack: EnemyAttack {
         if (!CanBeginAttack()) {
             return;
         }
+
+        animator.SetBool(ANIM_IS_CHARGING_MELEE, true);
+        animator.SetBool(ANIM_IS_FIRING_MELEE, false);
 
         // Start the animation
         isInMiddleOfAttack = true;
@@ -105,6 +118,9 @@ public class LemurianMeleeAttack: EnemyAttack {
         // Spawn particle system
         SwipeParticleInstance.time = 0.0f;
         SwipeParticleInstance.Play();
+
+        animator.SetBool(ANIM_IS_CHARGING_MELEE, false);
+        animator.SetBool(ANIM_IS_FIRING_MELEE, true);
 
         Vector3 origin = OwnerAimPoint.position + (Vector3.forward * (hitRange / 2.0f));
         Collider[] colliders = Physics.OverlapSphere(origin, hitRange, ~lemurianMask);
@@ -145,7 +161,6 @@ public class LemurianMeleeAttack: EnemyAttack {
         bool isTargetWithinAttackRange = distanceToTarget <= minimumBeginAttackDistance;
 
         if (!isTargetWithinAttackRange) {
-            // Debug.Log("Target not within range");
             return false;
         }
 
@@ -154,5 +169,7 @@ public class LemurianMeleeAttack: EnemyAttack {
 
     private void ResetAttack() {
         isInMiddleOfAttack = false;
+        animator.SetBool(ANIM_IS_CHARGING_MELEE, false);
+        animator.SetBool(ANIM_IS_FIRING_MELEE, false);
     }
 }
