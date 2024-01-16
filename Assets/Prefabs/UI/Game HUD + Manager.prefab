@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5603004292970301668}
   - component: {fileID: 4018273804263377339}
   - component: {fileID: 1882380415396001142}
+  - component: {fileID: 404135926783684287}
   - component: {fileID: 4706648185472231540}
   m_Layer: 0
   m_Name: Game HUD + Manager
@@ -93,6 +94,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58afc85562fa8d24c8e99b34a478f96c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &404135926783684287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241678929247167197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48bbb89b7d2304d7b8afddde2d55be8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FPSText: {fileID: 47701380723941852}
 --- !u!114 &4706648185472231540
 MonoBehaviour:
   m_ObjectHideFlags: 0

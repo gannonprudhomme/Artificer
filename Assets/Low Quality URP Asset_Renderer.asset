@@ -99,10 +99,13 @@ MonoBehaviour:
   m_Name: Damaged Vignette
   m_EditorClassIdentifier: 
   m_Active: 1
-  passMaterial: {fileID: 2100000, guid: 5ad83b04065d141419b6ff45900bf00f, type: 2}
   injectionPoint: 600
-  requirements: 4
+  fetchColorBuffer: 1
+  requirements: 0
+  passMaterial: {fileID: 2100000, guid: 5ad83b04065d141419b6ff45900bf00f, type: 2}
   passIndex: 0
+  bindDepthStencilAttachment: 0
+  m_Version: 1
 --- !u!114 &8979749582369203901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,8 +119,11 @@ MonoBehaviour:
   m_Name: Damaged Vignette
   m_EditorClassIdentifier: 
   m_Active: 0
+  injectionPoint: 600
+  fetchColorBuffer: 1
+  requirements: 0
   passMaterial: {fileID: -876546973899608171, guid: fa254b318c33f475491c2e1bfb0f1e4f,
     type: 3}
-  injectionPoint: 600
-  requirements: 4
   passIndex: 0
+  bindDepthStencilAttachment: 0
+  m_Version: 1
