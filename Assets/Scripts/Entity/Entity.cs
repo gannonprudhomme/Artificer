@@ -39,7 +39,7 @@ public abstract class Entity : MonoBehaviour {
     public abstract Material? GetMaterial();
     public abstract Vector3 GetMiddleOfMesh();
 
-    private void Awake() {
+    protected virtual void Awake() {
         health = GetComponent<Health>();
     }
 

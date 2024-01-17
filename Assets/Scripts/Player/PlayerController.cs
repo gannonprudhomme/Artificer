@@ -85,7 +85,8 @@ public class PlayerController : Entity {
 
     /** FUNCTIONS **/
 
-    void Awake() {
+    protected override void Awake() {
+        base.Awake();
         // add this as an actor I guess?
         // I find it a little odd that we have to do that
     }

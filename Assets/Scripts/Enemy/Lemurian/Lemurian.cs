@@ -365,7 +365,7 @@ public class Lemurian : Enemy {
         // I do think we want to do this?
         EnemyManager.shared.RemoveEnemy(this);
 
-        animator.SetBool(ANIM_IS_DEAD, true);
+        animator.SetBool(ANIM_PARAM_IS_DEAD, true);
 
         PositionConstraint.constraintActive = false;
 
