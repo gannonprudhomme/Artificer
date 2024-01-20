@@ -60,10 +60,9 @@ public class Lemurian : Enemy {
     protected override float StartingBaseDamage => 12;
     public override float CurrentBaseDamage => StartingBaseDamage;
 
-    // The target rotation of the lemurian to look at the player
-    private Quaternion strafeRotation = Quaternion.identity;
     // The point where the lemurian is strafing to
     private Vector3 strafePosition = Vector3.negativeInfinity;
+
     private State currentState = State.CHASE;
 
     // Used for synchronizing between Animator's root motion and the NavMeshAgent
@@ -75,9 +74,14 @@ public class Lemurian : Enemy {
 
     private const float minSecondaryDistance = 18.0f; // original is 6
     private const float minPrimaryDistance = 25.0f; // original is 15
+
+    // For all intents and purposes, this can be considered the range of the fireball attack
     private const float maxPrimaryDistance = 60.0f; // original is 30
 
+    // How far from the next strafe point we can be before stopping (and thus choosing a new strafe point)
     private const float strafeStoppingDistance = 0.5f;
+
+    // How far from the chase target (player) we can be before stopping
     private const float chaseStoppingDistance = 3.5f;
     public override string EnemyIdentifier => "Lemurian";
 
@@ -378,18 +382,31 @@ public class Lemurian : Enemy {
 
     // Returns true if we have line of sight to the target
     private bool DoesHaveLineOfSightToTarget() {
+        // First check if the player is within the range (maxPrimaryDistance)
+        // no point in doing a RayCast if they're not!
+        // (Optimization)
+        float sqrDistToTarget = (Target.TargetCollider.bounds.center - AimPoint!.position).sqrMagnitude;
+        if (sqrDistToTarget > Mathf.Pow(maxPrimaryDistance, 2)) {
+            // We're not even in fireball range! Return early
+            Debug.Log("Lemurian isn't in range of Player! Not doing raycast for line of sight"); // Remove this when I know it's working
+            return false;
+        }
+
+        // TODO: Do a "frustum check" so this returns false if the Lemurian isn't facing the right way around? (can't be facing backwards)
+        // though this might conflict with the strafing, and the LookAt constraint might fuck this up a bit too
+
         // Didn't work when it was set to Target.AimPoint so just doing the center of the collider
         // Vector3 direction = Target.AimPoint.position - AimPoint!.position;
-        Vector3 direction = Target.TargetCollider.bounds.center - AimPoint!.position;
+        Vector3 direction = (Target.TargetCollider.bounds.center - AimPoint!.position).normalized;
 
         // TODO: Shit this is going to ignore all Lemurians, we need to do better than this
         // We need this to ignore itself
         if (Physics.Raycast(
             AimPoint!.position,
-            direction.normalized,
+            direction,
             out RaycastHit hit,
             Mathf.Infinity,
-            ~lemurianMask // Ignore its own colliders...shit
+            ~lemurianMask // Ignore its own colliders...shit this also ignores other Lemurians
         )) {
             if (hit.collider == Target.TargetCollider) {
                 return true;
