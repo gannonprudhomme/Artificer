@@ -96,6 +96,7 @@ public class IceWallSpike : MonoBehaviour {
         DamageArea!.InflictDamageOverArea(
             damage,
             transform.position, // Do better than this
+            Affiliation.Player,
             null,
             new FreezeStatusEffect(),
             -1

@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+#nullable enable
+
 public enum DamageType { 
      Normal,
      Burn
+}
+
+public enum Affiliation {
+    Player,
+    Enemy
 }
 
 // I'm combining this and Damageable - idk why Damageable exists
@@ -19,6 +26,9 @@ public class Health : MonoBehaviour {
 
     [Tooltip("If we should ignore damage")]
     public bool Invincible;
+
+    [Tooltip("The affliation of this entity")]
+    public Affiliation Affiliation = Affiliation.Enemy;
 
     // Enemies are going to have to play their own sounds, so we might as well put it in there
     // but players need to have an on hit sound too, so this might make sense?
@@ -52,8 +62,14 @@ public class Health : MonoBehaviour {
     // This is needed as status effects need to be able to apply damage without re-applying/stacking the status effect
     //
     // Pass Vector3.negativeInfinity if damagePosition isn't relevant
-    public void TakeDamage(float damage, Vector3 damagePosition, DamageType damageType) {
-        if (Invincible || IsDead)
+    public void TakeDamage(
+        float damage,
+        Vector3 damagePosition,
+        Affiliation sourceAffiliation,
+        DamageType damageType
+    ) {
+        bool sameAffiliation = this.Affiliation == sourceAffiliation;
+        if (Invincible || IsDead || sameAffiliation)
             return;
 
         float healthBefore = CurrentHealth;
@@ -80,7 +96,12 @@ public class Health : MonoBehaviour {
     }
 
     public void Kill() {
-        TakeDamage(Mathf.Infinity, Vector3.negativeInfinity, DamageType.Normal);
+        TakeDamage(
+            Mathf.Infinity,
+            Vector3.negativeInfinity,
+            Affiliation.Player, // Since this is only called by FreezeStatusEffect, setting as Player for now
+            DamageType.Normal
+        );
     }
 
     void FixedUpdate() {

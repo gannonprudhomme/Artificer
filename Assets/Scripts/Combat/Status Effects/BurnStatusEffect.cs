@@ -50,7 +50,9 @@ public class BurnStatusEffect: BaseStatusEffect {
 
     // Each tick is 10% of *player* base damage - or is it the base damage of the fireball / attack?
     // This doesn't seem right
-    private const float DamagePerTick = PlayerBaseDamage * 0.1f; 
+    private const float DamagePerTick = PlayerBaseDamage * 0.1f;
+
+    private Affiliation effectApplierAffiliation;
     
     // We're going to consider damagePerStack to be the base damage that is initially applied when this is created
     // This will make it so if we have different things which apply Burn the meaning of stack will change, but it will work for now since we only have Fireball.
@@ -80,15 +82,17 @@ public class BurnStatusEffect: BaseStatusEffect {
 
     public BurnStatusEffect(
         // For now it's going to be 12.0f * 2.8
-        float damage
+        float damage,
+        Affiliation effectApplierAffiliation
     ) {
         this.damageLeftToApply = damage;
         this.damagePerStack = damage;
+        this.effectApplierAffiliation = effectApplierAffiliation;
 
         this.burnSeed = Random.value * 100;
     }
 
-    public override string Name {
+    public override string Name { 
         // Doesn't matter what this is, as long it's unique to the status effect
         get { return "Burn"; }
     }
@@ -137,7 +141,7 @@ public class BurnStatusEffect: BaseStatusEffect {
             }
 
             float damage = OnTick(material);
-            entity.TakeDamage(damage, DamageType.Burn);
+            entity.TakeDamage(damage, effectApplierAffiliation, DamageType.Burn);
 
             lastTickTime = Time.time;
         }

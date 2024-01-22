@@ -51,7 +51,7 @@ public class Lemurian : Enemy {
     public VisualEffect? FireballChargeVisualEffectInstance;
 
     private NavMeshAgent? navMeshAgent;
-    private Animator animator;
+    private Animator? animator;
 
     // This isn't *really* optional since it's assigned in Start()
     private LemurianFireballAttack? fireballAttack;
@@ -88,7 +88,7 @@ public class Lemurian : Enemy {
     private const string ANIM_PARAM_IS_DEAD = "IsDead";
 
     private void OnAnimatorMove() {
-        Vector3 rootPosition = animator.rootPosition;
+        Vector3 rootPosition = animator!.rootPosition;
         // gotta ensure it matches the height
         rootPosition.y = navMeshAgent!.nextPosition.y;
         transform.position = rootPosition;
@@ -105,13 +105,13 @@ public class Lemurian : Enemy {
 
         lemurianMask = LayerMask.GetMask("Lemurian");
 
-        animator.SetBool(ANIM_PARAM_IS_DEAD, false);
+        animator!.SetBool(ANIM_PARAM_IS_DEAD, false);
 
         SetDestination();
         ConfigureAnimatorAndNavMeshAgent();
 
-        fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, animator, this.gameObject, Target.AimPoint, AimPoint!);
-        meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, animator, Target, lemurianMask!);
+        fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, animator!, this.gameObject, Target.AimPoint, AimPoint!);
+        meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, animator!, Target, lemurianMask!);
 
 	    health!.OnDamaged += OnDamaged;
     }
@@ -127,14 +127,14 @@ public class Lemurian : Enemy {
 
         if (isFrozen) {
             navMeshAgent!.isStopped = true;
-            animator.speed = 0;
+            animator!.speed = 0;
             fireballAttack!.canAttack = false;
 
             PositionConstraint.constraintActive = false;
 
         } else { // Not frozen, we can move!
             navMeshAgent!.isStopped = false;
-            animator.speed = 1.25f;
+            animator!.speed = 1.25f;
             fireballAttack!.canAttack = true;
 
             PositionConstraint.constraintActive = true;
@@ -388,7 +388,6 @@ public class Lemurian : Enemy {
         float sqrDistToTarget = (Target.TargetCollider.bounds.center - AimPoint!.position).sqrMagnitude;
         if (sqrDistToTarget > Mathf.Pow(maxPrimaryDistance, 2)) {
             // We're not even in fireball range! Return early
-            Debug.Log("Lemurian isn't in range of Player! Not doing raycast for line of sight"); // Remove this when I know it's working
             return false;
         }
 

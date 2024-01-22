@@ -10,6 +10,9 @@ using UnityEngine;
 public class FireballProjectile : Projectile {
     protected override BaseStatusEffect? GetStatusEffect() {
         // It does 50% of the damage the Fireball does
-        return new BurnStatusEffect(DamageMultipler * DamageEconomy.PlayerBaseDamage * 0.5f);
+        return new BurnStatusEffect(
+            DamageMultipler * DamageEconomy.PlayerBaseDamage * 0.5f,
+            Affiliation.Player
+        );
     }
 }

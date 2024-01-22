@@ -76,9 +76,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33bd9b8184447304baf8751a3036dac6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 100
+  MaxHealth: 300
   CriticalHealthRatio: 0.3
   Invincible: 0
+  Affiliation: 1
   OnDamageSfx: {fileID: 8300000, guid: 1ed808aa56b83f2449c58326e4dd9c4b, type: 3}
 --- !u!114 &6455767772848805017
 MonoBehaviour:

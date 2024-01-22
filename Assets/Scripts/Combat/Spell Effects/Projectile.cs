@@ -69,6 +69,7 @@ public abstract class Projectile : MonoBehaviour {
     private List<Collider> ignoredColliders = new();
 
     private GameObject? owner;
+    private Affiliation ownerAffiliation;
 
     // Used so we can let effects wrap up playing after a collision
     protected bool IsDead = false;
@@ -90,6 +91,7 @@ public abstract class Projectile : MonoBehaviour {
     // Was originally OnShoot() I guess
     public virtual void Shoot(
         GameObject owner, // (Root) Player game object
+        Affiliation ownerAffiliation,
         Camera? spellCamera,  // don't actually need, remove this
 	    float entityBaseDamage
     ) {
@@ -97,6 +99,7 @@ public abstract class Projectile : MonoBehaviour {
         velocity = transform.forward * Speed;
         ignoredColliders = new List<Collider>(); // Idk why we need to do this frankly it's not like this gets reused
         this.owner = owner;
+        this.ownerAffiliation = ownerAffiliation;
 
         // Ignore colliders of owner
         //Collider[] ownerColliders = owner.GetComponents<Collider>();
@@ -174,6 +177,8 @@ public abstract class Projectile : MonoBehaviour {
             return false;
         }
 
+        // Check if they have the same affiliation?
+
         return true;
     }
 
@@ -181,14 +186,21 @@ public abstract class Projectile : MonoBehaviour {
         float damageAfterMultipler = entityBaseDamage * DamageMultipler;
 
         if (DamageArea is DamageArea _DamageArea) { // If a DamageArea was provided, use that
-            _DamageArea.InflictDamageOverArea(damageAfterMultipler, point, collider, GetStatusEffect(), -1);
+            _DamageArea.InflictDamageOverArea(
+                damageAfterMultipler,
+                point,
+                ownerAffiliation,
+                collider,
+                GetStatusEffect(),
+                -1
+            );
         } else { // Otherwise, do point damage
             if (collider.TryGetComponent<ColliderParentPointer>(out var colliderParentPointer)) {
                 Entity entity = colliderParentPointer.entity;
 
-                entity.TakeDamage(damageAfterMultipler, owner, GetStatusEffect(), point);
+                entity.TakeDamage(damageAfterMultipler, ownerAffiliation, GetStatusEffect(), point);
             } else if (collider.TryGetComponent<Entity>(out var entity)) {
-                entity.TakeDamage(damageAfterMultipler, owner, GetStatusEffect(), point);
+                entity.TakeDamage(damageAfterMultipler, ownerAffiliation, GetStatusEffect(), point);
             }
         }
 

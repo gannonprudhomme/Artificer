@@ -36,7 +36,6 @@ public class LightningJumpSpell : Spell {
     public override bool CanShoot()
     {
         throw new System.NotImplementedException();
-        return false;
     }
 
     public override void ShootSpell(Vector3 muzzlePosition, GameObject owner, Camera spellCamera, float entityBaseDamage)

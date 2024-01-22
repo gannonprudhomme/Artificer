@@ -142,7 +142,7 @@ public class LemurianFireballAttack: EnemyAttack {
         animator.SetBool(ANIM_IS_CHARGING_FIREBALL, false);
         animator.SetBool(ANIM_IS_FIRING_FIREBALL, true);
 
-        newProjectile.Shoot(Owner, null, entityBaseDamage * DamageCoefficient);
+        newProjectile.Shoot(Owner, Affiliation.Enemy, null, entityBaseDamage * DamageCoefficient);
     }
 
     private void ResetAttack() {

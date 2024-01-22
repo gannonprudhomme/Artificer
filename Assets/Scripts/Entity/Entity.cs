@@ -93,14 +93,14 @@ public abstract class Entity : MonoBehaviour {
     // This is what damage "appliers" (e.g. Projectiles / Spells) actually call.
     public void TakeDamage(
         float damage,
-        GameObject? damageSource, // Currently unused
+        Affiliation damageApplierAffiliation, // Affiliation of who caused this damage
         BaseStatusEffect? appliedStatusEffect, // Optional
         Vector3 damagePosition, // Used to place where the damage text spawns from
         DamageType damageType = DamageType.Normal
     ) {
         if (health!.IsDead) return;
 
-        health!.TakeDamage(damage, damagePosition, damageType);
+        health!.TakeDamage(damage, damagePosition, damageApplierAffiliation, damageType);
 
         // Handle status effects
         if (appliedStatusEffect != null) {
@@ -119,18 +119,18 @@ public abstract class Entity : MonoBehaviour {
     // Available so we can apply damage if we don't know where exactly on the Collider it happened
     public void TakeDamage(
         float damage,
-        GameObject? damageSource,
+        Affiliation damageApplierAffiliation,
         BaseStatusEffect? appliedStatusEffect,
         DamageType damageType = DamageType.Normal
     ) {
-        TakeDamage(damage, damageSource, appliedStatusEffect, Vector3.negativeInfinity, damageType);
+        TakeDamage(damage, damageApplierAffiliation, appliedStatusEffect, Vector3.negativeInfinity, damageType);
     }
 
     // TODO: I don't actually think I need this, I can just make default-values for above null
     // Take flat damage
     // TODO: Do I actually want this? I suppose I might?
-    public void TakeDamage(float damage, DamageType damageType = DamageType.Normal) {
-        TakeDamage(damage, null, null, damageType);
+    public void TakeDamage(float damage, Affiliation damageApplierAffiliation, DamageType damageType = DamageType.Normal) {
+        TakeDamage(damage, damageApplierAffiliation, null, damageType);
     }
 
     public void AddParticleEffect(ParticleSystem particlePrefab) {

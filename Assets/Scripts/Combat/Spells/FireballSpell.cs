@@ -13,7 +13,7 @@ public class FireballSpell : Spell {
     public Color SpellColorForUI;
 
     [Tooltip("Visual effect to spawn when this spell is fired")]
-    public VisualEffect FireVisualEffectPrefab;
+    public VisualEffect? FireVisualEffectPrefab;
     
     [Tooltip("The Fireball projectile we shoot out")]
     // This should really be FireballProjectile, but tbh to FireballSpell it doesn't matter
@@ -44,7 +44,7 @@ public class FireballSpell : Spell {
         // Start off with max charges
         CurrentCharge = MaxNumberOfCharges;
 
-        fireVisualEffectInstance = Instantiate(FireVisualEffectPrefab, SpellEffectsSpawnPoint);
+        fireVisualEffectInstance = Instantiate(FireVisualEffectPrefab!, SpellEffectsSpawnPoint);
         fireVisualEffectInstance.Stop();
         fireVisualEffectInstance.enabled = true;
     }
@@ -115,7 +115,7 @@ public class FireballSpell : Spell {
             Quaternion.LookRotation(direction)
         );
 
-        newProjectile.Shoot(owner, spellCamera, playerBaseDamage);
+        newProjectile.Shoot(owner, Affiliation.Player, spellCamera, playerBaseDamage);
 
         lastTimeShot = Time.time;
 

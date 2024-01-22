@@ -126,7 +126,7 @@ public class LemurianMeleeAttack: EnemyAttack {
         Collider[] colliders = Physics.OverlapSphere(origin, hitRange, ~lemurianMask);
         foreach(var collider in colliders) {
             if (collider.TryGetComponent<Entity>(out var entity)) {
-                entity.TakeDamage(entityBaseDamage * DamageCoefficient, Owner, null);
+                entity.TakeDamage(entityBaseDamage * DamageCoefficient, Affiliation.Enemy, null);
             } else {
                 Debug.LogError("Couldn't find Entity component! This might be fine");
             }

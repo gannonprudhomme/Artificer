@@ -283,6 +283,7 @@ public class GolemLaserAttack: EnemyAttack {
             damageArea.InflictDamageOverArea(
                 entityBaseDamage * DamageCoefficient,
                 hit.point,
+                Affiliation.Enemy,
                 hit.collider,
                 null,
                 -1

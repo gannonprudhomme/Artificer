@@ -17,6 +17,7 @@ public class DamageArea : MonoBehaviour {
     public void InflictDamageOverArea(
         float damage,
         Vector3 center,
+        Affiliation damageApplierAffiliation,
         // The collider we actually hit to trigger this. Used so we know which entity (if any) should get a "direct" hit (no falloff)
         Collider? directHitCollider,
         BaseStatusEffect? statusEffectToApply,
@@ -49,7 +50,7 @@ public class DamageArea : MonoBehaviour {
         // Rather than check every time in the foreach below,
         // apply direct damage to it and remove it from the Set
         if (directHitEntity is Entity _directHitEntity1) {
-            _directHitEntity1.TakeDamage(damage, null, statusEffectToApply);
+            _directHitEntity1.TakeDamage(damage, damageApplierAffiliation, statusEffectToApply);
             bool didRemove = entitiesToDamage.Remove(_directHitEntity1);
 
             // Just a error check, shouldn't ever happen really
@@ -58,6 +59,8 @@ public class DamageArea : MonoBehaviour {
 
         // Apply damage with distance falloff
         foreach(KeyValuePair<Entity, Collider> pair in entitiesToDamage) {
+            // Should we check if this entity & the source have the same affliation?
+
             Entity entity = pair.Key;
             Collider collider = pair.Value;
 
@@ -67,7 +70,7 @@ public class DamageArea : MonoBehaviour {
             float damageAfterFalloff = damage * DamageOverDistanceCurve.Evaluate(distanceFromCollider / EffectRadius);
             // Debug.Log($"Applying {damageAfterFalloff} based off of {damage} and distance {distanceFromCollider}, which is {distanceFromCollider / EffectRadius * 100.0f}%");
 
-            entity.TakeDamage(damageAfterFalloff, null, statusEffectToApply);
+            entity.TakeDamage(damageAfterFalloff, damageApplierAffiliation, statusEffectToApply);
         }
     }
 
