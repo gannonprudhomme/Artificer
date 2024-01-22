@@ -1919,6 +1919,26 @@ PrefabInstance:
       propertyPath: Target
       value: 
       objectReference: {fileID: 7857456915802866195}
+    - target: {fileID: 227309694435722584, guid: 0db40c0dd54e96045b23b1695a405c38,
+        type: 3}
+      propertyPath: LaserSizeCurve.m_Curve.Array.data[1].value
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
+        type: 3}
+      propertyPath: m_TranslationOffset.x
+      value: -0.0017843993
+      objectReference: {fileID: 0}
+    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
+        type: 3}
+      propertyPath: m_TranslationOffset.y
+      value: 0.0005084011
+      objectReference: {fileID: 0}
+    - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
+        type: 3}
+      propertyPath: m_TranslationOffset.z
+      value: 0.0009288003
+      objectReference: {fileID: 0}
     - target: {fileID: 5831821557236258256, guid: 0db40c0dd54e96045b23b1695a405c38,
         type: 3}
       propertyPath: m_Sources.Array.data[0].sourceTransform
@@ -1932,7 +1952,7 @@ PrefabInstance:
     - target: {fileID: 6256376330666783321, guid: 0db40c0dd54e96045b23b1695a405c38,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7624902814649773823, guid: 0db40c0dd54e96045b23b1695a405c38,
         type: 3}
@@ -8113,7 +8133,12 @@ PrefabInstance:
     - target: {fileID: 176559257788947282, guid: 413499d33476b4bdf84b8890e63e4acd,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 179867156434840958, guid: 413499d33476b4bdf84b8890e63e4acd,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 398757189273365096, guid: 413499d33476b4bdf84b8890e63e4acd,
         type: 3}

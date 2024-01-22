@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 4558969074218550852}
   - component: {fileID: 7393558668454572554}
   - component: {fileID: 1861032210815172115}
+  - component: {fileID: 6952352234113038474}
   m_Layer: 0
   m_Name: Stone Golem
   m_TagString: Untagged
@@ -229,7 +230,7 @@ MonoBehaviour:
       outWeight: 0.30223688
     - serializedVersion: 3
       time: 0.24814974
-      value: 1.0000095
+      value: 5
       inSlope: -0.011731632
       outSlope: -0.011731632
       tangentMode: 0
@@ -248,6 +249,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  LaserDamageArea: {fileID: 6952352234113038474}
   AimMoveSpeed: 15
 --- !u!114 &2889862978088140803
 MonoBehaviour:
@@ -261,7 +263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33bd9b8184447304baf8751a3036dac6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 500
+  MaxHealth: 480
   CriticalHealthRatio: 0.3
   Invincible: 0
   OnDamageSfx: {fileID: 8300000, guid: 1ed808aa56b83f2449c58326e4dd9c4b, type: 3}
@@ -517,6 +519,61 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 5910400632532280347}
   - {fileID: 0}
+--- !u!114 &6952352234113038474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6256376330666783321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72c2f4414b887ac4099e9d42d9713062, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EffectRadius: 5.5
+  DamageOverDistanceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.51
+      value: 0.25
+      inSlope: -0.00821809
+      outSlope: -0.00821809
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.8966494
+    - serializedVersion: 3
+      time: 1
+      value: 0.25
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &7866772637536425011
 GameObject:
   m_ObjectHideFlags: 0
@@ -560,7 +617,7 @@ PositionConstraint:
   serializedVersion: 2
   m_Weight: 1
   m_TranslationAtRest: {x: 0.00093798863, y: -0.0026899856, z: 0.0009174703}
-  m_TranslationOffset: {x: -0.0017843993, y: 0.0005084011, z: 0.0009288003}
+  m_TranslationOffset: {x: -0.21549778, y: -0.04100982, z: 0.0017499654}
   m_AffectTranslationX: 1
   m_AffectTranslationY: 1
   m_AffectTranslationZ: 1

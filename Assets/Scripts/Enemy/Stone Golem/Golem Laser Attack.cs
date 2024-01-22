@@ -47,6 +47,8 @@ public class GolemLaserAttack: EnemyAttack {
     // The end of the line
     private Transform target;
 
+    private DamageArea damageArea;
+
     // AudioClip that plays when the laser begins to charge
     private AudioClip chargingSfx;
     // AudioClip that plays when the laser fires
@@ -93,6 +95,7 @@ public class GolemLaserAttack: EnemyAttack {
         LineRenderer lineRenderer,
         Transform aimPoint,
         Transform target,
+        DamageArea damageArea,
         AnimationCurve firingSizeCurve,
         AudioClip chargingSfx,
         AudioClip fireSfx
@@ -103,6 +106,7 @@ public class GolemLaserAttack: EnemyAttack {
         this.firingSizeCurve = firingSizeCurve;
         this.chargingSfx = chargingSfx;
         this.fireSfx = fireSfx;
+        this.damageArea = damageArea;
 
         this.lineRenderer.enabled = true;
         this.lineRenderer.useWorldSpace = true;
@@ -261,24 +265,35 @@ public class GolemLaserAttack: EnemyAttack {
 
         // For now just damage the target, assuming we hit them
 
-        Vector3 fromEyeToEndPoint = lastEndAimPoint - startAimPoint.position;
-        // Vector3 fromEyeToEndPoint = target.position - startAimPoint.position;
-        RaycastHit[] hits = Physics.SphereCastAll(
+        Vector3 fromEyeToEndPointDir = lastEndAimPoint - startAimPoint.position;
+
+        // Do a raycast to see what we hit and trigger the DamageArea there
+        // Also spawn the explosion there
+        if(Physics.Raycast(
             startAimPoint.position,
-            0.5f, // radius, idk what to set this to (TODO)
-            fromEyeToEndPoint.normalized,
-            fromEyeToEndPoint.magnitude,
+            fromEyeToEndPointDir.normalized,
+            out RaycastHit hit,
+            100.0f, // Same as the one used in SetLineRendererPositions
             -1,
             QueryTriggerInteraction.Ignore
-        );
+        )) {
+            Debug.Log("laser attack hit something!");
 
-        // In actuality DamageArea should be the thing doing this
-        // we should just spawn DamageArea where-ever we hit, and if it hits the player then it hits the player
-        foreach ( RaycastHit hit in hits ) {
-            if (hit.collider.TryGetComponent<Entity>(out Entity entity)) {
-                entity.TakeDamage(entityBaseDamage * DamageCoefficient);
-                break;
-            }
+            // Trigger the damage area
+            damageArea.InflictDamageOverArea(
+                entityBaseDamage * DamageCoefficient,
+                hit.point,
+                hit.collider,
+                null,
+                -1
+            );
+
+            // Uncomment this to debug the laser attack's DamageArea
+            // lastEndAimPoint = hit.point;
+
+            // TODO: Spawn the explosion VFX
+        } else {
+            Debug.Log("Laser attack didn't hit anything ack");
         }
     }
 
@@ -293,15 +308,14 @@ public class GolemLaserAttack: EnemyAttack {
             startAimPoint.position,
             direction,
             out RaycastHit hit,
-            maxDist, -1
+            maxDist,
+            -1
         )) { // Ideally we hit a player, but who knows!
             lineRenderer.SetPosition(1, hit.point);
         } else {
             Vector3 endPos = startAimPoint.position + (direction * maxDist);
             lineRenderer.SetPosition(1, endPos);
         }
-
-        // lineRenderer.SetPosition(1, target.transform.position);
     }
 
     private void ResetAttack() {

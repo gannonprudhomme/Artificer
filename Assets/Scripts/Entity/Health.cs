@@ -96,7 +96,6 @@ public class Health : MonoBehaviour {
             return;
 
         if (CurrentHealth <= 0f) {
-            Debug.Log("We dead!");
             IsDead = true;
             OnDeath?.Invoke();
         }

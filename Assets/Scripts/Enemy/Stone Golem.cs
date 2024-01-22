@@ -7,30 +7,6 @@ using UnityEngine.Animations;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.Apple;
 
-/*
-[RequireComponent(
-    typeof(Health),
-    typeof(NavMeshAgent),
-    typeof(Animator) // I think all will need this?
-)]
-
-public abstract class Enemy: MonoBehaviour {
-    [Tooltip("The GameObject of the player we're going to attack")]
-    public GameObject TargetForNavigation;
-
-    [Tooltip("The Mesh Rendered used to display this enemy. Used to set properties on its shader (material)")]
-    public SkinnedMeshRenderer MainMeshRenderer;
-
-    // I guess this is going to be on Health rather than here?
-    // I could see it work for either, but Health probably makes sense since it has to apply to the player
-    public List<StatusEffect> statusEffects { get; set; } 
-
-    // should call EnemyManager.RemoveEnemy(this);
-    // then destroy itself
-    public void Die();
-}
-*/
-
 // This (mainly Enemy) needs to:
 // - Aim at the player, and shoot when it can
 //   - The shooting shouldn't be fast enough where the player can't dodge it - it should be doable if they're thinking about it (or really fast)
@@ -79,6 +55,9 @@ public class StoneGolem : Enemy {
 
     [Tooltip("The curve which controls the size of the laser when it fires")]
     public AnimationCurve LaserSizeCurve;
+
+    [Tooltip("Reference to the Damage Area for the laser attack")]
+    public DamageArea LaserDamageArea;
 
     // TODO: Remove this later, it was just for testing
     public float AimMoveSpeed = 15f;
@@ -130,7 +109,9 @@ public class StoneGolem : Enemy {
         animator = GetComponent<Animator>();
         laserLineRenderer = GetComponent<LineRenderer>();
 
-        laserAttack = new GolemLaserAttack(laserLineRenderer, AimPoint, Target.AimPoint, LaserSizeCurve, LaserChargeSfx, LaserFireSfx);
+        laserAttack = new GolemLaserAttack(
+            laserLineRenderer, AimPoint, Target.AimPoint, LaserDamageArea, LaserSizeCurve, LaserChargeSfx, LaserFireSfx
+        );
 
         ConfigureAnimatorAndNavMeshAgent();
 
@@ -304,7 +285,7 @@ public class StoneGolem : Enemy {
     private void OnDrawGizmosSelected() {
         if (laserAttack != null) {
             Gizmos.color = Color.green;
-            Gizmos.DrawSphere(laserAttack.lastEndAimPoint, 1.0f);
+            Gizmos.DrawSphere(laserAttack.lastEndAimPoint, 5.5f);
         }
     }
     public override Material GetMaterial() {
