@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3676231092445548862}
   - component: {fileID: 7383962033279725700}
+  - component: {fileID: 4503799739896363830}
   m_Layer: 0
   m_Name: Fireball Projectile
   m_TagString: Untagged
@@ -32,6 +33,7 @@ Transform:
   m_Children:
   - {fileID: 5241632623964926734}
   - {fileID: 6789449251031674686}
+  - {fileID: 821038106630836486}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7383962033279725700
@@ -50,8 +52,9 @@ MonoBehaviour:
   Root: {fileID: 3676231092445548862}
   Tip: {fileID: 6789449251031674686}
   MaxLifeTime: 15
-  ImpactVfx: {fileID: 1121192042590650, guid: 1c4dd4a3b0d50b140877927abb52e8de, type: 3}
-  ImpactVfxLifetime: 5
+  ImpactVfx: {fileID: 1412020568508289090, guid: d680484e0c1ca4142a3ab158797712c0,
+    type: 3}
+  ImpactVfxLifetime: 1
   ImpactSfxClip: {fileID: 8300000, guid: 4d0282348006fe349bc6e74ec6176c19, type: 3}
   HittableLayers:
     serializedVersion: 2
@@ -59,7 +62,54 @@ MonoBehaviour:
   Speed: 60
   GravityDownAcceleration: 0
   DamageMultipler: 2.8
+  DamageArea: {fileID: 4503799739896363830}
   RadiusColor: {r: 0, g: 0.2, b: 0.2, a: 0.2}
+--- !u!114 &4503799739896363830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 12468826260444542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72c2f4414b887ac4099e9d42d9713062, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EffectRadius: 2
+  DamageOverDistanceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 1
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1247899854960142447
 GameObject:
   m_ObjectHideFlags: 0
@@ -5181,6 +5231,37 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!1 &7754315139526633457
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 821038106630836486}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &821038106630836486
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7754315139526633457}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3676231092445548862}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8209313966068891354
 GameObject:
   m_ObjectHideFlags: 0

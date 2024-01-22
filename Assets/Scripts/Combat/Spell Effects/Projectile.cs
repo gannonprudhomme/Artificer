@@ -27,14 +27,11 @@ public abstract class Projectile : MonoBehaviour {
     [Tooltip("Lifetime of the projectile")]
     public float MaxLifeTime = 5f; // I feel like this should be externally controlled
 
-    [Tooltip("VFX prefab to spawn upon impact")]
+    [Tooltip("Reference to the visual effect for the explosion (that's played on hit)")]
     public GameObject? ImpactVfx;
 
     [Tooltip("Lifetime of the VFX before being destroyed")]
     public float ImpactVfxLifetime = 5f;
-
-    // [Tooltip("Offset along the hit normal where the VFX will be spawned")]
-    // public float ImpactVfxSpawnOffset = 0.1f;
 
     [Tooltip("Clip to play on impact")]
     public AudioClip? ImpactSfxClip;
@@ -195,22 +192,17 @@ public abstract class Projectile : MonoBehaviour {
 
         // impact vfx
         if (ImpactVfx) {
-            GameObject impactVfxInstance = Instantiate(
-                ImpactVfx!,
-                point + (normal * 1.0f /*ImpactVfxSpawnOffset*/),
-                Quaternion.LookRotation(normal)
-            );
+            // ImpactVfx!.Play();
+            GameObject impactVfx = Instantiate(ImpactVfx!, point, Quaternion.identity);
+            impactVfx.GetComponent<VisualEffect>().Play();
 
-            if (ImpactVfxLifetime > 0) { // I'm really not sure if we need this
-                Destroy(impactVfxInstance, ImpactVfxLifetime);
-            }
+            Destroy(impactVfx, ImpactVfxLifetime);
         }
 
         if (ImpactSfxClip) {
             AudioUtility.shared.CreateSFX(ImpactSfxClip, point, AudioUtility.AudioGroups.Impact, 1f, 5f);
         }
 
-        // TODO: Call some OnHitAction?.Invoke() so we can apply affects per projectile
         OnDeath();
     }
 
