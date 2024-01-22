@@ -16,6 +16,8 @@ public class IceWallSpike : MonoBehaviour {
     [Tooltip("The prefab to spawn when this detonates")]
     public GameObject DetonateParticlePrefab;
 
+    public DamageArea? DamageArea;
+
     // How much damage this does on collision
     // Set in IceWall
     public float damage { get; set; }
@@ -87,25 +89,17 @@ public class IceWallSpike : MonoBehaviour {
     }
 
     private void OnTriggerEnter(Collider collider) {
-        // We collided! See if this is an enemy / has a Damageable component
-        // otherwise, ignore it!
-        // We should be able to do this with Layers / a Collider LayerMask hopefully
-        Entity entity = collider.GetComponent<Entity>();
-        if (entity == null) {
-            entity = collider.GetComponentInParent<Entity>();
-            if (entity == null) {
-                print("collider and it's parent doesn't have Entity component! ignoring");
-                return; 
-            }
-        }
-
-        entity.TakeDamage(damage, this.gameObject, new FreezeStatusEffect());
-
         Detonate();
     }
 
     private void Detonate() {
-        // TODO: Do an AoE attack? I'm not sure if it does that
+        DamageArea!.InflictDamageOverArea(
+            damage,
+            transform.position, // Do better than this
+            null,
+            new FreezeStatusEffect(),
+            -1
+        );
 
         AudioUtility.shared.CreateSFX(
             CollisionSfx,

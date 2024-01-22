@@ -18,16 +18,15 @@ public class DamageArea : MonoBehaviour {
         float damage,
         Vector3 center,
         // The collider we actually hit to trigger this. Used so we know which entity (if any) should get a "direct" hit (no falloff)
-        Collider directHitCollider,
+        Collider? directHitCollider,
         BaseStatusEffect? statusEffectToApply,
         LayerMask layers
     ) {
-        // HashSet<Entity> entitiesToDamage = new();
         Dictionary<Entity, Collider> entitiesToDamage = new();
         Entity? directHitEntity = null;
 
         // First, check if we directly hit an entity so we always apply 100% damage to it
-        if (directHitCollider.TryGetEntityFromCollider(out var _directHitEntity)) {
+        if (directHitCollider != null && directHitCollider.TryGetEntityFromCollider(out var _directHitEntity)) {
             directHitEntity = _directHitEntity;
             entitiesToDamage.Add(directHitEntity, directHitCollider); // So we don't add it multiple times
         }
@@ -42,7 +41,7 @@ public class DamageArea : MonoBehaviour {
 
         foreach (var collider in collidersOrderedByProximityToCenter) {
             if (collider.TryGetEntityFromCollider(out var entity) && !entitiesToDamage.ContainsKey(entity)) {
-                Debug.Log($"Adding {entity.name}");
+                // Debug.Log($"Adding {entity.name}");
                 entitiesToDamage.Add(entity, collider);
             }
         }
