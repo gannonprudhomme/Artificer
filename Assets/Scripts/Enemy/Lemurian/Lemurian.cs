@@ -46,7 +46,7 @@ public class Lemurian : Enemy {
     public ParticleSystem? MeleeParticleSystemInstance;
 
     [Tooltip("The list of colliders on this so we can disable all of them when this dies")]
-    public List<BoxCollider> Colliders;
+    public List<BoxCollider> Colliders = new();
 
     public VisualEffect? FireballChargeVisualEffectInstance;
 
@@ -83,9 +83,25 @@ public class Lemurian : Enemy {
 
     // How far from the chase target (player) we can be before stopping
     private const float chaseStoppingDistance = 3.5f;
+
+    // Used to know when we should do the on hit animation (head tilt to the side)
+    // Also used to know when we can stun again (in combo with stunCooldown)
+    private float timeOfLastHit = Mathf.NegativeInfinity;
+
+    // Used so we know when the stun should wear off
+    private float timeOfLastStun = Mathf.NegativeInfinity;
+
+    private const float stunDuration = 0.3f; // how long the stun actually lasts
+
+    // Need to be 1.5 seconds until the last stun ended to stun again
+    private float stunCooldown = 1.5f;
+
     public override string EnemyIdentifier => "Lemurian";
 
     private const string ANIM_PARAM_IS_DEAD = "IsDead";
+    private const string ANIM_PARAM_IS_STUNNED = "IsStunned";
+    private const string ANIM_PARAM_TIME_SINCE_LAST_HIT = "TimeSinceLastHit";
+    // used so we can't 
 
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator!.rootPosition;
@@ -149,6 +165,9 @@ public class Lemurian : Enemy {
 
         fireballAttack!.OnUpdate(CurrentBaseDamage);
         meleeAttack!.OnUpdate(CurrentBaseDamage);
+
+        float timeSinceLastHit = Time.time - timeOfLastHit;
+        animator!.SetFloat(ANIM_PARAM_TIME_SINCE_LAST_HIT, timeSinceLastHit);
     }
 
     // Controls the behavior of what this entity is doing
@@ -156,13 +175,16 @@ public class Lemurian : Enemy {
         float distanceFromTarget = Vector3.Distance(transform.position, Target.AimPoint.position);
         bool hasLineOfSightToTarget = DoesHaveLineOfSightToTarget();
 
-        if (!hasLineOfSightToTarget) {
+        // First, check stun
+        if ((Time.time - timeOfLastStun) < stunDuration) {
+            return State.STUNNED;
+        }
+
+        if (!hasLineOfSightToTarget) { // Basically a base case - if we don't have line of sight we should always chase
             // if (currentState != State.CHASE) Debug.Log("Changing to chase b/c no line of sight");
 
             return State.CHASE;
-        }
-
-        if (distanceFromTarget <= 3.0f) {
+        } else if (distanceFromTarget <= 3.0f) {
             // if (currentState != State.USE_SECONDARY_AND_CHASE_SLOWING_DOWN) Debug.Log("Changing to use secondary & chase slowing down");
 
             return State.USE_SECONDARY_AND_CHASE_SLOWING_DOWN;
@@ -189,9 +211,6 @@ public class Lemurian : Enemy {
     // Given the result of DetermineCurrentState(), act on it
     private void PerformCurrentState() {
         switch (currentState) {
-            // Do same as below, but reduce speed?
-            // Decrease speed I guess?
-            // fallthrough for now
             case State.USE_SECONDARY_AND_CHASE_SLOWING_DOWN:
             case State.USE_SECONDARY_AND_CHASE:
                 if (isFrozen) break; // Might want to put this at the top
@@ -205,7 +224,7 @@ public class Lemurian : Enemy {
                 DoChase();
                 break;
 
-            case State.STRAFE_WHILE_CHARGING_PRIMARY: // Falthrough for now
+            case State.STRAFE_WHILE_CHARGING_PRIMARY: // Falthrough for now 
             case State.USE_PRIMARY_AND_STRAFE:
                 if (isFrozen) break;
 
@@ -227,12 +246,19 @@ public class Lemurian : Enemy {
                 DoChase();
 
                 break;
+            case State.STUNNED:
+                fireballAttack!.canAttack = false;
+                meleeAttack!.canAttack = false;
+                break;
         }
     }
 
     private void DoStrafe() {
         // avMeshAgent!.updateRotation = false;
         navMeshAgent!.stoppingDistance = strafeStoppingDistance;
+
+        // Reset IsStunned in case we were stunned previously
+        animator!.SetBool(ANIM_PARAM_IS_STUNNED, false);
 
         const float lemurianHeight = 2.57f; // Should retrieve dynamically
         float distToStrafePosition = Vector3.Distance(transform.position, strafePosition);
@@ -280,12 +306,24 @@ public class Lemurian : Enemy {
         navMeshAgent!.updateRotation = true;
         navMeshAgent!.stoppingDistance = chaseStoppingDistance;
 
+        // Reset in case we were just stunned
+        animator!.SetBool(ANIM_PARAM_IS_STUNNED, false);
+
         // Set the destination to be at the player
         // Set stopping distance
         SetDestination();
     }
+
+    private void DoStun() {
+        animator!.SetBool(ANIM_PARAM_IS_STUNNED, true);
+        timeOfLastStun = Time.time;
+        // Idk if it's a good or bad idea to set the state in here
+        // We don't know where in the update loop we'll be setting this, so it might lead to unexpected behavior
+        currentState = State.STUNNED; 
+    }
+
     private void ConfigureAnimatorAndNavMeshAgent() {
-        animator.applyRootMotion = true;
+        animator!.applyRootMotion = true;
         // Want animator to drive movement, not agent
         navMeshAgent!.updatePosition = false;
         // So it's aligned where we're going (he has notes later in the video for setting this to false / when)
@@ -331,8 +369,8 @@ public class Lemurian : Enemy {
 
         bool shouldMove = velocity.magnitude > isMovingMin && navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance;
 
-        animator.SetBool("IsMoving", shouldMove);
-        animator.SetFloat("MovementSpeed", velocity.magnitude); // Based on 1D blend tree, need to pass in velocity.x & velocity.y separately for 2D
+        animator!.SetBool("IsMoving", shouldMove);
+        animator!.SetFloat("MovementSpeed", velocity.magnitude); // Based on 1D blend tree, need to pass in velocity.x & velocity.y separately for 2D
 
         // This is causing a bug
         // TODO: Rename this cause I'm still not 100% sure what this boolean does
@@ -360,7 +398,17 @@ public class Lemurian : Enemy {
     }
 
     private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
-        // if damage was > 15% of max health, Lemurian should be stunned (but for how long?)
+        // if damage was > 15% of max health, Lemurian should be stunned
+        float damageAsPercentOfMaxHealth = damage / health!.MaxHealth;
+        if (damageAsPercentOfMaxHealth >= 0.15f) {
+            float timeSinceLastHit = Time.time - timeOfLastHit;
+            if (timeSinceLastHit > stunCooldown) { // Needs to be {stunCooldown} seconds since we've been last hit to actually stun
+                DoStun();
+            }
+        }
+
+        // Note we intentionally set this below the above if statement since it consumes it
+        timeOfLastHit = Time.time;
 	}
 
     protected override void OnDeath() {
@@ -369,7 +417,7 @@ public class Lemurian : Enemy {
         // I do think we want to do this?
         EnemyManager.shared.RemoveEnemy(this);
 
-        animator.SetBool(ANIM_PARAM_IS_DEAD, true);
+        animator!.SetBool(ANIM_PARAM_IS_DEAD, true);
 
         PositionConstraint.constraintActive = false;
 
@@ -438,7 +486,8 @@ public class Lemurian : Enemy {
         // Must be within 7m from its target and have line of sight
         CHASE_OFF_NODEGRAPH,
         // No requirements
-        CHASE
+        CHASE,
+        STUNNED
     }
 
     private void OnDrawGizmosSelected() {
