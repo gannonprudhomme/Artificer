@@ -197,7 +197,7 @@ public class GolemLaserAttack: EnemyAttack {
         
         lastEndAimPoint += directionToPlayer * aimSpeedPerFrame;
 
-        SetLinePositions();
+        SetLineRendererPositions();
     }
 
     // This shouldn't modify anything
@@ -261,7 +261,6 @@ public class GolemLaserAttack: EnemyAttack {
 
         // For now just damage the target, assuming we hit them
 
-        // We could do this much easier if we just used a layer mask for the player
         Vector3 fromEyeToEndPoint = lastEndAimPoint - startAimPoint.position;
         // Vector3 fromEyeToEndPoint = target.position - startAimPoint.position;
         RaycastHit[] hits = Physics.SphereCastAll(
@@ -283,7 +282,7 @@ public class GolemLaserAttack: EnemyAttack {
         }
     }
 
-    private void SetLinePositions() {
+    private void SetLineRendererPositions() {
         lineRenderer.SetPosition(0, startAimPoint.position);
 
         // Need to calculate the end position each time - it's a raycast

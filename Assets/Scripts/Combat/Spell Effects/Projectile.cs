@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using PlasticGui.WorkspaceWindow;
 using UnityEngine;
+using UnityEngine.VFX;
 
 #nullable enable
 
@@ -50,8 +51,8 @@ public abstract class Projectile : MonoBehaviour {
     [Tooltip("Damage Multiplier relative to base damage")]
     public float DamageMultipler = 2.8f;
 
-    // [Tooltip("Area of Damage. Keep it empty if you dont' want area damage")]
-    // public DamageArea AreaOfDamage;
+    [Tooltip("Area of Damage. Keep it empty if you dont' want area damage")]
+    public DamageArea? DamageArea = null;
 
     [Header("Debug")]
     [Tooltip("Color of the projectile radius for debug view")]
@@ -92,7 +93,7 @@ public abstract class Projectile : MonoBehaviour {
         Camera? spellCamera,  // don't actually need, remove this
 	    float entityBaseDamage
     ) {
-        lastRootPosition = Root.position;
+        lastRootPosition = Root.position; 
         velocity = transform.forward * Speed;
         ignoredColliders = new List<Collider>(); // Idk why we need to do this frankly it's not like this gets reused
         this.owner = owner;
@@ -111,10 +112,10 @@ public abstract class Projectile : MonoBehaviour {
 
         transform.position += velocity * Time.deltaTime;
 
+        // TODO: do later - I think this is actually making a difference
         // Drift towards trajectory override
         // so that projectiles can be centered with the camera center
         // even though the actual weapon (spawn point) is offset 
-        // TODO: do later
 
         // Orient the projectile towards the velocity
         // (presumably so it points the right way)
@@ -124,7 +125,7 @@ public abstract class Projectile : MonoBehaviour {
 
         // Handle hit detection
 
-        RaycastHit closestHit = new RaycastHit();
+        RaycastHit closestHit = new();
         closestHit.distance = Mathf.Infinity;
         bool foundHit = false;
 
@@ -136,7 +137,7 @@ public abstract class Projectile : MonoBehaviour {
             displacementSinceLastFrame.normalized,
             displacementSinceLastFrame.magnitude,
             HittableLayers,
-            QueryTriggerInteraction.Ignore // This was o
+            QueryTriggerInteraction.Ignore
         );
 
         foreach(var hit in hits) {
@@ -177,22 +178,22 @@ public abstract class Projectile : MonoBehaviour {
     }
 
     protected virtual void OnHit(Vector3 point, Vector3 normal, Collider collider) {
-        // damage
-        // Check if we do AoE or not
-        // For now, we're not going to
+        float damageAfterMultipler = entityBaseDamage * DamageMultipler;
 
-        // point damage
-        if (collider.TryGetComponent<ColliderParentPointer>(out var colliderParentPointer)) {
-            Entity entity = colliderParentPointer.entity;
+        if (DamageArea is DamageArea _DamageArea) { // If a DamageArea was provided, use that
+            _DamageArea.InflictDamageOverArea(damageAfterMultipler, point, collider, -1);
+        } else { // Otherwise, do point damage
+            if (collider.TryGetComponent<ColliderParentPointer>(out var colliderParentPointer)) {
+                Entity entity = colliderParentPointer.entity;
 
-            entity.TakeDamage(entityBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
-        } else if (collider.TryGetComponent<Entity>(out var entity)) {
-            entity.TakeDamage(entityBaseDamage * DamageMultipler, owner, GetStatusEffect(), point);
-		}
+                entity.TakeDamage(damageAfterMultipler, owner, GetStatusEffect(), point);
+            } else if (collider.TryGetComponent<Entity>(out var entity)) {
+                entity.TakeDamage(damageAfterMultipler, owner, GetStatusEffect(), point);
+            }
+        }
 
         // impact vfx
         if (ImpactVfx) {
-            // ImpactVfx!.Play();
             GameObject impactVfx = Instantiate(ImpactVfx!, point, Quaternion.identity);
             impactVfx.GetComponent<VisualEffect>().Play();
 
