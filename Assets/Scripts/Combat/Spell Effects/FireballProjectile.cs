@@ -12,5 +12,4 @@ public class FireballProjectile : Projectile {
         // It does 50% of the damage the Fireball does
         return new BurnStatusEffect(DamageMultipler * DamageEconomy.PlayerBaseDamage * 0.5f);
     }
-
 }

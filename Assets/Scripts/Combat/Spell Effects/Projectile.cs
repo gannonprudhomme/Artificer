@@ -181,7 +181,7 @@ public abstract class Projectile : MonoBehaviour {
         float damageAfterMultipler = entityBaseDamage * DamageMultipler;
 
         if (DamageArea is DamageArea _DamageArea) { // If a DamageArea was provided, use that
-            _DamageArea.InflictDamageOverArea(damageAfterMultipler, point, collider, -1);
+            _DamageArea.InflictDamageOverArea(damageAfterMultipler, point, collider, GetStatusEffect(), -1);
         } else { // Otherwise, do point damage
             if (collider.TryGetComponent<ColliderParentPointer>(out var colliderParentPointer)) {
                 Entity entity = colliderParentPointer.entity;
