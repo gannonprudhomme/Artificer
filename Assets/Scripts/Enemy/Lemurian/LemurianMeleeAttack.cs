@@ -119,8 +119,8 @@ public class LemurianMeleeAttack: EnemyAttack {
         SwipeParticleInstance.time = 0.0f;
         SwipeParticleInstance.Play();
 
-        animator.SetBool(ANIM_IS_CHARGING_MELEE, false);
         animator.SetBool(ANIM_IS_FIRING_MELEE, true);
+        animator.SetBool(ANIM_IS_CHARGING_MELEE, false);
 
         Vector3 origin = OwnerAimPoint.position + (Vector3.forward * (hitRange / 2.0f));
         Collider[] colliders = Physics.OverlapSphere(origin, hitRange, ~lemurianMask);
@@ -132,8 +132,9 @@ public class LemurianMeleeAttack: EnemyAttack {
             }
         }
 
+        isInMiddleOfAttack = false;
         // Reset values once we're done
-        ResetAttack();
+        // ResetAttack();
     }
 
     private bool CanBeginAttack() {
