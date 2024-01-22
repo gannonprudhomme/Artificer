@@ -78,7 +78,7 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 4
     m_ConditionEvent: TimeSinceLastDamaged
-    m_EventTreshold: 0.2
+    m_EventTreshold: 0.02
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2319845550915438620}
   m_Solo: 0
@@ -146,10 +146,10 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 5589548262327464403}
-    m_Position: {x: 357.9802, y: -45.65381, z: 0}
+    m_Position: {x: 360, y: 40, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2319845550915438620}
-    m_Position: {x: 360, y: 100, z: 0}
+    m_Position: {x: 360, y: 170, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -265,7 +265,7 @@ AnimatorController:
     m_Mask: {fileID: 31900000, guid: 12aeaaf06ad51c6438b5d44474bca32f, type: 2}
     m_Motions: []
     m_Behaviours: []
-    m_BlendingMode: 0
+    m_BlendingMode: 1
     m_SyncedLayerIndex: -1
     m_DefaultWeight: 1
     m_IKPass: 0
