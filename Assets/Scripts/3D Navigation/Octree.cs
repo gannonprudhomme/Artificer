@@ -6,6 +6,8 @@ using UnityEngine;
 //
 // It shouldn't really do much when the game is being played,
 // other than loading data from a file and sending it to some Graph to be used
+//
+// This is *heavily* based off of: https://github.com/supercontact/PathFindingEnhanced
 public class Octree : MonoBehaviour { // idk if this should actually be a Monobehavior or not
     [Tooltip("How many levels we'll divide the Octree into")]
     public int MaxDivisionLevel = 3;
@@ -55,38 +57,51 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     }
 
     public void Bake() {
-        float start = Time.time;
+        var stopwatch = new System.Diagnostics.Stopwatch();
 
         root = new OctreeNode(0, new int[] { 0, 0, 0 }, null, this);
 
         if (this.TryGetComponent(out MeshFilter meshFilter)) {
+            // NOTE: If we end up modifying this, DON'T use sharedMesh it'll actually modify the mesh
             Vector3 _center = gameObject.transform.TransformPoint(meshFilter.sharedMesh.bounds.center);
             Corner = _center - (Vector3.one * Size / 2);
         } else {
             Debug.LogError("It's assumed that the Octree will have a MeshFilter attached as the 'Base level' (biggest mesh)");
         }
 
-        // Bake for the parent
+        // Bake for the parent, and thus the children (if enabled)
+        stopwatch.Start();
         BakeForGameObject(this.gameObject);
+        stopwatch.Stop();
 
-        Debug.Log($"Finished baking in {Time.time - start} sec, counting voxels!");
+
+        Debug.Log($"Finished baking in {(int) stopwatch.Elapsed.TotalSeconds} sec, counting voxels!");
 
         // Calculate how many voxels there are and display it somewhere. Idk where
-        start = Time.time;
+        stopwatch.Reset();
+        stopwatch.Start();
         int voxelCount = root.CountVoxels();
-        Debug.Log($"Generated {voxelCount} voxels (leaves?), counted in {Time.time - start} seconds");
+        stopwatch.Stop();
+        Debug.Log($"Generated {voxelCount} voxels (leaves?), counted in {(int)stopwatch.Elapsed.TotalMilliseconds} ms");
 
     }
 
     private void BakeForGameObject(GameObject currGameObject) {
         if (currGameObject.TryGetComponent(out MeshFilter meshFilter)) {
-            BakeForMesh(meshFilter.sharedMesh);
+            // NOTE: If we end up modifying the mesh, DON'T use sharedMesh it'll actually modify the mesh
+            VoxelizeForMesh(meshFilter.sharedMesh, currGameObject);
         }
+
+        /*
+        if (currGameObject.TryGetComponent(out SkinnedMeshRenderer meshRenderer)) {
+            VoxelizeForMesh(meshRenderer.sharedMesh, currGameObject);
+        }
+        */
 
         // Now run it on the children (recursively)
         if (ShouldCalculateForChildren) {
-            for(int i = 0; i < gameObject.transform.childCount; i++) {
-                GameObject childObj = gameObject.transform.GetChild(i).gameObject;
+            for(int i = 0; i < currGameObject.transform.childCount; i++) {
+                GameObject childObj = currGameObject.transform.GetChild(i).gameObject;
                 if (childObj.activeInHierarchy) {
                     BakeForGameObject(childObj);
                 }
@@ -94,39 +109,14 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         }
     }
 
-    public void Bake1() {
-        // Not sure when we should actually set this, but this should work
-        root = new OctreeNode(0, new int[] { 0, 0, 0 }, null, this);
-
-        // Read all of the meshes on this component & below it
-        List<Mesh> meshes = GetAllMeshes(this.gameObject);
-        Debug.Log($"Got {meshes.Count} mesh(es)!");
-
-        // Set the center based on the "base" game object
-        // There's gotta be a better way to do this lol
-        if (meshes.Count > 0) {
-        }
-
-        foreach(var mesh in meshes) {
-            // Get all the triangles?
-            BakeForMesh(mesh);
-        }
-
-        Debug.Log("Done baking, counting voxels!");
-
-        // Calculate how many voxels there are and display it somewhere. Idk where
-        int voxelCount = root.CountVoxels();
-        Debug.Log($"Generated {voxelCount} voxels (leaves?)");
-    }
-
-    private void BakeForMesh(Mesh mesh) {
+    private void VoxelizeForMesh(Mesh mesh, GameObject currGameObject) {
         int[] triangles = mesh.triangles;
         Vector3[] vertsLocalSpace = mesh.vertices;
         Vector3[] normals = mesh.normals;
         Vector3[] vertsWorldSpace = new Vector3[vertsLocalSpace.Length];
 
         for(int i = 0; i < vertsLocalSpace.Length; i++) {
-            vertsWorldSpace[i] = gameObject.transform.TransformPoint(vertsLocalSpace[i]) + (gameObject.transform.TransformDirection(normals[i]) * 0);
+            vertsWorldSpace[i] = currGameObject.transform.TransformPoint(vertsLocalSpace[i]) + (currGameObject.transform.TransformDirection(normals[i]) * 0);
         }
 
         for(int i = 0; i < triangles.Length / 3; i++) {
@@ -141,30 +131,6 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
 
             root.DivideTriangleUntilLevel(point1, point2, point3, MaxDivisionLevel);
         }
-    }
-
-    // NOTE: This assume only things that are considered in the level are on the GameObject that Octree is on
-    // This needs to be recursive
-    private static List<Mesh> GetAllMeshes(GameObject currGameObject) {
-        List<Mesh> meshes = new();
-
-        if (currGameObject.TryGetComponent(out MeshFilter thisMesh)) {
-            // Debug.Log("Got mesh Mesh!");
-            // Might need to instantiate the Mesh? idk
-            meshes.Add(thisMesh.sharedMesh); // Do I need to do sharedMesh?
-
-            // Need to MergeOverlappingPoints on the mesh? Then Recalculate normals?
-        }
-
-        // Get it from the children
-        for(int i = 0; i < currGameObject.transform.childCount; i++) {
-            GameObject child = currGameObject.transform.GetChild(i).gameObject;
-            if (child.activeInHierarchy) {
-                meshes.AddRange(GetAllMeshes(child));
-            }
-        }
-
-        return meshes;
     }
 
     private void OnDrawGizmosSelected() {
