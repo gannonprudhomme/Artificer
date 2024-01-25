@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#nullable enable
+
 // This is akin to a NavMeshSurface
 //
 // It shouldn't really do much when the game is being played,
@@ -32,7 +34,6 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
 
     public Vector3 center = Vector3.zero;
 
-    // public static readonly int[,] dir = { { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 } };
     public static readonly int[,] cornerDir = { // Interesting that there aren't any negatives in here
         { 0, 0, 0 },
         { 1, 0, 0 },
@@ -54,6 +55,10 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
 
     private void Awake() {
         root = new OctreeNode(0, new int[] { 0, 0, 0 }, null, this);
+    }
+
+    public List<OctreeNode> Leaves() {
+        return root.GetLeaves();
     }
 
     public void Bake() {
@@ -83,7 +88,6 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         int voxelCount = root.CountVoxels();
         stopwatch.Stop();
         Debug.Log($"Generated {voxelCount} voxels (leaves?), counted in {(int)stopwatch.Elapsed.TotalMilliseconds} ms");
-
     }
 
     private void BakeForGameObject(GameObject currGameObject) {
@@ -131,6 +135,41 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
 
             root.DivideTriangleUntilLevel(point1, point2, point3, MaxDivisionLevel);
         }
+    }
+
+    public OctreeNode? FindNearestLeaf(int[] gridIndex, int level) {
+        int xIndex = gridIndex[0];
+        int yIndex = gridIndex[1];
+        int zIndex = gridIndex[2];
+
+        int t = 1 << level; // again why do we do this
+
+        // Check bounds i guess?
+        if (
+            xIndex >= t || xIndex < 0 ||
+            yIndex >= t || yIndex < 0 ||
+            zIndex >= t || zIndex < 0
+        ) {
+            return null;
+        }
+
+        OctreeNode current = root;
+        for (int l = 0; l < level; l++) {
+            if (current.children == null) {
+                return current; // Found a leaf
+            }
+
+            t = t >> 1; // is this just dividing by 2 or am I dumb
+
+            // What if we miss? How do we know something is going to be here? It's not uniform
+            current = current.children[xIndex / t, yIndex / t, zIndex / t]; // WHAT
+
+            xIndex %= t;
+            yIndex %= t;
+            zIndex %= t;
+        }
+
+        return null;
     }
 
     private void OnDrawGizmosSelected() {

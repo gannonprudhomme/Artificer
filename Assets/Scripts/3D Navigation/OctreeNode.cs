@@ -1,18 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
-using Codice.CM.WorkspaceServer.Tree;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 #nullable enable
 
 public class OctreeNode {
-    private readonly int nodeLevel;
+    public readonly int nodeLevel;
 
     // The index of this node in the Octree
     // Used to do WHAT
-    private readonly int[] index;
+    public readonly int[] index;
 
     // private readonly OctreeNode parent; // I'm not sure if we actually need the parent?
 
@@ -22,10 +19,10 @@ public class OctreeNode {
 
     // Note that this might not have any children!
     // How do we know something is a leaf?
-    private OctreeNode[,,]? children = null;
+    public OctreeNode[,,]? children { get; private set; }
 
     // Whether we would've divided further but couldn't b/c of the max level
-    private bool blockedFromDividingFurther = false;
+    public bool containsCollision { get; private set; }
 
     // Object used to display this
     // null until we call DisplayVoxels()
@@ -35,7 +32,7 @@ public class OctreeNode {
         get { return tree.Size / (1 << nodeLevel); }
     }
 
-    private Vector3 center {
+    public Vector3 center {
         // Get the bottom left(?) corner, then move it to the center (0.5, 0.5, 0.5) [when size = 1]
         get { return GetCorners(0) + ((size / 2) * Vector3.one); }
     }
@@ -52,8 +49,29 @@ public class OctreeNode {
     ) {
         this.nodeLevel = nodeLevel;
         this.index = index;
+        this.children = null;
         // this.parent = parent;
         this.tree = tree;
+        this.containsCollision = false;
+    }
+
+    public List<OctreeNode> GetLeaves() {
+        List<OctreeNode> leaves = new();
+
+        if (children == null) {
+            leaves.Add(this);
+        } else {
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 2; y++) {
+                    for (int z = 0; z < 2; z++) {
+                        List<OctreeNode> childLeaves = children[x, y, z].GetLeaves();
+                        leaves.AddRange(childLeaves);
+                    }
+                }
+            }
+        }
+
+        return leaves;
     }
 
     // For our purposes I think cornerNum is always 0
@@ -94,7 +112,7 @@ public class OctreeNode {
             }
 
         } else { // we're too deep, mark as can't 
-            blockedFromDividingFurther = true;
+            containsCollision = true;
         }
     }
 
@@ -196,7 +214,7 @@ public class OctreeNode {
         // calculate the center of this
         if (children == null) { // is this a leaf
             if (nodeLevel == tree.MaxDivisionLevel) {
-                if (blockedFromDividingFurther) {
+                if (containsCollision) {
                     Gizmos.color = Color.green;
 
                     if (tree.DisplayOnlyBlocked) {
