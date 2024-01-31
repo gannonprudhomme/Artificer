@@ -27,6 +27,11 @@ public class GraphNode {
     // we don't need the Edge object
     public List<GraphEdge> edges;
 
+    // Ok idk if I should commit this so TODO for removal
+    // just for debug displaying
+    public bool ProcessingNext = false;
+    public bool ProcessedLast = false;
+
     public GraphNode(Vector3 center, int index) {
         this.center = center;
         this.index = index;
@@ -35,8 +40,10 @@ public class GraphNode {
 }
 
 public class Graph { // I don't think i want this to be a monobehavior?
-    private List<GraphNode> nodes;
+    public List<GraphNode> nodes;
     // private List<Node> temporaryNodes;
+
+    public int nodeCount {  get { return nodes.Count; } }
 
     public Graph(List<GraphNode> nodes) {
         this.nodes = nodes;
@@ -59,8 +66,16 @@ public class Graph { // I don't think i want this to be a monobehavior?
     public void DrawGraph() {
         List<GraphEdge> edges = new();
         foreach(GraphNode node in nodes) {
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(node.center, 0.5f);
+            if (node.ProcessingNext) {
+                Gizmos.color = Color.green;
+                Gizmos.DrawSphere(node.center, 5f);
+            } else if (node.ProcessedLast) {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(node.center, 5f);
+            } else {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(node.center, 3f);
+            }
 
             foreach(GraphEdge edge in node.edges) {
                 // Gizmos.DrawLine(edge.from.center, edge.to.center);
@@ -82,6 +97,23 @@ public class Graph { // I don't think i want this to be a monobehavior?
 
         Gizmos.color = Color.cyan;
         Gizmos.DrawLineList(linesToDraw);
+    }
+
+    // For debug counting, probs don't actually want
+    public int GetEdgeCount() {
+        HashSet<(GraphNode, GraphNode)> edges = new();
+
+        foreach(var node in nodes) {
+            foreach(GraphEdge edge in node.edges) {
+                var pair1 = (edge.from, edge.to);
+                var pair2 = (edge.to, edge.from);
+
+                if (!edges.Contains(pair1) && !(edges.Contains(pair2)))
+                    edges.Add(pair1);
+            }
+        }
+
+        return edges.Count;
     }
 }
 

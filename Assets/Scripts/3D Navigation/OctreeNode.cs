@@ -1,14 +1,16 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 #nullable enable
 
+[Serializable]
 public class OctreeNode {
     public readonly int nodeLevel;
 
     // The index of this node in the Octree
     // Used to do WHAT
+    [SerializeField]
     public readonly int[] index;
 
     // private readonly OctreeNode parent; // I'm not sure if we actually need the parent?
@@ -19,7 +21,10 @@ public class OctreeNode {
 
     // Note that this might not have any children!
     // How do we know something is a leaf?
+    [SerializeField]
     public OctreeNode[,,]? children { get; private set; }
+
+    public bool doesChildrenContainCollision = false;
 
     // Whether we would've divided further but couldn't b/c of the max level
     public bool containsCollision { get; private set; }
@@ -31,6 +36,7 @@ public class OctreeNode {
     private float size {
         get { return tree.Size / (1 << nodeLevel); }
     }
+    public float GetSize() { return size; } // We shouldn't actually have this its just for doing DrawGizmos()
 
     public Vector3 center {
         // Get the bottom left(?) corner, then move it to the center (0.5, 0.5, 0.5) [when size = 1]
@@ -40,6 +46,16 @@ public class OctreeNode {
     private bool IsLeaf {
         get { return children == null; }
     }
+
+    public int[] cornerIndex(int n, Octree tree) {
+        int s = 1 << (tree.MaxDivisionLevel - nodeLevel);
+        return new int[] {
+            (index[0] + Octree.cornerDir[n, 0]) * s,
+            (index[1] + Octree.cornerDir[n, 1]) * s,
+            (index[2] + Octree.cornerDir[n, 2]) * s
+        };
+    }
+
 
     public OctreeNode(
         int nodeLevel,
@@ -209,31 +225,30 @@ public class OctreeNode {
         return ret;
     }
 
+    public string IndexToString() {
+        return $"{index[0]}, {index[1]}, {index[2]}";
+    }
+
     // Create MeshRenderer and display that bitch
-    public void DisplayVoxels() {
-        // calculate the center of this
-        if (children == null) { // is this a leaf
-            if (nodeLevel == tree.MaxDivisionLevel) {
-                if (containsCollision) {
-                    Gizmos.color = Color.green;
+    public void DrawGizmos(bool shouldDisplayVoxels, bool shouldDisplayText) {
+        // Why does this happen
+        if (tree == null) return;
 
-                    if (tree.DisplayOnlyBlocked) {
-                        Gizmos.DrawWireCube(center + tree.center, Vector3.one * size);
-                    }
-                }
-            } else {
-                Gizmos.color = Color.red;
-            }
+        Vector3 position = center;
 
-            if (!tree.DisplayOnlyBlocked) {
-                Gizmos.DrawWireCube(center + tree.center, Vector3.one * size);
-            }
-
-            return;
+        if (shouldDisplayVoxels) {
+            Gizmos.DrawWireCube(position, Vector3.one * size);
         }
 
-        foreach(var child in children) {
-            child.DisplayVoxels();
+        if (shouldDisplayText) {
+            #if UNITY_EDITOR
+            UnityEditor.Handles.color = Color.red;
+            string output = $"{index[0]}, {index[1]}, {index[2]}";
+            Vector3 offsetPosition = position + new Vector3(0, 0.5f, 0.0f);
+
+            UnityEditor.Handles.Label(offsetPosition, output);
+            #endif
         }
+
     }
 }

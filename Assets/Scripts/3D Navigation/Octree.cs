@@ -1,6 +1,9 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
+// using OdinSerializer;
 
 #nullable enable
 
@@ -19,13 +22,14 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     [Header("Display (Debug)")]
     public bool ShouldDisplayVoxels = false;
     public bool DisplayOnlyBlocked = false;
+    public bool DisplayText = false;
 
     // Not sure what this actually means yet
     // Maybe the size of the entire thing?
     // Really hard to tell lol, lets just make it configurable for now and see how it goes
-    public float Size = 1024.0f; 
+    public int Size = 1024; 
 
-    private OctreeNode root;
+    public OctreeNode root;
 
     // Should we make this configurable?
     // private Vector3 corner;
@@ -53,6 +57,8 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     }
     */
 
+    string fileName = "./octree.json";
+
     private void Awake() {
         root = new OctreeNode(0, new int[] { 0, 0, 0 }, null, this);
     }
@@ -60,6 +66,88 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     public List<OctreeNode> Leaves() {
         return root.GetLeaves();
     }
+
+    /*
+    public void Save() {
+        List<OctreeNode> nodes = GetAllNodes(root);
+
+        byte[] json = SerializationUtility.SerializeValue(nodes, DataFormat.JSON);
+        string path = Path.Combine(Environment.CurrentDirectory, "octree.json");
+
+        File.WriteAllBytes(path, json);
+    }
+    */
+
+    private static List<OctreeNode> GetAllNodes(OctreeNode curr) {
+        List<OctreeNode> nodes = new();
+
+        if (curr.children == null) {
+            return nodes;
+        }
+
+        for(int x = 0; x < 2; x++) {
+            for(int y = 0; y < 2; y++) {
+                for(int z = 0; z < 2; z++) {
+                    OctreeNode child = curr.children[x, y, z];
+                    if (child == null || child.children == null) continue;
+
+                    nodes.Add(child);
+                }
+            }
+        }
+
+        return nodes;
+    }
+
+/*
+    public void Load() {
+        
+    }
+
+    public void Save() {
+        // string json = JsonUtility.ToJson(root);
+        JsonSerializer serializer = new JsonSerializer();
+        serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+
+        // OctreeNode reRead = JsonUtility.FromJson<OctreeNode>(json);
+        // Debug.Log(reRead);
+
+        string docPath = Environment.CurrentDirectory; // Environment.GetFolderPath(Environment.CurrentDirectory.);
+
+        using (StreamWriter outputFile = new(Path.Combine(docPath, "octree.json")))
+        using (JsonWriter writer = new JsonTextWriter(outputFile)) {
+            serializer.Serialize(writer, root);
+        }
+    }
+
+    public void Load() {
+        string docPath = Environment.CurrentDirectory; // Environment.GetFolderPath(Environment.CurrentDirectory.);
+
+        JsonSerializer serializer = new();
+        serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+
+
+        using (StreamReader outputFile = new(Path.Combine(docPath, "octree.json")))
+        using (JsonReader reader = new JsonTextReader(outputFile)) {
+            OctreeNode? newRoot = serializer.Deserialize<OctreeNode>(reader);
+            if (newRoot != null) {
+                root = newRoot;
+            } else
+            {
+                Debug.LogError("Failed to deserialize octree");
+            }
+        }
+
+        /*
+        using (StreamReader reader = new(Path.Combine(docPath, "octree.json"))) {
+            string thing = reader.ReadToEnd();
+            OctreeNode newRoot = JsonUtility.FromJson<OctreeNode>(thing);
+        } 
+
+        if (root != null) Debug.Log($"Loaded {root.GetLeaves().Count} leaves");
+    }
+    */
+
 
     public void Bake() {
         var stopwatch = new System.Diagnostics.Stopwatch();
@@ -173,11 +261,27 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     }
 
     private void OnDrawGizmosSelected() {
-        if (root == null || !ShouldDisplayVoxels) {
-            // Debug.LogError("Why is root null");
+        if (root == null || !(ShouldDisplayVoxels || DisplayText)) {
             return;
         }
 
-        root.DisplayVoxels();
+        List<OctreeNode> allLeaves = root.GetLeaves();
+        List<OctreeNode> collisionLeaves = allLeaves.FindAll(thing => thing.containsCollision);
+        List<OctreeNode> noCollisionLeaves = allLeaves.FindAll(thing => !thing.containsCollision);
+
+        if (allLeaves.Count <= 1) return; // Ignore the beginning when only root is set
+
+        if (!DisplayOnlyBlocked) {
+            Gizmos.color = Color.red;
+            foreach (var noCollisionLeaf in noCollisionLeaves) {
+                noCollisionLeaf.DrawGizmos(ShouldDisplayVoxels, DisplayText);
+            }
+        }
+
+
+        Gizmos.color = Color.green;
+        foreach(var collisionLeaf in collisionLeaves) {
+            collisionLeaf.DrawGizmos(ShouldDisplayVoxels, DisplayText);
+        }
     }
 }
