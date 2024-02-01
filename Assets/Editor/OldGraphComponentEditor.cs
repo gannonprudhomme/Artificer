@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(OldGraphComponent))]
-public class GraphComponentEditor : Editor {
+public class OldGraphComponentEditor : Editor {
     public override void OnInspectorGUI() {
         DrawDefaultInspector();
 
