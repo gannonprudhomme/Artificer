@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Video;
 // using OdinSerializer;
 
 #nullable enable
@@ -22,11 +23,13 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     [Header("Display (Debug)")]
     public bool ShouldDisplayVoxels = false;
     public bool DisplayOnlyBlocked = false;
+    public bool DisplayNonLeaves = false;
     public bool DisplayText = false;
 
     // Not sure what this actually means yet
     // Maybe the size of the entire thing?
     // Really hard to tell lol, lets just make it configurable for now and see how it goes
+    // We really need this to be a factor of 2 (I think?) Otherwise it gets really weird and the nodes aren't even
     public int Size = 1024; 
 
     public OctreeNode root;
@@ -197,6 +200,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
                 if (childObj.activeInHierarchy) {
                     BakeForGameObject(childObj);
                 }
+
             }
         }
     }
@@ -225,6 +229,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         }
     }
 
+    // Remove this?
     public OctreeNode? FindNearestLeaf(int[] gridIndex, int level) {
         int xIndex = gridIndex[0];
         int yIndex = gridIndex[1];
@@ -260,28 +265,46 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         return null;
     }
 
-    private void OnDrawGizmosSelected() {
-        if (root == null || !(ShouldDisplayVoxels || DisplayText)) {
+    private int[] WorldPositionToIndex(Vector3 position) {
+        // We need to like normalize the position to the octree
+
+        return new int[] { 0 };
+    }
+
+    //private void OnDrawGizmosSelected() {
+    private void OnDrawGizmos() {
+        if (root == null || !(ShouldDisplayVoxels || DisplayText || DisplayNonLeaves)) {
             return;
         }
 
-        List<OctreeNode> allLeaves = root.GetLeaves();
+        List<OctreeNode> allNodes = root.GetAllNodes();
+        List<OctreeNode> allLeaves = allNodes.FindAll(thing => (thing.children == null));
+        List<OctreeNode> notLeaves = allNodes.FindAll(thing => (thing.children != null));
         List<OctreeNode> collisionLeaves = allLeaves.FindAll(thing => thing.containsCollision);
         List<OctreeNode> noCollisionLeaves = allLeaves.FindAll(thing => !thing.containsCollision);
 
         if (allLeaves.Count <= 1) return; // Ignore the beginning when only root is set
 
+
         if (!DisplayOnlyBlocked) {
             Gizmos.color = Color.red;
             foreach (var noCollisionLeaf in noCollisionLeaves) {
-                noCollisionLeaf.DrawGizmos(ShouldDisplayVoxels, DisplayText);
+                noCollisionLeaf.DrawGizmos(ShouldDisplayVoxels, DisplayText, Color.white);
             }
         }
 
 
         Gizmos.color = Color.green;
         foreach(var collisionLeaf in collisionLeaves) {
-            collisionLeaf.DrawGizmos(ShouldDisplayVoxels, DisplayText);
+            collisionLeaf.DrawGizmos(ShouldDisplayVoxels, DisplayText, Color.white);
+        }
+
+
+        if (DisplayNonLeaves) {
+            Gizmos.color = Color.yellow;
+            foreach(var node in notLeaves) {
+                node.DrawGizmos(ShouldDisplayVoxels, DisplayText, Color.yellow);
+            }
         }
     }
 }

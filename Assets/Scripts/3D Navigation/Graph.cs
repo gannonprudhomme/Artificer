@@ -23,6 +23,18 @@ public class GraphNode {
     public int index;
     public int connectIndex = 0;
 
+    // Used for pathfinding
+    // If this was generic this wouldn't have it, but I'm using A* so I'm putting these in here dammit
+    // g is something we can (and do) calculate at any given step, and it's the distance between start and this node
+    // h is something we don't know, and need to estimate - the distance from this node to the target
+    // f is the sum of g + h
+    public float f, g, h;
+
+    // Used for pathfinding
+    public bool closed = false;
+
+    public GraphNode? parent = null;
+
     // This could really be a dictionary mapping the node it connects to to a distance
     // we don't need the Edge object
     public List<GraphEdge> edges;
@@ -37,6 +49,10 @@ public class GraphNode {
         this.index = index;
         edges = new();
     }
+
+    public void AddEdgeTo(GraphNode toNode) {
+        edges.Add(new GraphEdge(this, toNode));
+    }
 }
 
 public class Graph { // I don't think i want this to be a monobehavior?
@@ -49,8 +65,28 @@ public class Graph { // I don't think i want this to be a monobehavior?
         this.nodes = nodes;
     }
 
+    // Ok obviously this sucks but we're going to deal with it for now
+    // Really we should find the nearest voxel (using the Octree.FindNearestLeaf)
+    // then get the GraphNode from the dictionary in GraphGenerator
+    // but obviously I need some refactoring before that happens
+    public GraphNode FindNearestToPosition(Vector3 position) {
+        GraphNode nearest = nodes[0];
+        float minDist = Mathf.Infinity;
+
+        foreach(var node in nodes) {
+            float distance = (position - node.center).magnitude;
+            if (distance < minDist) {
+                minDist = distance;
+                nearest = node;
+            }
+        }
+
+        return nearest;
+    }
+
     // Calculate connectIndex on each node, which is used for pathfinding
     // Why? I'm not sure yet
+    // I think it's for theta star
     public void CalculateConnectivity() {
         foreach(GraphNode node in nodes) {
             // Idk if this is necessary but w/e

@@ -478,7 +478,7 @@ public class OldGraphComponent: MonoBehaviour {
                 index[2] * cellSize // z
             );
 
-            result = new GraphNode(currOctLeaf.center, nodes.Count);
+            result = new GraphNode(positionFromIndex, nodes.Count);
             dict.Add(key, result);
             nodes.Add(result);
         }

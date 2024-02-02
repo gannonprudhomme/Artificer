@@ -60,7 +60,7 @@ public class OctreeNode {
     public OctreeNode(
         int nodeLevel,
         int[] index,
-        OctreeNode parent,
+        OctreeNode? parent,
         Octree tree
     ) {
         this.nodeLevel = nodeLevel;
@@ -88,6 +88,26 @@ public class OctreeNode {
         }
 
         return leaves;
+    }
+
+    public List<OctreeNode> GetAllNodes() {
+        List<OctreeNode> allNodes = new();
+
+        allNodes.Add(this);
+
+        if (children == null)
+            return allNodes;
+
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                for (int z = 0; z < 2; z++) {
+                    List<OctreeNode> childNodes = children[x, y, z].GetAllNodes();
+                    allNodes.AddRange(childNodes);
+                }
+            }
+        }
+
+        return allNodes;
     }
 
     // For our purposes I think cornerNum is always 0
@@ -202,7 +222,11 @@ public class OctreeNode {
         for (int x = 0; x < 2; x++) {
             for(int y = 0; y < 2; y++) {
                 for(int z = 0; z < 2; z++) {
-                    int[] newIndex = { index[0] * 2 + x, index[1] * 2 + y, index[2] * 2 + z };
+                    int[] newIndex = {
+                        index[0] * 2 + x, // x,y,z are either 0 or 1
+                        index[1] * 2 + y,
+                        index[2] * 2 + z
+                    };
                     children[x, y, z] = new OctreeNode(nodeLevel + 1, newIndex, this, tree);
                 }
             }
@@ -226,11 +250,11 @@ public class OctreeNode {
     }
 
     public string IndexToString() {
-        return $"{index[0]}, {index[1]}, {index[2]}";
+        return $"({index[0]}, {index[1]}, {index[2]})";
     }
 
     // Create MeshRenderer and display that bitch
-    public void DrawGizmos(bool shouldDisplayVoxels, bool shouldDisplayText) {
+    public void DrawGizmos(bool shouldDisplayVoxels, bool shouldDisplayText, Color textColor) {
         // Why does this happen
         if (tree == null) return;
 
@@ -243,10 +267,12 @@ public class OctreeNode {
         if (shouldDisplayText) {
             #if UNITY_EDITOR
             UnityEditor.Handles.color = Color.red;
-            string output = $"{index[0]}, {index[1]}, {index[2]}";
+            string output = $"{index[0]}, {index[1]}, {index[2]} ({nodeLevel})";
             Vector3 offsetPosition = position + new Vector3(0, 0.5f, 0.0f);
 
-            UnityEditor.Handles.Label(offsetPosition, output);
+            GUIStyle style = new();
+            style.normal.textColor = textColor;
+            UnityEditor.Handles.Label(offsetPosition, output, style);
             #endif
         }
 
