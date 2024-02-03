@@ -1,8 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TreeEditor;
+using Unity.Mathematics;
+using UnityEditor.Splines;
 using UnityEngine;
-// using C5;
+using UnityEngine.Splines;
+using UnityEngine.Video;
 
 #nullable enable
 
@@ -46,7 +50,7 @@ public class Pathfinder {
     // we should probably return vectors instead
     // cause we need a path from the start position to the nearest node, and same for the end position
     // since agents won't be perfectly in the middle of a node
-    public static (List<GraphNode>, HashSet<GraphNode>) GeneratePath(Graph graph, Vector3 start, Vector3 end) {
+    public static (List<Vector3>, HashSet<GraphNode>) GeneratePath(Graph graph, Vector3 start, Vector3 end) {
         // For debug displaying, not needed for algo
         HashSet<GraphNode> calculated = new();
         HashSet<GraphNode> visited = new();
@@ -69,9 +73,9 @@ public class Pathfinder {
             Debug.LogError("Start node and end node are the same!");
         }
 
-        var heap = new C5.IntervalHeap<GraphNode>(new NodeComparer(gCosts, hCosts)) {
-            startNode // Add start node
-        };
+        var heap = new C5.IntervalHeap<GraphNode>(new NodeComparer(gCosts, hCosts));
+        heap.Add(ref startNode.handle, startNode);
+
 
         GraphNode current = startNode; // just ensure it's never null. Redundant ofc
         while (!heap.IsEmpty) {
@@ -80,7 +84,7 @@ public class Pathfinder {
 
             closedSet.Add(current.id);
 
-            // visited.Add(current);
+            visited.Add(current);
 
             if (current == endNode) {
                 // We're done!
@@ -95,13 +99,17 @@ public class Pathfinder {
 
                 if (closedSet.Contains(neighbor.id)) continue;
 
-                bool isNeighborOpen = heap.Contains(neighbor); // Can probably use a boolean
+                bool isNeighborInHeap = heap.Contains(neighbor); // Can probably use a boolean
 
                 // aka movementCostToNeighbor
                 float currG = gCosts.GetValueOrDefault(neighbor.id, 0);
                 float movementCostToNeighbor = currG + edge.distance;
                 float neighborG = gCosts.GetValueOrDefault(neighbor.id, 0);
-                if (movementCostToNeighbor < neighborG || !isNeighborOpen) {
+
+                // Wondering if I should update this to be closer to what PathfindingEnhanced does
+                // to see if it gives a different outcome
+
+                if (movementCostToNeighbor < neighborG || !isNeighborInHeap) {
                     gCosts[neighbor.id] = movementCostToNeighbor;
 
                     // Fuck how do we calculate distance to the end node ughh
@@ -112,9 +120,11 @@ public class Pathfinder {
 
                     calculated.Add(neighbor);
 
-                    if (!isNeighborOpen) {
-                        heap.Add(neighbor);
+                    if (!isNeighborInHeap) {
+                        heap.Add(ref neighbor.handle, neighbor);
                     } else {
+                        Debug.Log($"Updating the Priority of {neighbor.center}");
+                        heap.Replace(neighbor.handle, neighbor);
                         // I'm praying that DeleteMin will do the balancing when it's called or something
                         // though that defeats the purpose of the heap. I just don't know how to force it to rebalance
                     }
@@ -122,20 +132,37 @@ public class Pathfinder {
             }
         }
 
+        foreach(var node in calculated) {
+            node.handle = null;
+        }
+
+        foreach(var node in visited) {
+            node.handle = null;
+        }
+
+        List<Vector3> posPath = new();
+        posPath.Add(end); // Note we're adding the *end*, not the end node
+
         List<GraphNode> path = new();
         while (parents.TryGetValue(current.id, out GraphNode currParent) && current != startNode) {
             path.Add(current);
+            posPath.Add(current.center);
 
             parents.Remove(current.id);
             current = currParent;
+
         }
 
         // Add the start node? Why? Won't the above get it?
         path.Add(startNode);
 
-        path.Reverse(); // Surely there's a better way to do this
+        posPath.Add(startNode.center);
+        posPath.Add(start);
 
-        return (path, calculated);
+        path.Reverse(); // Surely there's a better way to do this
+        posPath.Reverse();
+
+        return (posPath, calculated);
     }
 
     public void Step() {
@@ -148,27 +175,42 @@ public class Pathfinder {
 }
 
 public class PathfinderComponent : MonoBehaviour {
-    public GraphGeneratorComponent graphGenerator;
+    public GraphGeneratorComponent? graphGenerator;
+    public SplineContainer? container;
     public bool DebugDisplay = true;
     public bool DisplayVisited = true;
 
     // public float agentSize = 1.0f;
-    public Transform StartPosition;
-    public Transform EndPosition;
+    public Transform? StartPosition;
+    public Transform? EndPosition;
 
     private Pathfinder? pathfinder;
 
     private HashSet<GraphNode> visited = new();
-    private List<GraphNode> path = new();
+    // private List<GraphNode> path = new();
+    private List<Vector3> path = new();
+    private Spline? spline = null;
 
     public void GeneratePath() {
         ResetPathfinder();
 
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
-        (path, visited) = Pathfinder.GeneratePath(graphGenerator.graph!, StartPosition.position, EndPosition.position);
+        (path, visited) = Pathfinder.GeneratePath(graphGenerator!.graph!, StartPosition!.position, EndPosition!.position);
         stopwatch.Stop();
 
+        List<float3> floats = new();
+        foreach(var node in path)
+        {
+            var inLocal = gameObject.transform.InverseTransformPoint(node);
+            floats.Add(new float3(inLocal));
+        }
+
+        spline = SplineFactory.CreateCatmullRom(floats, false);
+        if (container != null) {
+            foreach(var spline in container.Splines) { container.RemoveSpline(spline);  }
+            container.AddSpline(spline);
+        }
 
         double ticks = stopwatch.ElapsedTicks;
         double milliseconds = (ticks / System.Diagnostics.Stopwatch.Frequency) * 1000d;
@@ -181,7 +223,7 @@ public class PathfinderComponent : MonoBehaviour {
 
     public void ResetPathfinder() {
         if (pathfinder == null) {
-            if (graphGenerator.graph != null) {
+            if (graphGenerator?.graph != null) {
                 pathfinder = new(graphGenerator.graph);
             } else {
                 Debug.LogError("Graph hasn't been generated yet!");
@@ -193,6 +235,14 @@ public class PathfinderComponent : MonoBehaviour {
     }
 
     public void OnDrawGizmos() {
+        if (spline != null && container != null)
+        {
+            // SplineContainer container = new();
+            // container.AddSpline(spline);
+            SplineGizmoUtility.DrawGizmos(container);
+        }
+
+
         if (!DebugDisplay) return;
 
         if (StartPosition != null) {
@@ -219,19 +269,20 @@ public class PathfinderComponent : MonoBehaviour {
         Gizmos.color = Color.yellow;
         for(int i = 0; i < path.Count; i++) {
             var currNode = path[i];
-            if (i != 0 && i != path.Count - 1) {
+            //if (i != 0 && i != path.Count - 1) {
                 // Don't draw start and end, we're already doing that above
-                Gizmos.DrawSphere(currNode.center, 2.0f);
-            }
+                Gizmos.DrawSphere(currNode, 2.0f);
+            //}
 
             if (i != 0) {
-                edgesToDraw.Add(path[i - 1].center);
-                edgesToDraw.Add(currNode.center);
+                edgesToDraw.Add(path[i - 1]);
+                edgesToDraw.Add(currNode);
             }
 
         }
 
         Gizmos.color = Color.cyan;
         Gizmos.DrawLineList(edgesToDraw.ToArray());
+
     }
 }

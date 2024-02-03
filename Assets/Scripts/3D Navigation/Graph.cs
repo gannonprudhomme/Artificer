@@ -44,6 +44,8 @@ public class GraphNode {
     public bool ProcessingNext = false;
     public bool ProcessedLast = false;
 
+    public C5.IPriorityQueueHandle<GraphNode> handle;
+
     public GraphNode(Vector3 center, int id) {
         this.center = center;
         this.id = id;
@@ -53,6 +55,13 @@ public class GraphNode {
     public void AddEdgeTo(GraphNode toNode) {
         edges.Add(new GraphEdge(this, toNode));
     }
+
+    /*
+    public override int GetHashCode() {
+        // if (id == -1) Debug.LogError("hash code is -1 ackkk");
+        return id;
+    }
+    */
 }
 
 public class Graph { // I don't think i want this to be a monobehavior?

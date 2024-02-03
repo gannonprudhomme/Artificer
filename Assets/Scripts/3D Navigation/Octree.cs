@@ -21,7 +21,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     public bool CalculateForChildren = true;
 
     public bool MarkInBounds = true;
-    public BoxCollider LevelBounds;
+    public BoxCollider? LevelBounds;
 
     [Header("Display (Debug)")]
     public bool DisplayVoxels = false;

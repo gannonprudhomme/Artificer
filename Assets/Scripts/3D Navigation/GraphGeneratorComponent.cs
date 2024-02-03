@@ -129,7 +129,7 @@ public class GraphGenerator {
         octreeToGraphNodeDict = new();
         currDictIndex = 0;
 
-        int count = 1;
+        int count = 0;
         List<OctreeNode> octLeaves = octree.Leaves();
         foreach(OctreeNode octLeaf in octLeaves) {
             if (octLeaf.containsCollision || !octLeaf.isInBounds) continue; // Don't make a node if this contains a collision or if it's not in bounds
@@ -222,12 +222,12 @@ public class GraphGenerator {
 // Purely for debugging
 // this functionality will just go on a entity in the future
 public class GraphGeneratorComponent : MonoBehaviour {
-    [Tooltip("Settings")]
+    [Header("Settings")]
     public Octree? Octree;
 
     public bool BuildDiagonals = true;
 
-    [Tooltip("References")]
+    [Header("References")]
     public bool DisplayGraph = true;
     public bool DisplayEdges = true;
 
