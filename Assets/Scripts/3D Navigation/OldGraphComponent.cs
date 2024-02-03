@@ -168,7 +168,6 @@ public class OldGraphComponent: MonoBehaviour {
         }
 
         Graph graph = new(allNodes);
-        graph.CalculateConnectivity();
 
         return graph;
     }

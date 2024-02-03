@@ -15,6 +15,7 @@ public class GraphGenerator {
     private Octree octree;
 
     public static readonly int[,] allFaceDirs = { { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 } };
+    public static readonly int[,] allDiagonalDirs = { { 0, 1, 1 }, { 0, 1, -1 }, { 0, -1, 1 }, { 0, -1, -1 }, { 1, 0, 1 }, { -1, 0, 1 }, { 1, 0, -1 }, { -1, 0, -1 }, { 1, 1, 0 }, { 1, -1, 0 }, { -1, 1, 0 }, { -1, -1, 0 } };
 
     private Dictionary<OctreeNode, GraphNode> octreeToGraphNodeDict = new();
     int currDictIndex = 0;
@@ -28,7 +29,7 @@ public class GraphGenerator {
     }
 
     // Ideally this would be static
-    public Graph Generate() {
+    public Graph Generate(bool shouldBuildDiagonals) {
         // Is there a benefit to doing this ahead of time? We'll see!
         Initialize();
 
@@ -41,7 +42,7 @@ public class GraphGenerator {
             OctreeNode octLeaf = keyPair.Key;
             GraphNode currGraphNode = keyPair.Value;
 
-            Step(octLeaf, currGraphNode);
+            Step(octLeaf, currGraphNode, shouldBuildDiagonals);
         }
 
         Graph graph = new Graph(new List<GraphNode>(octreeToGraphNodeDict.Values));
@@ -54,7 +55,7 @@ public class GraphGenerator {
 
     // What the GraphGeneratorComponent calls
     private bool resetCalledForStep = false;
-    public Graph Step() {
+    public Graph Step(bool shouldBuildDiagonals) {
         if(!resetCalledForStep) {
             resetCalledForStep = true;
             Initialize();
@@ -65,7 +66,7 @@ public class GraphGenerator {
 
         int previousCount = currGraphNode.edges.Count;
 
-        Step(currOctLeaf, currGraphNode);
+        Step(currOctLeaf, currGraphNode, shouldBuildDiagonals);
 
         Debug.Log($"Calculated {currOctLeaf.IndexToString()} and added {currGraphNode.edges.Count - previousCount} edges");
 
@@ -81,31 +82,46 @@ public class GraphGenerator {
         return graph;
     }
 
-    private void Step(OctreeNode octLeaf, GraphNode currGraphNode) {
+    private void Step(OctreeNode octLeaf, GraphNode currGraphNode, bool shouldBuildDiagonals) {
         if (DebugLogs) Debug.Log($"Stepping for {octLeaf.IndexToString()}");
 
         // For each face, find the nodes that should be connected to it
-        for(int i = 0; i < 6; i++) { // For all of the face directions
-            // Connect this to the nearest node  of the same size or larger (same node level or smaller)
+        //for(int i = 0; i < 6; i++) { // For all of the face directions
+        for(int i = 0; i < 6; i++) {
             int[] faceDir = { allFaceDirs[i, 0], allFaceDirs[i, 1], allFaceDirs[i, 2] }; // TODO: Surely this is bad since we're creating an array each time
 
-            OctreeNode? nearestOctLeafInDirection = FindLeafInDirectionOfSameSizeOrLarger(octLeaf, faceDir);
+            InnerStep(octLeaf, currGraphNode, faceDir);
+        }
 
-            // Should we do the containsCollision checking in FindLeaf?
-            if (nearestOctLeafInDirection == null || nearestOctLeafInDirection.containsCollision) {
-                continue;
-            }
+        if (!shouldBuildDiagonals) return;
 
-            GraphNode nearestNode = octreeToGraphNodeDict[nearestOctLeafInDirection];
+        // Do the same thing but for the corners
+        for(int i = 0; i < 12; i++) {
+            int[] diagDir = { allDiagonalDirs[i, 0], allDiagonalDirs[i, 1], allDiagonalDirs[i, 2] }; // TODO: Surely this is bad since we're creating an array each time
 
-            if (octLeaf.nodeLevel == nearestOctLeafInDirection.nodeLevel) {
-                // I think we should only add it in one direction since there will be duplicates
-                // nearestNode.AddEdgeTo(currGraphNode);
-                currGraphNode.AddEdgeTo(nearestNode);
-            } else { // Different levels, add to both
-                nearestNode.AddEdgeTo(currGraphNode);
-                currGraphNode.AddEdgeTo(nearestNode);
-            }
+            InnerStep(octLeaf, currGraphNode, diagDir);
+        }
+    }
+
+    private void InnerStep(OctreeNode octLeaf, GraphNode currGraphNode, int[] dir) {
+        // Connect this to the nearest node  of the same size or larger (same node level or smaller)
+
+        OctreeNode? nearestOctLeafInDirection = FindLeafInDirectionOfSameSizeOrLarger(octLeaf, dir);
+
+        // Should we do the containsCollision checking in FindLeaf?
+        if (nearestOctLeafInDirection == null || nearestOctLeafInDirection.containsCollision) {
+            return;
+        }
+
+        GraphNode nearestNode = octreeToGraphNodeDict[nearestOctLeafInDirection];
+
+        if (octLeaf.nodeLevel == nearestOctLeafInDirection.nodeLevel) {
+            // I think we should only add it in one direction since there will be duplicates
+            // nearestNode.AddEdgeTo(currGraphNode);
+            currGraphNode.AddEdgeTo(nearestNode);
+        } else { // Different levels, add to both
+            nearestNode.AddEdgeTo(currGraphNode);
+            currGraphNode.AddEdgeTo(nearestNode);
         }
     }
 
@@ -130,6 +146,7 @@ public class GraphGenerator {
         return new(new(octreeToGraphNodeDict.Values));
     }
 
+    // What's this for again? Document boy
     private (OctreeNode, GraphNode) GetGraphNodeForIndex(int index) {
         // This is obviously dumb to do this every time, but I'm only going to change if it's a problem
         List<OctreeNode> keys = new(octreeToGraphNodeDict.Keys);
@@ -207,6 +224,7 @@ public class GraphGenerator {
 public class GraphGeneratorComponent : MonoBehaviour {
     public Octree? Octree;
 
+    public bool ShouldBuildDiagonals = true;
     public bool ShouldDisplayGraph = true;
     public bool ShouldDisplayEdges = true;
 
@@ -229,11 +247,11 @@ public class GraphGeneratorComponent : MonoBehaviour {
 
         var generator = new GraphGenerator(Octree);
 
-        graph = generator.Generate();
+        graph = generator.Generate(ShouldBuildDiagonals);
     }
 
     public void Step() {
-        graph = generator.Step();
+        graph = generator.Step(ShouldBuildDiagonals);
     }
 
     public void ResetGenerator() {

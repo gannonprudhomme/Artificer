@@ -63,8 +63,6 @@ public class Pathfinder {
         Dictionary<int, float> hCosts = new();
         Dictionary<int, GraphNode> parents = new(); // I could also do <int, int>
 
-        Dictionary<int, GraphNode> idToNodeDict = new();
-
         if (startNode == endNode) {
             Debug.LogError("Start node and end node are the same!");
         }
