@@ -1,28 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Codice.CM.Common.Tree;
-using JetBrains.Annotations;
 using UnityEngine;
 // using C5;
 
 #nullable enable
 
-// Ok I'm not going to do this now but I need to
-// Cause we're modifying the graph, which should be read-only
-// Maybe I can just use dictionaries for the f/g/h/parent stuff that we need?
-// and have the key be some index which we calculate in Graph.CalculateConnectivity or w/e
-public class PathfinderNode: GraphNode {
-    public float f, g, h;
-
-    public PathfinderNode(GraphNode node) : base(node.center, node.index) {
-
-    }
-}
-
 public class NodeComparer : IComparer<GraphNode> {
-    int IComparer<GraphNode>.Compare(GraphNode x, GraphNode y) {
-        float diff = x.f - y.f;
+    public Dictionary<int, float> gCosts, hCosts;
+
+    public NodeComparer(Dictionary<int, float> gCosts, Dictionary<int, float> hCosts) {
+        this.gCosts = gCosts;
+        this.hCosts = hCosts;
+    }
+
+    int IComparer<GraphNode>.Compare(GraphNode left, GraphNode right) {
+        float leftFCost = gCosts[left.id] + hCosts[left.id];
+        float rightFCost = gCosts[right.id] + hCosts[right.id];
+
+        float diff = leftFCost - rightFCost;
 
         if (diff > 0) {
             return 1;
@@ -50,16 +46,30 @@ public class Pathfinder {
     // we should probably return vectors instead
     // cause we need a path from the start position to the nearest node, and same for the end position
     // since agents won't be perfectly in the middle of a node
-    public List<GraphNode> GeneratePath(Vector3 start, Vector3 end) {
+    public static (List<GraphNode>, HashSet<GraphNode>) GeneratePath(Graph graph, Vector3 start, Vector3 end) {
+        // For debug displaying, not needed for algo
+        HashSet<GraphNode> calculated = new();
+        HashSet<GraphNode> visited = new();
 
         GraphNode startNode = graph.FindNearestToPosition(start);
         GraphNode endNode = graph.FindNearestToPosition(end);
+
+        // This could also be an array holy shit.
+        // ALL OF THESE COULD BE ARRAYS THAT'S WHAT THIS IS
+        HashSet<int> openSet = new();
+        HashSet<int> closedSet = new();
+
+        Dictionary<int, float> gCosts = new();
+        Dictionary<int, float> hCosts = new();
+        Dictionary<int, GraphNode> parents = new(); // I could also do <int, int>
+
+        Dictionary<int, GraphNode> idToNodeDict = new();
 
         if (startNode == endNode) {
             Debug.LogError("Start node and end node are the same!");
         }
 
-        var heap = new C5.IntervalHeap<GraphNode>(new NodeComparer()) {
+        var heap = new C5.IntervalHeap<GraphNode>(new NodeComparer(gCosts, hCosts)) {
             startNode // Add start node
         };
 
@@ -68,7 +78,9 @@ public class Pathfinder {
             // Pop the top of the heap, which is the minimum f cost node and mark it as the current node
             current = heap.DeleteMin(); // node with the lowest f cost
 
-            current.closed = true;
+            closedSet.Add(current.id);
+
+            // visited.Add(current);
 
             if (current == endNode) {
                 // We're done!
@@ -81,20 +93,24 @@ public class Pathfinder {
             foreach(GraphEdge edge in current.edges) {
                 GraphNode neighbor = edge.to; // from is always going to be the current node
 
-                if (neighbor.closed) continue;
+                if (closedSet.Contains(neighbor.id)) continue;
 
                 bool isNeighborOpen = heap.Contains(neighbor); // Can probably use a boolean
 
                 // aka movementCostToNeighbor
-                // float currG = 
-                float movementCostToNeighbor = current.g + edge.distance;
-                if (movementCostToNeighbor < neighbor.g || !isNeighborOpen) { // Hrm
-                    neighbor.g = movementCostToNeighbor;
+                float currG = gCosts.GetValueOrDefault(neighbor.id, 0);
+                float movementCostToNeighbor = currG + edge.distance;
+                float neighborG = gCosts.GetValueOrDefault(neighbor.id, 0);
+                if (movementCostToNeighbor < neighborG || !isNeighborOpen) {
+                    gCosts[neighbor.id] = movementCostToNeighbor;
+
                     // Fuck how do we calculate distance to the end node ughh
-                    neighbor.h = Vector3.Distance(neighbor.center, endNode.center);
+                    hCosts[neighbor.id] = Vector3.Distance(neighbor.center, endNode.center);
 
                     // Set the parent so we can traverse this path at the end
-                    neighbor.parent = current;
+                    parents[neighbor.id] = current;
+
+                    calculated.Add(neighbor);
 
                     if (!isNeighborOpen) {
                         heap.Add(neighbor);
@@ -106,15 +122,12 @@ public class Pathfinder {
             }
         }
 
-        // We've found the path, now lets construct it by back tracking
         List<GraphNode> path = new();
-        while(current.parent != null && current != startNode) {
+        while (parents.TryGetValue(current.id, out GraphNode currParent) && current != startNode) {
             path.Add(current);
-            // current.closed = false; // Do we really need to do this? Does it really matter?
 
-            GraphNode nextCurrent = current.parent;
-            current.parent = null; // Why do we need to do this?
-            current = nextCurrent;
+            parents.Remove(current.id);
+            current = currParent;
         }
 
         // Add the start node? Why? Won't the above get it?
@@ -122,7 +135,7 @@ public class Pathfinder {
 
         path.Reverse(); // Surely there's a better way to do this
 
-        return path;
+        return (path, calculated);
     }
 
     public void Step() {
@@ -137,6 +150,7 @@ public class Pathfinder {
 public class PathfinderComponent : MonoBehaviour {
     public GraphGeneratorComponent graphGenerator;
     public bool DebugDisplay = true;
+    public bool DisplayVisited = true;
 
     // public float agentSize = 1.0f;
     public Transform StartPosition;
@@ -144,6 +158,7 @@ public class PathfinderComponent : MonoBehaviour {
 
     private Pathfinder? pathfinder;
 
+    private HashSet<GraphNode> visited = new();
     private List<GraphNode> path = new();
 
     public void GeneratePath() {
@@ -151,10 +166,13 @@ public class PathfinderComponent : MonoBehaviour {
 
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
-        path = pathfinder!.GeneratePath(StartPosition.position, EndPosition.position);
+        (path, visited) = Pathfinder.GeneratePath(graphGenerator.graph!, StartPosition.position, EndPosition.position);
         stopwatch.Stop();
 
-        Debug.Log($"Generated path with {path.Count} nodes in {stopwatch.ElapsedMilliseconds} ms");
+
+        double ticks = stopwatch.ElapsedTicks;
+        double milliseconds = (ticks / System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        Debug.Log($"Generated path with {path.Count} nodes in {milliseconds} ms");
     }
 
     public void Step() {
@@ -177,11 +195,22 @@ public class PathfinderComponent : MonoBehaviour {
     public void OnDrawGizmos() {
         if (!DebugDisplay) return;
 
-        Gizmos.color = Color.green;
-        Gizmos.DrawSphere(StartPosition.position, 4.0f);
+        if (StartPosition != null) {
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(StartPosition.position, 4.0f);
+        }
 
-        Gizmos.color = Color.blue;
-        Gizmos.DrawSphere(EndPosition.position, 4.0f);
+        if (EndPosition != null) {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(EndPosition.position, 4.0f);
+        }
+
+        if (DisplayVisited) {
+            Gizmos.color = Color.magenta;
+            foreach(var node in visited) {
+                Gizmos.DrawSphere(node.center, 2.0f);
+            }
+        }
 
         if (path.Count == 0) return;
 

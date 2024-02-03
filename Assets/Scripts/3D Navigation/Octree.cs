@@ -170,15 +170,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         BakeForGameObject(this.gameObject);
         stopwatch.Stop();
 
-
-        Debug.Log($"Finished baking in {(int) stopwatch.Elapsed.TotalSeconds} sec, counting voxels!");
-
-        // Calculate how many voxels there are and display it somewhere. Idk where
-        stopwatch.Reset();
-        stopwatch.Start();
-        int voxelCount = root.CountVoxels();
-        stopwatch.Stop();
-        Debug.Log($"Generated {voxelCount} voxels (leaves?), counted in {(int)stopwatch.Elapsed.TotalMilliseconds} ms");
+        Debug.Log($"Generated octree with {root.CountVoxels()} leaves in {stopwatch.ElapsedMilliseconds} ms");
     }
 
     private void BakeForGameObject(GameObject currGameObject) {

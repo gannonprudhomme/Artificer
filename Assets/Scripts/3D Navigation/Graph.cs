@@ -5,7 +5,8 @@ using UnityEngine;
 #nullable enable
 
 public class GraphEdge {
-    public GraphNode from;
+    // We don't need from - the node that owns this is always the "from"
+    public GraphNode from; 
     public GraphNode to;
 
     public float distance;
@@ -20,20 +21,19 @@ public class GraphEdge {
 
 public class GraphNode {
     public Vector3 center;
-    public int index;
-    public int connectIndex = 0;
+    public int id = -1;
 
     // Used for pathfinding
     // If this was generic this wouldn't have it, but I'm using A* so I'm putting these in here dammit
     // g is something we can (and do) calculate at any given step, and it's the distance between start and this node
     // h is something we don't know, and need to estimate - the distance from this node to the target
     // f is the sum of g + h
-    public float f, g, h;
+    // public float f, g, h;
 
     // Used for pathfinding
-    public bool closed = false;
+    // public bool closed = false;
 
-    public GraphNode? parent = null;
+    // public GraphNode? parent = null;
 
     // This could really be a dictionary mapping the node it connects to to a distance
     // we don't need the Edge object
@@ -44,9 +44,9 @@ public class GraphNode {
     public bool ProcessingNext = false;
     public bool ProcessedLast = false;
 
-    public GraphNode(Vector3 center, int index) {
+    public GraphNode(Vector3 center, int id) {
         this.center = center;
-        this.index = index;
+        this.id = id;
         edges = new();
     }
 
@@ -57,7 +57,6 @@ public class GraphNode {
 
 public class Graph { // I don't think i want this to be a monobehavior?
     public List<GraphNode> nodes;
-    // private List<Node> temporaryNodes;
 
     public int nodeCount {  get { return nodes.Count; } }
 
@@ -84,22 +83,8 @@ public class Graph { // I don't think i want this to be a monobehavior?
         return nearest;
     }
 
-    // Calculate connectIndex on each node, which is used for pathfinding
-    // Why? I'm not sure yet
-    // I think it's for theta star
-    public void CalculateConnectivity() {
-        foreach(GraphNode node in nodes) {
-            // Idk if this is necessary but w/e
-            node.connectIndex = 0;
-        }
 
-        int current = 0 - 1;
-        foreach (GraphNode node in nodes) {
-
-        }
-    }
-
-    public void DrawGraph() {
+    public void DrawGraph(bool displayEdges) {
         List<GraphEdge> edges = new();
         foreach(GraphNode node in nodes) {
             if (node.ProcessingNext) {
@@ -113,26 +98,30 @@ public class Graph { // I don't think i want this to be a monobehavior?
                 Gizmos.DrawSphere(node.center, 3f);
             }
 
-            foreach(GraphEdge edge in node.edges) {
-                // Gizmos.DrawLine(edge.from.center, edge.to.center);
-                edges.Add(edge);
+            if (displayEdges) {
+                foreach (GraphEdge edge in node.edges) {
+                    edges.Add(edge);
+                }
             }
         }
 
-        // List<Vector3> linesToDraw = new();
-        Vector3[] linesToDraw = new Vector3[edges.Count * 2];
-        int currIndex = 0;
+        if (displayEdges)
+        {
+            Vector3[] linesToDraw = new Vector3[edges.Count * 2];
+            int currIndex = 0;
 
-        foreach(GraphEdge edge in edges) {
-            linesToDraw[currIndex] = edge.from.center;
-            linesToDraw[currIndex + 1] = edge.to.center;
+            foreach (GraphEdge edge in edges)
+            {
+                linesToDraw[currIndex] = edge.from.center;
+                linesToDraw[currIndex + 1] = edge.to.center;
 
-            // On to the next pair!
-            currIndex += 2;
+                // On to the next pair!
+                currIndex += 2;
+            }
+
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLineList(linesToDraw);
         }
-
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawLineList(linesToDraw);
     }
 
     // For debug counting, probs don't actually want

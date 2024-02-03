@@ -47,7 +47,7 @@ public class GraphGenerator {
         Graph graph = new Graph(new List<GraphNode>(octreeToGraphNodeDict.Values));
         stopwatch.Stop();
 
-        Debug.Log($"Generated graph in {stopwatch.ElapsedMilliseconds} ms");
+        Debug.Log($"Generated graph with {graph.nodeCount} nodes and {graph.GetEdgeCount()} edges in {stopwatch.ElapsedMilliseconds} ms");
 
         return graph;
     }
@@ -113,9 +113,12 @@ public class GraphGenerator {
         octreeToGraphNodeDict = new();
         currDictIndex = 0;
 
+        int count = 1;
         List<OctreeNode> octLeaves = octree.Leaves();
         foreach(OctreeNode octLeaf in octLeaves) {
             if (octLeaf.containsCollision) continue; // Don't make a node if this contains a collision
+
+            GraphNode newNode = new(octLeaf.center, count++);
 
             if (octreeToGraphNodeDict.ContainsKey(octLeaf)) Debug.LogError("Wtf why are there duplicates");
             octreeToGraphNodeDict[octLeaf] = newNode;
@@ -205,6 +208,7 @@ public class GraphGeneratorComponent : MonoBehaviour {
     public Octree? Octree;
 
     public bool ShouldDisplayGraph = true;
+    public bool ShouldDisplayEdges = true;
 
     public Graph? graph;
 
@@ -241,7 +245,7 @@ public class GraphGeneratorComponent : MonoBehaviour {
     {
         if (graph == null || !ShouldDisplayGraph) return;
 
-        graph.DrawGraph();
+        graph.DrawGraph(ShouldDisplayEdges);
 
         if (generator.previouslyProcessed != null) {
             Gizmos.color = Color.blue;

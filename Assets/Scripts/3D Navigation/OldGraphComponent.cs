@@ -308,7 +308,6 @@ public class OldGraphComponent: MonoBehaviour {
         }
 
         Graph graph = new(allNodes);
-        graph.CalculateConnectivity();
         return graph;
     }
 
@@ -369,8 +368,8 @@ public class OldGraphComponent: MonoBehaviour {
                 for (int j = i + 1; j < enclosingNodes.Count; j++) {
                     GraphNode n1 = enclosingNodes[i];
                     GraphNode n2 = enclosingNodes[j];
-                    int[] coord1 = coords[n1.index];
-                    int[] coord2 = coords[n2.index];
+                    int[] coord1 = coords[n1.id];
+                    int[] coord2 = coords[n2.id];
 
                     if ((coord1[0] == coord2[0] || coord1[1] == coord2[1] || coord1[2] == coord2[2]) &&
                     // Why do we care if their index is divisible by 2?
@@ -404,7 +403,6 @@ public class OldGraphComponent: MonoBehaviour {
             }
         }
         Graph g = new Graph(nodes);
-        g.CalculateConnectivity();
         return g;
     }
 
@@ -533,6 +531,6 @@ public class OldGraphComponent: MonoBehaviour {
     private void OnDrawGizmosSelected() {
         if (!ShouldDisplayGraph || graph == null) return;
 
-        graph.DrawGraph();
+        graph.DrawGraph(false);
     }
 }

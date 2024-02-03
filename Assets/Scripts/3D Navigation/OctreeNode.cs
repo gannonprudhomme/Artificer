@@ -28,11 +28,6 @@ public class OctreeNode {
 
     // Whether we would've divided further but couldn't b/c of the max level
     public bool containsCollision { get; private set; }
-
-    // Object used to display this
-    // null until we call DisplayVoxels()
-    private GameObject? displayObj = null;
-
     private float size {
         get { return tree.Size / (1 << nodeLevel); }
     }
