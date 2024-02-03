@@ -51,6 +51,8 @@ public class Pathfinder {
         HashSet<GraphNode> calculated = new();
         HashSet<GraphNode> visited = new();
 
+        // TODO: I should find how long this takes
+        // We also need to ensure we don't go _down_ as that leads to a lot of problems
         GraphNode startNode = graph.FindNearestToPosition(start);
         GraphNode endNode = graph.FindNearestToPosition(end);
 

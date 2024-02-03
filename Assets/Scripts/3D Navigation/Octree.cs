@@ -18,18 +18,19 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     [Tooltip("How many levels we'll divide the Octree into")]
     public int MaxDivisionLevel = 3;
 
-    public bool ShouldCalculateForChildren = true;
+    public bool CalculateForChildren = true;
+
+    public bool MarkInBounds = true;
+    public BoxCollider LevelBounds;
 
     [Header("Display (Debug)")]
-    public bool ShouldDisplayVoxels = false;
+    public bool DisplayVoxels = false;
     public bool DisplayOnlyBlocked = false;
     public bool DisplayNonLeaves = false;
     public bool DisplayText = false;
 
-    // Not sure what this actually means yet
-    // Maybe the size of the entire thing?
-    // Really hard to tell lol, lets just make it configurable for now and see how it goes
     // We really need this to be a factor of 2 (I think?) Otherwise it gets really weird and the nodes aren't even
+    // TODO: Can I dynamically calculate this? E.g. get the smallest size (that's a power of 2) that fits all of the meshes
     public int Size = 1024; 
 
     public OctreeNode root;
@@ -51,14 +52,6 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         { 1, 1, 1 },
         { 0, 1, 1 }
     };
-    // public static readonly int[,] edgeDir = { { 0, 1, 1 }, { 0, 1, -1 }, { 0, -1, 1 }, { 0, -1, -1 }, { 1, 0, 1 }, { -1, 0, 1 }, { 1, 0, -1 }, { -1, 0, -1 }, { 1, 1, 0 }, { 1, -1, 0 }, { -1, 1, 0 }, { -1, -1, 0 } };
-
-    // Size of what exactly? The smallest cell?
-    /*
-    private float cellSize { 
-        get { return Size / (1 << MaxDivisionLevel); }
-    }
-    */
 
     string fileName = "./octree.json";
 
@@ -69,17 +62,6 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     public List<OctreeNode> Leaves() {
         return root.GetLeaves();
     }
-
-    /*
-    public void Save() {
-        List<OctreeNode> nodes = GetAllNodes(root);
-
-        byte[] json = SerializationUtility.SerializeValue(nodes, DataFormat.JSON);
-        string path = Path.Combine(Environment.CurrentDirectory, "octree.json");
-
-        File.WriteAllBytes(path, json);
-    }
-    */
 
     private static List<OctreeNode> GetAllNodes(OctreeNode curr) {
         List<OctreeNode> nodes = new();
@@ -158,7 +140,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         root = new OctreeNode(0, new int[] { 0, 0, 0 }, null, this);
 
         if (this.TryGetComponent(out MeshFilter meshFilter)) {
-            // NOTE: If we end up modifying this, DON'T use sharedMesh it'll actually modify the mesh
+            // NOTE: If we end up modifying this (like reducing overlapping verts), DON'T use sharedMesh it'll actually modify the mesh
             Vector3 _center = gameObject.transform.TransformPoint(meshFilter.sharedMesh.bounds.center);
             Corner = _center - (Vector3.one * Size / 2);
         } else {
@@ -169,6 +151,15 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         stopwatch.Start();
         BakeForGameObject(this.gameObject);
         stopwatch.Stop();
+
+        // After we've backed, go through all of the OctreeNode (leaves) and see which ones are in bounds
+        if (MarkInBounds && LevelBounds != null) {
+            List<OctreeNode> leaves = Leaves();
+
+            foreach(var leaf in leaves) {
+                leaf.isInBounds = LevelBounds.bounds.Contains(leaf.center);
+            }
+        }
 
         Debug.Log($"Generated octree with {root.CountVoxels()} leaves in {stopwatch.ElapsedMilliseconds} ms");
     }
@@ -186,7 +177,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         */
 
         // Now run it on the children (recursively)
-        if (ShouldCalculateForChildren) {
+        if (CalculateForChildren) {
             for(int i = 0; i < currGameObject.transform.childCount; i++) {
                 GameObject childObj = currGameObject.transform.GetChild(i).gameObject;
                 if (childObj.activeInHierarchy) {
@@ -265,7 +256,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
 
     //private void OnDrawGizmosSelected() {
     private void OnDrawGizmos() {
-        if (root == null || !(ShouldDisplayVoxels || DisplayText || DisplayNonLeaves)) {
+        if (root == null || !(DisplayVoxels || DisplayText || DisplayNonLeaves)) {
             return;
         }
 
@@ -281,21 +272,21 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         if (!DisplayOnlyBlocked) {
             Gizmos.color = Color.red;
             foreach (var noCollisionLeaf in noCollisionLeaves) {
-                noCollisionLeaf.DrawGizmos(ShouldDisplayVoxels, DisplayText, Color.white);
+                noCollisionLeaf.DrawGizmos(DisplayVoxels, DisplayText, Color.white);
             }
         }
 
 
         Gizmos.color = Color.green;
         foreach(var collisionLeaf in collisionLeaves) {
-            collisionLeaf.DrawGizmos(ShouldDisplayVoxels, DisplayText, Color.white);
+            collisionLeaf.DrawGizmos(DisplayVoxels, DisplayText, Color.white);
         }
 
 
         if (DisplayNonLeaves) {
             Gizmos.color = Color.yellow;
             foreach(var node in notLeaves) {
-                node.DrawGizmos(ShouldDisplayVoxels, DisplayText, Color.yellow);
+                node.DrawGizmos(DisplayVoxels, DisplayText, Color.yellow);
             }
         }
     }

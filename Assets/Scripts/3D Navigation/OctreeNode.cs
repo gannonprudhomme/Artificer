@@ -27,6 +27,7 @@ public class OctreeNode {
     public bool doesChildrenContainCollision = false;
 
     // Whether we would've divided further but couldn't b/c of the max level
+    public bool isInBounds = true;
     public bool containsCollision { get; private set; }
     private float size {
         get { return tree.Size / (1 << nodeLevel); }

@@ -109,7 +109,7 @@ public class GraphGenerator {
         OctreeNode? nearestOctLeafInDirection = FindLeafInDirectionOfSameSizeOrLarger(octLeaf, dir);
 
         // Should we do the containsCollision checking in FindLeaf?
-        if (nearestOctLeafInDirection == null || nearestOctLeafInDirection.containsCollision) {
+        if (nearestOctLeafInDirection == null || nearestOctLeafInDirection.containsCollision || !nearestOctLeafInDirection.isInBounds) {
             return;
         }
 
@@ -132,7 +132,7 @@ public class GraphGenerator {
         int count = 1;
         List<OctreeNode> octLeaves = octree.Leaves();
         foreach(OctreeNode octLeaf in octLeaves) {
-            if (octLeaf.containsCollision) continue; // Don't make a node if this contains a collision
+            if (octLeaf.containsCollision || !octLeaf.isInBounds) continue; // Don't make a node if this contains a collision or if it's not in bounds
 
             GraphNode newNode = new(octLeaf.center, count++);
 
@@ -222,11 +222,14 @@ public class GraphGenerator {
 // Purely for debugging
 // this functionality will just go on a entity in the future
 public class GraphGeneratorComponent : MonoBehaviour {
+    [Tooltip("Settings")]
     public Octree? Octree;
 
-    public bool ShouldBuildDiagonals = true;
-    public bool ShouldDisplayGraph = true;
-    public bool ShouldDisplayEdges = true;
+    public bool BuildDiagonals = true;
+
+    [Tooltip("References")]
+    public bool DisplayGraph = true;
+    public bool DisplayEdges = true;
 
     public Graph? graph;
 
@@ -247,11 +250,11 @@ public class GraphGeneratorComponent : MonoBehaviour {
 
         var generator = new GraphGenerator(Octree);
 
-        graph = generator.Generate(ShouldBuildDiagonals);
+        graph = generator.Generate(BuildDiagonals);
     }
 
     public void Step() {
-        graph = generator.Step(ShouldBuildDiagonals);
+        graph = generator.Step(BuildDiagonals);
     }
 
     public void ResetGenerator() {
@@ -261,9 +264,9 @@ public class GraphGeneratorComponent : MonoBehaviour {
     //public void OnDrawGizmosSelected()
     public void OnDrawGizmosSelected()
     {
-        if (graph == null || !ShouldDisplayGraph) return;
+        if (graph == null || !DisplayGraph) return;
 
-        graph.DrawGraph(ShouldDisplayEdges);
+        graph.DrawGraph(DisplayEdges);
 
         if (generator.previouslyProcessed != null) {
             Gizmos.color = Color.blue;
