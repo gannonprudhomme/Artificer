@@ -91,7 +91,8 @@ public class GraphGenerator {
 
             OctreeNode? nearestOctLeafInDirection = FindLeafInDirectionOfSameSizeOrLarger(octLeaf, faceDir);
 
-            if (nearestOctLeafInDirection == null) {
+            // Should we do the containsCollision checking in FindLeaf?
+            if (nearestOctLeafInDirection == null || nearestOctLeafInDirection.containsCollision) {
                 continue;
             }
 
@@ -114,7 +115,7 @@ public class GraphGenerator {
 
         List<OctreeNode> octLeaves = octree.Leaves();
         foreach(OctreeNode octLeaf in octLeaves) {
-            GraphNode newNode = new(octLeaf.center, 0); // TODO: idk what to put for index
+            if (octLeaf.containsCollision) continue; // Don't make a node if this contains a collision
 
             if (octreeToGraphNodeDict.ContainsKey(octLeaf)) Debug.LogError("Wtf why are there duplicates");
             octreeToGraphNodeDict[octLeaf] = newNode;
@@ -134,15 +135,13 @@ public class GraphGenerator {
     }
 
     private OctreeNode? FindLeafInDirectionOfSameSizeOrLarger(OctreeNode currOctLeaf, int[] faceDir) {
-        // First, see if there is a node this same level in that direction
-        // As such we need to get the node that is at the index - how do we do that?
         int[] goalIndex = { currOctLeaf.index[0] + faceDir[0], currOctLeaf.index[1] + faceDir[1], currOctLeaf.index[2] + faceDir[2] };
 
         int xIndex = goalIndex[0];
         int yIndex = goalIndex[1];
         int zIndex = goalIndex[2];
 
-        int maxIndexPossible = (1 << currOctLeaf.nodeLevel) - 1; // well really it's [(1 << nodeLevel) - 1] so we could do >
+        int maxIndexPossible = (1 << currOctLeaf.nodeLevel) - 1;
         if (DebugLogs) Debug.Log($"\tAttempting to find nearest for {currOctLeaf.IndexToString()} with goal {threeArrToStr(goalIndex)} in dir {threeArrToStr(faceDir)} for nodeLevel {currOctLeaf.nodeLevel}");
 
         // 2^nodeLevel, so if nodeLevel is 4 the max index (for a node on level 4) is 16. (exclusive, so 15)
