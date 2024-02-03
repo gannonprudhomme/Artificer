@@ -53,14 +53,72 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         { 0, 1, 1 }
     };
 
-    string fileName = "./octree.json";
+    static readonly string fileName = "./octree.bin";
 
     private void Awake() {
         root = new OctreeNode(0, new int[] { 0, 0, 0 }, null, this);
     }
 
+    public void Save() {
+        Debug.Log($"Saving to {fileName}");
+        using (var stream = File.Open(fileName, FileMode.Create)) {
+            using (var writer = new BinaryWriter(stream))
+            {
+                OctreeSerializer.Serialize(this, writer);
+            }
+        }
+    }
+
+    public void Load() {
+        Debug.Log($"Loading from {fileName}");
+        using (var stream = File.Open(fileName, FileMode.Open))
+        {
+            using (var reader = new BinaryReader(stream))
+            {
+                OctreeSerializer.Deserialize(this, reader);
+            }
+        }
+    }
+
     public List<OctreeNode> Leaves() {
         return root.GetLeaves();
+    }
+
+    public List<OctreeNode> GetAllNodesAndSetParentMap(Dictionary<OctreeNode, OctreeNode> childToParentMap) {
+        return GetAllNodesAndSetParentMap(root, null, childToParentMap);
+    }
+
+    private static List<OctreeNode> GetAllNodesAndSetParentMap(
+        OctreeNode curr,
+        OctreeNode parent,
+        Dictionary<OctreeNode, OctreeNode> childToParentMap
+    ) {
+        if (parent != null) {
+            childToParentMap[curr] = parent;
+        }
+
+        List<OctreeNode> nodes = new();
+        nodes.Add(curr);
+
+        // Debug.Log($"Has {curr.children?.Length ?? 0} children");
+
+        if (curr.children == null) {
+            return nodes;
+        }
+
+        for(int x = 0; x < 2; x++) {
+            for(int y = 0; y < 2; y++) {
+                for(int z = 0; z < 2; z++) {
+                    OctreeNode child = curr.children[x, y, z];
+                    // if (child == null || child.children == null) continue;
+                    if (child == null) continue;
+
+                    nodes.AddRange(GetAllNodesAndSetParentMap(child, curr, childToParentMap));
+                }
+            }
+        }
+
+        return nodes;
     }
 
     private static List<OctreeNode> GetAllNodes(OctreeNode curr) {

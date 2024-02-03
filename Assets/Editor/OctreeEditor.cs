@@ -18,11 +18,11 @@ public class TestEditor : Editor {
 
         if (GUILayout.Button("Save to file")) {
             // Gotta figure out how to serialize the Octree
-            // octree.Save();
+            octree.Save();
         }
 
         if (GUILayout.Button("Load from file")) {
-            // octree.Load();
+            octree.Load();
         }
     }
 }

@@ -267,6 +267,7 @@ public class OldGraphComponent: MonoBehaviour {
                 } else {
                     shouldCreateEdge = true;
                     for (int j = 0; j < 3; j++) {
+                        /*
                         OctreeNode found = octree.FindNearestLeaf(
                             new int[] {
                                 octLeaf.index[0] + threeNeighborDir[j][0],
@@ -280,6 +281,7 @@ public class OldGraphComponent: MonoBehaviour {
                             shouldCreateEdge = false;
                             break;
                         }
+                        */
                     }
                 }
 

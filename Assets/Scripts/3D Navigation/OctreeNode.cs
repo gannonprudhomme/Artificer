@@ -21,8 +21,7 @@ public class OctreeNode {
 
     // Note that this might not have any children!
     // How do we know something is a leaf?
-    [SerializeField]
-    public OctreeNode[,,]? children { get; private set; }
+    public OctreeNode[,,]? children { get; set; }
 
     public bool doesChildrenContainCollision = false;
 
@@ -67,6 +66,22 @@ public class OctreeNode {
         this.containsCollision = false;
     }
 
+    // For deserializing
+    public OctreeNode(
+        int nodeLevel,
+        int[] index,
+        bool containsCollision,
+        bool isInBounds,
+        Octree octree
+    ) {
+        this.nodeLevel = nodeLevel;
+        this.index = index;
+        this.children = null;
+        this.tree = octree;
+        this.containsCollision = containsCollision;
+        this.isInBounds = isInBounds;
+    }
+
     public List<OctreeNode> GetLeaves() {
         List<OctreeNode> leaves = new();
 
@@ -97,6 +112,9 @@ public class OctreeNode {
         for (int x = 0; x < 2; x++) {
             for (int y = 0; y < 2; y++) {
                 for (int z = 0; z < 2; z++) {
+                    var child = children[x, y, z];
+                    if (child == null) continue;
+
                     List<OctreeNode> childNodes = children[x, y, z].GetAllNodes();
                     allNodes.AddRange(childNodes);
                 }
