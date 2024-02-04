@@ -53,7 +53,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         { 0, 1, 1 }
     };
 
-    static readonly string fileName = "./octree.bin";
+    public static readonly string fileName = "./octree.bin";
 
     private void Awake() {
         root = new OctreeNode(0, new int[] { 0, 0, 0 }, null, this);
