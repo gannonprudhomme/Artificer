@@ -71,6 +71,7 @@ public class Pathfinder {
 
         if (startNode == endNode) {
             Debug.LogError("Start node and end node are the same!");
+            return (new(), new());
         }
 
         var heap = new C5.IntervalHeap<GraphNode>(new NodeComparer(gCosts, hCosts));
