@@ -5,31 +5,25 @@ using UnityEngine;
 
 #nullable enable
 
-interface IGraphGenerator {
-    public Graph Generate();
-    public void Step();
-    public void Reset();
-}
-
-public class GraphGenerator {
-    private Octree octree;
+public class OldGraphGenerator {
+    private OldOctree octree;
 
     public static readonly int[,] allFaceDirs = { { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 } };
     public static readonly int[,] allDiagonalDirs = { { 0, 1, 1 }, { 0, 1, -1 }, { 0, -1, 1 }, { 0, -1, -1 }, { 1, 0, 1 }, { -1, 0, 1 }, { 1, 0, -1 }, { -1, 0, -1 }, { 1, 1, 0 }, { 1, -1, 0 }, { -1, 1, 0 }, { -1, -1, 0 } };
 
-    private Dictionary<OctreeNode, GraphNode> octreeToGraphNodeDict = new();
+    private Dictionary<OldOctreeNode, OldGraphNode> octreeToGraphNodeDict = new();
     int currDictIndex = 0;
 
-    public GraphNode? toProcessNext = null;
-    public GraphNode? previouslyProcessed = null;
+    public OldGraphNode? toProcessNext = null;
+    public OldGraphNode? previouslyProcessed = null;
     private bool DebugLogs = false;
 
-    public GraphGenerator(Octree octree) {
+    public OldGraphGenerator(OldOctree octree) {
         this.octree = octree;
     }
 
     // Ideally this would be static
-    public Graph Generate(bool shouldBuildDiagonals) {
+    public OldGraph Generate(bool shouldBuildDiagonals) {
         // Is there a benefit to doing this ahead of time? We'll see!
         Initialize();
 
@@ -38,14 +32,14 @@ public class GraphGenerator {
         // How can we do this progressively? Should we sort the leaves by their nodeLevel?
         // so the biggest leaves get processed first?
         // or maybe smallest leaves first?
-        foreach (KeyValuePair<OctreeNode, GraphNode> keyPair in octreeToGraphNodeDict) {
-            OctreeNode octLeaf = keyPair.Key;
-            GraphNode currGraphNode = keyPair.Value;
+        foreach (KeyValuePair<OldOctreeNode, OldGraphNode> keyPair in octreeToGraphNodeDict) {
+            OldOctreeNode octLeaf = keyPair.Key;
+            OldGraphNode currGraphNode = keyPair.Value;
 
             Step(octLeaf, currGraphNode, shouldBuildDiagonals);
         }
 
-        Graph graph = new Graph(new List<GraphNode>(octreeToGraphNodeDict.Values));
+        OldGraph graph = new OldGraph(new List<OldGraphNode>(octreeToGraphNodeDict.Values));
         stopwatch.Stop();
 
         Debug.Log($"Generated graph with {graph.nodeCount} nodes and {graph.GetEdgeCount()} edges in {stopwatch.ElapsedMilliseconds} ms");
@@ -55,7 +49,7 @@ public class GraphGenerator {
 
     // What the GraphGeneratorComponent calls
     private bool resetCalledForStep = false;
-    public Graph Step(bool shouldBuildDiagonals) {
+    public OldGraph Step(bool shouldBuildDiagonals) {
         if(!resetCalledForStep) {
             resetCalledForStep = true;
             Initialize();
@@ -78,11 +72,11 @@ public class GraphGenerator {
         // Set curr as previous
         previouslyProcessed = currGraphNode;
 
-        Graph graph = new Graph(new List<GraphNode>(octreeToGraphNodeDict.Values));
+        OldGraph graph = new OldGraph(new List<OldGraphNode>(octreeToGraphNodeDict.Values));
         return graph;
     }
 
-    private void Step(OctreeNode octLeaf, GraphNode currGraphNode, bool shouldBuildDiagonals) {
+    private void Step(OldOctreeNode octLeaf, OldGraphNode currGraphNode, bool shouldBuildDiagonals) {
         if (DebugLogs) Debug.Log($"Stepping for {octLeaf.IndexToString()}");
 
         // For each face, find the nodes that should be connected to it
@@ -103,17 +97,17 @@ public class GraphGenerator {
         }
     }
 
-    private void InnerStep(OctreeNode octLeaf, GraphNode currGraphNode, int[] dir) {
+    private void InnerStep(OldOctreeNode octLeaf, OldGraphNode currGraphNode, int[] dir) {
         // Connect this to the nearest node  of the same size or larger (same node level or smaller)
 
-        OctreeNode? nearestOctLeafInDirection = FindLeafInDirectionOfSameSizeOrLarger(octLeaf, dir);
+        OldOctreeNode? nearestOctLeafInDirection = FindLeafInDirectionOfSameSizeOrLarger(octLeaf, dir);
 
         // Should we do the containsCollision checking in FindLeaf?
         if (nearestOctLeafInDirection == null || nearestOctLeafInDirection.containsCollision || !nearestOctLeafInDirection.isInBounds) {
             return;
         }
 
-        GraphNode nearestNode = octreeToGraphNodeDict[nearestOctLeafInDirection];
+        OldGraphNode nearestNode = octreeToGraphNodeDict[nearestOctLeafInDirection];
 
         if (octLeaf.nodeLevel == nearestOctLeafInDirection.nodeLevel) {
             // I think we should only add it in one direction since there will be duplicates
@@ -125,16 +119,16 @@ public class GraphGenerator {
         }
     }
 
-    public Graph Initialize() {
+    public OldGraph Initialize() {
         octreeToGraphNodeDict = new();
         currDictIndex = 0;
 
         int count = 0;
-        List<OctreeNode> octLeaves = octree.Leaves();
-        foreach(OctreeNode octLeaf in octLeaves) {
+        List<OldOctreeNode> octLeaves = octree.Leaves();
+        foreach(OldOctreeNode octLeaf in octLeaves) {
             if (octLeaf.containsCollision || !octLeaf.isInBounds) continue; // Don't make a node if this contains a collision or if it's not in bounds
 
-            GraphNode newNode = new(octLeaf.center, count++);
+            OldGraphNode newNode = new(octLeaf.center, count++);
 
             if (octreeToGraphNodeDict.ContainsKey(octLeaf)) Debug.LogError("Wtf why are there duplicates");
             octreeToGraphNodeDict[octLeaf] = newNode;
@@ -147,14 +141,14 @@ public class GraphGenerator {
     }
 
     // What's this for again? Document boy
-    private (OctreeNode, GraphNode) GetGraphNodeForIndex(int index) {
+    private (OldOctreeNode, OldGraphNode) GetGraphNodeForIndex(int index) {
         // This is obviously dumb to do this every time, but I'm only going to change if it's a problem
-        List<OctreeNode> keys = new(octreeToGraphNodeDict.Keys);
-        OctreeNode octLeaf = keys[index];
+        List<OldOctreeNode> keys = new(octreeToGraphNodeDict.Keys);
+        OldOctreeNode octLeaf = keys[index];
         return (octLeaf, octreeToGraphNodeDict[octLeaf]);
     }
 
-    private OctreeNode? FindLeafInDirectionOfSameSizeOrLarger(OctreeNode currOctLeaf, int[] faceDir) {
+    private OldOctreeNode? FindLeafInDirectionOfSameSizeOrLarger(OldOctreeNode currOctLeaf, int[] faceDir) {
         int[] goalIndex = { currOctLeaf.index[0] + faceDir[0], currOctLeaf.index[1] + faceDir[1], currOctLeaf.index[2] + faceDir[2] };
 
         int xIndex = goalIndex[0];
@@ -178,7 +172,7 @@ public class GraphGenerator {
 
         // Starting at the root, find the leaf closest to faceDir
         // For now, lets try to get it only on the same level as the one we're looking for
-        OctreeNode current = octree.root;
+        OldOctreeNode current = octree.root;
         for(int level = 0; level < currOctLeaf.nodeLevel; level++) { // I feel like we'd want to go the other way around but w/e
             if (current.children == null) { 
                 // current is a leaf, we're done! This has got to be it (I guess?)
@@ -221,9 +215,9 @@ public class GraphGenerator {
 
 // Purely for debugging
 // this functionality will just go on a entity in the future
-public class GraphGeneratorComponent : MonoBehaviour {
+public class OldGraphGeneratorComponent : MonoBehaviour {
     [Header("Settings")]
-    public Octree? Octree;
+    public OldOctree? Octree;
 
     public bool BuildDiagonals = true;
 
@@ -231,12 +225,12 @@ public class GraphGeneratorComponent : MonoBehaviour {
     public bool DisplayGraph = true;
     public bool DisplayEdges = true;
 
-    public Graph? graph;
+    public OldGraph? graph;
 
-    private GraphGenerator? _generator = null;
-    private GraphGenerator generator {
+    private OldGraphGenerator? _generator = null;
+    private OldGraphGenerator generator {
         get {
-            _generator ??= new GraphGenerator(Octree!);
+            _generator ??= new OldGraphGenerator(Octree!);
 
             return _generator;
         }
@@ -248,7 +242,7 @@ public class GraphGeneratorComponent : MonoBehaviour {
             return;
         }
 
-        var generator = new GraphGenerator(Octree);
+        var generator = new OldGraphGenerator(Octree);
 
         graph = generator.Generate(BuildDiagonals);
     }

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(PathfinderComponent))]
+[CustomEditor(typeof(OldPathfinderComponent))]
 public class PathfinderComponentEditor : Editor {
     public override void OnInspectorGUI() {
         DrawDefaultInspector();
 
-        PathfinderComponent component = (PathfinderComponent)target;
+        OldPathfinderComponent component = (OldPathfinderComponent)target;
 
         if (GUILayout.Button("Generate Path")) {
             component.GeneratePath();

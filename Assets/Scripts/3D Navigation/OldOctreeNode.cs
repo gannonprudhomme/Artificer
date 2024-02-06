@@ -5,7 +5,7 @@ using UnityEngine;
 #nullable enable
 
 [Serializable]
-public class OctreeNode {
+public class OldOctreeNode {
     public readonly int nodeLevel;
 
     // The index of this node in the Octree
@@ -17,11 +17,11 @@ public class OctreeNode {
 
     // Reference to the main Octree
     // Used so we can do WHAT
-    private readonly Octree tree;
+    private readonly OldOctree tree;
 
     // Note that this might not have any children!
     // How do we know something is a leaf?
-    public OctreeNode[,,]? children { get; set; }
+    public OldOctreeNode[,,]? children { get; set; }
 
     public bool doesChildrenContainCollision = false;
 
@@ -42,21 +42,21 @@ public class OctreeNode {
         get { return children == null; }
     }
 
-    public int[] cornerIndex(int n, Octree tree) {
+    public int[] cornerIndex(int n, OldOctree tree) {
         int s = 1 << (tree.MaxDivisionLevel - nodeLevel);
         return new int[] {
-            (index[0] + Octree.cornerDir[n, 0]) * s,
-            (index[1] + Octree.cornerDir[n, 1]) * s,
-            (index[2] + Octree.cornerDir[n, 2]) * s
+            (index[0] + OldOctree.cornerDir[n, 0]) * s,
+            (index[1] + OldOctree.cornerDir[n, 1]) * s,
+            (index[2] + OldOctree.cornerDir[n, 2]) * s
         };
     }
 
 
-    public OctreeNode(
+    public OldOctreeNode(
         int nodeLevel,
         int[] index,
-        OctreeNode? parent,
-        Octree tree
+        OldOctreeNode? parent,
+        OldOctree tree
     ) {
         this.nodeLevel = nodeLevel;
         this.index = index;
@@ -67,12 +67,12 @@ public class OctreeNode {
     }
 
     // For deserializing
-    public OctreeNode(
+    public OldOctreeNode(
         int nodeLevel,
         int[] index,
         bool containsCollision,
         bool isInBounds,
-        Octree octree
+        OldOctree octree
     ) {
         this.nodeLevel = nodeLevel;
         this.index = index;
@@ -82,8 +82,8 @@ public class OctreeNode {
         this.isInBounds = isInBounds;
     }
 
-    public List<OctreeNode> GetLeaves() {
-        List<OctreeNode> leaves = new();
+    public List<OldOctreeNode> GetLeaves() {
+        List<OldOctreeNode> leaves = new();
 
         if (children == null) {
             leaves.Add(this);
@@ -91,7 +91,7 @@ public class OctreeNode {
             for (int x = 0; x < 2; x++) {
                 for (int y = 0; y < 2; y++) {
                     for (int z = 0; z < 2; z++) {
-                        List<OctreeNode> childLeaves = children[x, y, z].GetLeaves();
+                        List<OldOctreeNode> childLeaves = children[x, y, z].GetLeaves();
                         leaves.AddRange(childLeaves);
                     }
                 }
@@ -101,8 +101,8 @@ public class OctreeNode {
         return leaves;
     }
 
-    public List<OctreeNode> GetAllNodes() {
-        List<OctreeNode> allNodes = new();
+    public List<OldOctreeNode> GetAllNodes() {
+        List<OldOctreeNode> allNodes = new();
 
         allNodes.Add(this);
 
@@ -115,7 +115,7 @@ public class OctreeNode {
                     var child = children[x, y, z];
                     if (child == null) continue;
 
-                    List<OctreeNode> childNodes = children[x, y, z].GetAllNodes();
+                    List<OldOctreeNode> childNodes = children[x, y, z].GetAllNodes();
                     allNodes.AddRange(childNodes);
                 }
             }
@@ -128,9 +128,9 @@ public class OctreeNode {
     private Vector3 GetCorners(int cornerNum) {
         // I don't actually know what this vector represents
         Vector3 indicesMovedByCorners = new(
-            index[0] + Octree.cornerDir[cornerNum, 0],
-            index[1] + Octree.cornerDir[cornerNum, 1],
-            index[2] + Octree.cornerDir[cornerNum, 2]
+            index[0] + OldOctree.cornerDir[cornerNum, 0],
+            index[1] + OldOctree.cornerDir[cornerNum, 1],
+            index[2] + OldOctree.cornerDir[cornerNum, 2]
         );
 
         return tree.Corner + (size * indicesMovedByCorners);
@@ -232,7 +232,7 @@ public class OctreeNode {
             return;
         }
 
-        children = new OctreeNode[2, 2, 2]; // Create 8 children
+        children = new OldOctreeNode[2, 2, 2]; // Create 8 children
         for (int x = 0; x < 2; x++) {
             for(int y = 0; y < 2; y++) {
                 for(int z = 0; z < 2; z++) {
@@ -241,7 +241,7 @@ public class OctreeNode {
                         index[1] * 2 + y,
                         index[2] * 2 + z
                     };
-                    children[x, y, z] = new OctreeNode(nodeLevel + 1, newIndex, this, tree);
+                    children[x, y, z] = new OldOctreeNode(nodeLevel + 1, newIndex, this, tree);
                 }
             }
         }

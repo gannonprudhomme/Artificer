@@ -1,24 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TreeEditor;
 using Unity.Mathematics;
 using UnityEditor.Splines;
 using UnityEngine;
 using UnityEngine.Splines;
-using UnityEngine.Video;
 
 #nullable enable
 
-public class NodeComparer : IComparer<GraphNode> {
+public class OldNodeComparer : IComparer<OldGraphNode> {
     public Dictionary<int, float> gCosts, hCosts;
 
-    public NodeComparer(Dictionary<int, float> gCosts, Dictionary<int, float> hCosts) {
+    public OldNodeComparer(Dictionary<int, float> gCosts, Dictionary<int, float> hCosts) {
         this.gCosts = gCosts;
         this.hCosts = hCosts;
     }
 
-    int IComparer<GraphNode>.Compare(GraphNode left, GraphNode right) {
+    int IComparer<OldGraphNode>.Compare(OldGraphNode left, OldGraphNode right) {
         float leftFCost = gCosts[left.id] + hCosts[left.id];
         float rightFCost = gCosts[right.id] + hCosts[right.id];
 
@@ -36,13 +33,13 @@ public class NodeComparer : IComparer<GraphNode> {
     }
 }
 
-public class Pathfinder {
-    public HashSet<GraphNode> displayNodes = new();
+public class OldPathfinder {
+    public HashSet<OldGraphNode> displayNodes = new();
     public HashSet<GraphEdge> displayEdges = new();
 
-    private Graph graph;
+    private OldGraph graph;
 
-    public Pathfinder(Graph graph) {
+    public OldPathfinder(OldGraph graph) {
         this.graph = graph;
     }
 
@@ -50,15 +47,15 @@ public class Pathfinder {
     // we should probably return vectors instead
     // cause we need a path from the start position to the nearest node, and same for the end position
     // since agents won't be perfectly in the middle of a node
-    public static (List<Vector3>, HashSet<GraphNode>) GeneratePath(Graph graph, Vector3 start, Vector3 end) {
+    public static (List<Vector3>, HashSet<OldGraphNode>) GeneratePath(OldGraph graph, Vector3 start, Vector3 end) {
         // For debug displaying, not needed for algo
-        HashSet<GraphNode> calculated = new();
-        HashSet<GraphNode> visited = new();
+        HashSet<OldGraphNode> calculated = new();
+        HashSet<OldGraphNode> visited = new();
 
         // TODO: I should find how long this takes
         // We also need to ensure we don't go _down_ as that leads to a lot of problems
-        GraphNode startNode = graph.FindNearestToPosition(start);
-        GraphNode endNode = graph.FindNearestToPosition(end);
+        OldGraphNode startNode = graph.FindNearestToPosition(start);
+        OldGraphNode endNode = graph.FindNearestToPosition(end);
 
         // This could also be an array holy shit.
         // ALL OF THESE COULD BE ARRAYS THAT'S WHAT THIS IS
@@ -67,18 +64,18 @@ public class Pathfinder {
 
         Dictionary<int, float> gCosts = new();
         Dictionary<int, float> hCosts = new();
-        Dictionary<int, GraphNode> parents = new(); // I could also do <int, int>
+        Dictionary<int, OldGraphNode> parents = new(); // I could also do <int, int>
 
         if (startNode == endNode) {
             Debug.LogError("Start node and end node are the same!");
             return (new(), new());
         }
 
-        var heap = new C5.IntervalHeap<GraphNode>(new NodeComparer(gCosts, hCosts));
+        var heap = new C5.IntervalHeap<OldGraphNode>(new OldNodeComparer(gCosts, hCosts));
         heap.Add(ref startNode.handle, startNode);
 
 
-        GraphNode current = startNode; // just ensure it's never null. Redundant ofc
+        OldGraphNode current = startNode; // just ensure it's never null. Redundant ofc
         while (!heap.IsEmpty) {
             // Pop the top of the heap, which is the minimum f cost node and mark it as the current node
             current = heap.DeleteMin(); // node with the lowest f cost
@@ -96,7 +93,7 @@ public class Pathfinder {
 
             // populate all current node's neighbors
             foreach(GraphEdge edge in current.edges) {
-                GraphNode neighbor = edge.to; // from is always going to be the current node
+                OldGraphNode neighbor = edge.to; // from is always going to be the current node
 
                 if (closedSet.Contains(neighbor.id)) continue;
 
@@ -144,8 +141,8 @@ public class Pathfinder {
         List<Vector3> posPath = new();
         posPath.Add(end); // Note we're adding the *end*, not the end node
 
-        List<GraphNode> path = new();
-        while (parents.TryGetValue(current.id, out GraphNode currParent) && current != startNode) {
+        List<OldGraphNode> path = new();
+        while (parents.TryGetValue(current.id, out OldGraphNode currParent) && current != startNode) {
             path.Add(current);
             posPath.Add(current.center);
 
@@ -175,8 +172,8 @@ public class Pathfinder {
     }
 }
 
-public class PathfinderComponent : MonoBehaviour {
-    public GraphGeneratorComponent? graphGenerator;
+public class OldPathfinderComponent : MonoBehaviour {
+    public OldGraphGeneratorComponent? graphGenerator;
     public SplineContainer? container;
     public bool DebugDisplay = true;
     public bool DisplayVisited = true;
@@ -185,9 +182,9 @@ public class PathfinderComponent : MonoBehaviour {
     public Transform? StartPosition;
     public Transform? EndPosition;
 
-    private Pathfinder? pathfinder;
+    private OldPathfinder? pathfinder;
 
-    private HashSet<GraphNode> visited = new();
+    private HashSet<OldGraphNode> visited = new();
     // private List<GraphNode> path = new();
     private List<Vector3> path = new();
     private Spline? spline = null;
@@ -197,7 +194,7 @@ public class PathfinderComponent : MonoBehaviour {
 
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
-        (path, visited) = Pathfinder.GeneratePath(graphGenerator!.graph!, StartPosition!.position, EndPosition!.position);
+        (path, visited) = OldPathfinder.GeneratePath(graphGenerator!.graph!, StartPosition!.position, EndPosition!.position);
         stopwatch.Stop();
 
         List<float3> floats = new();

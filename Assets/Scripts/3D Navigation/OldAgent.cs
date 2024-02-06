@@ -7,12 +7,12 @@ using UnityEngine.Splines;
 #nullable enable
 
 public class Agent : MonoBehaviour {
-    public Octree? octree;
+    public OldOctree? octree;
 
     // Player
     public Target Target; 
 
-    public Graph? graph { get; set; }
+    public OldGraph? graph { get; set; }
 
     // Just for displaying
     public SplineContainer? SplineContainer;
@@ -30,7 +30,7 @@ public class Agent : MonoBehaviour {
 
         // TODO: Agents of the same type should (probably) share the same graph
         // ack if they share the same graph they're going to follow an identical path, and probably literally overlap w/ each other
-        var generator = new GraphGenerator(octree);
+        var generator = new OldGraphGenerator(octree);
         graph = generator.Generate(shouldBuildDiagonals: true);
 
         Debug.Log("Done init'ing agent");
@@ -112,7 +112,7 @@ public class Agent : MonoBehaviour {
 
         Debug.Log("Can't do a straight line! Pathfinding");
 
-        var (path, _) = Pathfinder.GeneratePath(graph!, transform.position, currTargetPos);
+        var (path, _) = OldPathfinder.GeneratePath(graph!, transform.position, currTargetPos);
 
         if (path.Count == 0)
             return null;

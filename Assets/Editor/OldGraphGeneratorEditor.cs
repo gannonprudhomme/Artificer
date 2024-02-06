@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(GraphGeneratorComponent))]
+[CustomEditor(typeof(OldGraphGeneratorComponent))]
 public class GraphGeneratorEditor : Editor {
     public override void OnInspectorGUI() {
         DrawDefaultInspector();
 
-        GraphGeneratorComponent graphGenerator = (GraphGeneratorComponent)target;
+        OldGraphGeneratorComponent graphGenerator = (OldGraphGeneratorComponent)target;
 
         if (GUILayout.Button("Build Graph")) {
             var stopwatch = new System.Diagnostics.Stopwatch();

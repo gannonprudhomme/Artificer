@@ -9,7 +9,7 @@ using UnityEngine;
 public class OctreeSerializer {
     // I'm going to have to deal with local vs world data aren't I
     // fuck
-    public static void Serialize(Octree octree, BinaryWriter writer) {
+    public static void Serialize(OldOctree octree, BinaryWriter writer) {
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
@@ -26,24 +26,24 @@ public class OctreeSerializer {
         // Ok, now start serializing the nodes
 
         // Populate childToParentMap
-        Dictionary<OctreeNode, OctreeNode> childToParentMap = new();
-        List<OctreeNode> allNodes = octree.GetAllNodesAndSetParentMap(childToParentMap);
+        Dictionary<OldOctreeNode, OldOctreeNode> childToParentMap = new();
+        List<OldOctreeNode> allNodes = octree.GetAllNodesAndSetParentMap(childToParentMap);
 
         // Serialize the node count
         writer.Write(allNodes.Count);
 
         // Populate nodeToIndexMap
-        Dictionary<OctreeNode, int> nodeToIndexMap = new();
+        Dictionary<OldOctreeNode, int> nodeToIndexMap = new();
         for(int i = 0; i < allNodes.Count; i++) {
-            OctreeNode current = allNodes[i];
+            OldOctreeNode current = allNodes[i];
             nodeToIndexMap[current] = i;
         }
 
         // Serialize all of the nodes one by one
         byte[][] allNodesData = new byte[allNodes.Count][];
         for(int i = 0; i < allNodes.Count; i++) {
-            OctreeNode current = allNodes[i];
-            OctreeNode? parent = childToParentMap!.GetValueOrDefault(current, null);
+            OldOctreeNode current = allNodes[i];
+            OldOctreeNode? parent = childToParentMap!.GetValueOrDefault(current, null);
             int parentIndex = parent != null ? nodeToIndexMap[parent] : -1; // Handling root not having a parent
 
             SerializeNode(current, parentIndex, writer);
@@ -61,7 +61,7 @@ public class OctreeSerializer {
                                       sizeof(bool) * 2; // containsCollision + isInBounds
 
 
-    private static void SerializeNode(OctreeNode node, int parentIndex, BinaryWriter writer) {
+    private static void SerializeNode(OldOctreeNode node, int parentIndex, BinaryWriter writer) {
         float[] centerArr = new float[] { node.center.x, node.center.y, node.center.z };
 
         for(int i = 0; i < centerArr.Length; i++) {
@@ -78,7 +78,7 @@ public class OctreeSerializer {
         writer.Write(node.isInBounds);
     }
 
-    private static byte[] SerializeNode(OctreeNode node, int parentIndex) {
+    private static byte[] SerializeNode(OldOctreeNode node, int parentIndex) {
         byte[] bytesForThisNode = new byte[numBytesForOctreeNode];
         int position = 0;
 
@@ -105,7 +105,7 @@ public class OctreeSerializer {
         return bytesForThisNode;
     }
 
-    public static void Deserialize(Octree octree, BinaryReader reader) {
+    public static void Deserialize(OldOctree octree, BinaryReader reader) {
         // First, we assume root is the first node
         // Octree octree = new();
         var stopwatch = new System.Diagnostics.Stopwatch();
@@ -126,14 +126,14 @@ public class OctreeSerializer {
         int nodeCount = reader.ReadInt32();
 
         // Deserialize the properties of the octree
-        Dictionary<OctreeNode, int> childToParentMap = new();
+        Dictionary<OldOctreeNode, int> childToParentMap = new();
 
-        OctreeNode root = DeserializeNode(reader, octree, childToParentMap);
+        OldOctreeNode root = DeserializeNode(reader, octree, childToParentMap);
         octree.root = root;
 
-        List<OctreeNode> nodes = new() { root }; // Add root
+        List<OldOctreeNode> nodes = new() { root }; // Add root
         for(int i = 1; i < nodeCount; i++) {
-            OctreeNode node = DeserializeNode(reader, octree, childToParentMap);
+            OldOctreeNode node = DeserializeNode(reader, octree, childToParentMap);
 
             nodes.Add(node);
         }
@@ -144,9 +144,9 @@ public class OctreeSerializer {
 
             if (parentIndex == -1) continue; // root doesn't have parent
 
-            OctreeNode parent = nodes[parentIndex];
+            OldOctreeNode parent = nodes[parentIndex];
             if (parent.children == null) {
-                parent.children = new OctreeNode[2, 2 ,2];
+                parent.children = new OldOctreeNode[2, 2 ,2];
             }
 
             // Now we have to figure out what fucking index we are relative to the parent
@@ -170,7 +170,7 @@ public class OctreeSerializer {
         // return octree;
     }
 
-    private static OctreeNode DeserializeNode(BinaryReader reader, Octree octree, Dictionary<OctreeNode, int> childToParentMap) {
+    private static OldOctreeNode DeserializeNode(BinaryReader reader, OldOctree octree, Dictionary<OldOctreeNode, int> childToParentMap) {
         float[] centerArr = new float[3];
         for(int i = 0; i < centerArr.Length; i++) {
             centerArr[i] = reader.ReadSingle();
@@ -185,7 +185,7 @@ public class OctreeSerializer {
         bool containsCollision = reader.ReadBoolean();
         bool isInBounds = reader.ReadBoolean();
 
-        OctreeNode node = new OctreeNode(nodeLevel, index, containsCollision, isInBounds, octree);
+        OldOctreeNode node = new OldOctreeNode(nodeLevel, index, containsCollision, isInBounds, octree);
         childToParentMap[node] = parentIndex;
 
         return node;

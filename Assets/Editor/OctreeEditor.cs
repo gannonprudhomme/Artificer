@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEditor;
 
 // Can I move this into Scripts/Editor? I like it better there
-[CustomEditor(typeof(Octree))]
+[CustomEditor(typeof(OldOctree))]
 public class TestEditor : Editor {
     public override void OnInspectorGUI() {
         // base.OnInspectorGUI(); // They might do the same thing idk
         DrawDefaultInspector();
 
-        Octree octree = (Octree)target;
+        OldOctree octree = (OldOctree)target;
         
         if (GUILayout.Button("Bake")) {
             octree.Bake();

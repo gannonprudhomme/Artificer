@@ -14,7 +14,7 @@ using UnityEngine.Video;
 // other than loading data from a file and sending it to some Graph to be used
 //
 // This is *heavily* based off of: https://github.com/supercontact/PathFindingEnhanced
-public class Octree : MonoBehaviour { // idk if this should actually be a Monobehavior or not
+public class OldOctree : MonoBehaviour { // idk if this should actually be a Monobehavior or not
     [Tooltip("How many levels we'll divide the Octree into")]
     public int MaxDivisionLevel = 3;
 
@@ -33,7 +33,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     // TODO: Can I dynamically calculate this? E.g. get the smallest size (that's a power of 2) that fits all of the meshes
     public int Size = 1024; 
 
-    public OctreeNode root;
+    public OldOctreeNode root;
 
     // Should we make this configurable?
     // private Vector3 corner;
@@ -56,7 +56,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     public static readonly string fileName = "./octree.bin";
 
     private void Awake() {
-        root = new OctreeNode(0, new int[] { 0, 0, 0 }, null, this);
+        root = new OldOctreeNode(0, new int[] { 0, 0, 0 }, null, this);
     }
 
     public void Save() {
@@ -80,24 +80,24 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         }
     }
 
-    public List<OctreeNode> Leaves() {
+    public List<OldOctreeNode> Leaves() {
         return root.GetLeaves();
     }
 
-    public List<OctreeNode> GetAllNodesAndSetParentMap(Dictionary<OctreeNode, OctreeNode> childToParentMap) {
+    public List<OldOctreeNode> GetAllNodesAndSetParentMap(Dictionary<OldOctreeNode, OldOctreeNode> childToParentMap) {
         return GetAllNodesAndSetParentMap(root, null, childToParentMap);
     }
 
-    private static List<OctreeNode> GetAllNodesAndSetParentMap(
-        OctreeNode curr,
-        OctreeNode parent,
-        Dictionary<OctreeNode, OctreeNode> childToParentMap
+    private static List<OldOctreeNode> GetAllNodesAndSetParentMap(
+        OldOctreeNode curr,
+        OldOctreeNode parent,
+        Dictionary<OldOctreeNode, OldOctreeNode> childToParentMap
     ) {
         if (parent != null) {
             childToParentMap[curr] = parent;
         }
 
-        List<OctreeNode> nodes = new();
+        List<OldOctreeNode> nodes = new();
         nodes.Add(curr);
 
         // Debug.Log($"Has {curr.children?.Length ?? 0} children");
@@ -109,7 +109,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         for(int x = 0; x < 2; x++) {
             for(int y = 0; y < 2; y++) {
                 for(int z = 0; z < 2; z++) {
-                    OctreeNode child = curr.children[x, y, z];
+                    OldOctreeNode child = curr.children[x, y, z];
                     // if (child == null || child.children == null) continue;
                     if (child == null) continue;
 
@@ -121,8 +121,8 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         return nodes;
     }
 
-    private static List<OctreeNode> GetAllNodes(OctreeNode curr) {
-        List<OctreeNode> nodes = new();
+    private static List<OldOctreeNode> GetAllNodes(OldOctreeNode curr) {
+        List<OldOctreeNode> nodes = new();
 
         if (curr.children == null) {
             return nodes;
@@ -131,7 +131,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
         for(int x = 0; x < 2; x++) {
             for(int y = 0; y < 2; y++) {
                 for(int z = 0; z < 2; z++) {
-                    OctreeNode child = curr.children[x, y, z];
+                    OldOctreeNode child = curr.children[x, y, z];
                     if (child == null || child.children == null) continue;
 
                     nodes.Add(child);
@@ -195,7 +195,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     public void Bake() {
         var stopwatch = new System.Diagnostics.Stopwatch();
 
-        root = new OctreeNode(0, new int[] { 0, 0, 0 }, null, this);
+        root = new OldOctreeNode(0, new int[] { 0, 0, 0 }, null, this);
 
         if (this.TryGetComponent(out MeshFilter meshFilter)) {
             // NOTE: If we end up modifying this (like reducing overlapping verts), DON'T use sharedMesh it'll actually modify the mesh
@@ -212,7 +212,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
 
         // After we've backed, go through all of the OctreeNode (leaves) and see which ones are in bounds
         if (MarkInBounds && LevelBounds != null) {
-            List<OctreeNode> leaves = Leaves();
+            List<OldOctreeNode> leaves = Leaves();
 
             foreach(var leaf in leaves) {
                 leaf.isInBounds = LevelBounds.bounds.Contains(leaf.center);
@@ -271,7 +271,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
     }
 
     // Remove this?
-    public OctreeNode? FindNearestLeaf(int[] gridIndex, int level) {
+    public OldOctreeNode? FindNearestLeaf(int[] gridIndex, int level) {
         int xIndex = gridIndex[0];
         int yIndex = gridIndex[1];
         int zIndex = gridIndex[2];
@@ -287,7 +287,7 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
             return null;
         }
 
-        OctreeNode current = root;
+        OldOctreeNode current = root;
         for (int l = 0; l < level; l++) {
             if (current.children == null) {
                 return current; // Found a leaf
@@ -318,11 +318,11 @@ public class Octree : MonoBehaviour { // idk if this should actually be a Monobe
             return;
         }
 
-        List<OctreeNode> allNodes = root.GetAllNodes();
-        List<OctreeNode> allLeaves = allNodes.FindAll(thing => (thing.children == null));
-        List<OctreeNode> notLeaves = allNodes.FindAll(thing => (thing.children != null));
-        List<OctreeNode> collisionLeaves = allLeaves.FindAll(thing => thing.containsCollision);
-        List<OctreeNode> noCollisionLeaves = allLeaves.FindAll(thing => !thing.containsCollision);
+        List<OldOctreeNode> allNodes = root.GetAllNodes();
+        List<OldOctreeNode> allLeaves = allNodes.FindAll(thing => (thing.children == null));
+        List<OldOctreeNode> notLeaves = allNodes.FindAll(thing => (thing.children != null));
+        List<OldOctreeNode> collisionLeaves = allLeaves.FindAll(thing => thing.containsCollision);
+        List<OldOctreeNode> noCollisionLeaves = allLeaves.FindAll(thing => !thing.containsCollision);
 
         if (allLeaves.Count <= 1) return; // Ignore the beginning when only root is set
 

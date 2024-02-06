@@ -6,12 +6,12 @@ using UnityEngine;
 
 public class GraphEdge {
     // We don't need from - the node that owns this is always the "from"
-    public GraphNode from; 
-    public GraphNode to;
+    public OldGraphNode from; 
+    public OldGraphNode to;
 
     public float distance;
 
-    public GraphEdge(GraphNode from, GraphNode to) {
+    public GraphEdge(OldGraphNode from, OldGraphNode to) {
         this.from = from;
         this.to = to;
 
@@ -19,7 +19,7 @@ public class GraphEdge {
     }
 }
 
-public class GraphNode {
+public class OldGraphNode {
     public Vector3 center;
     public int id = -1;
 
@@ -44,15 +44,15 @@ public class GraphNode {
     public bool ProcessingNext = false;
     public bool ProcessedLast = false;
 
-    public C5.IPriorityQueueHandle<GraphNode> handle;
+    public C5.IPriorityQueueHandle<OldGraphNode> handle;
 
-    public GraphNode(Vector3 center, int id) {
+    public OldGraphNode(Vector3 center, int id) {
         this.center = center;
         this.id = id;
         edges = new();
     }
 
-    public void AddEdgeTo(GraphNode toNode) {
+    public void AddEdgeTo(OldGraphNode toNode) {
         edges.Add(new GraphEdge(this, toNode));
     }
 
@@ -64,12 +64,12 @@ public class GraphNode {
     */
 }
 
-public class Graph { // I don't think i want this to be a monobehavior?
-    public List<GraphNode> nodes;
+public class OldGraph { // I don't think i want this to be a monobehavior?
+    public List<OldGraphNode> nodes;
 
     public int nodeCount {  get { return nodes.Count; } }
 
-    public Graph(List<GraphNode> nodes) {
+    public OldGraph(List<OldGraphNode> nodes) {
         this.nodes = nodes;
     }
 
@@ -77,8 +77,8 @@ public class Graph { // I don't think i want this to be a monobehavior?
     // Really we should find the nearest voxel (using the Octree.FindNearestLeaf)
     // then get the GraphNode from the dictionary in GraphGenerator
     // but obviously I need some refactoring before that happens
-    public GraphNode FindNearestToPosition(Vector3 position) {
-        GraphNode nearest = nodes[0];
+    public OldGraphNode FindNearestToPosition(Vector3 position) {
+        OldGraphNode nearest = nodes[0];
         float minDist = Mathf.Infinity;
 
         foreach(var node in nodes) {
@@ -95,7 +95,7 @@ public class Graph { // I don't think i want this to be a monobehavior?
 
     public void DrawGraph(bool displayEdges) {
         List<GraphEdge> edges = new();
-        foreach(GraphNode node in nodes) {
+        foreach(OldGraphNode node in nodes) {
             if (node.ProcessingNext) {
                 Gizmos.color = Color.green;
                 Gizmos.DrawSphere(node.center, 5f);
@@ -135,7 +135,7 @@ public class Graph { // I don't think i want this to be a monobehavior?
 
     // For debug counting, probs don't actually want
     public int GetEdgeCount() {
-        HashSet<(GraphNode, GraphNode)> edges = new();
+        HashSet<(OldGraphNode, OldGraphNode)> edges = new();
 
         foreach(var node in nodes) {
             foreach(GraphEdge edge in node.edges) {
