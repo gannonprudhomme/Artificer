@@ -42,6 +42,7 @@ public class OldOctreeNode {
         get { return children == null; }
     }
 
+    /*
     public int[] cornerIndex(int n, OldOctree tree) {
         int s = 1 << (tree.MaxDivisionLevel - nodeLevel);
         return new int[] {
@@ -50,6 +51,7 @@ public class OldOctreeNode {
             (index[2] + OldOctree.cornerDir[n, 2]) * s
         };
     }
+    */
 
 
     public OldOctreeNode(

@@ -19,8 +19,9 @@ public class Octree  {
         }
     }
 
-    private OctreeNode? root;
+    public OctreeNode? root; // Is public so we can do GetAllNodesAndSetParentMap in OctreeSerializer, and set root during Deserializing
 
+    // When generating it based on mesh(es)
     public Octree(
         Vector3 min, // Used for size calculation
         Vector3 max,  // Used for size calculation
@@ -35,8 +36,19 @@ public class Octree  {
         Debug.Log($"Calculated max division level: {MaxDivisionLevel} and size: {Size}");
     }
 
+    // When created from Deserializing / loading from a file
+    public Octree(
+        int size,
+        int maxDivisionLevel,
+        Vector3 center
+    ) {
+        Size = size;
+        MaxDivisionLevel = maxDivisionLevel;
+        Center = center;
+    }
+
     // Aka bake
-    public void Generate() {
+    public void Generate(GameObject rootGameObject) {
         // Shit I should probably read that research paper
         // Cause they create the Octree differently
 
@@ -53,20 +65,81 @@ public class Octree  {
         // to generate the graph for an agent
 
         // Rein in a bit here though - this really doesn't need to be that complex/perfect for what I want to do
+
+        root = new OctreeNode(0, new int[] { 0, 0, 0 }, this);
+
+        GenerateForGameObject(rootGameObject, calculateForChildren: true);
+    }
+
+    private void GenerateForGameObject(GameObject currGameObject, bool calculateForChildren = true) {
+        var name = currGameObject.name;
+        // Debug.Log($"Generating for {name}");
+        if (currGameObject.TryGetComponent(out MeshFilter meshFilter)) {
+            // We're using sharedMesh - don't modify it!
+            VoxelizeForMesh(meshFilter.sharedMesh, currGameObject);
+        }
+
+        if (!calculateForChildren) return;
+
+        // Calculate for the chilren (recursively)
+        for(int i = 0; i < currGameObject.transform.childCount; i++) {
+            GameObject childObj = currGameObject.transform.GetChild(i).gameObject;
+
+            if (!childObj.activeInHierarchy) continue; // Only generate on active game objects
+
+            GenerateForGameObject(childObj, calculateForChildren);
+        }
+    }
+
+    private void VoxelizeForMesh(Mesh mesh, GameObject currGameObject) {
+        int[] triangles = mesh.triangles;
+        Vector3[] vertsLocalSpace = mesh.vertices;
+        Vector3[] normals = mesh.normals;
+        Vector3[] vertsWorldSpace = new Vector3[vertsLocalSpace.Length];
+
+        // Convert the vertices into world space from local space
+        // using currGameObject
+        for(int i = 0; i < vertsLocalSpace.Length; i++) {
+            vertsWorldSpace[i] = currGameObject.transform.TransformPoint(vertsLocalSpace[i]) + (currGameObject.transform.TransformDirection(normals[i]) * 0);
+        }
+
+        for(int i = 0; i < triangles.Length / 3; i++) {
+            Vector3 point1 = vertsWorldSpace[triangles[3 * i]];
+            Vector3 point2 = vertsWorldSpace[triangles[3 * i + 1]];
+            Vector3 point3 = vertsWorldSpace[triangles[3 * i + 2]];
+
+            // We should probably assume the first mesh in the list will be the center
+            // though I don't actually think we can assume that
+            // Vector3 centerOfMesh = mesh.bounds.center;
+            // center = mesh.bounds.center + transform.position;
+
+            root!.DivideTriangleUntilLevel(point1, point2, point3, MaxDivisionLevel);
+        }
+    }
+
+    public List<OctreeNode> GetAllNodes() {
+        if (root == null) return new();
+
+        return root.GetAllNodes();
     }
 
     private static int CalculateSize(Vector3 min, Vector3 max) {
         float length = max.x - min.x;
         float height = max.y - min.y;
         float width = max.z - min.z;
-        float volume = length * height * width;
+
+        // We need to use the longest side since we can only calculate Size as a cube
+        float longestSide = Mathf.Max(length, Mathf.Max(width, height));
+        // float volume = length * height * width;
+        float volume = longestSide * longestSide * longestSide;
 
         int currMinSize = 1;
         while ((currMinSize * currMinSize * currMinSize) < volume) {
             currMinSize *= 2; // Power of 2's!
         }
 
-        Debug.Log($"With dimensions of {length}, {height}, {width} and volume {volume} got min size of {currMinSize}");
+        int totalCurrMinVolume = currMinSize * currMinSize * currMinSize;
+        Debug.Log($"With dimensions of {length}, {height}, {width} and volume {volume} got min size of {currMinSize} and min volume {totalCurrMinVolume}");
         return currMinSize;
     }
 
@@ -82,7 +155,7 @@ public class Octree  {
         // The goal is to have the least number of divisions (smallest div level) that is still bigger than the smallest actor's volume
         // Note that we can't have an OctreeNode that is the same size or smaller than the smallest actor/enmy
         while ((currMinLevelSize * currMinLevelSize * currMinLevelSize) > smallestActorVolume) { // Keep going until the volume is smaller than actor volume
-            Debug.Log($"At {currMinLevelSize * currMinLevelSize * currMinLevelSize} with level of {currMinDivisionLevel}");
+            // Debug.Log($"At {currMinLevelSize * currMinLevelSize * currMinLevelSize} with level of {currMinDivisionLevel}");
             // currMinDivisionLevel *= 2;
             currMinDivisionLevel++;
             currMinLevelSize = octreeSize / (1 << currMinDivisionLevel); // size / (2^currMinDivisionLevel)
