@@ -11,15 +11,6 @@ using UnityEngine.VFX;
 
 #nullable enable
 
-public abstract class GroundedEnemy: Enemy {
-    // Only relevant for things that shoot projectiles!
-    // [Tooltip("Where on the Enemy we're going to shoot projectiles from")]
-    // public Transform AimPoint;
-
-    // [Tooltip("Where the NavMeshAgent is going to navigate to. Should be the player")]
-    // public Transform Target;
-}
-
 [RequireComponent(
     typeof(NavMeshAgent),
     typeof(Animator),
@@ -94,7 +85,7 @@ public class Lemurian : Enemy {
     private const float stunDuration = 0.3f; // how long the stun actually lasts
 
     // Need to be 1.5 seconds until the last stun ended to stun again
-    private float stunCooldown = 1.5f;
+    private const float stunCooldown = 1.5f;
 
     public override string EnemyIdentifier => "Lemurian";
 

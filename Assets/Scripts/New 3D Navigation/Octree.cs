@@ -72,8 +72,6 @@ public class Octree  {
     }
 
     private void GenerateForGameObject(GameObject currGameObject, bool calculateForChildren = true) {
-        var name = currGameObject.name;
-        // Debug.Log($"Generating for {name}");
         if (currGameObject.TryGetComponent(out MeshFilter meshFilter)) {
             // We're using sharedMesh - don't modify it!
             VoxelizeForMesh(meshFilter.sharedMesh, currGameObject);
@@ -108,11 +106,6 @@ public class Octree  {
             Vector3 point2 = vertsWorldSpace[triangles[3 * i + 1]];
             Vector3 point3 = vertsWorldSpace[triangles[3 * i + 2]];
 
-            // We should probably assume the first mesh in the list will be the center
-            // though I don't actually think we can assume that
-            // Vector3 centerOfMesh = mesh.bounds.center;
-            // center = mesh.bounds.center + transform.position;
-
             root!.DivideTriangleUntilLevel(point1, point2, point3, MaxDivisionLevel);
         }
     }
@@ -130,7 +123,6 @@ public class Octree  {
 
         // We need to use the longest side since we can only calculate Size as a cube
         float longestSide = Mathf.Max(length, Mathf.Max(width, height));
-        // float volume = length * height * width;
         float volume = longestSide * longestSide * longestSide;
 
         int currMinSize = 1;
@@ -138,8 +130,8 @@ public class Octree  {
             currMinSize *= 2; // Power of 2's!
         }
 
-        int totalCurrMinVolume = currMinSize * currMinSize * currMinSize;
-        Debug.Log($"With dimensions of {length}, {height}, {width} and volume {volume} got min size of {currMinSize} and min volume {totalCurrMinVolume}");
+        int totalVolume = currMinSize * currMinSize * currMinSize;
+        Debug.Log($"With dimensions of {length}, {height}, {width} and volume {volume} got min size of {currMinSize} and min volume {totalVolume}");
         return currMinSize;
     }
 

@@ -43,10 +43,6 @@ public class OldPathfinder {
         this.graph = graph;
     }
 
-    // Ok this won't really work
-    // we should probably return vectors instead
-    // cause we need a path from the start position to the nearest node, and same for the end position
-    // since agents won't be perfectly in the middle of a node
     public static (List<Vector3>, HashSet<OldGraphNode>) GeneratePath(OldGraph graph, Vector3 start, Vector3 end) {
         // For debug displaying, not needed for algo
         HashSet<OldGraphNode> calculated = new();
