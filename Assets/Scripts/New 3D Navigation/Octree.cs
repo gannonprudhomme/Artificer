@@ -126,7 +126,7 @@ public class Octree  {
         // This is not "efficient" but eh idrc
         // TODO: Should we do this for ALL nodes? Maybe if we have multiple different-sized flying enemies
         // (for if we only want all nodes at {MaxDivisionLevel-1})
-        List<OctreeNode> allLeaves = GetAllNodes().FindAll(node => node.children == null);
+        List<OctreeNode> allLeaves = GetAllNodes().FindAll(node => node.IsLeaf);
 
         int outOfBoundsCount = 0;
         foreach(var leaf in allLeaves) {

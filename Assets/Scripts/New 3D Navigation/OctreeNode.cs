@@ -18,6 +18,10 @@ public class OctreeNode {
 
     public bool isInBounds = false; // { get; private set; }
 
+    public bool IsLeaf {
+        get { return children == null; }
+    }
+
     // Used when generating the Octree from a mesh
     public OctreeNode(
         int nodeLevel,
@@ -168,18 +172,26 @@ public class OctreeNode {
         }
     }
 
-    public List<OctreeNode> GetAllNodes() {
+    public List<OctreeNode> GetAllNodes(bool onlyLeaves = false) {
         List<OctreeNode> ret = new();
-        ret.Add(this);
 
-        if (children == null) return ret;
+        if (IsLeaf) { // if this one is a leaf
+            // return just a list with just this and don't try to iterate over children
+            ret.Add(this);
+            return ret;
+        };
+
+        // Only adds this node if we're asking for all nodes (and not only leaves)
+        if (!onlyLeaves) {
+            ret.Add(this);
+        }
 
         for (int x = 0; x < 2; x++) {
             for (int y = 0; y < 2; y++) {
                 for (int z = 0; z < 2; z++) {
                     OctreeNode child = children[x, y, z];
 
-                    ret.AddRange(child.GetAllNodes());
+                    ret.AddRange(child.GetAllNodes(onlyLeaves));
                 }
             }
         }

@@ -168,7 +168,7 @@ public class OldGraphGenerator {
             return null;
         }
 
-        int currSize = 1 << currOctLeaf.nodeLevel; // I think this is size?
+        int currSize = 1 << currOctLeaf.nodeLevel; // I think this is size? (it's not)
 
         // Starting at the root, find the leaf closest to faceDir
         // For now, lets try to get it only on the same level as the one we're looking for

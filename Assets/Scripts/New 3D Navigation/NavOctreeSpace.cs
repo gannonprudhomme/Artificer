@@ -117,7 +117,7 @@ public class NavOctreeSpace : MonoBehaviour {
             Gizmos.DrawWireCube(calculatedBounds.Value.center, Vector3.one * longestSide);
         }
 
-        if (!(DisplayLeaves || DisplayCollisions || DisplayIndices || DisplayIsInBounds || DisplayOutOfBounds)) return;
+        if (!(DisplayLeaves || DisplayCollisions || DisplayIndices || DisplayIsInBounds || DisplayOutOfBounds || DisplayNonLeaves)) return;
 
         if (octree == null) return;
 
@@ -136,6 +136,12 @@ public class NavOctreeSpace : MonoBehaviour {
             }
         }
 
+        if (DisplayNonLeaves) {
+            Gizmos.color = Color.blue;
+            foreach(OctreeNode notLeaf in notLeaves) {
+                notLeaf.DrawGizmos(DisplayIndices, Color.white);
+            }
+        }
 
         if (DisplayCollisions) {
             Gizmos.color = Color.red;
