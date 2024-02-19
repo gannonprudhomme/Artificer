@@ -148,10 +148,10 @@ public class Octree  {
 
     }
 
-    public List<OctreeNode> GetAllNodes() {
+    public List<OctreeNode> GetAllNodes(bool onlyLeaves = false) {
         if (root == null) return new();
 
-        return root.GetAllNodes();
+        return root.GetAllNodes(onlyLeaves);
     }
 
     private static int CalculateSize(Vector3 min, Vector3 max) {

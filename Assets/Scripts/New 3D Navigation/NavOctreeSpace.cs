@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
@@ -12,6 +13,7 @@ using UnityEngine.SocialPlatforms.GameCenter;
 public class NavOctreeSpace : MonoBehaviour {
     [Header("Debug")]
     public bool DisplayLeaves = false; // Displays the leaves
+    public bool DisplayNonLeaves = false;
     public bool DisplayCollisions = false;
     public bool DisplayIndices = false;
     public bool DisplayIsInBounds = false;

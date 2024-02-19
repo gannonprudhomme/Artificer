@@ -30,6 +30,23 @@ public class Graph {
     public Graph(List<GraphNode> nodes) {
         this.nodes = nodes;
     }
+    // Find the nearest GraphNode to the position
+    // we just brute-force it rn
+    public GraphNode FindNearestToPosition(Vector3 position) {
+        GraphNode nearest = nodes[0];
+        float minDist = Mathf.Infinity;
+
+        foreach(var node in nodes) {
+            float distance = (position - node.center).magnitude;
+            if (distance < minDist) {
+                minDist = distance;
+                nearest = node;
+            }
+        }
+
+        return nearest;
+    }
+
     public void DrawGraph(bool displayEdges) {
         List<(GraphNode, GraphNode)> edges = new();
         Gizmos.color = Color.red;

@@ -5,36 +5,6 @@ using UnityEngine.Splines;
 
 #nullable enable
 
-// An enemy that navigates in 3 dimensions (aka flies), rather than moving along the ground.
-//
-// This actually does the moving of the Enemy so the Wisp doesn't need to think about
-// *how* it should move
-// It also holds the splines and stuff (probably, fuck I have to figure out the whole local stuff for that)
-// It also sets up getting access to the relevant Graph for this type (maybe using EnemyIdentifier?)
-public abstract class Nav3DEnemy : Enemy {
-    // Where we're actually going
-    // If it's null we're not moving?
-    // Or should we have some boolean which indicates that for us
-    // protected Vector3? currentTargetPosition = null;
-
-    // The spline we are currently traversing, if any
-    protected Spline? currentSplinePath = null;
-
-    public abstract float Speed { get; }
-
-    // Called when the target position changes and we want a new path
-    // 
-    // May not generate a currentSpline if we can go to the target pos in a straight shot
-    public void NavigateTo(Vector3 position) {
-
-    }
-
-    // Called on every frame in sub-classes of this
-    public void TraversePath() {
-
-    }
-}
-
 public class WispFireballAttack: EnemyAttack {
     private float entityBaseDamage;
 
@@ -54,7 +24,7 @@ public class WispFireballAttack: EnemyAttack {
 }
 
 
-public class Wisp : Nav3DEnemy {
+public class Wisp : NavSpaceEnemy {
     [Header("References (Wisp)")]
     public MeshRenderer? MainMeshRenderer;
 
@@ -82,6 +52,12 @@ public class Wisp : Nav3DEnemy {
         attack = new WispFireballAttack();
 
         health!.OnDamaged += OnDamaged;
+
+        if (EnemyManager.shared.WispGraph != null) {
+            graph = EnemyManager.shared.WispGraph;
+        } else {
+            Debug.LogError("Did not have a graph to load - we can't navigate!");
+        }
     }
 
     protected override void Update() {
@@ -94,6 +70,9 @@ public class Wisp : Nav3DEnemy {
         PerformCurrentState();
 
         // Animate time last hit (if needed)
+        CreatePathTo(Target.AimPoint.position + (Vector3.one * 3));
+
+        TraversePath();
     }
 
     private State DetermineCurrentState() {
