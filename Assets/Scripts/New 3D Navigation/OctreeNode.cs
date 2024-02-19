@@ -16,7 +16,7 @@ public class OctreeNode {
 
     public bool childrenContainsCollision { get; private set; }
 
-    public bool isInBounds { get; private set; }
+    public bool isInBounds = false; // { get; private set; }
 
     // Used when generating the Octree from a mesh
     public OctreeNode(
