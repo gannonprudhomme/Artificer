@@ -69,6 +69,12 @@ public class Octree  {
         root = new OctreeNode(0, new int[] { 0, 0, 0 }, this);
 
         GenerateForGameObject(rootGameObject, calculateForChildren: true);
+
+        // Now that the Octree is generated, mark what is/isn't in bounds
+        // by iterating through all leaves and Raycasting downwards
+        // though note that if a OctreeNode contains a collision, it is automatically marked as in bounds
+        // (not that it matters that much, since they're ignored during Graph generation)
+        MarkInBoundsLeaves();
     }
 
     private void GenerateForGameObject(GameObject currGameObject, bool calculateForChildren = true) {
@@ -110,6 +116,38 @@ public class Octree  {
         }
     }
 
+    // Mark all of the leaves that are in bounds
+    // 
+    // A node is in bounds if:
+    // 1. It contains a collision
+    // 2. If we raycast downwards and hit something
+    private void MarkInBoundsLeaves() {
+        // Find all of the leaves
+        // This is not "efficient" but eh idrc
+        // TODO: Should we do this for ALL nodes? Maybe if we have multiple different-sized flying enemies
+        // (for if we only want all nodes at {MaxDivisionLevel-1})
+        List<OctreeNode> allLeaves = GetAllNodes().FindAll(node => node.children == null);
+
+        int outOfBoundsCount = 0;
+        foreach(var leaf in allLeaves) {
+            // No need to raycast if it contains a collision - we already know we care about this
+            // So mark collision nodes as in bounds automatically
+            if (leaf.containsCollision) {
+                leaf.isInBounds = true;
+                continue;
+            }
+
+            // Leafs that don't contain a collision
+            if (Physics.Raycast(leaf.center, Vector3.down, 100_000_00.0f)) {
+                leaf.isInBounds = true;
+            } else {
+                leaf.isInBounds = false;
+                outOfBoundsCount++;
+            }
+        }
+
+    }
+
     public List<OctreeNode> GetAllNodes() {
         if (root == null) return new();
 
@@ -131,7 +169,7 @@ public class Octree  {
         }
 
         int totalVolume = currMinSize * currMinSize * currMinSize;
-        Debug.Log($"With dimensions of {length}, {height}, {width} and volume {volume} got min size of {currMinSize} and min volume {totalVolume}");
+        // Debug.Log($"With dimensions of {length}, {height}, {width} and volume {volume} got min size of {currMinSize} and min volume {totalVolume}");
         return currMinSize;
     }
 

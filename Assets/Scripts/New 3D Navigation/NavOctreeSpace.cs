@@ -13,8 +13,9 @@ public class NavOctreeSpace : MonoBehaviour {
     [Header("Debug")]
     public bool DisplayLeaves = false; // Displays the leaves
     public bool DisplayCollisions = false;
-    public bool DisplayNonLeaves = false;
     public bool DisplayIndices = false;
+    public bool DisplayIsInBounds = false;
+    public bool DisplayOutOfBounds = false;
 
     public bool DisplayBounds = false;
 
@@ -65,7 +66,7 @@ public class NavOctreeSpace : MonoBehaviour {
         int nodeCount = octree.GetAllNodes().Count;
 
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        Debug.Log($"Finished serializing/writing {nodeCount} nodes in {ms} ms");
+        Debug.Log($"Wrote Octree with {nodeCount} nodes to '{GetFileName()}' in {ms} ms");
     }
 
     // Load the generated octree from a file into memory (put in this.octree)
@@ -83,7 +84,7 @@ public class NavOctreeSpace : MonoBehaviour {
         int nodeCount = octree.GetAllNodes().Count;
 
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        Debug.Log($"Finished deserializing/reading {nodeCount} nodes in {ms} ms");
+        Debug.Log($"Read Octree from '{GetFileName()}' and got {nodeCount} nodes in {ms} ms");
     }
 
     private Bounds GetBounds() {
@@ -102,7 +103,7 @@ public class NavOctreeSpace : MonoBehaviour {
     // Retrieves the filename 
     // Should probably be based off the GameObject name?
     private string GetFileName() {
-        return "octree1.bin";
+        return $"{gameObject.name}.octree.bin";
     }
 
     private void OnDrawGizmos() {
@@ -116,15 +117,17 @@ public class NavOctreeSpace : MonoBehaviour {
             Gizmos.DrawWireCube(calculatedBounds.Value.center, Vector3.one * longestSide);
         }
 
-        if (!(DisplayLeaves || DisplayCollisions || DisplayNonLeaves || DisplayIndices)) return;
+        if (!(DisplayLeaves || DisplayCollisions || DisplayIndices || DisplayIsInBounds || DisplayOutOfBounds)) return;
 
         if (octree == null) return;
 
         List<OctreeNode> allNodes = octree.GetAllNodes();
-        List<OctreeNode> allLeaves = allNodes.FindAll((node) => node.children == null);
-        List<OctreeNode> notLeaves = allNodes.FindAll((node) => node.children != null);
-        List<OctreeNode> collisionLeaves = allLeaves.FindAll(node => node.containsCollision);
-        List<OctreeNode> noCollisionLeaves = allLeaves.FindAll(node => !node.containsCollision);
+        List<OctreeNode> allLeaves = allNodes.FindAll(node => node.children == null);
+        List<OctreeNode> notLeaves = allNodes.FindAll(node => node.children != null);
+        List<OctreeNode> collisionLeaves = allLeaves.FindAll(leaf => leaf.containsCollision);
+        List<OctreeNode> noCollisionLeaves = allLeaves.FindAll(leaf => !leaf.containsCollision);
+        List<OctreeNode> leavesOutOfBounds = allLeaves.FindAll(leaf => !leaf.isInBounds);
+        List<OctreeNode> leavesInBounds = allLeaves.FindAll(leaf => leaf.isInBounds);
 
         if (DisplayLeaves) { // Display the leaves
             Gizmos.color = Color.green;
@@ -138,6 +141,20 @@ public class NavOctreeSpace : MonoBehaviour {
             Gizmos.color = Color.red;
             foreach(OctreeNode collisionLeaf in collisionLeaves) {
                 collisionLeaf.DrawGizmos(DisplayIndices, Color.white);
+            }
+        }
+
+        if (DisplayOutOfBounds) {
+            Gizmos.color = Color.magenta;
+            foreach(OctreeNode outOfBoundsLeaf in leavesOutOfBounds) {
+                outOfBoundsLeaf.DrawGizmos(DisplayIndices, Color.white);
+            }
+        }
+
+        if (DisplayIsInBounds) {
+            Gizmos.color = Color.yellow;
+            foreach(OctreeNode inBoundsLeaf in leavesInBounds) {
+                inBoundsLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
     }

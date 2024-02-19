@@ -52,5 +52,4 @@ public class NavOctreeSpaceEditor : Editor {
             navOctreeSpace.Load();
         }
     }
-
 }
