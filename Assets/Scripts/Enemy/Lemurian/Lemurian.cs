@@ -238,6 +238,8 @@ public class Lemurian : Enemy {
 
                 break;
             case State.STUNNED:
+                // Why don't we if (isFrozen) break here?
+
                 fireballAttack!.canAttack = false;
                 meleeAttack!.canAttack = false;
                 break;

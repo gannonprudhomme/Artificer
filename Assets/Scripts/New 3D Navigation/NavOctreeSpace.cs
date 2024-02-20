@@ -71,6 +71,12 @@ public class NavOctreeSpace : MonoBehaviour {
         Debug.Log($"Wrote Octree with {nodeCount} nodes to '{GetFileName()}' in {ms} ms");
     }
 
+    public void LoadIfNeeded() {
+        if (octree != null) return;
+
+        Load();
+    }
+
     // Load the generated octree from a file into memory (put in this.octree)
     public void Load() {
         var stopwatch = new System.Diagnostics.Stopwatch();

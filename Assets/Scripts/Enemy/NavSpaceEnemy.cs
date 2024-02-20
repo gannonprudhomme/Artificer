@@ -61,8 +61,13 @@ public abstract class NavSpaceEnemy : Enemy {
         currentSplinePath = ConvertToSpline(path);
 
         // TODO: Remove, only for debugging
-        _SplineContainer.RemoveSplineAt(0);
-        _SplineContainer.AddSpline(currentSplinePath);
+        if (_SplineContainer != null) {
+            if (_SplineContainer.Splines.Count > 0) {
+                _SplineContainer.RemoveSplineAt(0);
+            }
+
+            _SplineContainer.AddSpline(currentSplinePath);
+        }
 
         if (currentSplinePath != null) {
             pathLength = currentSplinePath.GetLength();

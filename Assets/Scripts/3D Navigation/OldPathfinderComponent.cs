@@ -71,6 +71,7 @@ public class OldPathfinder {
         heap.Add(ref startNode.handle, startNode);
 
 
+        bool didUpdatePriorityAtLeastOnce = false;
         OldGraphNode current = startNode; // just ensure it's never null. Redundant ofc
         while (!heap.IsEmpty) {
             // Pop the top of the heap, which is the minimum f cost node and mark it as the current node
@@ -96,7 +97,9 @@ public class OldPathfinder {
                 bool isNeighborInHeap = heap.Contains(neighbor); // Can probably use a boolean
 
                 // aka movementCostToNeighbor
-                float currG = gCosts.GetValueOrDefault(neighbor.id, 0);
+                // fucking oops did this wrong
+                // float currG = gCosts.GetValueOrDefault(neighbor.id, 0);
+                float currG = gCosts.GetValueOrDefault(current.id, 0);
                 float movementCostToNeighbor = currG + edge.distance;
                 float neighborG = gCosts.GetValueOrDefault(neighbor.id, 0);
 
@@ -117,13 +120,22 @@ public class OldPathfinder {
                     if (!isNeighborInHeap) {
                         heap.Add(ref neighbor.handle, neighbor);
                     } else {
-                        Debug.Log($"Updating the Priority of {neighbor.center}");
+                        // Debug.Log($"Updating the Priority of {neighbor.center}");
+                        didUpdatePriorityAtLeastOnce = true;
                         heap.Replace(neighbor.handle, neighbor);
                         // I'm praying that DeleteMin will do the balancing when it's called or something
                         // though that defeats the purpose of the heap. I just don't know how to force it to rebalance
                     }
                 }
             }
+        }
+
+        if (didUpdatePriorityAtLeastOnce)
+        {
+            Debug.Log("We updated the priorities with this!");
+        } else
+        {
+            Debug.Log("We didn't update the priority at all");
         }
 
         foreach(var node in calculated) {
