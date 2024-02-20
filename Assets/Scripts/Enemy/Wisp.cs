@@ -60,6 +60,9 @@ public class Wisp : NavSpaceEnemy {
         }
     }
 
+    float lastTimePathSet = Mathf.NegativeInfinity;
+    const float timeBetweenPathSets = 0.5f;
+
     protected override void Update() {
         base.Update();
 
@@ -69,10 +72,16 @@ public class Wisp : NavSpaceEnemy {
         currentState = DetermineCurrentState();
         PerformCurrentState();
 
-        // Animate time last hit (if needed)
-        CreatePathTo(Target.AimPoint.position + (Vector3.one * 3));
+        if (Time.time - lastTimePathSet > timeBetweenPathSets) {
+            CreatePathTo(Target.AimPoint.position + (Vector3.one * 3));
+            lastTimePathSet = Time.time;
+        }
 
         TraversePath();
+
+        LookAtTarget();
+
+        // Animate time last hit (if needed)
     }
 
     private State DetermineCurrentState() {
@@ -139,7 +148,8 @@ public class Wisp : NavSpaceEnemy {
     //
     // Should be called when we're attacking the player (USE_PRIMARY_)
     private void LookAtTarget() {
-
+        Vector3 dirToTarget = Target.AimPoint.position - transform.position;
+        transform.rotation = Quaternion.LookRotation(dirToTarget, Vector3.up);
     }
 
     // Make the wisp look towards it's path (forwards)
