@@ -28,6 +28,8 @@ public abstract class NavSpaceEnemy : Enemy {
     private float pathLength = -1f;
     private float timeToTravel { get { return pathLength / Speed;  } }
 
+    protected abstract bool ColliderCast(Vector3 position, out RaycastHit? hit);
+
     // Called on every frame in sub-classes of this (when we want to move)
     public void TraversePath() {
         if (graph == null) {
@@ -41,10 +43,6 @@ public abstract class NavSpaceEnemy : Enemy {
         }
     }
 
-    // TODO: Do this better - should be based off of distance instead of an arbitrary time-frame
-    float lastTimeGenerated = Mathf.NegativeInfinity;
-    float timeBetweenPathGens = 0.1f; // At least wait {x} seconds
-
     // Call to generate a new path to traverse 
     // 
     // May skip traditional pathfinding if we can do a straight-shot to the given position
@@ -54,11 +52,18 @@ public abstract class NavSpaceEnemy : Enemy {
             return;
         }
 
-        if ((Time.time - lastTimeGenerated) < timeBetweenPathGens) return;
+        if (!ColliderCast(position, out RaycastHit? hit)) {
+            Debug.Log("Doing direct movement");
+            // If it's a straight shot (nothing in our way)
+            // go directly to it
+            // I think this is probably expensive so hopefully we don't call CreatePathTo frequently
+            currentSplinePath = ConvertToSpline(new List<Vector3> { transform.position, position });
+        } else {
+            Debug.Log($"Can't do a direct shot, we hit: {hit!.Value.collider.gameObject.name}");
 
-        List<Vector3> path = Pathfinder.GeneratePath(graph, this.transform.position, position);
-
-        currentSplinePath = ConvertToSpline(path);
+            List<Vector3> path = Pathfinder.GeneratePath(graph, this.transform.position, position);
+            currentSplinePath = ConvertToSpline(path);
+        }
 
         // TODO: Remove, only for debugging
         if (_SplineContainer != null) {
@@ -73,7 +78,7 @@ public abstract class NavSpaceEnemy : Enemy {
             pathLength = currentSplinePath.GetLength();
         }
 
-        lastTimeGenerated = Time.time;
+        // Reset currT so we start at the beginning of the new path we just created
         currT = 0;
     }
 

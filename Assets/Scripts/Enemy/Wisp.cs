@@ -28,6 +28,9 @@ public class Wisp : NavSpaceEnemy {
     [Header("References (Wisp)")]
     public MeshRenderer? MainMeshRenderer;
 
+    [Tooltip("Reference to the main collider. Used for NavSpaceEnemy.ColliderCast")]
+    public Collider? Collider;
+
     public float _Speed = 6.0f; // Temp so we can manually tweak the speed in the editor
 
     private WispFireballAttack? attack = null;
@@ -152,13 +155,6 @@ public class Wisp : NavSpaceEnemy {
         transform.rotation = Quaternion.LookRotation(dirToTarget, Vector3.up);
     }
 
-    // Make the wisp look towards it's path (forwards)
-    //
-    // Should be called when we're chasing the player
-    private void LookTowardsPath() {
-
-    }
-
     private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
         // If a single piece of damage is > 10% of the Wisp's max health, stun it
         float damageAsPercentOfHealth = damage / health!.MaxHealth;
@@ -174,6 +170,42 @@ public class Wisp : NavSpaceEnemy {
 
     public override Vector3 GetMiddleOfMesh() {
         return Vector3.zero;
+    }
+
+    protected override bool ColliderCast(Vector3 position, out RaycastHit? hit) {
+        if (Collider == null) {
+            hit = null;
+            return false;
+        }
+
+        Vector3 direction = (position - transform.position).normalized;
+        float distance = Vector3.Distance(transform.position, position);
+
+        // We could cache this, but eh
+        Vector3 size = Collider.bounds.size;
+        float biggestSide = Mathf.Max(size.x, Mathf.Max(size.y, size.z));
+
+        // I couldn't figure out BoxCast so this is good enough
+        if (Physics.SphereCast(
+            transform.position,
+            radius: biggestSide,
+            direction: direction,
+            hitInfo: out RaycastHit rayHit,
+            maxDistance: distance
+        )) {
+            if (rayHit.collider.gameObject != Target.gameObject) {
+                hit = rayHit;
+                return true;
+            } else { 
+                // If what we hit is the same thing as what we're aiming for, this is what we want!           
+                // so act like we didn't hit anything
+                // This is what we want, how does it not happen every time?
+                Debug.Log("We hit the player!");
+            }
+        }
+
+        hit = null;
+        return false;
     }
 
     enum State {
