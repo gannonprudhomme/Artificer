@@ -119,6 +119,7 @@ GameObject:
   - component: {fileID: 1012918822815103014}
   - component: {fileID: 1546955391672173486}
   - component: {fileID: 857635241860735809}
+  - component: {fileID: 1045881384008694058}
   m_Layer: 0
   m_Name: Level Design Attempt 2
   m_TagString: Untagged
@@ -276,3 +277,22 @@ MonoBehaviour:
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 419bce4b581564e2f8f498dd81447d44, type: 2}
   m_BuildHeightMesh: 0
+--- !u!114 &1045881384008694058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8792906675731632673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f533dabf95d55a4bbfb1477ec607aa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DisplayLeaves: 0
+  DisplayNonLeaves: 0
+  DisplayCollisions: 0
+  DisplayIndices: 0
+  DisplayIsInBounds: 0
+  DisplayOutOfBounds: 0
+  DisplayBounds: 0
