@@ -6,6 +6,9 @@ using UnityEngine;
 
 // Switches shortcut presets depending on if we're in play mode or edit mode
 // From: https://forum.unity.com/threads/unwanted-editor-hotkeys-in-game-mode.182073/
+//
+// Go to Edit -> Shortcuts, add a new profile named {playModeID} and a reuse the existing / default one for the editor named {editModeID}.
+// Then for the Play Mode profile, remove the shortcut you don't want (in my case it was save for Ctrl+S)
 [InitializeOnLoad]
 public static class EnterPlayModeShortcuts {
     private static readonly string playModeID = "Play Mode";
