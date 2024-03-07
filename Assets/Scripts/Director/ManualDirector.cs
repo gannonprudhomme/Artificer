@@ -95,7 +95,7 @@ public class ManualDirector : MonoBehaviour {
             if (NavMesh.SamplePosition(raycastHit.point, out NavMeshHit hit, 5f, -1)) {
                 return hit.position;
             } else {
-                Debug.LogError("Couldn't sample");
+                Debug.LogError($"Couldn't sample for {agentName}");
             }
         }
 
