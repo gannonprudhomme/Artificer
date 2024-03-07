@@ -181,6 +181,9 @@ public class Wisp : NavSpaceEnemy {
 
     public float _Speed = 6.0f; // Temp so we can manually tweak the speed in the editor
 
+    // Degrees per second
+    public float RotationSpeed = 20.0f; // public only so we can manually tweak the speed in the editor
+
     private WispFireballAttack? attack = null;
 
     // Any single instance of damage that deals more than 10% of the total health will stun it & interrupts its attacks or movement
@@ -311,8 +314,12 @@ public class Wisp : NavSpaceEnemy {
     //
     // Should be called when we're attacking the player (USE_PRIMARY_)
     private void LookAtTarget() {
-        Vector3 dirToTarget = Target.AimPoint.position - transform.position;
-        transform.rotation = Quaternion.LookRotation(dirToTarget, Vector3.up);
+        Vector3 dirToTarget = (Target.AimPoint.position - transform.position).normalized;
+        Quaternion lookRotationToTarget = Quaternion.LookRotation(dirToTarget);
+
+        // So this isn't great b/c if we're close to the Wisp it takes too long to rotate
+        // but when we're far away it's a fucking lock-on and we can't really avoid it, but I think that's fine
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, lookRotationToTarget, Time.deltaTime * RotationSpeed);
     }
 
     private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
