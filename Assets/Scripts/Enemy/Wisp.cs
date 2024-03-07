@@ -2,16 +2,49 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Splines;
+using UnityEngine.VFX;
 
 #nullable enable
 
 public class WispFireballAttack: EnemyAttack {
+    private Target target;
+    private Transform aimPoint;
+    private LineRenderer chargeLineRenderer;
+    private Animator animator;
+    private VisualEffect chargeVisualEffect;
     private float entityBaseDamage;
 
+    private bool isCharging = false;
+    private float timeOfChargeStart = Mathf.NegativeInfinity;
     private const float chargeDuration = 1.6f; // 1.6 seconds to charge/aim (before firing)
     // private const float cooldown = 2.0f; // 2 second end "lag"
+
+    // Used to determine how we animate the chargeLineRenderer over the charge duration
+    // Set in StartCharging()
+    private bool wasHittingPlayerAtChargeStart = false;
+
+    private bool isFiring = false;
+    private const float fireDuration = 0.3f;
+    private float timeOfLastFire = Mathf.NegativeInfinity;
+
     private const float cooldown = 4.0f;
 
+    public WispFireballAttack(
+        Target target,
+        Transform aimPoint,
+        LineRenderer chargeLineRenderer,
+        Animator animator,
+        VisualEffect chargeVisualEffect
+        // LineRenderer[] fireLineRenderers
+        // VisualEffect fireVisualEffect
+    ) {
+        this.target = target;
+        this.aimPoint = aimPoint;
+        this.chargeLineRenderer = chargeLineRenderer;
+        this.animator = animator;
+        this.chargeVisualEffect = chargeVisualEffect;
+        // this.fireVisualEffect = fireVisualEffect;
+    }
 
     public override void OnUpdate(float entityBaseDamage) {
         if (!canAttack) {
@@ -20,16 +53,131 @@ public class WispFireballAttack: EnemyAttack {
         }
         
         this.entityBaseDamage = entityBaseDamage;
+
+        // If it's been enough time to start charging again
+        if (isCharging) {
+            HandleCharging();
+        }
+        
+        if (isFiring) {
+            HandleFiring();
+        }
+    }
+
+    public void StartCharging() {
+        if (!CanStartCharging()) { return; }
+
+        isCharging = true;
+        timeOfChargeStart = Time.time;
+        chargeVisualEffect.Play();
+        chargeLineRenderer.enabled = true;
+
+        // Mark if we were hitting the player when the charge started I guess?
+        if (
+            Physics.Raycast(aimPoint.position, aimPoint.forward, out RaycastHit hit, 40.0f) &&
+            hit.collider.TryGetEntityFromCollider(out Entity entity) &&
+            entity.gameObject == target.gameObject
+        ) {
+            Debug.Log("Was hitting player");
+            wasHittingPlayerAtChargeStart = true;
+        } else {
+            Debug.Log("Was NOT hitting player");
+            wasHittingPlayerAtChargeStart = false;
+        }
+    }
+
+    private bool CanStartCharging() {
+        bool hasCooledDown = Time.time - timeOfLastFire >= cooldown;
+
+        return hasCooledDown && !isCharging && !isFiring;
+    }
+
+    private void HandleCharging() {
+        // Check if we should fire
+        bool readyToFire = Time.time - timeOfChargeStart >= chargeDuration;
+
+        if (readyToFire) {
+            StartFiring();
+            return;
+        }
+
+        SetChargeLineRendererPositions();
+    }
+
+    // Sets the line renderer positions for when we're charging.
+    // Animates the line renderer so it grows over the charge duration
+    //
+    // Intended to only be called for when we're charging
+    // we might be able to restrict when we call this (or at least raycast)
+    //
+    // We can assume that we have line of sight w/ the player when this is being called
+    // (technically we could start charging then lose line of sight but idc about that)
+    private void SetChargeLineRendererPositions() {
+        float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;
+        float currDist;
+
+        if (wasHittingPlayerAtChargeStart) {
+            float distToPlayer = Vector3.Distance(aimPoint.position, target.AimPoint.position);
+            currDist = distToPlayer * chargePercent;
+
+        } else {
+            // Basically a random number I decided that wasn't took long
+            float maxDistance = 70.0f; // I should probably extract this and make it const
+
+            currDist = maxDistance * chargePercent;
+        }
+
+        Vector3 endPos = aimPoint.position + (aimPoint.forward * currDist);
+
+        chargeLineRenderer.SetPosition(0, aimPoint.position);
+        chargeLineRenderer.SetPosition(1, endPos);
+    }
+
+    // "Fires" the actual attack (deals damage) and starts the animations for the firing
+    private void StartFiring() {
+        isCharging = false;
+        isFiring = true;
+        timeOfLastFire = Time.time;
+
+        chargeVisualEffect.Stop();
+        chargeLineRenderer.enabled = false;
+
+        // fireVisualEffect?.Play();
+        
+        // Do the actual firing damage stuff
+        // Spawn 3 "projectiles" (we'll need 3 line renderers)
+    }
+
+    private void HandleFiring() {
+        bool isDoneFiring = Time.time - timeOfLastFire >= fireDuration;
+        if (isDoneFiring) {
+            animator.SetBool("IsFiring", false);
+            isFiring = false;
+            return;
+        }
+
+        animator.SetBool("IsFiring", true);
     }
 }
 
-
+[RequireComponent(
+    typeof(Animator),
+    typeof(LineRenderer)
+)]
 public class Wisp : NavSpaceEnemy {
     [Header("References (Wisp)")]
-    public MeshRenderer? MainMeshRenderer;
+    public Transform? AimPoint;
+
+    public SkinnedMeshRenderer? MainMeshRenderer;
 
     [Tooltip("Reference to the main collider. Used for NavSpaceEnemy.ColliderCast")]
     public Collider? Collider;
+
+    [Tooltip("Reference to the VFX to play when we start charging")]
+    public VisualEffect? ChargeVisualEffect;
+
+    [Tooltip("Reference to the VFX to play when we finish charging & start firing")]
+    public VisualEffect? FireVisualEffect;
 
     public float _Speed = 6.0f; // Temp so we can manually tweak the speed in the editor
 
@@ -52,7 +200,17 @@ public class Wisp : NavSpaceEnemy {
     protected override void Start() {
         base.Start();
 
-        attack = new WispFireballAttack();
+        LineRenderer lineRenderer = GetComponent<LineRenderer>();
+        Animator animator = GetComponent<Animator>();
+
+        attack = new WispFireballAttack(
+            target: Target,
+            aimPoint: AimPoint!,
+            chargeLineRenderer: lineRenderer,
+            animator: animator,
+            chargeVisualEffect: ChargeVisualEffect!
+            // fireVisualEffect: FireVisualEffect!
+        ) ;
 
         health!.OnDamaged += OnDamaged;
 
@@ -69,6 +227,7 @@ public class Wisp : NavSpaceEnemy {
     protected override void Update() {
         base.Update();
 
+        attack?.StartCharging();
         attack?.OnUpdate(CurrentBaseDamage);
 
         // What order should these be in? I never really know
@@ -128,6 +287,7 @@ public class Wisp : NavSpaceEnemy {
                 break;
             case State.CHASE:
                 DoChase();
+                LookAtTarget(); // This'll work for now
                 break;
         }
     }
@@ -191,7 +351,7 @@ public class Wisp : NavSpaceEnemy {
             radius: biggestSide,
             direction: direction,
             hitInfo: out RaycastHit rayHit,
-            maxDistance: distance
+            maxDistance: distance 
         )) {
             if (rayHit.collider.gameObject != Target.gameObject) {
                 hit = rayHit;
@@ -200,7 +360,7 @@ public class Wisp : NavSpaceEnemy {
                 // If what we hit is the same thing as what we're aiming for, this is what we want!           
                 // so act like we didn't hit anything
                 // This is what we want, how does it not happen every time?
-                Debug.Log("We hit the player!");
+                // Debug.Log("We hit the player!");
             }
         }
 
