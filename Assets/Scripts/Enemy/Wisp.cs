@@ -6,12 +6,17 @@ using UnityEngine.VFX;
 
 #nullable enable
 
+// The fireball attack aiming follows the transform.forward of the wisp (well, Wisp.AimPoint.forward).
+// The fireball attack itself doesn't aim like GolemLaserAttack does
 public class WispFireballAttack: EnemyAttack {
     private Target target;
     private Transform aimPoint;
     private LineRenderer chargeLineRenderer;
+    private LineRenderer[] fireLineRenderers;
     private Animator animator;
     private VisualEffect chargeVisualEffect;
+    // private VisualEffect fireVisualEffect;
+
     private float entityBaseDamage;
 
     private bool isCharging = false;
@@ -24,23 +29,32 @@ public class WispFireballAttack: EnemyAttack {
     private bool wasHittingPlayerAtChargeStart = false;
 
     private bool isFiring = false;
-    private const float fireDuration = 0.3f;
+    private const float fireDuration = 0.1f;
     private float timeOfLastFire = Mathf.NegativeInfinity;
+    private Vector3[] fireEndPositions = new Vector3[3];
+
+    private const float maxAttackDistance = 70.0f; // Arbitrary number
 
     private const float cooldown = 4.0f;
+
+    private const float damageCoefficient = 1.5f; // Does 150% of Wisp base damage
+    private float damagePerProjectile {
+        get { return entityBaseDamage * damageCoefficient; }
+    }
 
     public WispFireballAttack(
         Target target,
         Transform aimPoint,
         LineRenderer chargeLineRenderer,
         Animator animator,
-        VisualEffect chargeVisualEffect
-        // LineRenderer[] fireLineRenderers
+        VisualEffect chargeVisualEffect,
+        LineRenderer[] fireLineRenderers
         // VisualEffect fireVisualEffect
     ) {
         this.target = target;
         this.aimPoint = aimPoint;
         this.chargeLineRenderer = chargeLineRenderer;
+        this.fireLineRenderers = fireLineRenderers;
         this.animator = animator;
         this.chargeVisualEffect = chargeVisualEffect;
         // this.fireVisualEffect = fireVisualEffect;
@@ -73,15 +87,12 @@ public class WispFireballAttack: EnemyAttack {
         chargeLineRenderer.enabled = true;
 
         // Mark if we were hitting the player when the charge started I guess?
-        if (
-            Physics.Raycast(aimPoint.position, aimPoint.forward, out RaycastHit hit, 40.0f) &&
+        if (Physics.Raycast(aimPoint.position, aimPoint.forward, out RaycastHit hit, 40.0f) &&
             hit.collider.TryGetEntityFromCollider(out Entity entity) &&
             entity.gameObject == target.gameObject
         ) {
-            Debug.Log("Was hitting player");
             wasHittingPlayerAtChargeStart = true;
         } else {
-            Debug.Log("Was NOT hitting player");
             wasHittingPlayerAtChargeStart = false;
         }
     }
@@ -93,9 +104,7 @@ public class WispFireballAttack: EnemyAttack {
     }
 
     private void HandleCharging() {
-        // Check if we should fire
         bool readyToFire = Time.time - timeOfChargeStart >= chargeDuration;
-
         if (readyToFire) {
             StartFiring();
             return;
@@ -107,24 +116,23 @@ public class WispFireballAttack: EnemyAttack {
     // Sets the line renderer positions for when we're charging.
     // Animates the line renderer so it grows over the charge duration
     //
-    // Intended to only be called for when we're charging
-    // we might be able to restrict when we call this (or at least raycast)
+    // Only called when we're charging 
     //
     // We can assume that we have line of sight w/ the player when this is being called
     // (technically we could start charging then lose line of sight but idc about that)
     private void SetChargeLineRendererPositions() {
-        float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;
-        float currDist;
+        // We shouldn't ever actually reach it (we don't want the charge line to hit the player)
+        // so artifically increase the charge duration by a bit so chargePercent's max value is like 0.8 (80%)
+        float modifiedChargeDuration = chargeDuration * 1.2f; 
+        float chargePercent = (Time.time - timeOfChargeStart) / modifiedChargeDuration;
 
+        float currDist;
         if (wasHittingPlayerAtChargeStart) {
             float distToPlayer = Vector3.Distance(aimPoint.position, target.AimPoint.position);
             currDist = distToPlayer * chargePercent;
 
         } else {
-            // Basically a random number I decided that wasn't took long
-            float maxDistance = 70.0f; // I should probably extract this and make it const
-
-            currDist = maxDistance * chargePercent;
+            currDist = maxAttackDistance * chargePercent;
         }
 
         Vector3 endPos = aimPoint.position + (aimPoint.forward * currDist);
@@ -144,8 +152,42 @@ public class WispFireballAttack: EnemyAttack {
 
         // fireVisualEffect?.Play();
         
-        // Do the actual firing damage stuff
-        // Spawn 3 "projectiles" (we'll need 3 line renderers)
+        fireEndPositions = new Vector3[3];
+
+        // Determine the end position for the "projectiles" (by raycasting)
+        // and do the damage / spawn impact projectiles upon impact
+        for(int i = 0; i < fireLineRenderers.Length; i++) {
+            float range = 6f; // 6 deg range
+            float spread = (Random.value * range) - (range / 2f); // Random value between [-2, 2]
+
+            // Rotate it along the Wisp's up axis to determine what direction it should be w/ the spread applied
+            Quaternion rotation = Quaternion.AngleAxis(spread, aimPoint.up);
+            Vector3 spreadDir = rotation * aimPoint.forward;
+
+            Vector3 endPos;
+
+            // Determine if we hit something, and if so apply damage
+            if (Physics.Raycast(
+                origin: aimPoint.position,
+                direction: spreadDir,
+                out RaycastHit hit,
+                maxDistance: maxAttackDistance
+            )) {
+                endPos = hit.point;
+
+                OnProjectileHit(hit);
+            } else {
+                // Didn't hit, do the full max distance
+                endPos = aimPoint.position + (spreadDir * maxAttackDistance);
+            }
+
+            fireEndPositions[i] = endPos;
+        }
+        
+        // Enable all of the "projectiles"
+        foreach(var fireLineRenderer in fireLineRenderers) {
+            fireLineRenderer.enabled = true;
+        }
     }
 
     private void HandleFiring() {
@@ -153,16 +195,45 @@ public class WispFireballAttack: EnemyAttack {
         if (isDoneFiring) {
             animator.SetBool("IsFiring", false);
             isFiring = false;
+
+            // Disable all of the fireLineRenderers
+            foreach(var fireLineRenderer in fireLineRenderers) {
+                fireLineRenderer.enabled = false;
+            }
+
             return;
         }
 
         animator.SetBool("IsFiring", true);
+
+        float firingPercent = (Time.time - timeOfLastFire) / fireDuration;
+        // Animate the line renderers
+        for(int i = 0; i < fireLineRenderers.Length; i++) {
+            LineRenderer fireLineRenderer = fireLineRenderers[i];
+            Vector3 endPosition = fireEndPositions[i];
+            Vector3 toEndPos = endPosition - aimPoint.position;
+
+            Vector3 currPosition = aimPoint.position + (toEndPos * firingPercent);
+
+            // TODO: Apparently these keep moving (like an actual projectile) so I might want to animate this too
+            // (if it misses)
+            // but we'll see
+            fireLineRenderer.SetPosition(0, aimPoint.position);
+            fireLineRenderer.SetPosition(1, currPosition);
+        }
+    }
+
+    private void OnProjectileHit(RaycastHit hit) {
+        if (hit.collider.TryGetEntityFromCollider(out Entity entityToDamage)) {
+            entityToDamage.TakeDamage(damagePerProjectile, Affiliation.Enemy);
+        }
+
+        // TODO: Regardless of *what* we hit, spawn the on hit vfx
     }
 }
 
 [RequireComponent(
-    typeof(Animator),
-    typeof(LineRenderer)
+    typeof(Animator)
 )]
 public class Wisp : NavSpaceEnemy {
     [Header("References (Wisp)")]
@@ -179,7 +250,13 @@ public class Wisp : NavSpaceEnemy {
     [Tooltip("Reference to the VFX to play when we finish charging & start firing")]
     public VisualEffect? FireVisualEffect;
 
-    public float _Speed = 6.0f; // Temp so we can manually tweak the speed in the editor
+    [Tooltip("Reference to the charge line renderer")]
+    public LineRenderer? ChargeLineRenderer;
+
+    [Tooltip("References to the 3 line renderers that are used to 'fire' at the player")]
+    public LineRenderer[]? FireLineRenderers;
+
+    public float MoveSpeed = 8.0f; // Temp so we can manually tweak the speed in the editor
 
     // Degrees per second
     public float RotationSpeed = 20.0f; // public only so we can manually tweak the speed in the editor
@@ -198,18 +275,18 @@ public class Wisp : NavSpaceEnemy {
     public override string EnemyIdentifier => "Wisp";
     protected override float StartingBaseDamage => 3.5f;
     public override float CurrentBaseDamage => StartingBaseDamage;
-    public override float Speed => _Speed; // Probably just hardcode this later
+    public override float Speed => MoveSpeed; // Probably just hardcode this later
 
     protected override void Start() {
         base.Start();
 
-        LineRenderer lineRenderer = GetComponent<LineRenderer>();
         Animator animator = GetComponent<Animator>();
 
         attack = new WispFireballAttack(
             target: Target,
             aimPoint: AimPoint!,
-            chargeLineRenderer: lineRenderer,
+            chargeLineRenderer: ChargeLineRenderer!,
+            fireLineRenderers: FireLineRenderers!,
             animator: animator,
             chargeVisualEffect: ChargeVisualEffect!
             // fireVisualEffect: FireVisualEffect!
