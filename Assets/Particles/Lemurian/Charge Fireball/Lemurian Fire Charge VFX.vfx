@@ -20,7 +20,7 @@ MonoBehaviour:
     x: 772
     y: -469
     width: 2487
-    height: 2055
+    height: 2056
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1034,7 +1034,7 @@ MonoBehaviour:
   zTestMode: 0
   useAlphaClipping: 0
   generateMotionVector: 0
-  excludeFromTAA: 0
+  excludeFromTUAndAA: 0
   sortingPriority: 0
   m_SubOutputs:
   - {fileID: 8926484042661614590}
@@ -1417,8 +1417,7 @@ MonoBehaviour:
       m_SerializableType: System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 0
-  m_LinkedSlots:
-  - {fileID: 8926484042661614872}
+  m_LinkedSlots: []
 --- !u!114 &8926484042661614603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2280,7 +2279,7 @@ MonoBehaviour:
   - m_Id: 3
     linkedSlots:
     - outputSlot: {fileID: 8926484042661614872}
-      inputSlot: {fileID: 8926484042661614602}
+      inputSlot: {fileID: 8926484042661614998}
     position: {x: 772, y: 397}
     expandedSlots: []
     expanded: 0
@@ -2332,9 +2331,9 @@ MonoBehaviour:
         PublicKeyToken=b77a5c561934e089
   m_Direction: 1
   m_LinkedSlots:
-  - {fileID: 8926484042661614602}
   - {fileID: 8926484042661615138}
   - {fileID: 8926484042661615142}
+  - {fileID: 8926484042661614998}
 --- !u!114 &8926484042661614994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2497,7 +2496,8 @@ MonoBehaviour:
       m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 0
-  m_LinkedSlots: []
+  m_LinkedSlots:
+  - {fileID: 8926484042661614872}
 --- !u!114 &8926484042661615003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3705,7 +3705,7 @@ MonoBehaviour:
   m_Parent: {fileID: 114350483966674976}
   m_Children:
   - {fileID: 8926484042661615059}
-  m_UIPosition: {x: 1923, y: 978}
+  m_UIPosition: {x: 1922, y: 978}
   m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_InputSlots:
@@ -3729,7 +3729,7 @@ MonoBehaviour:
   zTestMode: 0
   useAlphaClipping: 0
   generateMotionVector: 0
-  excludeFromTAA: 0
+  excludeFromTUAndAA: 0
   sortingPriority: 0
   m_SubOutputs: []
   colorMapping: 0
@@ -5224,7 +5224,7 @@ MonoBehaviour:
   zTestMode: 0
   useAlphaClipping: 0
   generateMotionVector: 0
-  excludeFromTAA: 0
+  excludeFromTUAndAA: 0
   sortingPriority: 0
   m_SubOutputs: []
   colorMapping: 0
