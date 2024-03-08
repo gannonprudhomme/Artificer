@@ -9,13 +9,12 @@ using UnityEngine.VFX;
 // The fireball attack aiming follows the transform.forward of the wisp (well, Wisp.AimPoint.forward).
 // The fireball attack itself doesn't aim like GolemLaserAttack does
 public class WispFireballAttack: EnemyAttack {
-    private Target target;
-    private Transform aimPoint;
-    private LineRenderer chargeLineRenderer;
-    private LineRenderer[] fireLineRenderers;
-    private Animator animator;
-    private VisualEffect chargeVisualEffect;
-    // private VisualEffect fireVisualEffect;
+    private readonly Target target;
+    private readonly Transform aimPoint;
+    private readonly LineRenderer chargeLineRenderer;
+    private readonly LineRenderer[] fireLineRenderers;
+    private readonly Animator animator;
+    private readonly VisualEffect chargeVisualEffect;
 
     private float entityBaseDamage;
 
@@ -42,6 +41,9 @@ public class WispFireballAttack: EnemyAttack {
         get { return entityBaseDamage * damageCoefficient; }
     }
 
+    private const string ANIM_IS_FIRING = "IsFiring";
+    private const string ANIM_IS_CHARGING = "IsCharging";
+
     public WispFireballAttack(
         Target target,
         Transform aimPoint,
@@ -49,7 +51,6 @@ public class WispFireballAttack: EnemyAttack {
         Animator animator,
         VisualEffect chargeVisualEffect,
         LineRenderer[] fireLineRenderers
-        // VisualEffect fireVisualEffect
     ) {
         this.target = target;
         this.aimPoint = aimPoint;
@@ -57,7 +58,6 @@ public class WispFireballAttack: EnemyAttack {
         this.fireLineRenderers = fireLineRenderers;
         this.animator = animator;
         this.chargeVisualEffect = chargeVisualEffect;
-        // this.fireVisualEffect = fireVisualEffect;
     }
 
     public override void OnUpdate(float entityBaseDamage) {
@@ -83,8 +83,11 @@ public class WispFireballAttack: EnemyAttack {
 
         isCharging = true;
         timeOfChargeStart = Time.time;
-        chargeVisualEffect.Play();
         chargeLineRenderer.enabled = true;
+
+        animator.SetBool(ANIM_IS_CHARGING, true);
+
+        chargeVisualEffect.Play();
 
         // Mark if we were hitting the player when the charge started I guess?
         if (Physics.Raycast(aimPoint.position, aimPoint.forward, out RaycastHit hit, 40.0f) &&
@@ -150,9 +153,12 @@ public class WispFireballAttack: EnemyAttack {
         chargeVisualEffect.Stop();
         chargeLineRenderer.enabled = false;
 
-        // fireVisualEffect?.Play();
-        
+        animator.SetBool(ANIM_IS_FIRING, true);
+        animator.SetBool(ANIM_IS_CHARGING, false);
+
         fireEndPositions = new Vector3[3];
+
+        // TODO: I kind of want below in a function it's really cluttering this up (but it would be weird for a func to return a value + do something [do the damaging])
 
         // Determine the end position for the "projectiles" (by raycasting)
         // and do the damage / spawn impact projectiles upon impact
@@ -193,7 +199,7 @@ public class WispFireballAttack: EnemyAttack {
     private void HandleFiring() {
         bool isDoneFiring = Time.time - timeOfLastFire >= fireDuration;
         if (isDoneFiring) {
-            animator.SetBool("IsFiring", false);
+            animator.SetBool(ANIM_IS_FIRING, false);
             isFiring = false;
 
             // Disable all of the fireLineRenderers
@@ -203,8 +209,6 @@ public class WispFireballAttack: EnemyAttack {
 
             return;
         }
-
-        animator.SetBool("IsFiring", true);
 
         float firingPercent = (Time.time - timeOfLastFire) / fireDuration;
         // Animate the line renderers
@@ -247,9 +251,6 @@ public class Wisp : NavSpaceEnemy {
     [Tooltip("Reference to the VFX to play when we start charging")]
     public VisualEffect? ChargeVisualEffect;
 
-    [Tooltip("Reference to the VFX to play when we finish charging & start firing")]
-    public VisualEffect? FireVisualEffect;
-
     [Tooltip("Reference to the charge line renderer")]
     public LineRenderer? ChargeLineRenderer;
 
@@ -289,8 +290,7 @@ public class Wisp : NavSpaceEnemy {
             fireLineRenderers: FireLineRenderers!,
             animator: animator,
             chargeVisualEffect: ChargeVisualEffect!
-            // fireVisualEffect: FireVisualEffect!
-        ) ;
+        );
 
         health!.OnDamaged += OnDamaged;
 
