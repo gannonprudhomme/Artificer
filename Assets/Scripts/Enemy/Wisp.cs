@@ -63,6 +63,7 @@ public class WispFireballAttack: EnemyAttack {
     public override void OnUpdate(float entityBaseDamage) {
         if (!canAttack) {
             // Reset attack cooldown and stuff
+            Reset();
             return;
         }
         
@@ -233,6 +234,13 @@ public class WispFireballAttack: EnemyAttack {
         }
 
         // TODO: Regardless of *what* we hit, spawn the on hit vfx
+    }
+
+    private void Reset() {
+        isFiring = false;
+        isCharging = false;
+        animator.SetBool(ANIM_IS_CHARGING, false);
+        animator.SetBool(ANIM_IS_FIRING, false);
     }
 }
 

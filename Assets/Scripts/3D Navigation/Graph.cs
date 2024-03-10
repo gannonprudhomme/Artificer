@@ -32,6 +32,7 @@ public class Graph {
     }
     // Find the nearest GraphNode to the position
     // we just brute-force it rn
+    // This would be much easier to do w/ a reference to the Octree
     public GraphNode FindNearestToPosition(Vector3 position) {
         GraphNode nearest = nodes[0];
         float minDist = Mathf.Infinity;

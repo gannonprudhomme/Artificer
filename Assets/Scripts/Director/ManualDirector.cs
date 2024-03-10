@@ -92,7 +92,7 @@ public class ManualDirector : MonoBehaviour {
             filter.agentTypeID = GetAgentTypeIDByName(agentName);
 
             // Found a hit, find the nearest point on the nav mesh to spawn the entity
-            if (NavMesh.SamplePosition(raycastHit.point, out NavMeshHit hit, 5f, -1)) {
+            if (NavMesh.SamplePosition(raycastHit.point, out NavMeshHit hit, 5f, NavMesh.AllAreas)) {
                 return hit.position;
             } else {
                 Debug.LogError($"Couldn't sample for {agentName}");

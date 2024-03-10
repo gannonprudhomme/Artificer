@@ -57,10 +57,6 @@ public class Octree  {
         // it will say it's empty space inside of the mesh
         // I could just remove all of the disjoint graphs (other than the biggest one) since it shouldn't be navigatable anyways
 
-        // I'd also like to figure out how to better mark stuff that's out of bounds
-        // as if we generate stuff below the level there's a chance the nearest graph node to the point we want to get to
-        // is below the level. (we might be able to do some math to get around this, but I'd just like for it to be impossible to begin with)
-
         // I'm still not sure if we want to have mulitple octrees or not
         // or if we can just filter (with OctreeNode.doChildrenContainCollision) out the smallest nodes based on the agent
         // to generate the graph for an agent
