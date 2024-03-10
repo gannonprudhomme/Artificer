@@ -3,6 +3,40 @@ using UnityEngine.AI;
 
 #nullable enable
 
+// Only for this file really
+public readonly struct EnemyCard {
+    public readonly float spawnCost;
+    // public readonly float weight; // don't think we need, they're all 1
+    // public readonly string category; // probs don't need
+
+    // Needs to match up with the NavMeshAgent name
+    // (for grounded enemeis ofc)
+    public readonly string identifier;
+
+    public readonly bool isFlyingEnemy;
+
+    public readonly Enemy prefab;
+
+    private const float minimumSpawnDistanceFromPlayer = 0.0f;
+    private const float maximumSpawnDistanceFromPlayer = 1.0f;
+
+    // public readonly Enemies enemyType;
+
+    // somehow we have to define a way to spawn these things
+
+    public EnemyCard(
+        string identifier,
+        float spawnCost,
+        bool isFlyingEnemy,
+        Enemy prefab
+    ) {
+        this.spawnCost = spawnCost;
+        this.identifier = identifier;
+        this.isFlyingEnemy = isFlyingEnemy;
+        this.prefab = prefab;
+    }
+}
+
 // Each level will have its own instance of a combat director
 // Will probably want to make this conform to some abstract class
 // 
@@ -10,72 +44,92 @@ using UnityEngine.AI;
 // (well if we have an array of directors something else will need to be)
 //
 // This is considered a Continuous Director
-public class CombatDirector: MonoBehaviour { 
+public abstract class CombatDirector: MonoBehaviour { 
     public StoneGolem? StoneGolemPrefab;
     public Lemurian? LemurianPrefab;
     public Wisp? WispPrefab;
-
     public Target Target;
 
-    private const float minSpawnDistanceFromPlayer = 5.0f;
-    private const float maxSpawnDistanceFromPlayer = 70.0f;
-
-    public enum Enemies {
-        StoneGolem, Lemurian, Wisp
-    }
-
-    public readonly struct EnemyCard { // I assume we'll want readonly
-        public readonly float cost;
-        // public readonly float weight; // don't think we need, they're all 1
-        // public readonly string category; // probs don't need
-
-        // Needs to match up with the NavMeshAgent name
-        // (for grounded enemeis ofc)
-        public readonly string identifier;
-
-        public readonly bool isFlyingEnemy;
-
-        public readonly Enemy prefab;
-
-        // public readonly Enemies enemyType;
-
-        // somehow we have to define a way to spawn these things
-
-        public EnemyCard(string identifier, float cost, bool isFlyingEnemy, Enemy prefab) {
-            this.cost = cost;
-            this.identifier = identifier;
-            this.isFlyingEnemy = isFlyingEnemy;
-            this.prefab = prefab;
-        }
-    }
-
-    // Should this a property on the Enemy? Probably
-    // But it would be nice to just have a single place to change these values, so I'll do this for now 
-    private EnemyCard[]? enemyCards;
     // EnemyManager is where the list of enemies will live.
     // We probably don't need to do this, but could serve as a dependency injection entrypoint?
     private EnemyManager enemyManager = EnemyManager.shared; 
 
+    // But it would be nice to just have a single place to change these values, so I'll do this for now 
+    private EnemyCard[]? enemyCards;
+
+    // Constant value. Is the same for Fast and Slow director
+    private const float creditMultipler = 0.75f;
+
+    // Idk where we're going to get this from
+    // We need some form of (global?) (readonly) level state
+
+    // Probably move this into a GameManager class?
+    private float difficultyCoefficient {
+        get {
+            int playerCount = 1;
+            float playerFactor = 1 + 0.3f * (playerCount - 1);
+
+            float difficultyValue = 2.0f; // 1 for Drizzle, 2 for Rainstorm, 3 for Monsoon
+            float timeFactor = 0.0506f * difficultyValue * (float) Mathf.Pow(playerCount, 0.2f);
+
+            int stagesCompleted = 4;
+            float stageFactor = (float)Mathf.Pow(1.15f, stagesCompleted);
+
+            float tempTestingTimePlayed = 5.0f; // add 5 extra minutes
+            float timeInMinutes = (Time.time / 60.0f) + tempTestingTimePlayed;
+
+            return (playerFactor + timeInMinutes * timeFactor) * stageFactor;
+        }
+    }
+
+    // How many credits we generate per second
+    private float creditsPerSecond {
+        get {
+            float playerCount = 1;
+            return (creditMultipler * (1 + 0.4f * difficultyCoefficient) * (playerCount + 1) ) / 2f;
+        }
+    }
+
+    private const float minSpawnDistanceFromPlayer = 5.0f;
+    private const float maxSpawnDistanceFromPlayer = 70.0f;
+
     // How many credits currently have to spawn something
     private float numCredits = 0.0f;
+
+    // This WILL be null when we don't have a card selected
+    private EnemyCard? selectedCard = null;
+
+    // If we failed to spawn an enemy (i.e. not enough credits), we'll set this to know when we can spawn again
+    private float timeOfNextSpawnAttempt = Mathf.NegativeInfinity;
+
+    /*** Abstract properties ***/
+
+    // 0.75f for Continuous, 1.0f for Instanteous
+    protected abstract float creditMultiplers { get; }
+
+    // 0.1f - 1f for both 
+    // protected abstract (float, float) minAndMaxSuccessSpawnTime { get; }
+    protected (float, float) minAndMaxSuccessSpawnTime => (0.1f, 1.0f);
+
+    protected abstract (float, float) minAndMaxFailureSpawnTime { get; }
     private void Awake() {
         if (StoneGolemPrefab != null && LemurianPrefab != null) {
-        enemyCards = new EnemyCard[] {
+            enemyCards = new EnemyCard[] {
                 new(
                     identifier: "Stone Golem",
-                    cost: 3.0f,
+                    spawnCost: 40.0f,
                     isFlyingEnemy: false,
                     prefab: StoneGolemPrefab
                 ),
                 new(
                     identifier: "Lemurian",
-                    cost: 1.0f,
+                    spawnCost: 11f,
                     isFlyingEnemy: false,
                     prefab: LemurianPrefab
                 ),
                 new(
                     identifier: "Wisp",
-                    cost: 1.0f,
+                    spawnCost: 10f,
                     isFlyingEnemy: true,
                     prefab : WispPrefab!
                 )
@@ -90,30 +144,53 @@ public class CombatDirector: MonoBehaviour {
         }
     }
 
-    float timeOfLastSpawn = Mathf.NegativeInfinity;
-    const float timeBetweenSpawns = 2.5f;
-    private void Update() {
-        // For designing this out for now I'm just going to spawn a random one every 5? seconds
+    protected virtual void Update() {
+        HandleSpawnLoop();
+    }
 
-        if (Time.time - timeOfLastSpawn >= timeBetweenSpawns) {
-            // Spawn something
-            // We're assuming these names match up with their NavMesh agent names
-            int numEnemies = enemyCards!.Length;
-            int randomIndex = new System.Random().Next(0, numEnemies);
-
-            if (randomIndex >= 0 && randomIndex < numEnemies) {
-                EnemyCard enemyCard = enemyCards[randomIndex];
-                Debug.Log($"Picked {enemyCard.identifier} ({randomIndex})");
-
-                SpawnEnemy(enemyCard, target: Target);
-                
-            } else {
-                Debug.LogError($"out of bounds {randomIndex}");
-            }
-            timeOfLastSpawn = Time.time;
+    private void HandleSpawnLoop() {
+        if (Time.time < timeOfNextSpawnAttempt) { // We haven't waited long enough to try again
+            // We can't spawn anything; don't move forward
+            return;
         }
 
-        GenerateCredits();
+        // Select a card if we don't have one selected right now
+        if (selectedCard == null) {
+            selectedCard = SelectRandomEnemyCard();
+            Debug.Log($"Selected card: {((EnemyCard) selectedCard).identifier} with {numCredits} credits");
+        }
+
+        EnemyCard _selectedCard = (EnemyCard) selectedCard; // Idk why it won't let me force unwrap
+        if (CanSpawnSelectedCard(_selectedCard)) {
+            Debug.Log($"Attempting to spawn: {_selectedCard.identifier} for {_selectedCard.spawnCost} with {numCredits} credits");
+            SpawnEnemy(_selectedCard, target: Target);
+            // Spawn succeeded - keep this card (though above can technically fail ack)
+
+            numCredits -= _selectedCard.spawnCost;
+
+            // Pick a time to spawn another monster??
+            // This will be smaller interval than if we fail
+
+            float minSuccesSpawnTime = minAndMaxSuccessSpawnTime.Item1;
+            float maxSuccessSpawnTime = minAndMaxSuccessSpawnTime.Item2; 
+            float randTimeToWait = minSuccesSpawnTime + (Random.value * (maxSuccessSpawnTime - minSuccesSpawnTime));
+            timeOfNextSpawnAttempt = Time.time + (randTimeToWait);
+
+            Debug.Log($"Spawn succeeded! Waitng {randTimeToWait}s");
+
+        } else { // Spawn failed
+            didLastSpawnFail = true;
+            // We only re-select a card next frame
+            selectedCard = null;
+
+            float minFailureSpawnTime = minAndMaxFailureSpawnTime.Item1;
+            float maxFailureSpawnTime = minAndMaxFailureSpawnTime.Item2;
+
+            float randTimeToWait = minFailureSpawnTime + (Random.value * (maxFailureSpawnTime - minFailureSpawnTime)); // Range of [minFailureSpawnTime, maxFailureSpawnTime]
+            timeOfNextSpawnAttempt = Time.time + randTimeToWait;
+
+            Debug.Log($"Spawn failed! Waiting {randTimeToWait} seconds until spawning!");
+        }
     }
 
     private void SpawnEnemy(EnemyCard enemyCard, Target target) {
@@ -127,6 +204,7 @@ public class CombatDirector: MonoBehaviour {
             if (enemyGraph != null && FindFlyingSpawnPosition(playerPosition: target.AimPoint.position, enemyGraph, out Vector3 result)) {
                 spawnPosition = result;
             } else {
+                Debug.LogError("Not spawning a flying enemy!!");
                 return;
             }
             
@@ -134,23 +212,20 @@ public class CombatDirector: MonoBehaviour {
             if (FindGroundedSpawnPosition(playerPosition: target.AimPoint.position, enemyCard.identifier, out Vector3 result)) {
                 spawnPosition = result;
             } else {
+                Debug.LogError("Not spawning a grounded enemy!!");
                 return;
             } 
         }
 
         Debug.Log($"Spawning {enemyCard.identifier} at {spawnPosition} from player pos {target.AimPoint.position}");
 
-        // find the corresponding nav mesh
-        // Enemy enemy;
-        // if (enemyCard.identifier == "Lemurian") {
-            // Apparently I can't spawn a lemurian the normal way but this still seems to work
-        // } else {
-            // enemy = Instantiate(enemyCard.prefab, spawnPosition, Quaternion.identity);
-        // }
-
         Enemy enemy = Instantiate(enemyCard.prefab, spawnPosition, Quaternion.identity);
         enemy.transform.position = spawnPosition;
         enemy.Target = Target;
+        // Calculate HP based on Tier? We don't need to do this (yet)
+        // Give it "Boost" items to apply HP & damage multiplers???
+        // Set the xp reward for killing this monster
+        // set the gold reward for killing this monster
     }
 
     // Pick a point a random distance from the player on the Nav Mesh
@@ -215,6 +290,31 @@ public class CombatDirector: MonoBehaviour {
     }
 
     private void GenerateCredits() {
-
+        numCredits += creditsPerSecond * Time.deltaTime;
     }
+
+    private bool CanSpawnSelectedCard(EnemyCard card) {
+        return numCredits >= card.spawnCost;
+    }
+
+    private EnemyCard SelectRandomEnemyCard() {
+        int randomIndex = new System.Random().Next(0, enemyCards!.Length);
+        return enemyCards![randomIndex];
+    }
+
+    private bool CanSpawnAnything() {
+        foreach (EnemyCard card in enemyCards!) {
+            if (numCredits >= card.spawnCost) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    // Public getters just for CombatDirectorEdtitor
+    public EnemyCard? GetSelectedCard() { return selectedCard; }
+    public float GetNumCredits() { return numCredits; }
+    public float GetDifficultyCoefficient() { return difficultyCoefficient; }
+    public float GetCreditsPerSecond() { return creditsPerSecond; }
 }
