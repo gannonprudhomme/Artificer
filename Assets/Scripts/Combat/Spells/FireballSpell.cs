@@ -26,7 +26,7 @@ public class FireballSpell : Spell {
 
     // How much charge (1.0f is a charge) is restored a second
     // This should be set so it takes 1.3 sec to restore a charge (it's not rn)
-    public override float ChargeRate => 0.5f;
+    public override float ChargeRate => 1f / 1.3f; // 1 charge per 1.3 seconds (~0.77 charges per second)
     public override int MaxNumberOfCharges => 5; // Maybe rename to MaxCharge
     public override bool DoesBlockOtherSpells => true;
     public override bool IsBlockedByOtherSpells => true;
