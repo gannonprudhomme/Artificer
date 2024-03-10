@@ -260,8 +260,8 @@ public class Lemurian : Enemy {
         bool hasReachedStrafePosition = (distToStrafePosition - lemurianHeight) <= 0.5f; // Random value
 
         // Arbitrary values
-        const float maxHorizontalStrafeDistance = 15.0f;
-        const float maxForwardStrafeDist = 7.0f;
+        const float maxHorizontalStrafeDistance = 30.0f;
+        const float maxForwardStrafeDist = 14.0f;
 
         // Chose a strafe position if we need to (we've reached it or it hasn't been set)
         if (hasReachedStrafePosition || strafePosition.x == Mathf.NegativeInfinity) {
