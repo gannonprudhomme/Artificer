@@ -16,7 +16,7 @@ public class CombatDirectorEditor : Editor {
         // Display the director's numCredits as a GUI label
         GUILayout.Label($"Num Credits: {director.GetNumCredits()}");
         GUILayout.Label($"Difficulty Coefficient: {director.GetDifficultyCoefficient()}");
-        GUILayout.Label($"Credits Per Second: {director.GetCreditsPerSecond()}");
+        // GUILayout.Label($"Credits Per Second: {director.GetCreditsPerSecond()}");
         GUILayout.Label($"Current card: {director.GetSelectedCard()?.identifier ?? "null"}");
     }
 }
