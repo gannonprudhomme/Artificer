@@ -53,14 +53,11 @@ public abstract class NavSpaceEnemy : Enemy {
         }
 
         if (!ColliderCast(position, out RaycastHit? hit)) {
-            Debug.Log("Doing direct movement");
             // If it's a straight shot (nothing in our way)
             // go directly to it
             // I think this is probably expensive so hopefully we don't call CreatePathTo frequently
             currentSplinePath = ConvertToSpline(new List<Vector3> { transform.position, position });
         } else {
-            Debug.Log($"Can't do a direct shot, we hit: {hit!.Value.collider.gameObject.name}");
-
             List<Vector3> path = Pathfinder.GeneratePath(graph, this.transform.position, position);
             currentSplinePath = ConvertToSpline(path);
         }

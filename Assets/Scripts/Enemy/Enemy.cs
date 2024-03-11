@@ -15,6 +15,10 @@ public abstract class Enemy : Entity {
 
     private EnemyManager enemyManager;
 
+    // the Director is going to set this when we spawn the enemy
+    public int ExperienceGrantedOnDeath { get; set; }
+    public int GoldGrantedOnDeath => ExperienceGrantedOnDeath / 2;
+
     public abstract string EnemyIdentifier { get; }
 
     protected override void Start() {
@@ -37,6 +41,13 @@ public abstract class Enemy : Entity {
 
     protected virtual void OnDeath() {
         enemyManager.RemoveEnemy(this);
+
+        // Grant the Target experience I guess
+        // There's gotta be a better way to do this
+        if (Target.TryGetComponent(out Experience experience)) {
+            // We gotta calculate this somehow
+            experience.GainExperience(ExperienceGrantedOnDeath);
+        }
 
         Destroy(this.gameObject);
     }

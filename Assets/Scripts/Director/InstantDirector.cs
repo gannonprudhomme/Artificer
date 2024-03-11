@@ -6,6 +6,7 @@ using UnityEngine;
 
 // Scene Director and Teleporter Boss
 public class InstantDirector: CombatDirector {
+    protected override float experienceMultipler => 1f / 15f; // 0.06666 repeating;
     protected override (float, float) minAndMaxSpawnDistanceFromPlayer => (50.0f, 300.0f);
 
     protected override void Start() {

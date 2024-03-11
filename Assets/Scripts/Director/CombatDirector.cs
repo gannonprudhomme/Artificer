@@ -82,6 +82,7 @@ public abstract class CombatDirector: MonoBehaviour {
         }
     }
 
+    protected abstract float experienceMultipler { get; }
     protected abstract (float, float) minAndMaxSpawnDistanceFromPlayer { get; }
 
     // How many credits currently have to spawn something
@@ -158,11 +159,13 @@ public abstract class CombatDirector: MonoBehaviour {
             } 
         }
 
-        // Debug.Log($"Spawning {enemyCard.identifier} at {spawnPosition} from player pos {target.AimPoint.position}");
 
         Enemy enemy = Instantiate(enemyCard.prefab, spawnPosition, Quaternion.identity);
         enemy.transform.position = spawnPosition;
         enemy.Target = Target;
+        enemy.ExperienceGrantedOnDeath = (int) (difficultyCoefficient * enemyCard.spawnCost * experienceMultipler);
+
+        Debug.Log($"Spawning {enemyCard.identifier} with experience to be granted of {enemy.ExperienceGrantedOnDeath}");
 
         numCredits -= enemyCard.spawnCost;
 

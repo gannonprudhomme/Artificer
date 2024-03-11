@@ -5,9 +5,14 @@ using UnityEngine;
 
 #nullable enable
 
-[RequireComponent(typeof(CharacterController), typeof(InputHandler), typeof(PlayerSpellsController))]
 [RequireComponent(
-    typeof(Target) // Not referenced in code, but required for Enemies
+    typeof(CharacterController),
+    typeof(InputHandler),
+    typeof(PlayerSpellsController))
+]
+[RequireComponent(
+    typeof(Target), // Not referenced in code, but required for Enemies
+    typeof(Experience)
 )]
 public class PlayerController : Entity {
     /** PROPERTIES **/
@@ -50,6 +55,8 @@ public class PlayerController : Entity {
     public float JumpForce = 20f;
 
     /** LOCAL VARIABLES **/
+    private Experience experience;
+
     private Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
 
     private InputHandler inputHandler;
@@ -72,7 +79,7 @@ public class PlayerController : Entity {
     /** ABSTRACT PROPERTIES **/
 
     protected override float StartingBaseDamage => 12f;
-    public override float CurrentBaseDamage => StartingBaseDamage;
+    public override float CurrentBaseDamage => StartingBaseDamage + ((experience.currentLevel - 1) * 2.4f);
 
     /** COMPUTED PROPERTIES **/
     private float RotationMultiplier {
@@ -98,6 +105,10 @@ public class PlayerController : Entity {
         // Handle null
 
         inputHandler = GetComponent<InputHandler>();
+
+        experience = GetComponent<Experience>();
+
+        experience.OnLevelUp += OnLevelUp; 
 
         characterController.enableOverlapRecovery = true;
 
@@ -367,6 +378,17 @@ public class PlayerController : Entity {
 
     public override Vector3 GetMiddleOfMesh() {
         throw new NotImplementedException();
+    }
+
+    public void OnLevelUp(int level) {
+        Debug.Log($"Leveled up to {level}");
+        // Increase health
+        health!.IncreaseMaxHealth(33f);
+        // Increase regen rate
+        health.IncreaseRegenRate(0.2f);
+        // Don't need to do below
+        // CurrentBaseDamage += 2.4f;
+        
     }
 
     // Uncomment this if you change the height / radius of the CharacterController and the player isn't being considered grounded

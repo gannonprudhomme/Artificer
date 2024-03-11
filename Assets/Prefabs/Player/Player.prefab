@@ -312,6 +312,7 @@ GameObject:
   - component: {fileID: 1162894015005027175}
   - component: {fileID: 2876704207433603849}
   - component: {fileID: 7115923844761297679}
+  - component: {fileID: 3204303504915595513}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -437,7 +438,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33bd9b8184447304baf8751a3036dac6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 300
+  MaxHealth: 110
+  StartingMaxHealth: 100
+  HealthRegenRate: 1
   CriticalHealthRatio: 0.3
   Invincible: 0
   Affiliation: 0
@@ -500,6 +503,18 @@ MonoBehaviour:
   WispPrefab: {fileID: 7668814627267589394, guid: 2b74273b6737fce4abd723e22c55d71c,
     type: 3}
   SpawnTransform: {fileID: 0}
+--- !u!114 &3204303504915595513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5020162517813680371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55698d8511bdd8c4d9275ebf31446caf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5228743878646976421
 GameObject:
   m_ObjectHideFlags: 0
