@@ -21,6 +21,9 @@ public class Health : MonoBehaviour {
     [Tooltip("Maximum amount of health")]
     public float MaxHealth = 100f;
 
+    [Tooltip("How fast this entity regenerates health per seocnd")]
+    public float HealthRegenRate = 0.0f; // 1.0f for player
+
     [Tooltip("Health ratio at which the critical health vignette starts appearing")]
     public float CriticalHealthRatio = 0.3f;
 
@@ -45,6 +48,11 @@ public class Health : MonoBehaviour {
 
     void Start() {
         CurrentHealth = MaxHealth;
+    }
+
+    private void Update() {
+        // We regen health all of the time, even if we were just damaged (I think at least)
+        Heal(HealthRegenRate * Time.deltaTime);
     }
 
     public void Heal(float healAmount) {
@@ -120,5 +128,14 @@ public class Health : MonoBehaviour {
             IsDead = true;
             OnDeath?.Invoke();
         }
+    }
+
+    public void IncreaseMaxHealth(float byAmount) {
+        MaxHealth += byAmount;
+        Heal(byAmount);
+    }
+
+    public void IncreaseRegenRate(float byAmount) {
+        HealthRegenRate += byAmount;
     }
 }
