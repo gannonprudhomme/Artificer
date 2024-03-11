@@ -12,7 +12,8 @@ using UnityEngine;
 ]
 [RequireComponent(
     typeof(Target), // Not referenced in code, but required for Enemies
-    typeof(Experience)
+    typeof(Experience),
+    typeof(GoldWallet)
 )]
 public class PlayerController : Entity {
     /** PROPERTIES **/

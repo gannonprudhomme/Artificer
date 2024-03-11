@@ -24,7 +24,7 @@ public class InstantDirector: CombatDirector {
         // While we haven't run out of credits
         selectedCard = SelectRandomCardWeCanAfford();
         while (selectedCard != null && monstersSpawned <= monsterLimit) {
-            Debug.Log($"Instant: Spawning {selectedCard.Value.identifier}");
+            // Debug.Log($"Instant: Spawning {selectedCard.Value.identifier}");
             // Try to spawn it I guess?
             SpawnEnemy(selectedCard.Value, Target);
 

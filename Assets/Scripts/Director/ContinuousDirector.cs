@@ -44,12 +44,12 @@ public abstract class ContinuousDirector: CombatDirector {
         // Select a card if we don't have one selected right now
         if (selectedCard == null) {
             selectedCard = SelectRandomEnemyCard();
-            Debug.Log($"Selected card: {((EnemyCard) selectedCard).identifier} with {numCredits} credits");
+            // Debug.Log($"Selected card: {((EnemyCard) selectedCard).identifier} with {numCredits} credits");
         }
 
         EnemyCard _selectedCard = (EnemyCard) selectedCard; // Idk why it won't let me force unwrap
         if (CanSpawnSelectedCard(_selectedCard)) {
-            Debug.Log($"Attempting to spawn: {_selectedCard.identifier} for {_selectedCard.spawnCost} with {numCredits} credits");
+            // Debug.Log($"Attempting to spawn: {_selectedCard.identifier} for {_selectedCard.spawnCost} with {numCredits} credits");
             SpawnEnemy(_selectedCard, target: Target);
             // Spawn succeeded - keep this card (though above can technically fail ack)
 
@@ -64,7 +64,7 @@ public abstract class ContinuousDirector: CombatDirector {
 
             timeOfNextSpawnAttempt = Time.time + (randTimeToWait);
 
-            Debug.Log($"Spawn succeeded! Waitng {randTimeToWait}s");
+            // Debug.Log($"Spawn succeeded! Waitng {randTimeToWait}s");
 
         } else { // Spawn failed
             // We only re-select a card next frame
@@ -76,7 +76,7 @@ public abstract class ContinuousDirector: CombatDirector {
             float randTimeToWait = minFailureSpawnTime + (Random.value * (maxFailureSpawnTime - minFailureSpawnTime)); // Range of [minFailureSpawnTime, maxFailureSpawnTime]
             timeOfNextSpawnAttempt = Time.time + randTimeToWait;
 
-            Debug.Log($"Spawn failed! Waiting {randTimeToWait} seconds until spawning!");
+            // Debug.Log($"Spawn failed! Waiting {randTimeToWait} seconds until spawning!");
         }
     }
 
