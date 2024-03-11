@@ -865,7 +865,7 @@ Transform:
   m_GameObject: {fileID: 8220314876335853288}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1078.2, y: 28.5, z: 244.2}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -889,7 +889,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33bd9b8184447304baf8751a3036dac6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 175
+  MaxHealth: 35
   CriticalHealthRatio: 0.3
   Invincible: 0
   Affiliation: 1
@@ -916,7 +916,6 @@ MonoBehaviour:
   MainMeshRenderer: {fileID: 2748328311632913509}
   Collider: {fileID: 1498394767041053100}
   ChargeVisualEffect: {fileID: 204145889323009676}
-  FireVisualEffect: {fileID: 0}
   ChargeLineRenderer: {fileID: 3913315433271417687}
   FireLineRenderers:
   - {fileID: 7764555301697515977}
