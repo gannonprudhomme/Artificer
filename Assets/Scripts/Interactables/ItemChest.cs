@@ -9,20 +9,17 @@ using TMPro;
 [RequireComponent(typeof(Animator))]
 public class ItemChest : Interactable {
     [Header("Item Chest")]
-    public UIFollowPlayer UIFollowPlayer;
+    public UIFollowPlayer? UIFollowPlayer;
 
     [Tooltip("Text used for setting the cost of the chest")]
-    public TextMeshProUGUI CostText;
+    public TextMeshProUGUI? CostText;
 
     [Tooltip("Animator for the chest")]
-    public Animator Animator; // Animator for the chest
+    public Animator? Animator; // Animator for the chest
 
     // TODO: We need a better way of passing this. Maybe in SetUp()?
     // Set by the Player, but ideally it'd be set by the Director when we spawn this
     public GoldWallet? GoldWallet { get; set; }
-
-    // Temporary
-    public Target Target;
 
     // I think the Scene Director sets this?
     private int costToPurchase = 5; // Temp default value
@@ -31,7 +28,7 @@ public class ItemChest : Interactable {
     // Called when the Director spawns this
     public void SetUp(int costToPurchase, Target target, GoldWallet goldWallet) { // We could just pass in a Transform
         this.costToPurchase = costToPurchase;
-        UIFollowPlayer.Target = target.AimPoint;
+        UIFollowPlayer!.Target = target.AimPoint;
         GoldWallet = goldWallet;
     }
 
@@ -40,12 +37,9 @@ public class ItemChest : Interactable {
         base.Start();
 
         // we need to get the Player / Target somehow and set it for UIFollowPlayer
-        CostText.text = $"${costToPurchase}";
+        CostText!.text = $"${costToPurchase}";
 
-        // Temporary for debugging
-        UIFollowPlayer.Target = Target.AimPoint;
-
-        Animator.SetBool(ANIM_IS_OPEN, false);
+        Animator!.SetBool(ANIM_IS_OPEN, false);
     }
 
     // Update is called once per frame

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 // we might want this? So it triggers Collider triggers
@@ -17,7 +15,7 @@ public abstract class Enemy : Entity {
 
     // the Director is going to set this when we spawn the enemy
     public int ExperienceGrantedOnDeath { get; set; }
-    public int GoldGrantedOnDeath => ExperienceGrantedOnDeath / 2;
+    public int GoldGrantedOnDeath => ExperienceGrantedOnDeath * 2;
 
     public abstract string EnemyIdentifier { get; }
 
@@ -47,6 +45,14 @@ public abstract class Enemy : Entity {
         if (Target.TryGetComponent(out Experience experience)) {
             // We gotta calculate this somehow
             experience.GainExperience(ExperienceGrantedOnDeath);
+        } else {
+            Debug.LogError("Couldn't find Target's Experience");
+        }
+
+        if (Target.TryGetComponent(out GoldWallet goldWallet)) {
+            goldWallet.GainGold(GoldGrantedOnDeath);
+        } else {
+            Debug.LogError("Couldn't find Target's GoldWallet");
         }
 
         Destroy(this.gameObject);

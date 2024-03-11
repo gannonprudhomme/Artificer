@@ -21,12 +21,17 @@ public class InstantDirector: CombatDirector {
 
         // Spawn the monsters!!!
 
+        // TODO: Oh shit apparently this can only spawn ~4 basic enemies
+        // and 2 minibosses
+        //
+        // Whoops I should probably do that that'd make sense
+
         // While we haven't run out of credits
         selectedCard = SelectRandomCardWeCanAfford();
         while (selectedCard != null && monstersSpawned <= monsterLimit) {
             // Debug.Log($"Instant: Spawning {selectedCard.Value.identifier}");
             // Try to spawn it I guess?
-            SpawnEnemy(selectedCard.Value, Target);
+            SpawnEnemy(selectedCard.Value, Target!);
 
             // Select the next one
             selectedCard = SelectRandomCardWeCanAfford();

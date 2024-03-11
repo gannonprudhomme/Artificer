@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 8304319607885402168}
   - component: {fileID: 8144513692469704507}
   - component: {fileID: 5059884670927395171}
+  - component: {fileID: 924512519039455422}
   m_Layer: 0
   m_Name: Game HUD + Manager
   m_TagString: Untagged
@@ -211,6 +212,25 @@ MonoBehaviour:
   WispPrefab: {fileID: 7668814627267589394, guid: 2b74273b6737fce4abd723e22c55d71c,
     type: 3}
   Target: {fileID: 0}
+--- !u!114 &924512519039455422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241678929247167197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c0801202e331e408b4db81ab4dd36f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 0}
+  GoldWallet: {fileID: 0}
+  Level: {fileID: 0}
+  ItemChestPrefab: {fileID: 7796664314628845922, guid: 2160479dbb634b94d84d73c1d02a7804,
+    type: 3}
+  BarrelPrefab: {fileID: 7448950240430336365, guid: 7cf8bc7669efdad46a80cb071e6da326,
+    type: 3}
 --- !u!1 &432463387540992155
 GameObject:
   m_ObjectHideFlags: 0
@@ -296,6 +316,7 @@ GameObject:
   - component: {fileID: 745784051453213741}
   - component: {fileID: 1958392198576177036}
   - component: {fileID: 7278754727653660645}
+  - component: {fileID: 2452975795545170487}
   m_Layer: 0
   m_Name: Money Parent
   m_TagString: Untagged
@@ -388,6 +409,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2452975795545170487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 708648030048056516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 375e1c8f48ff5444ab738d67fadba463, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GoldText: {fileID: 47701380723941852}
+  GoldWallet: {fileID: 0}
 --- !u!1 &1850534214726654505
 GameObject:
   m_ObjectHideFlags: 0

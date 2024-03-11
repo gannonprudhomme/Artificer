@@ -52,7 +52,7 @@ public abstract class CombatDirector: MonoBehaviour {
     public StoneGolem? StoneGolemPrefab;
     public Lemurian? LemurianPrefab;
     public Wisp? WispPrefab;
-    public Target Target;
+    public Target? Target;
 
     // EnemyManager is where the list of enemies will live.
     // We probably don't need to do this, but could serve as a dependency injection entrypoint?
@@ -165,7 +165,7 @@ public abstract class CombatDirector: MonoBehaviour {
         enemy.Target = Target;
         enemy.ExperienceGrantedOnDeath = (int) (difficultyCoefficient * enemyCard.spawnCost * experienceMultipler);
 
-        Debug.Log($"Spawning {enemyCard.identifier} with experience to be granted of {enemy.ExperienceGrantedOnDeath}");
+        // Debug.Log($"Spawning {enemyCard.identifier} with experience to be granted of {enemy.ExperienceGrantedOnDeath}");
 
         numCredits -= enemyCard.spawnCost;
 
@@ -186,6 +186,7 @@ public abstract class CombatDirector: MonoBehaviour {
         for (i = 0; i < 10; i++) {
             float maxSpawnDistanceFromPlayer = minAndMaxSpawnDistanceFromPlayer.Item2;
 
+            // we don't want to go too high; the vertical axis should be limited
             Vector3 randomPoint = playerPosition + Random.insideUnitSphere * maxSpawnDistanceFromPlayer;
             float agentHeight = 3.0f;
 
