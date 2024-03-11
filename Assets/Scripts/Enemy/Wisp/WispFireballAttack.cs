@@ -55,6 +55,12 @@ public class WispFireballAttack: EnemyAttack {
         this.fireLineRenderers = fireLineRenderers;
         this.animator = animator;
         this.chargeVisualEffect = chargeVisualEffect;
+
+        chargeVisualEffect.Stop();
+        chargeLineRenderer.enabled = false;
+        foreach(var fireLineRenderer in fireLineRenderers) {
+            fireLineRenderer.enabled = false;
+        }
     }
 
     public override void OnUpdate(float entityBaseDamage) {

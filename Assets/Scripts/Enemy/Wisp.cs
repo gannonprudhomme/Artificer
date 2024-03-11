@@ -81,39 +81,70 @@ public class Wisp : NavSpaceEnemy {
         attack?.OnUpdate(CurrentBaseDamage);
 
         // What order should these be in? I never really know
+        previousState = currentState;
         currentState = DetermineCurrentState();
         PerformCurrentState();
-
-        if (Time.time - lastTimePathSet > timeBetweenPathSets) {
-            CreatePathTo(Target.AimPoint.position + (Vector3.one * 3));
-            lastTimePathSet = Time.time;
-        }
-
-        TraversePath();
-
         LookAtTarget();
 
         // Animate time last hit (if needed)
     }
 
-    private State DetermineCurrentState() {
-        // Apparently states have durations so we might need to check that here
-        // though in reality it doesn't really matter
+    // The time until we can change states again
+    private float timeOfNextStateChange = -1f; // TODO: Better name
 
-        return State.USE_PRIMARY_AND_STRAFE;
+    private const float minPrimaryFlee = 30.0f;
+    private const float maxPrimaryStrafe = 40.0f;
+    private State previousState = State.CHASE;
+
+    private State DetermineCurrentState() {
+        // I figure we should do this first?
+        if (isFrozen) {
+            // timeOfNextStateChange = Time.time + 1.0f;
+            return State.STUNNED;
+        }
+
+        if (Time.time < timeOfNextStateChange) {
+            return currentState;
+        }
+
+        float maxDistanceBeforeChase = 40.0f;
+
+        float distanceToTarget = Vector3.Distance(transform.position, Target.AimPoint.position);
+        bool hasLineOfSight = DoesHaveLineOfSightToTarget(withinMaxDistance: maxDistanceBeforeChase);
+
+        if (!hasLineOfSight) {
+            return State.CHASE;
+        }
+
+        // We shouldn't start trying to use the primary unless we have line of sight
+        // (starting by if the player is within FOV)
+        // once we start on this we shouldn't move on
+        if (distanceToTarget <= minPrimaryFlee) {
+            timeOfNextStateChange = Time.time + 0.5f;
+            return State.USE_PRIMARY_AND_FLEE;
+        } else if (distanceToTarget <= maxPrimaryStrafe) {
+            timeOfNextStateChange = Time.time + 2.0f;
+            return State.USE_PRIMARY_AND_STRAFE;
+        } else {
+            timeOfNextStateChange = Time.time + 2.0f;
+            return State.CHASE;
+        }
     }
 
     private void PerformCurrentState() {
         // Honestly I'm wondering if isFrozen should just be one of the states
         // Cause it basically is from how we handle it
-        if (isFrozen) {
+        //if (isFrozen) {
             // prevent it from moving
             // reset the ttack
-            attack!.canAttack = false;
+
+            // attack!.canAttack = false;
 
             // Prevent LookAt constraint (will we even have that? Idek)
-            return;
-        }
+            // return;
+
+            // Actually Stunned is going to all of the stuff above that
+        //}
 
         switch(currentState) {
             case State.USE_PRIMARY_AND_FLEE:
@@ -136,16 +167,40 @@ public class Wisp : NavSpaceEnemy {
 
                 break;
             case State.CHASE:
+                attack!.canAttack = false;
+
                 DoChase();
+                // Look towards where we're moving?
+                // We have to look at *something*
+                // maybe just lock onto the player?
                 LookAtTarget(); // This'll work for now
                 break;
         }
     }
 
+    // Somehow I need to know if this hasn't been set yet and reset it
+    private Vector3 strafeEndPosition = Vector3.negativeInfinity;
+
     private void DoStrafe() {
         // Choose a point to strafe to
         // And calculate the path to it
-        // then actually start movingGetComponent<MeshRenderer>()
+        // then actually start moving
+        float distanceToStrafeEndPos = (strafeEndPosition - transform.position).magnitude;
+        bool hasReachedStrafeEndPos = distanceToStrafeEndPos <= 0.1f;
+        
+        if (hasReachedStrafeEndPos || (previousState != State.USE_PRIMARY_AND_STRAFE && previousState != State.USE_PRIMARY_AND_FLEE)) {
+            // choose a new strafe position 
+            Vector3 randomMove = Random.insideUnitSphere * 50f;
+            randomMove.y = Mathf.Clamp(randomMove.y, -2.0f, 2.0f);
+
+            randomMove += transform.position;
+            strafeEndPosition = randomMove;
+
+            // Calculate the path to it
+            CreatePathTo(randomMove);
+        }
+
+        TraversePath();
     }
 
     private void DoChase() {
@@ -153,8 +208,12 @@ public class Wisp : NavSpaceEnemy {
         // e.g. if the target hasn't moved nearest GraphNodes
         // since changing it at the end would be super easy
         // Since re-calculating the path would probably be pretty time consuming
+        if (Time.time - lastTimePathSet > timeBetweenPathSets) {
+            CreatePathTo(Target.AimPoint.position + (Vector3.one * 3));
+            lastTimePathSet = Time.time;
+        }
 
-        // Or maybe we could only renegate part of the path? Idk if that makes sense, might be too complex of a problem for little gain
+        TraversePath();
     }
 
     // Make this look at the player if we're aiming at it
@@ -176,6 +235,40 @@ public class Wisp : NavSpaceEnemy {
             currentState = State.STUNNED;
             timeOfLastStun = Time.time;
         }
+    }
+
+    private bool DoesHaveLineOfSightToTarget(float withinMaxDistance) {
+        // optimization
+        float sqrDistToTarget = (Target.TargetCollider.bounds.center - AimPoint!.position).sqrMagnitude;
+        if (sqrDistToTarget > Mathf.Pow(withinMaxDistance, 2)) {
+            // We're not even in fireball range! Return early
+            return false;
+        }
+
+        // Is it facing it?
+        Vector3 dirToPlayer = (Target.AimPoint.position - transform.position).normalized;
+        float angleToPlayer = Vector3.Angle(transform.forward, dirToPlayer);
+
+        if (angleToPlayer > 30.0f) {
+            return false;
+        }
+
+        Vector3 direction = (Target.TargetCollider.bounds.center - AimPoint!.position).normalized;
+
+        if (Physics.Raycast(
+             origin: AimPoint.position,
+             direction: direction,
+             out RaycastHit hit,
+             maxDistance: withinMaxDistance
+         )) {
+            if (hit.collider.TryGetEntityFromCollider(out var entity)
+                && entity.gameObject == Target.gameObject
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public override Material GetMaterial() {
