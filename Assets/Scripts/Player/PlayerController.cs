@@ -56,7 +56,8 @@ public class PlayerController : Entity {
     public float JumpForce = 20f;
 
     /** LOCAL VARIABLES **/
-    private Experience experience;
+    private Experience? experience;
+    private GoldWallet? goldWallet;
 
     private Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
 
@@ -70,6 +71,8 @@ public class PlayerController : Entity {
     // So I think this has to be public? But set it to private for now
     private bool IsGrounded = true;
 
+    private Interactable? currentAimedAtInteractable;
+
     /** CONSTANTS **/
 
     // TODO: Describe this
@@ -80,7 +83,7 @@ public class PlayerController : Entity {
     /** ABSTRACT PROPERTIES **/
 
     protected override float StartingBaseDamage => 12f;
-    public override float CurrentBaseDamage => StartingBaseDamage + ((experience.currentLevel - 1) * 2.4f);
+    public override float CurrentBaseDamage => StartingBaseDamage + ((experience!.currentLevel - 1) * 2.4f);
 
     /** COMPUTED PROPERTIES **/
     private float RotationMultiplier {
@@ -108,6 +111,7 @@ public class PlayerController : Entity {
         inputHandler = GetComponent<InputHandler>();
 
         experience = GetComponent<Experience>();
+        goldWallet = GetComponent<GoldWallet>();
 
         experience.OnLevelUp += OnLevelUp; 
 
@@ -135,6 +139,10 @@ public class PlayerController : Entity {
         HandleLooking();
 
         HandleCharacterMovement();
+
+        CheckIfAimingAtInteractable();
+
+        HandleInteracting();
 
         // UpdateCharacterHeight(false) ???
     }
@@ -342,6 +350,81 @@ public class PlayerController : Entity {
         return (false, previousCharacterVelocity);
     }
 
+    private void CheckIfAimingAtInteractable() {
+        // Reset it just in case we're not aiming at it anymore
+        if (currentAimedAtInteractable != null) {
+            currentAimedAtInteractable.OnNotHovering();
+        }
+
+        // iterate through all of them
+        // if we're "hovering" over them show the UI for it (in Interactable code)
+        float minDistanceToInteractableToBeHovering = 20f;
+
+        List<Interactable> nearbyInteractables = new();
+        Interactable[] allInteractables = FindObjectsOfType<Interactable>();
+        foreach(Interactable interactable in allInteractables) {
+            if (interactable is ItemChest chest) {
+                chest.GoldWallet = goldWallet;
+            }
+
+            float distToInteractable = Vector3.Distance(interactable.transform.position, transform.position);
+
+            if (distToInteractable < minDistanceToInteractableToBeHovering) {
+                // Show UI for it
+                interactable.OnNearby();
+                nearbyInteractables.Add(interactable);
+            } else {
+                interactable.OnNotNearby();
+            }
+        }
+
+        bool areAimingAtInteractable = false;
+        foreach(Interactable nearbyInteractable in nearbyInteractables) {
+            // First check if it's even in our FOV
+            Vector3 screenPoint = PlayerCamera.WorldToScreenPoint(nearbyInteractable.transform.position);
+
+            if (!(screenPoint.z > 0 && // if it's positive it's in front of us, negative if behind
+                screenPoint.x > 0 &&
+                screenPoint.x < Screen.width &&
+                screenPoint.y > 0 &&
+                screenPoint.y < Screen.height
+            )) {
+                continue; // Out of screen bounds, don't try to raycast
+            }
+
+            if (Physics.Raycast(
+                origin: PlayerCamera.transform.position,
+                direction: PlayerCamera.transform.forward,
+                out RaycastHit hit,
+                maxDistance: minDistanceToInteractableToBeHovering // Idk what to put for this
+            )) {
+                if (hit.collider.TryGetComponent(out ColliderInteractablePointer pointer) &&
+                    pointer.Parent == nearbyInteractable // Do we really need to do this check?
+                ) {
+                    // Then check if we're actually aiming at it (middle of the screen??)
+                    currentAimedAtInteractable = nearbyInteractable;
+                    areAimingAtInteractable = true;
+                    nearbyInteractable.OnHover();
+                    break; // We can't do this for anything else (can only interact w/ one thing at a time)
+                }
+            }
+        }
+
+        // Reset it in case we're not aiming at anything (so pressing E won't do anything)
+        if (!areAimingAtInteractable) {
+            currentAimedAtInteractable = null;
+        }
+    }
+
+    // Handling pressing E to interact
+    private void HandleInteracting() {
+        bool wasInteractedPressed = inputHandler.GetInteractInputDown();
+
+        if (wasInteractedPressed && currentAimedAtInteractable != null) {
+            currentAimedAtInteractable.OnSelected(goldWallet);
+        }
+    }
+
     // Gets the center point of the bottom hemisphere of the character controller capsule
     private Vector3 GetCapsuleBottomHemisphere() {
         return transform.position + (transform.up * characterController!.radius);
@@ -385,6 +468,7 @@ public class PlayerController : Entity {
         Debug.Log($"Leveled up to {level}");
         // Increase health
         health!.IncreaseMaxHealth(33f);
+
         // Increase regen rate
         health.IncreaseRegenRate(0.2f);
         // Don't need to do below

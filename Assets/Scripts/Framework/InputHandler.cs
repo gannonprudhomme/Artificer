@@ -16,6 +16,7 @@ class InputConstants {
     public const string Dash = "Jump";
     public const string FirstAttack = "FirstAttack";
     public const string SecondAttack = "SecondAttack";
+    public const string Interact = "Interact";
 }
 
 // Note that the previous code had a bunch of checks for CanProcessInput()
@@ -30,6 +31,7 @@ public class InputHandler : MonoBehaviour {
     // bool fireInputWasHeld;
     bool firstAttackWasHeld;
     bool secondAttackWasHeld;
+    bool interactWasHeld;
 
     // Start is called before the first frame update
     void Start() {
@@ -41,6 +43,7 @@ public class InputHandler : MonoBehaviour {
     void LateUpdate() {
         firstAttackWasHeld = GetFirstAttackInputHeld();
         secondAttackWasHeld = GetSecondAttackInputHeld();
+        interactWasHeld = GetInteractInputHeld();
     }
 
     public bool CanProcessInput() {
@@ -112,6 +115,14 @@ public class InputHandler : MonoBehaviour {
 
     public bool GetSprintInputHeld() {
         return Input.GetButton(InputConstants.Sprint);
+    }
+
+    public bool GetInteractInputDown() {
+        return GetInteractInputHeld() && !interactWasHeld;
+    }
+
+    public bool GetInteractInputHeld() {
+        return Input.GetButton(InputConstants.Interact);
     }
 
     public int GetSelectWeaponInput() {

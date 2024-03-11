@@ -28,4 +28,8 @@ public class GoldWallet : MonoBehaviour {
     public int GetGoldAmount() {
         return goldAmount;
     }
+
+    public bool CanAfford(int amount) {
+        return goldAmount >= amount;
+    }
 }
