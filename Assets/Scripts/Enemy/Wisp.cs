@@ -27,6 +27,9 @@ public class Wisp : NavSpaceEnemy {
     [Tooltip("References to the 3 line renderers that are used to 'fire' at the player")]
     public LineRenderer[]? FireLineRenderers;
 
+    [Tooltip("VFX *prefab* to play when the entity dies")]
+    public VisualEffect? DeathVFX;
+
     public float MoveSpeed = 8.0f; // Temp so we can manually tweak the speed in the editor
 
     // Degrees per second
@@ -313,6 +316,19 @@ public class Wisp : NavSpaceEnemy {
 
         hit = null;
         return false;
+    }
+
+    protected override void OnDeath() {
+        base.OnDeath();
+
+        if (DeathVFX != null) {
+            VisualEffect deathVFX = Instantiate(DeathVFX, transform.position, Quaternion.identity);
+            deathVFX.Play();
+
+            Destroy(deathVFX.gameObject, 1.0f);
+        } else {
+            Debug.LogError("DeathVFX was null!");
+        } 
     }
 
     enum State {
