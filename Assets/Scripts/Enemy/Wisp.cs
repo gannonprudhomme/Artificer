@@ -92,8 +92,8 @@ public class Wisp : NavSpaceEnemy {
     // The time until we can change states again
     private float timeOfNextStateChange = -1f; // TODO: Better name
 
-    private const float minPrimaryFlee = 30.0f;
-    private const float maxPrimaryStrafe = 40.0f;
+    private const float minPrimaryFlee = 30.0f * 2.5f;
+    private const float maxPrimaryStrafe = 40.0f * 2.5f;
     private State previousState = State.CHASE;
 
     private State DetermineCurrentState() {
