@@ -244,6 +244,10 @@ public class WispFireballAttack: EnemyAttack {
         isCharging = false;
         animator.SetBool(ANIM_IS_CHARGING, false);
         animator.SetBool(ANIM_IS_FIRING, false);
+        chargeVisualEffect.Stop();
+        // This shouldn't matter; once we set the charge line renderer it shouldn't stop until it's fired
+        // (and thus already been disabled)
+        chargeLineRenderer.enabled = false;
     }
 }
 
