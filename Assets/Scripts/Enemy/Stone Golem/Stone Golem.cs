@@ -90,6 +90,7 @@ public class StoneGolem : Enemy {
     protected override float StartingBaseDamage => 20f;
     public override float CurrentBaseDamage => StartingBaseDamage;
 
+    // Has to match up with its NavMesh agent name 
     public override string EnemyIdentifier => "Stone Golem";
 
     private void OnAnimatorMove() {
@@ -108,6 +109,8 @@ public class StoneGolem : Enemy {
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         laserLineRenderer = GetComponent<LineRenderer>();
+
+        animator.speed = 1.3f;
 
         laserAttack = new GolemLaserAttack(
             laserLineRenderer, AimPoint, Target.AimPoint, LaserDamageArea, LaserSizeCurve, LaserChargeSfx, LaserFireSfx

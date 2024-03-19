@@ -82,6 +82,8 @@ public class GolemLaserAttack: EnemyAttack {
     // Start flashing the lazer 2.5 seconds into the charge
     private const float aboutToFireFlashDuration = 1.5f;
 
+    private const float maxFiringDistance = 45f * 1.5f;
+
     // The Time.time of when we last fired
     private float timeOfLastFire = Mathf.NegativeInfinity;
     private const float cooldown = 5.0f; // In seconds
@@ -217,7 +219,7 @@ public class GolemLaserAttack: EnemyAttack {
         // probs negligible though (REMOVE THIS)
         float distanceToTarget = Vector3.Distance(startAimPoint.position, target.position);
         // Are we within 10 - 45m of the target (lets say 2m for the min for now, or whatever I set the stopping distance to)
-        if (distanceToTarget < 45f) {
+        if (distanceToTarget < maxFiringDistance) {
             // Debug.Log("Within distance, can attack!");
             return true;
         }
