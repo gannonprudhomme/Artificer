@@ -62,7 +62,10 @@ public class Wisp : NavSpaceEnemy {
             chargeLineRenderer: ChargeLineRenderer!,
             fireLineRenderers: FireLineRenderers!,
             animator: animator,
-            chargeVisualEffect: ChargeVisualEffect!
+            chargeVisualEffect: ChargeVisualEffect!,
+            chargeSFX: ChargeSFX!,
+            fireSFX: FireSFX!,
+            maxAttackDistance: maxPrimaryStrafe + (MoveSpeed * 2.0f) // max attack "range" + how much we can move in 2 seconds (USE_PRIMARY_AND_STRAFE time) 
         );
 
         health!.OnDamaged += OnDamaged;
@@ -80,7 +83,6 @@ public class Wisp : NavSpaceEnemy {
     protected override void Update() {
         base.Update();
 
-        attack?.StartCharging();
         attack?.OnUpdate(CurrentBaseDamage);
 
         // What order should these be in? I never really know
@@ -95,7 +97,7 @@ public class Wisp : NavSpaceEnemy {
     // The time until we can change states again
     private float timeOfNextStateChange = -1f; // TODO: Better name
 
-    private const float minPrimaryFlee = 30.0f * 2.5f;
+    private const float minPrimaryFlee = 30.0f * 2.0f;
     private const float maxPrimaryStrafe = 40.0f * 2.5f;
     private State previousState = State.CHASE;
 
@@ -110,22 +112,16 @@ public class Wisp : NavSpaceEnemy {
             return currentState;
         }
 
-        float maxDistanceBeforeChase = 40.0f;
-
         float distanceToTarget = Vector3.Distance(transform.position, Target.AimPoint.position);
-        bool hasLineOfSight = DoesHaveLineOfSightToTarget(withinMaxDistance: maxDistanceBeforeChase);
-
-        if (!hasLineOfSight) {
-            return State.CHASE;
-        }
+        bool hasLineOfSight = DoesHaveLineOfSightToTarget(withinMaxDistance: maxPrimaryStrafe);
 
         // We shouldn't start trying to use the primary unless we have line of sight
         // (starting by if the player is within FOV)
         // once we start on this we shouldn't move on
-        if (distanceToTarget <= minPrimaryFlee) {
+        if (hasLineOfSight && distanceToTarget <= minPrimaryFlee) {
             timeOfNextStateChange = Time.time + 0.5f;
             return State.USE_PRIMARY_AND_FLEE;
-        } else if (distanceToTarget <= maxPrimaryStrafe) {
+        } else if (hasLineOfSight && distanceToTarget <= maxPrimaryStrafe) {
             timeOfNextStateChange = Time.time + 2.0f;
             return State.USE_PRIMARY_AND_STRAFE;
         } else {

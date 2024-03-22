@@ -29,7 +29,7 @@ public class WispFireballAttack: EnemyAttack {
     private float timeOfLastFire = Mathf.NegativeInfinity;
     private Vector3[] fireEndPositions = new Vector3[3];
 
-    private const float maxAttackDistance = 70.0f; // Arbitrary number
+    private float maxAttackDistance;
 
     private const float cooldown = 4.0f;
 
@@ -47,7 +47,8 @@ public class WispFireballAttack: EnemyAttack {
         LineRenderer chargeLineRenderer,
         Animator animator,
         VisualEffect chargeVisualEffect,
-        LineRenderer[] fireLineRenderers
+        LineRenderer[] fireLineRenderers,
+        float maxAttackDistance
     ) {
         this.target = target;
         this.aimPoint = aimPoint;
@@ -55,12 +56,16 @@ public class WispFireballAttack: EnemyAttack {
         this.fireLineRenderers = fireLineRenderers;
         this.animator = animator;
         this.chargeVisualEffect = chargeVisualEffect;
+        this.maxAttackDistance = maxAttackDistance;
 
         chargeVisualEffect.Stop();
         chargeLineRenderer.enabled = false;
         foreach(var fireLineRenderer in fireLineRenderers) {
             fireLineRenderer.enabled = false;
         }
+
+        // Start off not being able to attack (until the state machine says we can)
+        canAttack = false;
     }
 
     public override void OnUpdate(float entityBaseDamage) {
@@ -72,6 +77,8 @@ public class WispFireballAttack: EnemyAttack {
         
         this.entityBaseDamage = entityBaseDamage;
 
+        StartChargingIfPossible();
+
         // If it's been enough time to start charging again
         if (isCharging) {
             HandleCharging();
@@ -82,7 +89,7 @@ public class WispFireballAttack: EnemyAttack {
         }
     }
 
-    public void StartCharging() {
+    public void StartChargingIfPossible() {
         if (!CanStartCharging()) { return; }
 
         isCharging = true;
@@ -94,7 +101,7 @@ public class WispFireballAttack: EnemyAttack {
         chargeVisualEffect.Play();
 
         // Mark if we were hitting the player when the charge started I guess?
-        if (Physics.Raycast(aimPoint.position, aimPoint.forward, out RaycastHit hit, 40.0f) &&
+        if (Physics.Raycast(aimPoint.position, aimPoint.forward, out RaycastHit hit, 1000.0f) &&
             hit.collider.TryGetEntityFromCollider(out Entity entity) &&
             entity.gameObject == target.gameObject
         ) {
@@ -107,7 +114,7 @@ public class WispFireballAttack: EnemyAttack {
     private bool CanStartCharging() {
         bool hasCooledDown = Time.time - timeOfLastFire >= cooldown;
 
-        return hasCooledDown && !isCharging && !isFiring;
+        return canAttack && hasCooledDown && !isCharging && !isFiring;
     }
 
     private void HandleCharging() {
