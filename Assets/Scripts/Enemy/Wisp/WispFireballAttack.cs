@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -12,6 +13,10 @@ public class WispFireballAttack: EnemyAttack {
     private readonly LineRenderer[] fireLineRenderers;
     private readonly Animator animator;
     private readonly VisualEffect chargeVisualEffect;
+    private readonly AudioClip chargeSFX;
+    private readonly AudioClip fireSFX;
+
+    private GameObject? chargeSfxInstance = null;
 
     private float entityBaseDamage;
 
@@ -48,6 +53,8 @@ public class WispFireballAttack: EnemyAttack {
         Animator animator,
         VisualEffect chargeVisualEffect,
         LineRenderer[] fireLineRenderers,
+        AudioClip chargeSFX,
+        AudioClip fireSFX,
         float maxAttackDistance
     ) {
         this.target = target;
@@ -56,6 +63,8 @@ public class WispFireballAttack: EnemyAttack {
         this.fireLineRenderers = fireLineRenderers;
         this.animator = animator;
         this.chargeVisualEffect = chargeVisualEffect;
+        this.fireSFX = fireSFX;
+        this.chargeSFX = chargeSFX;
         this.maxAttackDistance = maxAttackDistance;
 
         chargeVisualEffect.Stop();
@@ -95,6 +104,10 @@ public class WispFireballAttack: EnemyAttack {
         isCharging = true;
         timeOfChargeStart = Time.time;
         chargeLineRenderer.enabled = true;
+        Debug.Log("Starting SFX");
+
+        // Store this in case we need to cancel it
+        chargeSfxInstance = AudioUtility.shared.CreateSFX(chargeSFX, aimPoint.position, AudioUtility.AudioGroups.EnemyAttack, spatialBlend: 1.0f);
 
         animator.SetBool(ANIM_IS_CHARGING, true);
 
@@ -163,6 +176,9 @@ public class WispFireballAttack: EnemyAttack {
 
         chargeVisualEffect.Stop();
         chargeLineRenderer.enabled = false;
+
+        Object.Destroy(chargeSfxInstance); // Destroy it in case it's still playing
+        AudioUtility.shared.CreateSFX(fireSFX, aimPoint.position, AudioUtility.AudioGroups.EnemyAttack, spatialBlend: 1.0f);
 
         animator.SetBool(ANIM_IS_FIRING, true);
         animator.SetBool(ANIM_IS_CHARGING, false);
@@ -255,6 +271,12 @@ public class WispFireballAttack: EnemyAttack {
         // This shouldn't matter; once we set the charge line renderer it shouldn't stop until it's fired
         // (and thus already been disabled)
         chargeLineRenderer.enabled = false;
+
+        Object.Destroy(chargeSfxInstance); // Destroy it in case it's still playing
+    }
+
+    public void OnDeath() {
+        Object.Destroy(chargeSfxInstance); // Destroy it in case it's still playing
     }
 }
 

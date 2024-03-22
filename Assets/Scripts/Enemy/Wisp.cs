@@ -30,6 +30,12 @@ public class Wisp : NavSpaceEnemy {
     [Tooltip("VFX *prefab* to play when the entity dies")]
     public VisualEffect? DeathVFX;
 
+    [Tooltip("Audio clip to play when the Wisp charges its attack")]
+    public AudioClip? ChargeSFX;
+
+    [Tooltip("Audio clip to play when the Wisp fires")]
+    public AudioClip? FireSFX;
+
     public float MoveSpeed = 8.0f; // Temp so we can manually tweak the speed in the editor
 
     // Degrees per second
@@ -316,6 +322,9 @@ public class Wisp : NavSpaceEnemy {
 
     protected override void OnDeath() {
         base.OnDeath();
+
+        // Stop the charge SFX in case it's playing
+        attack!.OnDeath();
 
         if (DeathVFX != null) {
             VisualEffect deathVFX = Instantiate(DeathVFX, transform.position, Quaternion.identity);

@@ -31,7 +31,7 @@ public class AudioUtility {
         s_AudioManager = GameObject.FindObjectOfType<AudioManager>();
     }
 
-    public void CreateSFX(
+    public GameObject CreateSFX(
         AudioClip clip,
         Vector3 position,
         AudioGroups audioGroup,
@@ -48,7 +48,10 @@ public class AudioUtility {
 
         source.outputAudioMixerGroup = GetAudioGroup(audioGroup);
 
+        // We should return this in case we want to destroy it early
         GameObject.Destroy(sfxInstance, clip.length); // Destroy the game object after it's done playing
+
+        return sfxInstance;
     }
 
     public AudioMixerGroup GetAudioGroup(AudioGroups group) {
