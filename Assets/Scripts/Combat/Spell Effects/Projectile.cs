@@ -206,8 +206,14 @@ public abstract class Projectile : MonoBehaviour {
 
         // impact vfx
         if (ImpactVfx) {
-            GameObject impactVfx = Instantiate(ImpactVfx!, point, Quaternion.identity);
-            impactVfx.GetComponent<VisualEffect>().Play();
+            GameObject impactVfx = Instantiate(ImpactVfx!, point, Quaternion.LookRotation(normal));
+            
+            if (impactVfx.TryGetComponent(out VFXLightController vfxLightController)) {
+                Debug.Log("playing vfxLightController");
+                vfxLightController.Play();
+            } else {
+                impactVfx.GetComponent<VisualEffect>().Play();
+            }
 
             Destroy(impactVfx, ImpactVfxLifetime);
         }
