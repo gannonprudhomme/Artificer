@@ -37,6 +37,7 @@ public abstract class Projectile : MonoBehaviour {
     [Tooltip("Clip to play on impact")]
     public AudioClip? ImpactSfxClip;
 
+    // TODO: I don't think we ever actually set this to anything other than other everything
     [Tooltip("Layers this projectile can collide with")]
     public LayerMask HittableLayers = -1;
 
@@ -230,10 +231,5 @@ public abstract class Projectile : MonoBehaviour {
 
         // Self destruct
         Destroy(this.gameObject);
-    }
-
-    void OnDrawGizmos() {
-        Gizmos.color = RadiusColor;
-        Gizmos.DrawSphere(transform.position, Radius); // Shouldn't thsi be in the tip since that's where we do collision?
     }
 }

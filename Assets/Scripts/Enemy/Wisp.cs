@@ -195,17 +195,23 @@ public class Wisp : NavSpaceEnemy {
         
         if (hasReachedStrafeEndPos || (previousState != State.USE_PRIMARY_AND_STRAFE && previousState != State.USE_PRIMARY_AND_FLEE)) {
             // choose a new strafe position 
-            Vector3 randomMove = Random.insideUnitSphere * 50f;
-            randomMove.y = Mathf.Clamp(randomMove.y, -2.0f, 2.0f);
 
-            randomMove += transform.position;
-            strafeEndPosition = randomMove;
+            strafeEndPosition = FindStrafePosition();
 
             // Calculate the path to it
-            CreatePathTo(randomMove);
+            CreatePathTo(strafeEndPosition);
         }
 
         TraversePath();
+    }
+
+    // Not gonna return an optional since we really shouldn't ever miss this?
+    private Vector3 FindStrafePosition() {
+        Vector3 randomMove = Random.insideUnitSphere * 50f;
+        randomMove.y = Mathf.Clamp(randomMove.y, -2.0f, 2.0f); // Clamp the y so we don't move too much up & down, just side-to-side
+        randomMove += transform.position;
+
+        return graph!.FindNearestToPosition(randomMove).center;
     }
 
     private void DoChase() {
@@ -334,6 +340,14 @@ public class Wisp : NavSpaceEnemy {
         } else {
             Debug.LogError("DeathVFX was null!");
         } 
+    }
+
+    protected void OnDrawGizmosSelected() {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, minPrimaryFlee);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, maxPrimaryStrafe);
     }
 
     enum State {

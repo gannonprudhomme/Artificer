@@ -286,7 +286,6 @@ public class Lemurian : Enemy {
                 strafePosition = hit.position;
                 navMeshAgent!.SetDestination(strafePosition);
             } else {
-                Debug.LogError($"Lemurian: Can't find closest point from {targetPos}");
                 // Force it to re-chose next time
                 strafePosition = Vector3.negativeInfinity;
             }

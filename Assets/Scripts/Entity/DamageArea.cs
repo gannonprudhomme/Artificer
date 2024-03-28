@@ -74,9 +74,9 @@ public class DamageArea : MonoBehaviour {
         }
     }
 
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(transform.position, EffectRadius);
+    private void OnDrawGizmosSelected() {
+        // Gizmos.color = Color.red;
+        // Gizmos.DrawSphere(transform.position, EffectRadius);
     }
 }
 

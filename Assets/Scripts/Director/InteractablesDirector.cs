@@ -113,7 +113,6 @@ public class InteractablesDirector : MonoBehaviour {
 
             float agentHeight = 3.0f;
             if (NavMesh.SamplePosition(randPosition, out NavMeshHit hit, agentHeight * 2f, NavMesh.AllAreas)) {
-                Debug.Log("Found one!");
                 result = hit.position;
                 return true;
             } 

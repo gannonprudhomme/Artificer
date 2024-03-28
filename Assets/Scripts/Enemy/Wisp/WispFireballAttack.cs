@@ -104,7 +104,6 @@ public class WispFireballAttack: EnemyAttack {
         isCharging = true;
         timeOfChargeStart = Time.time;
         chargeLineRenderer.enabled = true;
-        Debug.Log("Starting SFX");
 
         // Store this in case we need to cancel it
         chargeSfxInstance = AudioUtility.shared.CreateSFX(chargeSFX, aimPoint.position, AudioUtility.AudioGroups.EnemyAttack, spatialBlend: 1.0f);
