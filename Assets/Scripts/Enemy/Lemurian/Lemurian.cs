@@ -447,6 +447,7 @@ public class Lemurian : Enemy {
             Mathf.Infinity,
             ~lemurianMask // Ignore its own colliders...shit this also ignores other Lemurians
         )) {
+            // TODO: This should really be hit.collider.TryGetEntityFromCollider(out var entity) & compare game objects
             if (hit.collider == Target.TargetCollider) {
                 return true;
             }

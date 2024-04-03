@@ -115,7 +115,7 @@ public abstract class CombatDirector: MonoBehaviour {
                 ),
                 new(
                     identifier: "Wisp",
-                    spawnCost: 10f,
+                    spawnCost: 10f * 2f,
                     isFlyingEnemy: true,
                     prefab : WispPrefab!
                 )
@@ -216,6 +216,8 @@ public abstract class CombatDirector: MonoBehaviour {
     private bool FindFlyingSpawnPosition(Vector3 playerPosition, Graph graph, out Vector3 result) {
         int i;
         for(i = 0; i < 5; i++) {
+            // TODO: This should only be for horizontal
+            // we shouldn't spawn the Wisp too high in the air - it should be a only a bit above the ground
             float maxSpawnDistanceFromPlayer = minAndMaxSpawnDistanceFromPlayer.Item2;
             Vector3 randomPosition = playerPosition + Random.insideUnitSphere * maxSpawnDistanceFromPlayer;
 
