@@ -93,7 +93,8 @@ public class FireballSpell : Spell {
         Vector3 muzzlePosition,
         GameObject owner,
         Camera spellCamera,
-		float playerBaseDamage
+		float playerBaseDamage,
+        LayerMask layerToIgnore
     ) {
         AudioUtility.shared.CreateSFX(
             ShootSfx,
@@ -106,7 +107,7 @@ public class FireballSpell : Spell {
         // reduce # of charges
         CurrentCharge -= 1;
 
-        Vector3 direction = spellCamera.transform.forward;
+        Vector3 direction = GetProjectileDirection(spellCamera, muzzlePosition, playerLayerToIgnore: layerToIgnore);
 
         // Spawn a projectile
         Projectile newProjectile = Instantiate(
@@ -124,5 +125,24 @@ public class FireballSpell : Spell {
     }
     public override bool CanShootWhereAiming(Vector3 muzzlePosition, Camera SpellCamera) {
         return true;
+    }
+
+    // Returns the direction to fire the projectile in.
+    // 
+    // If we don't hit anything, we'll pick a "point" 100m away
+    private static Vector3 GetProjectileDirection(Camera spellCamera, Vector3 muzzlePosition, LayerMask playerLayerToIgnore) {
+        Vector3 dir;
+        if (Physics.Raycast(
+            origin: spellCamera.transform.position,
+            direction: spellCamera.transform.forward,
+            out RaycastHit hit,
+            maxDistance: 1000f,
+            layerMask: ~playerLayerToIgnore // We don't want to do this everytime we fire - pass it in
+        )) {
+            return (hit.point - muzzlePosition).normalized; // Aim towards the hit point
+        } else {
+            // Aim 100m away
+            return ((spellCamera.transform.position + spellCamera.transform.forward * 100) - muzzlePosition).normalized;
+        }
     }
 }

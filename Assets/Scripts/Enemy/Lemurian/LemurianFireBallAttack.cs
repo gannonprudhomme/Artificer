@@ -146,9 +146,6 @@ public class LemurianFireballAttack: EnemyAttack {
     }
 
     private void ResetAttack() {
-        if (isCharging) {
-            Debug.Log("Resetting attack");
-        }
         isCharging = false;
         animator.SetBool(ANIM_IS_CHARGING_FIREBALL, false);
         animator.SetBool(ANIM_IS_FIRING_FIREBALL, false);

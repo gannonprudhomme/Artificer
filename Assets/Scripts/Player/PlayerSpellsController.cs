@@ -51,6 +51,8 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     // Setting this as constant for now, but it won't be later
     public const float baseDamage = 12.0f;
 
+    public LayerMask playerLayerMask;
+
     public Texture2D CurrentAimTexture {
         get {
             if (canShootWhereAiming) {
@@ -63,6 +65,7 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
 
     // Start is called before the first frame update
     void Awake() {
+        playerLayerMask = LayerMask.GetMask("Player");
 
         // This is obviously a shit way of doing this
         // really we should be able to provide spells as an array in Unity
@@ -135,7 +138,8 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
                     SpellSpawnPoint.transform.position,
                     this.gameObject,
                     SpellCamera,
-		            player.CurrentBaseDamage
+		            player.CurrentBaseDamage,
+                    layerToIgnore: playerLayerMask
                 );
             } else {
                 // print("can't shoot");
@@ -148,7 +152,8 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
                     SpellSpawnPoint.transform.position,
                     this.gameObject,
                     SpellCamera,
-				    player.CurrentBaseDamage
+				    player.CurrentBaseDamage,
+                    layerToIgnore: playerLayerMask
                 );
             }
         } else if (inputHandler.GetSecondAttackInputReleased()) {
