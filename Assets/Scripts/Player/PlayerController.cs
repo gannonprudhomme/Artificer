@@ -73,6 +73,10 @@ public class PlayerController : Entity {
 
     private Interactable? currentAimedAtInteractable;
 
+    // Values for smooth rotation for 3rd person camera
+    private float turnSmoothTime = 0.1f;
+    private float turnSmoothVelocity;
+
     /** CONSTANTS **/
 
     // TODO: Describe this
@@ -135,8 +139,6 @@ public class PlayerController : Entity {
         );
         IsGrounded = newIsGrounded;
         groundNormal = newGroundNormal;
-
-        HandleLooking();
 
         HandleCharacterMovement();
 
@@ -207,7 +209,22 @@ public class PlayerController : Entity {
         float speedModifier = isSprinting ? SprintSpeedModifier : 1f;
 
         // converts move input to a worldspace vector based on our character's transform orientation
-        Vector3 worldSpaceMoveInput = transform.TransformVector(inputHandler.GetMoveInput());
+        Vector3 worldSpaceMoveInput = Vector3.zero;
+
+        Vector3 direction = inputHandler.GetMoveInput().normalized;
+
+        if (direction.magnitude > 0.1f) {
+            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + PlayerCamera.transform.eulerAngles.y;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+
+            // Rotate the character
+            // TODO: Change this if the character just fired; if they just fired then they should be aiming forward
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+            Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
+            worldSpaceMoveInput = moveDir;
+        }
 
         // handle grounded movement
         if (IsGrounded) {
