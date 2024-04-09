@@ -124,23 +124,18 @@ public class IceWallSpell : Spell {
         }
 
         // Determine the aiming point
-
         var raycastHit = Physics.RaycastAll(
-            muzzlePosition,
-            spellCamera.transform.forward // Is this what we should do?
+            origin: spellCamera.transform.position, // Should this really be it though? blehhh
+            direction: spellCamera.transform.forward // Is this what we should do?
             // We need to know what to hit in the first place tho - just level, not Entities?
                // or if we aim at an entity should we center it at their feet? (do simpler for now)
         );
-
-        Debug.DrawRay(muzzlePosition, spellCamera.transform.forward, Color.red);
-        Debug.DrawLine(muzzlePosition, spellCamera.transform.forward * 1000.0f, Color.blue);
 
         if (raycastHit.Length == 0) {
             return; // No hits
         }
 
         RaycastHit bestHit = raycastHit[0];
-
 
         // Draw the decal on whatever we hit?
         aimingPoint = bestHit.point;
@@ -164,8 +159,7 @@ public class IceWallSpell : Spell {
             );
         } else {
             // Move it if the instance already exists
-            aimingDecalProjectorInstance.transform.position = aimingPoint;
-            aimingDecalProjectorInstance.transform.rotation = rotation;
+            aimingDecalProjectorInstance.transform.SetPositionAndRotation(position: aimingPoint, rotation: rotation);
         }
 
         // Check if it's a wall - if it is we don't want to aim there
