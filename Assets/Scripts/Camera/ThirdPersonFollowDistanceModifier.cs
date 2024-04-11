@@ -13,10 +13,6 @@ using UnityEngine;
 // Basically entirely copied from the Cinemachine AimRigging sample 
 [RequireComponent(typeof(CinemachineVirtualCamera))]
 public class ThirdPersonFollowDistanceModifier : MonoBehaviour {
-    // TODO: Get this from the PlayerController
-    public float MinAngle = -80f;
-    public float MaxAngle = 80f; // it's 80 from how I have it
-
     [Tooltip("Reference to the PlayerController so we can get the min & max vertical angles for the camera")]
     public PlayerController? PlayerController;
 
@@ -59,8 +55,10 @@ public class ThirdPersonFollowDistanceModifier : MonoBehaviour {
         if (verticalAngle > 180) { // Keep vertical angle in the range [-180, 180]
             verticalAngle -= 360;
         }
-        
-        float percent = (verticalAngle - MinAngle) / (MaxAngle - MinAngle); // Normalize it to [0, 1] where 0 is MinAngle, and 1 is MaxAngle
+
+        float max = PlayerController!.VerticalRotationMax;
+        float min = PlayerController!.VerticalRotationMin;
+        float percent = (verticalAngle - min) / (max - min); // Normalize it to [0, 1] where 0 is MinAngle, and 1 is MaxAngle
 
         thirdPersonFollow.CameraDistance = BaseDistance * DistanceScale!.Evaluate(percent);
     }
