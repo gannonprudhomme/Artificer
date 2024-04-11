@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+#nullable enable
 
 public class IceWallSpell : Spell {
-    [Header("Idk")]
+    [Header("Ice Wall Properties")]
     public Color ExternalSpellColor;
 
     [Tooltip("The prefab to project on the ground so the user knows where they're aiming")]
-    public GameObject AimingDecalProjectorPrefab;
+    public GameObject? AimingDecalProjectorPrefab;
 
-    public IceWall IceWallPrefab; // We need a better name than Projectile (it's not a projectile really?)
+    public IceWall? IceWallPrefab; // We need a better name than Projectile (it's not a projectile really?)
 
     [Tooltip("The sound that plays when the button is pressed")]
+    public AudioClip? StartChageSfx;
+
     [Header("Images")]
     [Tooltip("Image that's used when we're aiming the ice wall spell (at a valid target)")]
     public Texture2D? AimingImage;
@@ -46,7 +49,7 @@ public class IceWallSpell : Spell {
 
     // Instance of the aiming decal projector
     // will be destroyed after we fire
-    private GameObject aimingDecalProjectorInstance;
+    private GameObject? aimingDecalProjectorInstance;
 
     private bool canShootWhereAiming = true;
 
@@ -122,7 +125,7 @@ public class IceWallSpell : Spell {
             hasPlayedChargeAudioThisCharge = true;
 
             AudioUtility.shared.CreateSFX(
-                StartChageSfx,
+                StartChageSfx!,
                 spellCamera.transform.position, // position shouldn't matter b/c spatialBlend == 0
                 AudioUtility.AudioGroups.WeaponShoot,
                 0.0f, // we don't want any spatial?
@@ -160,13 +163,13 @@ public class IceWallSpell : Spell {
             wasAimingLastFrame = true;
 
             aimingDecalProjectorInstance = Instantiate(
-                AimingDecalProjectorPrefab,
+                AimingDecalProjectorPrefab!,
                 aimingPoint,
                 rotation
             );
         } else {
             // Move it if the instance already exists
-            aimingDecalProjectorInstance.transform.SetPositionAndRotation(position: aimingPoint, rotation: rotation);
+            aimingDecalProjectorInstance!.transform.SetPositionAndRotation(position: aimingPoint, rotation: rotation);
         }
 
         // Check if it's a wall - if it is we don't want to aim there
@@ -193,7 +196,7 @@ public class IceWallSpell : Spell {
         CurrentCharge -= 1;
 
         IceWall iceWall = Instantiate(
-            IceWallPrefab,
+            IceWallPrefab!,
             aimingPoint,
             aimingRotation
         );

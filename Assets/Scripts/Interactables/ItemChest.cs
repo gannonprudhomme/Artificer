@@ -70,9 +70,9 @@ public class ItemChest : Interactable {
         hasBeenInteractedWith = true;
 
         // Hide the text (and never show it again)
-        CostText.enabled = false;
+        CostText!.enabled = false;
 
-        Animator.SetBool(ANIM_IS_OPEN, true);
+        Animator!.SetBool(ANIM_IS_OPEN, true);
 
         // We spent it, do the other shit
 
@@ -89,10 +89,10 @@ public class ItemChest : Interactable {
         if (hasBeenInteractedWith) return; // Don't show the text if it's already been opened
 
         // Show the price if relevant 
-        CostText.enabled = true;
+        CostText!.enabled = true;
     }
 
     public override void OnNotNearby() {
-        CostText.enabled = false;
+        CostText!.enabled = false;
     }
 }

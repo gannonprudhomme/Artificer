@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.VFX;
 
 #nullable enable
@@ -17,7 +18,7 @@ public class FireballSpell : Spell {
     
     [Tooltip("The Fireball projectile we shoot out")]
     // This should really be FireballProjectile, but tbh to FireballSpell it doesn't matter
-    public Projectile ProjectilePrefab; // Projectile will determine it's damage? Or should this? How dumb should the Projectile be?
+    public Projectile? ProjectilePrefab; // Projectile will determine it's damage? Or should this? How dumb should the Projectile be?
 
     [Tooltip("How long in seconds between shots")]
     public float DelayBetweenShots = 0.5f;
@@ -36,9 +37,8 @@ public class FireballSpell : Spell {
 
     /** Local variables **/
 
-    private VisualEffect fireVisualEffectInstance;
+    private VisualEffect? fireVisualEffectInstance;
     private float lastTimeShot = Mathf.NegativeInfinity;
-    private bool isAttackButtonHeld = false;
 
     void Start() {
         // Start off with max charges
@@ -55,16 +55,9 @@ public class FireballSpell : Spell {
         Recharge();
     }
 
-    public override void AttackButtonHeld() {
-        isAttackButtonHeld = true;
-    }
-
-    public override void AttackButtonReleased() {
-        isAttackButtonHeld = false;
-    }
-    public override void AttackButtonPressed() {
-        // I'm really not sure if we care about this
-    }
+    public override void AttackButtonHeld() { }
+    public override void AttackButtonReleased() { }
+    public override void AttackButtonPressed() { }
 
     private void Recharge() {
         // We should probably check if we need to rProjectileecharge in the first place
@@ -111,7 +104,7 @@ public class FireballSpell : Spell {
 
         // Spawn a projectile
         Projectile newProjectile = Instantiate(
-            ProjectilePrefab,
+            ProjectilePrefab!,
             muzzlePosition,
             Quaternion.LookRotation(direction)
         );
@@ -121,7 +114,7 @@ public class FireballSpell : Spell {
         lastTimeShot = Time.time;
 
         // Play VFX
-        fireVisualEffectInstance.Play();
+        fireVisualEffectInstance!.Play();
     }
     public override bool CanShootWhereAiming(Vector3 muzzlePosition, Camera SpellCamera) {
         return true;
@@ -131,7 +124,6 @@ public class FireballSpell : Spell {
     // 
     // If we don't hit anything, we'll pick a "point" 100m away
     private static Vector3 GetProjectileDirection(Camera spellCamera, Vector3 muzzlePosition, LayerMask playerLayerToIgnore) {
-        Vector3 dir;
         if (Physics.Raycast(
             origin: spellCamera.transform.position,
             direction: spellCamera.transform.forward,

@@ -20,12 +20,12 @@ public class PlayerController : Entity {
 
     [Header("References")]
     [Tooltip("Reference to the main camera used for the player")]
-    public Camera PlayerCamera;
+    public Camera? PlayerCamera;
 
     // Note this should be a transform with a PositionConstraint constrained to the player
     // and should be a bit above the player (around where the reticle is)
     [Tooltip("Transform which we will rotate with the mouse in order to control the camera")]
-    public Transform CameraAimPoint;
+    public Transform? CameraAimPoint;
 
     [Header("General")]
     [Tooltip("Force applied downward when in the air")]
@@ -72,10 +72,9 @@ public class PlayerController : Entity {
 
     private Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
 
-    private InputHandler inputHandler;
+    private InputHandler? inputHandler;
     private CharacterController? characterController;
     private Vector3 groundNormal;
-    private float cameraVerticalAngle = 0f;
 
     private float lastTimeJumped = Mathf.NegativeInfinity;
 
@@ -218,16 +217,16 @@ public class PlayerController : Entity {
     // Called by Update()
     private void HandleCharacterMovement() {
         // character movement handling
-        bool isSprinting = inputHandler.GetSprintInputHeld();
+        bool isSprinting = inputHandler!.GetSprintInputHeld();
         float speedModifier = isSprinting ? SprintSpeedModifier : 1f;
 
         // converts move input to a worldspace vector based on our character's transform orientation
         Vector3 worldSpaceMoveInput;
 
         // Move the player along with the camera rotation
-        Vector3 moveInputDir = inputHandler.GetMoveInput().normalized;
+        Vector3 moveInputDir = inputHandler!.GetMoveInput().normalized;
         if (moveInputDir.magnitude > 0.1f) {
-            float targetAngle = Mathf.Atan2(moveInputDir.x, moveInputDir.z) * Mathf.Rad2Deg + PlayerCamera.transform.eulerAngles.y;
+            float targetAngle = Mathf.Atan2(moveInputDir.x, moveInputDir.z) * Mathf.Rad2Deg + PlayerCamera!.transform.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
 
             // Rotate the character
@@ -286,7 +285,7 @@ public class PlayerController : Entity {
 
         // Handle jumping
 
-        (bool didJump, Vector3 newCharacterVelocity) = GetCanJumpAndVelocity(inputHandler, CharacterVelocity, IsGrounded, JumpForce);
+        (bool didJump, Vector3 newCharacterVelocity) = GetCanJumpAndVelocity(inputHandler!, CharacterVelocity, IsGrounded, JumpForce);
         if (didJump) {
             // Set character velocity to new one
             CharacterVelocity = newCharacterVelocity;
@@ -327,7 +326,7 @@ public class PlayerController : Entity {
     private void HandleLooking() {
         if (CameraAimPoint == null) return;
 
-        Vector2 mouseInput = new(x: inputHandler.GetLookInputsHorizontal(), y: inputHandler.GetLookInputsVertical());
+        Vector2 mouseInput = new(x: inputHandler!.GetLookInputsHorizontal(), y: inputHandler!.GetLookInputsVertical());
         Vector3 rotEulerAngles = CameraAimPoint.localRotation.eulerAngles;
         
         // Calculate vertical rotation (rotation along x-axis)
@@ -357,7 +356,7 @@ public class PlayerController : Entity {
             // start by cancelling out the vertical component of our velocity
             // Note that we also want to do this when we're in the
             // air (aka falling) - I assume for double jumping (this is probably an old comment)
-            Vector3 retCharacterVelocity = new Vector3(
+            Vector3 retCharacterVelocity = new(
                 previousCharacterVelocity.x,
                 0f, // I'm not sure if we want to cancel this out? But hey maybe we do
                 previousCharacterVelocity.z
@@ -407,7 +406,7 @@ public class PlayerController : Entity {
         bool areAimingAtInteractable = false;
         foreach(Interactable nearbyInteractable in nearbyInteractables) {
             // First check if it's even in our FOV
-            Vector3 screenPoint = PlayerCamera.WorldToScreenPoint(nearbyInteractable.transform.position);
+            Vector3 screenPoint = PlayerCamera!.WorldToScreenPoint(nearbyInteractable.transform.position);
 
             if (!(screenPoint.z > 0 && // if it's positive it's in front of us, negative if behind
                 screenPoint.x > 0 &&
@@ -419,8 +418,8 @@ public class PlayerController : Entity {
             }
 
             if (Physics.Raycast(
-                origin: PlayerCamera.transform.position,
-                direction: PlayerCamera.transform.forward,
+                origin: PlayerCamera!.transform.position,
+                direction: PlayerCamera!.transform.forward,
                 out RaycastHit hit,
                 maxDistance: minDistanceToInteractableToBeHovering // Idk what to put for this
             )) {
@@ -444,10 +443,10 @@ public class PlayerController : Entity {
 
     // Handling pressing E to interact
     private void HandleInteracting() {
-        bool wasInteractedPressed = inputHandler.GetInteractInputDown();
+        bool wasInteractedPressed = inputHandler!.GetInteractInputDown();
 
         if (wasInteractedPressed && currentAimedAtInteractable != null) {
-            currentAimedAtInteractable.OnSelected(goldWallet);
+            currentAimedAtInteractable.OnSelected(goldWallet!);
         }
     }
 
