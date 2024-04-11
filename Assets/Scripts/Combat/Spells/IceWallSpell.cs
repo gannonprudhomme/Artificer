@@ -117,7 +117,13 @@ public class IceWallSpell : Spell {
 
     // For the IceWall spell, consider this more of an "aiming" stan = Vector3.zerote
     // it's when we're constantly calling this then release it when we actually spawn the projectile
-    public override void ShootSpell(Vector3 muzzlePosition, GameObject owner, Camera spellCamera, float entityBaseDamage, LayerMask layerToIgnore) {
+    public override void ShootSpell(
+        (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
+        GameObject owner,
+        Camera spellCamera,
+        float entityBaseDamage,
+        LayerMask layerToIgnore
+    ) {
         this.entityBaseDamage = entityBaseDamage;
 
         // We want to play the audio no matter what

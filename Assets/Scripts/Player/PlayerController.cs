@@ -72,6 +72,7 @@ public class PlayerController : Entity {
 
     private Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
 
+    private PlayerSpellsController? playerSpellsController;
     private InputHandler? inputHandler;
     private CharacterController? characterController;
     private Vector3 groundNormal;
@@ -99,15 +100,6 @@ public class PlayerController : Entity {
     protected override float StartingBaseDamage => 12f;
     public override float CurrentBaseDamage => StartingBaseDamage + ((experience!.currentLevel - 1) * 2.4f);
 
-    /** COMPUTED PROPERTIES **/
-    private float RotationMultiplier {
-        get {
-            // if we're aiming, return AimingRotationMultipler (not implemented)
-            // otherwise, return normal one:
-            return 1f;
-        }
-    }
-
     /** FUNCTIONS **/
 
     protected override void Awake() {
@@ -126,6 +118,8 @@ public class PlayerController : Entity {
 
         experience = GetComponent<Experience>();
         goldWallet = GetComponent<GoldWallet>();
+
+        playerSpellsController = GetComponent<PlayerSpellsController>();
 
         experience.OnLevelUp += OnLevelUp; 
 
@@ -226,14 +220,31 @@ public class PlayerController : Entity {
         // Move the player along with the camera rotation
         Vector3 moveInputDir = inputHandler!.GetMoveInput().normalized;
         if (moveInputDir.magnitude > 0.1f) {
-            float targetAngle = Mathf.Atan2(moveInputDir.x, moveInputDir.z) * Mathf.Rad2Deg + PlayerCamera!.transform.eulerAngles.y;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+            float movementAngleDeg = Mathf.Atan2(moveInputDir.x, moveInputDir.z) * Mathf.Rad2Deg;
+            float targetAngle = movementAngleDeg + PlayerCamera!.transform.eulerAngles.y;
 
-            // Rotate the character
-            // TODO: Change this if the character just fired; if they just fired then they should be aiming forward
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            // TODO: Shit I think this should still apply when we're not moving blehhhh
+            // Get it working first though
+            if (playerSpellsController!.IsForcingAimLookForward) {
+                // Modify/make a new targetAngle w/ movementAngleDeg clamped
+                // float newMovementAngleDeg = Mathf.Clamp(movementAngleDeg, -45.1f, 45.1f);
+                float newMovementAngleDeg = 0;
+                float newtargetAngle = newMovementAngleDeg + PlayerCamera!.transform.eulerAngles.y;
+
+                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, newtargetAngle, ref turnSmoothVelocity, turnSmoothTime);
+                transform.rotation = Quaternion.Euler(0f, angle, 0f);
+                
+                // Modified the above values to get a target angle
+            } else {
+                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+
+                // Rotate the character
+                // TODO: Change this if the character just fired; if they just fired then they should be aiming forward
+                transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            }
 
             worldSpaceMoveInput = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
         } else {
             worldSpaceMoveInput = Vector3.zero;
         }

@@ -40,6 +40,11 @@ public class FireballSpell : Spell {
     private VisualEffect? fireVisualEffectInstance;
     private float lastTimeShot = Mathf.NegativeInfinity;
 
+    // how long we force the player to look forward after we shot
+    private const float lookForwardDuration = 1.5f;
+
+    private bool shouldFireWithLeftArm = false
+
     void Start() {
         // Start off with max charges
         CurrentCharge = MaxNumberOfCharges;
@@ -83,7 +88,7 @@ public class FireballSpell : Spell {
 
     // We have enough charges - fire a projectile
     public override void ShootSpell(
-        Vector3 muzzlePosition,
+        (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
         GameObject owner,
         Camera spellCamera,
 		float playerBaseDamage,
@@ -99,6 +104,16 @@ public class FireballSpell : Spell {
 
         // reduce # of charges
         CurrentCharge -= 1;
+
+        // Alternate between them
+        Vector3 muzzlePosition;
+
+        if (shouldFireWithLeftArm) {
+            muzzlePosition = muzzlePositions.leftArm;
+        } else {
+            muzzlePosition = muzzlePositions.rightArm;
+        }
+        shouldFireWithLeftArm = !shouldFireWithLeftArm; // Flip it to the other spawn point
 
         Vector3 direction = GetProjectileDirection(spellCamera, muzzlePosition, playerLayerToIgnore: layerToIgnore);
 
@@ -140,5 +155,9 @@ public class FireballSpell : Spell {
 
     public override Texture2D? GetAimTexture() {
         return null;
+    }
+
+    public override bool ShouldForceLookForward() {
+        return (Time.time - lastTimeShot) < lookForwardDuration;
     }
 }

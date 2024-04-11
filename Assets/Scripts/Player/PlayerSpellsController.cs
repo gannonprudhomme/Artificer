@@ -21,9 +21,12 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     [Tooltip("Where to spawn spell fire effects")]
     public Transform? SpellEffectsFireSpawnPoint;
 
+    [Tooltip("Left arm for where the spell should be spawned / shot out of")] // Tooltip won't apply to lightning jump or ice wall
+    public Transform? LeftArmSpellSpawnPoint;
+
     // SpellMuzzle was under Internal References, but idk what internal was supposed to mean in this case
-    [Tooltip("Where the spell should be spawned / shot out of")] // Tooltip won't apply to lightning jump or ice wall
-    public Transform? SpellSpawnPoint;
+    [Tooltip("Right arm for where the spell should be spawned / shot out of")] // Tooltip won't apply to lightning jump or ice wall
+    public Transform? RightArmSpellSpawnPoint;
 
     // I still don't really understand this
     [Tooltip("Secondary camera used to avoid seeing weapon go through geometries?")]
@@ -57,9 +60,9 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         // This is obviously a shit way of doing this
         // really we should be able to provide spells as an array in Unity
         // but that array/list should be a fixed size. Surely that's possible
-        spells[0] = Instantiate(FirstSpellPrefab!, SpellSpawnPoint!);
+        spells[0] = Instantiate(FirstSpellPrefab!, RightArmSpellSpawnPoint!);
         if (SecondSpellPrefab != null) { // probs just want to yell if this is null, idk
-            spells[1] = Instantiate(SecondSpellPrefab, SpellSpawnPoint!);
+            spells[1] = Instantiate(SecondSpellPrefab, RightArmSpellSpawnPoint!);
         }
         // spells[2] = ThirdSpell;
         // spells[3] = FourthSpell;
@@ -115,10 +118,10 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
             // print("first attack held");
             if (spells[0].CanShoot()) {
                 spells[0].ShootSpell(
-                    SpellSpawnPoint!.transform.position,
-                    this.gameObject,
-                    SpellCamera!,
-		            player!.CurrentBaseDamage,
+                    muzzlePositions: (LeftArmSpellSpawnPoint!.transform.position, RightArmSpellSpawnPoint!.transform.position),
+                    owner: this.gameObject,
+                    spellCamera: SpellCamera!,
+				    currDamage: player!.CurrentBaseDamage,
                     layerToIgnore: playerLayerMask
                 );
             } else {
@@ -129,10 +132,10 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         if (inputHandler.GetSecondAttackInputHeld()) {
             if (spells[1].CanShoot()) {
                 spells[1].ShootSpell(
-                    SpellSpawnPoint!.transform.position,
-                    this.gameObject,
-                    SpellCamera!,
-				    player!.CurrentBaseDamage,
+                    muzzlePositions: (LeftArmSpellSpawnPoint!.transform.position, RightArmSpellSpawnPoint!.transform.position),
+                    owner: this.gameObject,
+                    spellCamera: SpellCamera!,
+				    currDamage: player!.CurrentBaseDamage,
                     layerToIgnore: playerLayerMask
                 );
             }
