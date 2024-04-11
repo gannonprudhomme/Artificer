@@ -8262,9 +8262,19 @@ PrefabInstance:
       objectReference: {fileID: 2023251542}
     - target: {fileID: 8279181819349566800, guid: 7aa532cae832aff4b825742d05fe279f,
         type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8279181819349566800, guid: 7aa532cae832aff4b825742d05fe279f,
+        type: 3}
       propertyPath: PlayerController
       value: 
       objectReference: {fileID: 7857456915802866201}
+    - target: {fileID: 8279181819349566800, guid: 7aa532cae832aff4b825742d05fe279f,
+        type: 3}
+      propertyPath: DistanceScale.m_Curve.Array.data[2].value
+      value: 1.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

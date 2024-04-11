@@ -48,6 +48,8 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     public LayerMask playerLayerMask;
     public Texture2D? CurrentAimTexture { get; protected set; }
 
+    public bool IsForcingAimLookForward { get; private set; }
+
     // Start is called before the first frame update
     void Awake() {
         playerLayerMask = LayerMask.GetMask("Player");
@@ -70,6 +72,8 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         foreach(var spell in spells) {
             spell.SpellEffectsSpawnPoint = SpellEffectsFireSpawnPoint;
         }
+
+        IsForcingAimLookForward = false;
     }
 
     void Start() {
@@ -83,19 +87,9 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
 
         // Check all of the spells and see if it's okay to shoot where we're aiming
         // if it's not we se canShootWhereAiming to false so the aim indicator changes
+        CurrentAimTexture = DetermineCurrentAimTexture();
 
-        Texture2D? aimTexture = null;
-        foreach (var spell in spells) {
-            if (spell.GetAimTexture() is Texture2D texture) {
-                aimTexture = texture;
-            }   
-        }
-
-        if (aimTexture != null) {
-            CurrentAimTexture = aimTexture;
-        } else {
-            CurrentAimTexture = NormalAimTexture!;
-        }
+        IsForcingAimLookForward = DetermineIsForceLookingForward();
     }
 
     void HandleAttackInput() {
@@ -150,6 +144,34 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         // I already know how to do fireball though so I don't *really* need to
         // but Ice Wall and Lightning Jump should be a good challenge
     }
+
+    private Texture2D DetermineCurrentAimTexture() {
+        Texture2D? aimTexture = null;
+        foreach (var spell in spells) {
+            if (spell.GetAimTexture() is Texture2D texture) {
+                aimTexture = texture;
+            }   
+        }
+
+        if (aimTexture != null) {
+            return aimTexture;
+        } else {
+            return NormalAimTexture!;
+        }
+    }
+
+    private bool DetermineIsForceLookingForward() {
+        bool isForceLookingForward = false;
+
+        foreach (var spell in spells) {
+            if (spell.ShouldForceLookForward()) {
+                isForceLookingForward = true;
+            }
+        }
+
+        return isForceLookingForward;
+    }
+
 
     // We probably don't want this
     void RestoreSpellCharges() {

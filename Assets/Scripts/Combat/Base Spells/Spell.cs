@@ -99,4 +99,6 @@ public abstract class Spell : MonoBehaviour {
     public abstract Texture2D? GetAimTexture();
 
     public abstract bool CanShootWhereAiming(Vector3 muzzlePosition, Camera spellCamera);
+
+    public virtual bool ShouldForceLookForward() { return false; }
 }
