@@ -22,6 +22,11 @@ public class PlayerController : Entity {
     [Tooltip("Reference to the main camera used for the player")]
     public Camera PlayerCamera;
 
+    // Note this should be a transform with a PositionConstraint constrained to the player
+    // and should be a bit above the player (around where the reticle is)
+    [Tooltip("Transform which we will rotate with the mouse in order to control the camera")]
+    public Transform CameraAimPoint;
+
     [Header("General")]
     [Tooltip("Force applied downward when in the air")]
     // Why would this be on the PlayerController? Should there be some like World / Game object we get this from?
@@ -50,6 +55,12 @@ public class PlayerController : Entity {
     [Header("Rotation")]
     [Tooltip("Rotation speed for moving the camera")]
     public float RotationSpeed = 200f;
+
+    [Tooltip("Minimum angle we can rotate vertically")]
+    public float VerticalRotationMin = -80f;
+
+    [Tooltip("Max angle we can rotate vertically")]
+    public float VerticalRotationMax = 80f;
 
     [Header("Jump")]
     [Tooltip("Force applied upward when jumping")]
@@ -142,6 +153,8 @@ public class PlayerController : Entity {
 
         HandleCharacterMovement();
 
+        HandleLooking();
+
         CheckIfAimingAtInteractable();
 
         HandleInteracting();
@@ -209,21 +222,21 @@ public class PlayerController : Entity {
         float speedModifier = isSprinting ? SprintSpeedModifier : 1f;
 
         // converts move input to a worldspace vector based on our character's transform orientation
-        Vector3 worldSpaceMoveInput = Vector3.zero;
+        Vector3 worldSpaceMoveInput;
 
-        Vector3 direction = inputHandler.GetMoveInput().normalized;
-
-        if (direction.magnitude > 0.1f) {
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + PlayerCamera.transform.eulerAngles.y;
+        // Move the player along with the camera rotation
+        Vector3 moveInputDir = inputHandler.GetMoveInput().normalized;
+        if (moveInputDir.magnitude > 0.1f) {
+            float targetAngle = Mathf.Atan2(moveInputDir.x, moveInputDir.z) * Mathf.Rad2Deg + PlayerCamera.transform.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
 
             // Rotate the character
             // TODO: Change this if the character just fired; if they just fired then they should be aiming forward
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-            Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-
-            worldSpaceMoveInput = moveDir;
+            worldSpaceMoveInput = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+        } else {
+            worldSpaceMoveInput = Vector3.zero;
         }
 
         // handle grounded movement
@@ -312,28 +325,24 @@ public class PlayerController : Entity {
 
     // Called by Update()
     private void HandleLooking() {
-        // Handle horizontal camera rotation
+        if (CameraAimPoint == null) return;
 
-        // Rotate the transform with the input speed around it's local Y axis
-        transform.Rotate(
-            new Vector3(
-                0f,
-                inputHandler.GetLookInputsHorizontal() * RotationSpeed * RotationMultiplier,
-                0f
-            ),
-            Space.Self
-        );
+        Vector2 mouseInput = new(x: inputHandler.GetLookInputsHorizontal(), y: inputHandler.GetLookInputsVertical());
+        Vector3 rotEulerAngles = CameraAimPoint.localRotation.eulerAngles;
+        
+        // Calculate vertical rotation (rotation along x-axis)
+        rotEulerAngles.x -= mouseInput.y * RotationSpeed; // why tf is this minus
 
-        // Handle vertical camera rotation
+        // Clamp the vertical rotation (rotation along x-axis)
+        if (rotEulerAngles.x > 180) { // Ensure its within [-180, 180]
+            rotEulerAngles.x -= 360;
+        }
+        rotEulerAngles.x = Mathf.Clamp(rotEulerAngles.x, VerticalRotationMin, VerticalRotationMax); // Clamp it to the min/max
 
-        // add vertical inputs to the camera's vertical angle
-        cameraVerticalAngle += -inputHandler.GetLookInputsVertical() * RotationSpeed * RotationMultiplier;
+        // Handle horizontal rotation (rotating along y-axis)
+        rotEulerAngles.y += mouseInput.x * RotationSpeed;
 
-        // limit the camera's vertical angle to min/max
-        cameraVerticalAngle = Mathf.Clamp(cameraVerticalAngle, -89f, 89f);
-
-        // apply the vertical angle as a local rotation to the camera transform along its right axis (makes it pivot up and down)
-        PlayerCamera.transform.localEulerAngles = new Vector3(cameraVerticalAngle, 0, 0);
+        CameraAimPoint.localRotation = Quaternion.Euler(rotEulerAngles);
     }
 
     // Returns modified (canJump, newCharacterVelocity)
