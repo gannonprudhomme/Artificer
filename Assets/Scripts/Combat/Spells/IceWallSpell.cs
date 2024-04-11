@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class IceWallSpell : Spell {
     [Header("Idk")]
@@ -12,7 +14,12 @@ public class IceWallSpell : Spell {
     public IceWall IceWallPrefab; // We need a better name than Projectile (it's not a projectile really?)
 
     [Tooltip("The sound that plays when the button is pressed")]
-    public AudioClip StartChageSfx;
+    [Header("Images")]
+    [Tooltip("Image that's used when we're aiming the ice wall spell (at a valid target)")]
+    public Texture2D? AimingImage;
+
+    [Tooltip("Image used when we're aiming and can't spawn the ice wall where we're aiming")]
+    public Texture2D? CantSpawnImage;
 
     private const float DamageCoefficient = 1.0f;
 
@@ -192,6 +199,20 @@ public class IceWallSpell : Spell {
         );
 
         iceWall.DamagePerSpike = damagePerSpike;
+    }
+
+    public override Texture2D? GetAimTexture() {
+        if (wasAimingLastFrame) {
+            if (canShootWhereAiming) {
+                // return dot image
+                return AimingImage!;
+            } else { // can't shoot
+                // return X image
+                return CantSpawnImage!;
+            }
+        } else {
+            return null;
+        }
     }
 
     private bool IsWall(Vector3 normal) {

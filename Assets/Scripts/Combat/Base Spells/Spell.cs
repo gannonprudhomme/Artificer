@@ -64,7 +64,7 @@ public interface IHoldManualSpell : ISpell {
 // as such the spells manager has to manage them all
 public abstract class Spell : MonoBehaviour {
     [Tooltip("Audio clip that plays when the spell is fired")]
-    public AudioClip ShootSfx;
+    public AudioClip? ShootSfx;
     public Transform? SpellEffectsSpawnPoint { get; set; }
 
     // TODO: This is editable in the UI, and we def don't want that
@@ -95,6 +95,8 @@ public abstract class Spell : MonoBehaviour {
 	    float currDamage,
         LayerMask layerToIgnore
     );
+
+    public abstract Texture2D? GetAimTexture();
 
     public abstract bool CanShootWhereAiming(Vector3 muzzlePosition, Camera spellCamera);
 }

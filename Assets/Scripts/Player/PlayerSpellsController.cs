@@ -8,7 +8,7 @@ using UnityEngine.UI;
 // Downside of modularization (or really, how I architectured this?
 // we don't want this to dependon the UI module, so we can't define this in the UI module like we should
 public interface AimDelegate {
-    public Texture2D CurrentAimTexture { get; }
+    public Texture2D? CurrentAimTexture { get; }
 }
 
 // We might want this to live in the Player module
@@ -31,10 +31,7 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
 
     [Header("UI")]
     [Tooltip("The normal aim indicator image which displays by default (when the user can shoot")]
-    public Texture2D NormalAimTexture;
-
-    [Tooltip("The aim indicator image which displays when the user can't shoot at a target")]
-    public Texture2D CantShootTexture;
+    public Texture2D? NormalAimTexture;
 
     [Header("Spells")]
     public Spell FirstSpellPrefab; // These have to be MonoBehaviors to be able to be assigned in Unity btw
@@ -52,16 +49,7 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     public const float baseDamage = 12.0f;
 
     public LayerMask playerLayerMask;
-
-    public Texture2D CurrentAimTexture {
-        get {
-            if (canShootWhereAiming) {
-                return NormalAimTexture;
-            }
-
-            return CantShootTexture;
-        }
-    }
+    public Texture2D? CurrentAimTexture { get; protected set; }
 
     // Start is called before the first frame update
     void Awake() {
@@ -98,17 +86,18 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
 
         // Check all of the spells and see if it's okay to shoot where we're aiming
         // if it's not we se canShootWhereAiming to false so the aim indicator changes
-        var didChange = false;
+
+        Texture2D? aimTexture = null;
         foreach (var spell in spells) {
-            if (!spell.CanShootWhereAiming(SpellSpawnPoint.transform.position, SpellCamera)) {
-                canShootWhereAiming = false;
-                didChange = true;
-                break;
-            }
+            if (spell.GetAimTexture() is Texture2D texture) {
+                aimTexture = texture;
+            }   
         }
 
-        if (!didChange) {
-            canShootWhereAiming = true;
+        if (aimTexture != null) {
+            CurrentAimTexture = aimTexture;
+        } else {
+            CurrentAimTexture = NormalAimTexture!;
         }
     }
 

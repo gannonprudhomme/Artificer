@@ -145,4 +145,8 @@ public class FireballSpell : Spell {
             return ((spellCamera.transform.position + spellCamera.transform.forward * 100) - muzzlePosition).normalized;
         }
     }
+
+    public override Texture2D? GetAimTexture() {
+        return null;
+    }
 }
