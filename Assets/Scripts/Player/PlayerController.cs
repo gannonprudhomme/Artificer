@@ -214,40 +214,8 @@ public class PlayerController : Entity {
         bool isSprinting = inputHandler!.GetSprintInputHeld();
         float speedModifier = isSprinting ? SprintSpeedModifier : 1f;
 
-        // converts move input to a worldspace vector based on our character's transform orientation
-        Vector3 worldSpaceMoveInput;
-
-        // Move the player along with the camera rotation
-        Vector3 moveInputDir = inputHandler!.GetMoveInput().normalized;
-        if (moveInputDir.magnitude > 0.1f) {
-            float movementAngleDeg = Mathf.Atan2(moveInputDir.x, moveInputDir.z) * Mathf.Rad2Deg;
-            float targetAngle = movementAngleDeg + PlayerCamera!.transform.eulerAngles.y;
-
-            // TODO: Shit I think this should still apply when we're not moving blehhhh
-            // Get it working first though
-            if (playerSpellsController!.IsForcingAimLookForward) {
-                // Modify/make a new targetAngle w/ movementAngleDeg clamped
-                // float newMovementAngleDeg = Mathf.Clamp(movementAngleDeg, -45.1f, 45.1f);
-                float newMovementAngleDeg = 0;
-                float newtargetAngle = newMovementAngleDeg + PlayerCamera!.transform.eulerAngles.y;
-
-                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, newtargetAngle, ref turnSmoothVelocity, turnSmoothTime);
-                transform.rotation = Quaternion.Euler(0f, angle, 0f);
-                
-                // Modified the above values to get a target angle
-            } else {
-                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
-
-                // Rotate the character
-                // TODO: Change this if the character just fired; if they just fired then they should be aiming forward
-                transform.rotation = Quaternion.Euler(0f, angle, 0f);
-            }
-
-            worldSpaceMoveInput = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-
-        } else {
-            worldSpaceMoveInput = Vector3.zero;
-        }
+        // Note this function also changes transform.rotation (yes this is bad design)
+        Vector3 worldSpaceMoveInput = HandlePlayerRotationMovementAndReturnMoveInput();
 
         // handle grounded movement
         if (IsGrounded) {
@@ -330,6 +298,40 @@ public class PlayerController : Entity {
             QueryTriggerInteraction.Ignore
         )) {
             CharacterVelocity = Vector3.ProjectOnPlane(CharacterVelocity, hit.normal);
+        }
+    }
+
+    // Sets player rotation and returns move input
+    private Vector3 HandlePlayerRotationMovementAndReturnMoveInput() {
+        Vector3 moveInputDir = inputHandler!.GetMoveInput().normalized;
+        bool isMoving = moveInputDir.magnitude > 0.1f;
+
+        // We only really want these when we're moving
+        // we also don't care about them when we're force aiming forward
+        float movementAngleDeg = Mathf.Atan2(moveInputDir.x, moveInputDir.z) * Mathf.Rad2Deg;
+        float targetAngle = movementAngleDeg + PlayerCamera!.transform.eulerAngles.y;
+
+        // Determine rotation of the player
+        if (playerSpellsController!.IsForcingAimLookForward) {
+            float newTargetAngle = PlayerCamera!.transform.eulerAngles.y;
+
+            float forceAimForwardAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, newTargetAngle, ref turnSmoothVelocity, turnSmoothTime);
+            transform.rotation = Quaternion.Euler(0f, forceAimForwardAngle, 0f);
+
+        } else if (isMoving) { // TODO: Double check this acutally matters; if player input is 0 it might not even change anything? I think it will though
+            // We only want to do this when the player is moving
+            float movingRotAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+
+            // Rotate the character
+            transform.rotation = Quaternion.Euler(0f, movingRotAngle, 0f);
+        }
+
+
+        // Determine worldSpaceMoveInput
+        if (isMoving) {
+            return Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+        } else {
+            return Vector3.zero;
         }
     }
 

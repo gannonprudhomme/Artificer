@@ -43,7 +43,7 @@ public class FireballSpell : Spell {
     // how long we force the player to look forward after we shot
     private const float lookForwardDuration = 1.5f;
 
-    private bool shouldFireWithLeftArm = false
+    private bool shouldFireWithLeftArm = false;
 
     void Start() {
         // Start off with max charges
