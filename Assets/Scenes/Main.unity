@@ -4178,6 +4178,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 7857456915802866194}
   m_PrefabAsset: {fileID: 0}
+--- !u!23 &1359510700 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3438645837642532878, guid: 809bd9093307112498109f7137d945f4,
+    type: 3}
+  m_PrefabInstance: {fileID: 7857456915802866194}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1411601595
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8565,6 +8571,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5227877792274781671, guid: ddab98e7c19b12e4f9dd90cc7afbb5b2,
         type: 3}
+    - target: {fileID: 3438645837642532878, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 8548aa03bdabca84e873ba8bba8ce4d6, type: 2}
     - target: {fileID: 5020162517813680371, guid: 809bd9093307112498109f7137d945f4,
         type: 3}
       propertyPath: m_Name
@@ -8580,6 +8591,11 @@ PrefabInstance:
       propertyPath: CameraAimPoint
       value: 
       objectReference: {fileID: 2023251542}
+    - target: {fileID: 5062329747764622900, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: PlayerMeshRenderer
+      value: 
+      objectReference: {fileID: 1359510700}
     - target: {fileID: 7596465692342951294, guid: 809bd9093307112498109f7137d945f4,
         type: 3}
       propertyPath: m_LocalPosition.x

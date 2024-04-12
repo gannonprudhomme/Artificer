@@ -27,6 +27,9 @@ public class PlayerController : Entity {
     [Tooltip("Transform which we will rotate with the mouse in order to control the camera")]
     public Transform? CameraAimPoint;
 
+    [Tooltip("Reference to the MeshRenderer for the player model so we can change its shader values")]
+    public MeshRenderer? PlayerMeshRenderer; // This is going to be SkinnedMeshRenderer when we have the model
+
     [Header("General")]
     [Tooltip("Force applied downward when in the air")]
     // Why would this be on the PlayerController? Should there be some like World / Game object we get this from?
@@ -151,6 +154,8 @@ public class PlayerController : Entity {
         CheckIfAimingAtInteractable();
 
         HandleInteracting();
+
+        HandlePlayerShader();
 
         // UpdateCharacterHeight(false) ???
     }
@@ -386,6 +391,19 @@ public class PlayerController : Entity {
 
         // Not jumping, returning existing CharacterVelocity
         return (false, previousCharacterVelocity);
+    }
+
+    // Set values for the translucent-when-camera-close-to-player shader
+    private void HandlePlayerShader() {
+        Material material = PlayerMeshRenderer!.material;
+
+        float cameraVertAngle = CameraAimPoint!.transform.localEulerAngles.x;
+        if (cameraVertAngle > 180) // "Normalize" it to [-180, 180] (really [VerticalRotationMin, VerticalRotationMax])
+            cameraVertAngle -= 360;
+
+        material.SetFloat("_CameraVerticalAngle", cameraVertAngle);
+        material.SetFloat("_CameraMaxAngle", VerticalRotationMin); // the min is the max here since that's what we want to be 1 in [0, 1]
+        material.SetFloat("_CameraMinAngle", -40); // Arbitrary, but this is like 30% from the bottom
     }
 
     private void CheckIfAimingAtInteractable() {
