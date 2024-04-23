@@ -128,6 +128,8 @@ public class FireballSpell : Spell {
 
         lastTimeShot = Time.time;
 
+        fireVisualEffectInstance!.transform.position = muzzlePosition;
+
         // Play VFX
         fireVisualEffectInstance!.Play();
     }
