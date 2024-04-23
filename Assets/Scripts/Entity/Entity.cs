@@ -59,7 +59,7 @@ public abstract class Entity : MonoBehaviour {
         }
     }
 
-    protected void FixedUpdate() {
+    protected virtual void FixedUpdate() {
         HashSet<string> toRemove = new();
         foreach (var statusEffectName in statusEffects.Keys) {
             BaseStatusEffect statusEffect = statusEffects[statusEffectName];

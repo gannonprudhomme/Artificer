@@ -28,7 +28,13 @@ public class PlayerController : Entity {
     public Transform? CameraAimPoint;
 
     [Tooltip("Reference to the MeshRenderer for the player model so we can change its shader values")]
-    public MeshRenderer? PlayerMeshRenderer; // This is going to be SkinnedMeshRenderer when we have the model
+    public SkinnedMeshRenderer? PlayerMeshRenderer;
+
+    [Tooltip("Transform for the player's head (probably the constrained bone) to calculate look at position")]
+    public Transform HeadTransform;
+
+    [Tooltip("Transform for where the look at transform is for the Multi-Aim Constraint")]
+    public Transform? PlayerLookAt;
 
     [Header("General")]
     [Tooltip("Force applied downward when in the air")]
@@ -150,6 +156,7 @@ public class PlayerController : Entity {
         HandleCharacterMovement();
 
         HandleLooking();
+        HandlePlayerLookAt();
 
         CheckIfAimingAtInteractable();
 
@@ -360,6 +367,17 @@ public class PlayerController : Entity {
         rotEulerAngles.y += mouseInput.x * RotationSpeed;
 
         CameraAimPoint.localRotation = Quaternion.Euler(rotEulerAngles);
+    }
+
+    // Called by Update()
+    private void HandlePlayerLookAt() {
+        if (PlayerLookAt == null) return;
+
+        // Arbitrary distance I tested out and found worked well  
+        float distance = 15.0f;
+
+        Vector3 position = HeadTransform.position + (PlayerCamera!.transform.forward * distance);
+        PlayerLookAt.position = position;
     }
 
     // Returns modified (canJump, newCharacterVelocity)
