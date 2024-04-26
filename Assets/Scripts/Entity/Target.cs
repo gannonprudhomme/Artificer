@@ -18,4 +18,7 @@ public class Target : MonoBehaviour {
     // there's gotta be a better way to do this
     [Tooltip("Colliders enemies will use to determine line of sight")]
     public CapsuleCollider? TargetCollider;
+
+    [Tooltip("Reference to the player camera. Used for the UIFollowPlayer so we can rotate it to look at the camera at all times")]
+    public Camera? Camera;
 }

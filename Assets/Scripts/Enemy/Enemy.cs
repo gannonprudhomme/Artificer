@@ -1,5 +1,7 @@
 using UnityEngine;
 
+#nullable enable
+
 // we might want this? So it triggers Collider triggers
 // [RequireComponent(typeof(RigidBody))]
 public abstract class Enemy : Entity {
@@ -33,7 +35,7 @@ public abstract class Enemy : Entity {
         health!.OnDeath += OnDeath;
 
         if (Target) {
-            HealthAndStatusBarFollowPlayer.Target = Target.AimPoint;
+            HealthAndStatusBarFollowPlayer!.Target = Target!.Camera!.transform;
 		}
     }
 
