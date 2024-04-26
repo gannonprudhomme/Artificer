@@ -30,8 +30,8 @@ public class PlayerController : Entity {
     [Tooltip("Reference to the MeshRenderer for the player model so we can change its shader values")]
     public SkinnedMeshRenderer? PlayerMeshRenderer;
 
-    [Tooltip("Transform for the player's head (probably the constrained bone) to calculate look at position")]
-    public Transform? HeadTransform;
+    [Tooltip("Transform for the MultiAimConstraint-constrained bone, used to calculate look at position")]
+    public Transform? LookAtAnchor;
 
     [Tooltip("Transform for where the look at transform is for the Multi-Aim Constraint")]
     public Transform? PlayerLookAt;
@@ -93,9 +93,14 @@ public class PlayerController : Entity {
 
     private Interactable? currentAimedAtInteractable;
 
-    // Values for smooth rotation for 3rd person camera
-    private float turnSmoothTime = 0.1f;
+    // Values for smooth rotation the character for 3rd person camera
+    private readonly float turnSmoothTime = 0.1f;
     private float turnSmoothVelocity;
+
+    // Values for smooth rotation of the player look at (upper body rotation)
+    private readonly float lookAtSmoothTime = 0.15f; // originally 0.05
+    private Vector3 lookAtSmoothVelocity = Vector3.zero;
+    private Vector3 previousLookAtRotation = Vector3.zero;
 
     /** CONSTANTS **/
 
@@ -135,6 +140,8 @@ public class PlayerController : Entity {
         characterController.enableOverlapRecovery = true;
 
         // UpdateCharacterHeight(true);
+
+        previousLookAtRotation = GetClampedPlayerLookAtAngle();
     }
 
     // Update is called once per frame
@@ -373,11 +380,58 @@ public class PlayerController : Entity {
     private void HandlePlayerLookAt() {
         if (PlayerLookAt == null) return;
 
-        // Arbitrary distance I tested out and found worked well  
-        float distance = 15.0f;
+        Vector3 targetAngle = GetClampedPlayerLookAtAngles();
 
-        Vector3 position = HeadTransform.position + (PlayerCamera!.transform.forward * distance);
+        // Determine final angle
+        // Adds a rotation speed so the look at isn't instantenous
+        Vector3 finalAngles = Vector3Utils.SmoothDampEuler(
+            current: previousLookAtRotation,
+            target: targetAngle,
+            currentVelocity: ref lookAtSmoothVelocity,
+            smoothTime: lookAtSmoothTime
+        );
+
+        // Converts the angles to a direction vector
+        Vector3 finalDirection = (Quaternion.Euler(finalAngles) * Vector3.forward).normalized;
+
+        float distance = 15.0f; // Arbitrary distance I tested out and found worked well  
+
+        Vector3 position = LookAtAnchor!.position + (finalDirection * distance);
         PlayerLookAt.position = position;
+
+        // Store our current rotation for the next frame
+        previousLookAtRotation = finalAngles;
+
+        Debug.Log($"Velocity {lookAtSmoothVelocity}");
+    }
+
+    private Vector3 GetClampedPlayerLookAtAngle() {
+
+        // We  convert the inputAngle to the local space of the player in order to tell what "backwards" actually is
+        Vector3 localCameraDirection = transform.InverseTransformDirection(PlayerCamera!.transform.forward);
+        Vector3 localCameraAngle = Quaternion.LookRotation(localCameraDirection, Vector3.up).eulerAngles;
+
+        Vector3 startAngle = localCameraAngle;
+
+        // "Normalize" it to [-180, 180]
+        // we don't actually have to do this - it's just easier to think about
+        if (localCameraAngle.y > 180)
+            localCameraAngle.y -= 360;
+
+        // clamp the angle so it's not looking directly behind the player (a bit left or a bit right)
+        float maxAngle = 50;
+        localCameraAngle.y = Mathf.Clamp(localCameraAngle.y, -maxAngle, maxAngle);
+
+        // Convert it back to [0, 360] since that's what Quaternion's / Unity expects
+        if (localCameraAngle.y < 0) {
+            localCameraAngle.y += 360;
+        }
+
+        // Convert it back to world space
+        Vector3 newLocalCameraDirection = transform.TransformDirection(Quaternion.Euler(localCameraAngle) * Vector3.forward);
+        Vector3 newWorldCameraAngle = Quaternion.LookRotation(newLocalCameraDirection, Vector3.up).eulerAngles;
+
+        return newWorldCameraAngle;
     }
 
     // Returns modified (canJump, newCharacterVelocity)
