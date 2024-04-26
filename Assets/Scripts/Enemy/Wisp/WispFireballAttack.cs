@@ -4,6 +4,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.VFX;
 
+#nullable enable
+
 // The fireball attack aiming follows the transform.forward of the wisp (well, Wisp.AimPoint.forward).
 // The fireball attack itself doesn't aim like GolemLaserAttack does
 public class WispFireballAttack: EnemyAttack {
@@ -154,7 +156,7 @@ public class WispFireballAttack: EnemyAttack {
 
         float currDist;
         if (wasHittingPlayerAtChargeStart) {
-            float distToPlayer = Vector3.Distance(aimPoint.position, target.AimPoint.position);
+            float distToPlayer = Vector3.Distance(aimPoint.position, target.AimPoint!.position);
             currDist = distToPlayer * chargePercent;
 
         } else {
@@ -176,7 +178,7 @@ public class WispFireballAttack: EnemyAttack {
         chargeVisualEffect.Stop();
         chargeLineRenderer.enabled = false;
 
-        Object.Destroy(chargeSfxInstance); // Destroy it in case it's still playing
+        Object.Destroy(chargeSfxInstance!); // Destroy it in case it's still playing
         AudioUtility.shared.CreateSFX(fireSFX, aimPoint.position, AudioUtility.AudioGroups.EnemyAttack, spatialBlend: 1.0f);
 
         animator.SetBool(ANIM_IS_FIRING, true);

@@ -23,9 +23,9 @@ public abstract class Entity : MonoBehaviour {
     public readonly Dictionary<string, BaseStatusEffect> statusEffects = new();
 
     // Called when a new status effect is applied to this entity
-    public UnityAction<BaseStatusEffect> OnStatusEffectAdded;
+    public UnityAction<BaseStatusEffect>? OnStatusEffectAdded;
     // Called when a status effect is done applying to an entity & is being removed
-    public UnityAction<BaseStatusEffect> OnStatusEffectRemoved;
+    public UnityAction<BaseStatusEffect>? OnStatusEffectRemoved;
 
     // How should we handle this? We're going to have a *lot* of these b/c of items
     // I initially called this canMove, but changed to isFrozen since EnemyHealthBar

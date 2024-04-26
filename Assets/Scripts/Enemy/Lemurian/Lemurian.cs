@@ -25,7 +25,7 @@ public class Lemurian : Enemy {
     public Transform? AimPoint;
 
     [Tooltip("Reference to the AimTarget PositionConstraint for the look-at constraint. Needed so we can set it to copy the location of the player")]
-    public PositionConstraint PositionConstraint;
+    public PositionConstraint? PositionConstraint;
 
     //[Tooltip("Rotation speed when the target is within NavMeshAgent's stopping distance")]
     //public float RotationSpeed = 0.1f;
@@ -117,8 +117,8 @@ public class Lemurian : Enemy {
         SetDestination();
         ConfigureAnimatorAndNavMeshAgent();
 
-        fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, animator!, this.gameObject, Target.AimPoint, AimPoint!);
-        meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, animator!, Target, lemurianMask!);
+        fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, animator!, this.gameObject, Target!.AimPoint!, AimPoint!);
+        meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, animator!, Target!, lemurianMask!);
 
 	    health!.OnDamaged += OnDamaged;
     }
@@ -137,14 +137,14 @@ public class Lemurian : Enemy {
             animator!.speed = 0;
             fireballAttack!.canAttack = false;
 
-            PositionConstraint.constraintActive = false;
+            PositionConstraint!.constraintActive = false;
 
         } else { // Not frozen, we can move!
             navMeshAgent!.isStopped = false;
             animator!.speed = 1.25f;
             fireballAttack!.canAttack = true;
 
-            PositionConstraint.constraintActive = true;
+            PositionConstraint!.constraintActive = true;
 
             SynchronizeAnimatorAndAgent();
 
@@ -163,7 +163,7 @@ public class Lemurian : Enemy {
 
     // Controls the behavior of what this entity is doing
     private State DetermineCurrentState() {
-        float distanceFromTarget = Vector3.Distance(transform.position, Target.AimPoint.position);
+        float distanceFromTarget = Vector3.Distance(transform.position, Target!.AimPoint!.position);
         bool hasLineOfSightToTarget = DoesHaveLineOfSightToTarget();
 
         // First, check stun
@@ -273,7 +273,7 @@ public class Lemurian : Enemy {
             float deltaForward = (Random.value - 0.2f) * (maxForwardStrafeDist);
 
             // Find the right vector based on the target's position
-            Vector3 dirToTarget = (Target.AimPoint.position - transform.position).normalized;
+            Vector3 dirToTarget = (Target!.AimPoint!.position - transform.position).normalized;
             Vector3 rightDir = Vector3.Cross(dirToTarget, Vector3.up); // Do we have to normalize this?
 
             Vector3 targetPos = transform.position + (rightDir * deltaRight);
@@ -322,18 +322,18 @@ public class Lemurian : Enemy {
         navMeshAgent.updateRotation = true;
 
         if (Target) {
-            navMeshAgent.SetDestination(Target.transform.position);
+            navMeshAgent.SetDestination(Target!.transform.position);
 
             // Make the TargetAim PositionConstraint copy the Destination's location
             // so the MultiAimConstraint correctly looks at the Destination (the player)
             ConstraintSource constraintSource = new() {
-                sourceTransform = Target.AimPoint,
+                sourceTransform = Target!.AimPoint!,
                 weight = 1.0f
             };
-            PositionConstraint.SetSource(0, constraintSource);
+            PositionConstraint!.SetSource(0, constraintSource);
 
             // Zero the offset so it matches the position of the target (the player)
-            PositionConstraint.translationOffset = Vector3.zero;
+            PositionConstraint!.translationOffset = Vector3.zero;
         } 
     }
 
@@ -385,7 +385,7 @@ public class Lemurian : Enemy {
 
     private void SetDestination() { 
         if (Target) {
-            navMeshAgent!.SetDestination(Target.transform.position);
+            navMeshAgent!.SetDestination(Target!.transform.position);
 		}
     }
 
@@ -407,11 +407,11 @@ public class Lemurian : Enemy {
         // Note we're intentionally not calling base.OnDeath() cause we don't want to Destroy this (yet)
 
         // I do think we want to do this?
-        EnemyManager.shared.RemoveEnemy(this);
+        EnemyManager.shared!.RemoveEnemy(this);
 
         animator!.SetBool(ANIM_PARAM_IS_DEAD, true);
 
-        PositionConstraint.constraintActive = false;
+        PositionConstraint!.constraintActive = false;
 
         foreach(var collider in Colliders) {
             collider.enabled = false;
@@ -425,7 +425,7 @@ public class Lemurian : Enemy {
         // First check if the player is within the range (maxPrimaryDistance)
         // no point in doing a RayCast if they're not!
         // (Optimization)
-        float sqrDistToTarget = (Target.TargetCollider.bounds.center - AimPoint!.position).sqrMagnitude;
+        float sqrDistToTarget = (Target!.TargetCollider!.bounds.center - AimPoint!.position).sqrMagnitude;
         if (sqrDistToTarget > Mathf.Pow(maxPrimaryDistance, 2)) {
             // We're not even in fireball range! Return early
             return false;
@@ -436,7 +436,7 @@ public class Lemurian : Enemy {
 
         // Didn't work when it was set to Target.AimPoint so just doing the center of the collider
         // Vector3 direction = Target.AimPoint.position - AimPoint!.position;
-        Vector3 direction = (Target.TargetCollider.bounds.center - AimPoint!.position).normalized;
+        Vector3 direction = (Target!.TargetCollider!.bounds.center - AimPoint!.position).normalized;
 
         // TODO: Shit this is going to ignore all Lemurians, we need to do better than this
         // We need this to ignore itself
@@ -448,7 +448,7 @@ public class Lemurian : Enemy {
             ~lemurianMask // Ignore its own colliders...shit this also ignores other Lemurians
         )) {
             // TODO: This should really be hit.collider.TryGetEntityFromCollider(out var entity) & compare game objects
-            if (hit.collider == Target.TargetCollider) {
+            if (hit.collider == Target!.TargetCollider) {
                 return true;
             }
         }

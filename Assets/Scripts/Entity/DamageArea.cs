@@ -12,7 +12,7 @@ public class DamageArea : MonoBehaviour {
     public float EffectRadius;
 
     [Tooltip("The curve representing how much damage % we should apply based on how close something is from the center of the damage area")]
-    public AnimationCurve DamageOverDistanceCurve;
+    public AnimationCurve? DamageOverDistanceCurve;
 
     public void InflictDamageOverArea(
         float damage,
@@ -67,7 +67,7 @@ public class DamageArea : MonoBehaviour {
             // We should probably do the distance to the closest point on the Collider
             // but who cares if we're that accurate
             float distanceFromCollider = Vector3.Distance(collider.bounds.center, center);
-            float damageAfterFalloff = damage * DamageOverDistanceCurve.Evaluate(distanceFromCollider / EffectRadius);
+            float damageAfterFalloff = damage * DamageOverDistanceCurve!.Evaluate(distanceFromCollider / EffectRadius);
             // Debug.Log($"Applying {damageAfterFalloff} based off of {damage} and distance {distanceFromCollider}, which is {distanceFromCollider / EffectRadius * 100.0f}%");
 
             entity.TakeDamage(damageAfterFalloff, damageApplierAffiliation, statusEffectToApply);

@@ -5,13 +5,13 @@ using UnityEngine;
 public abstract class Enemy : Entity {
     [Header("Enemy (inherited)")]
     [Tooltip("Where the NavMeshAgent is going to navigate to. Should be the player")]
-    public Target Target;
+    public Target? Target;
 
     [Tooltip("Reference to the UIFollowPlayer component for the Enemy Health & Status Bar. Needed so we can set the target on the health bar (so it looks at the player)")]
     // public EnemyHealthBar healthBar;
-    public UIFollowPlayer HealthAndStatusBarFollowPlayer;
+    public UIFollowPlayer? HealthAndStatusBarFollowPlayer;
 
-    private EnemyManager enemyManager;
+    private EnemyManager? enemyManager;
 
     // the Director is going to set this when we spawn the enemy
     public int ExperienceGrantedOnDeath { get; set; }
@@ -30,7 +30,7 @@ public abstract class Enemy : Entity {
 
         enemyManager.AddEnemy(this);
 
-        health.OnDeath += OnDeath;
+        health!.OnDeath += OnDeath;
 
         if (Target) {
             HealthAndStatusBarFollowPlayer.Target = Target.AimPoint;
@@ -38,18 +38,18 @@ public abstract class Enemy : Entity {
     }
 
     protected virtual void OnDeath() {
-        enemyManager.RemoveEnemy(this);
+        enemyManager!.RemoveEnemy(this);
 
         // Grant the Target experience I guess
         // There's gotta be a better way to do this
-        if (Target.TryGetComponent(out Experience experience)) {
+        if (Target!.TryGetComponent(out Experience experience)) {
             // We gotta calculate this somehow
             experience.GainExperience(ExperienceGrantedOnDeath);
         } else {
             Debug.LogError("Couldn't find Target's Experience");
         }
 
-        if (Target.TryGetComponent(out GoldWallet goldWallet)) {
+        if (Target!.TryGetComponent(out GoldWallet goldWallet)) {
             goldWallet.GainGold(GoldGrantedOnDeath);
         } else {
             Debug.LogError("Couldn't find Target's GoldWallet");

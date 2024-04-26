@@ -56,7 +56,7 @@ public abstract class CombatDirector: MonoBehaviour {
 
     // EnemyManager is where the list of enemies will live.
     // We probably don't need to do this, but could serve as a dependency injection entrypoint?
-    private EnemyManager enemyManager = EnemyManager.shared; 
+    private EnemyManager enemyManager = EnemyManager.shared!; 
 
     // But it would be nice to just have a single place to change these values, so I'll do this for now 
     protected EnemyCard[]? enemyCards;
@@ -143,7 +143,7 @@ public abstract class CombatDirector: MonoBehaviour {
             // for this
             // I guess for now I'll just get it
             Graph? enemyGraph = enemyManager.WispGraph;
-            if (enemyGraph != null && FindFlyingSpawnPosition(playerPosition: target.AimPoint.position, enemyGraph, out Vector3 result)) {
+            if (enemyGraph != null && FindFlyingSpawnPosition(playerPosition: target.AimPoint!.position, enemyGraph, out Vector3 result)) {
                 spawnPosition = result;
             } else {
                 // Debug.LogError("Not spawning a flying enemy!!");
@@ -151,7 +151,7 @@ public abstract class CombatDirector: MonoBehaviour {
             }
             
         } else { // It's grounded
-            if (FindGroundedSpawnPosition(playerPosition: target.AimPoint.position, enemyCard.identifier, out Vector3 result)) {
+            if (FindGroundedSpawnPosition(playerPosition: target.AimPoint!.position, enemyCard.identifier, out Vector3 result)) {
                 spawnPosition = result;
             } else {
                 // Debug.LogError("Not spawning a grounded enemy!!");

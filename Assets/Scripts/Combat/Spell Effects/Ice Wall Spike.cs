@@ -8,13 +8,13 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider))]
 public class IceWallSpike : MonoBehaviour {
     [Tooltip("SFX to play when the ice spike detonates (by collision or after lifetime is reached)")]
-    public AudioClip CollisionSfx; // Rename to DetonationSfx
+    public AudioClip? CollisionSfx; // Rename to DetonationSfx
 
     [Tooltip("SFX to play when the ice spike is spawned in (becomes active)")]
-    public AudioClip SpawnSfx;
+    public AudioClip? SpawnSfx;
 
     [Tooltip("The prefab to spawn when this detonates")]
-    public GameObject DetonateParticlePrefab;
+    public GameObject? DetonateParticlePrefab;
 
     public DamageArea? DamageArea;
 
@@ -24,7 +24,7 @@ public class IceWallSpike : MonoBehaviour {
 
     // We expose the BoxCollider since it's needed by the IceWall in order to place it correctly vertically on a surface
     // (it might not be necessary though, this is just the strategy I picked for now)
-    public BoxCollider boxCollider { get; private set; }
+    public BoxCollider? boxCollider { get; private set; }
 
     // Lifetime before detonating in seconds
     public const float AverageLifetime = 7f;
@@ -67,7 +67,7 @@ public class IceWallSpike : MonoBehaviour {
 
         //  do OnEnable since that's when/how the Ice Wall animation "spawns" this
         AudioUtility.shared.CreateSFX(
-            SpawnSfx,
+            SpawnSfx!,
             transform.position,
             AudioUtility.AudioGroups.Impact,
             1f,
@@ -103,7 +103,7 @@ public class IceWallSpike : MonoBehaviour {
         );
 
         AudioUtility.shared.CreateSFX(
-            CollisionSfx,
+            CollisionSfx!,
             transform.position,
             AudioUtility.AudioGroups.Impact,
             1f,
@@ -112,7 +112,7 @@ public class IceWallSpike : MonoBehaviour {
 
         // Instantiate the particle on the parent
         // This really shouldn't be how this works but fuck it whatever
-        Instantiate(DetonateParticlePrefab, transform.parent);
+        Instantiate(DetonateParticlePrefab!, transform.parent);
 
         // We need to destroy the other "idle" particles too
         Destroy(this.gameObject);

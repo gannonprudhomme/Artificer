@@ -31,7 +31,7 @@ public class PlayerController : Entity {
     public SkinnedMeshRenderer? PlayerMeshRenderer;
 
     [Tooltip("Transform for the player's head (probably the constrained bone) to calculate look at position")]
-    public Transform HeadTransform;
+    public Transform? HeadTransform;
 
     [Tooltip("Transform for where the look at transform is for the Multi-Aim Constraint")]
     public Transform? PlayerLookAt;

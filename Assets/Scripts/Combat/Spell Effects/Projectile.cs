@@ -20,10 +20,10 @@ public abstract class Projectile : MonoBehaviour {
 
     // This is the parent object basically
     [Tooltip("Transform representing the root of the projectile (used for accurate collision detection")]
-    public Transform Root;
+    public Transform? Root;
 
     [Tooltip("Transform representing the tip of the projectile (used for accurate collision detection")]
-    public Transform Tip;
+    public Transform? Tip;
 
     [Tooltip("Lifetime of the projectile")]
     public float MaxLifeTime = 5f; // I feel like this should be externally controlled
@@ -96,7 +96,7 @@ public abstract class Projectile : MonoBehaviour {
         Camera? spellCamera,  // don't actually need, remove this
 	    float entityBaseDamage
     ) {
-        lastRootPosition = Root.position; 
+        lastRootPosition = Root!.position; 
         velocity = transform.forward * Speed;
         ignoredColliders = new List<Collider>(); // Idk why we need to do this frankly it's not like this gets reused
         this.owner = owner;
@@ -134,7 +134,7 @@ public abstract class Projectile : MonoBehaviour {
         bool foundHit = false;
 
         // Sphere cast (should it be a capsule cast? Probably, but depends on projectile)
-        Vector3 displacementSinceLastFrame = Tip.position - lastRootPosition;
+        Vector3 displacementSinceLastFrame = Tip!.position - lastRootPosition;
         RaycastHit[] hits = Physics.SphereCastAll(
             lastRootPosition, // I'm really not sure why we do lastRootPosition
             Radius,
@@ -155,14 +155,14 @@ public abstract class Projectile : MonoBehaviour {
             // Handle case of casting while already inside a collider
             // when tf does this happen?
             if (closestHit.distance <= 0f) {
-                closestHit.point = Root.position;
+                closestHit.point = Root!.position;
                 closestHit.normal = -transform.forward;
             }
                 
             OnHit(closestHit.point, closestHit.normal, closestHit.collider);
         }
 
-        lastRootPosition = Root.position;
+        lastRootPosition = Root!.position;
     }
 
     private bool IsHitValid(RaycastHit hit) {
@@ -231,4 +231,11 @@ public abstract class Projectile : MonoBehaviour {
         // Self destruct
         Destroy(this.gameObject);
     }
+
+    /*
+    private void OnDrawGizmosSelected() {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(transform.position, Radius);
+    }
+    */
 }

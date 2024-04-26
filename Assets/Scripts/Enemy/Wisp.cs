@@ -63,7 +63,7 @@ public class Wisp : NavSpaceEnemy {
         Animator animator = GetComponent<Animator>();
 
         attack = new WispFireballAttack(
-            target: Target,
+            target: Target!,
             aimPoint: AimPoint!,
             chargeLineRenderer: ChargeLineRenderer!,
             fireLineRenderers: FireLineRenderers!,
@@ -76,7 +76,7 @@ public class Wisp : NavSpaceEnemy {
 
         health!.OnDamaged += OnDamaged;
 
-        if (EnemyManager.shared.WispGraph != null) {
+        if (EnemyManager.shared!.WispGraph != null) {
             graph = EnemyManager.shared.WispGraph;
         } else {
             Debug.LogError("Did not have a graph to load - we can't navigate!");
@@ -118,7 +118,7 @@ public class Wisp : NavSpaceEnemy {
             return currentState;
         }
 
-        float distanceToTarget = Vector3.Distance(transform.position, Target.AimPoint.position);
+        float distanceToTarget = Vector3.Distance(transform.position, Target!.AimPoint!.position);
         bool hasLineOfSight = DoesHaveLineOfSightToTarget(withinMaxDistance: maxPrimaryStrafe);
 
         // We shouldn't start trying to use the primary unless we have line of sight
@@ -220,7 +220,7 @@ public class Wisp : NavSpaceEnemy {
         // since changing it at the end would be super easy
         // Since re-calculating the path would probably be pretty time consuming
         if (Time.time - lastTimePathSet > timeBetweenPathSets) {
-            CreatePathTo(Target.AimPoint.position + (Vector3.one * 3));
+            CreatePathTo(Target!.AimPoint!.position + (Vector3.one * 3));
             lastTimePathSet = Time.time;
         }
 
@@ -231,7 +231,7 @@ public class Wisp : NavSpaceEnemy {
     //
     // Should be called when we're attacking the player (USE_PRIMARY_)
     private void LookAtTarget() {
-        Vector3 dirToTarget = (Target.AimPoint.position - transform.position).normalized;
+        Vector3 dirToTarget = (Target!.AimPoint!.position - transform.position).normalized;
         Quaternion lookRotationToTarget = Quaternion.LookRotation(dirToTarget);
 
         // So this isn't great b/c if we're close to the Wisp it takes too long to rotate
@@ -250,21 +250,21 @@ public class Wisp : NavSpaceEnemy {
 
     private bool DoesHaveLineOfSightToTarget(float withinMaxDistance) {
         // optimization
-        float sqrDistToTarget = (Target.TargetCollider.bounds.center - AimPoint!.position).sqrMagnitude;
+        float sqrDistToTarget = (Target!.TargetCollider!.bounds.center - AimPoint!.position).sqrMagnitude;
         if (sqrDistToTarget > Mathf.Pow(withinMaxDistance, 2)) {
             // We're not even in fireball range! Return early
             return false;
         }
 
         // Is it facing it?
-        Vector3 dirToPlayer = (Target.AimPoint.position - transform.position).normalized;
+        Vector3 dirToPlayer = (Target!.AimPoint!.position - transform.position).normalized;
         float angleToPlayer = Vector3.Angle(transform.forward, dirToPlayer);
 
         if (angleToPlayer > 30.0f) {
             return false;
         }
 
-        Vector3 direction = (Target.TargetCollider.bounds.center - AimPoint!.position).normalized;
+        Vector3 direction = (Target!.TargetCollider!.bounds.center - AimPoint!.position).normalized;
 
         if (Physics.Raycast(
              origin: AimPoint.position,
@@ -273,7 +273,7 @@ public class Wisp : NavSpaceEnemy {
              maxDistance: withinMaxDistance
          )) {
             if (hit.collider.TryGetEntityFromCollider(out var entity)
-                && entity.gameObject == Target.gameObject
+                && entity.gameObject == Target!.gameObject
             ) {
                 return true;
             }
@@ -311,7 +311,7 @@ public class Wisp : NavSpaceEnemy {
             hitInfo: out RaycastHit rayHit,
             maxDistance: distance 
         )) {
-            if (rayHit.collider.gameObject != Target.gameObject) {
+            if (rayHit.collider.gameObject != Target!.gameObject) {
                 hit = rayHit;
                 return true;
             } else { 

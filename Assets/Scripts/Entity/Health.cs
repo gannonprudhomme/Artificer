@@ -37,12 +37,12 @@ public class Health : MonoBehaviour {
     // but players need to have an on hit sound too, so this might make sense?
     [Header("References")]
     [Tooltip("Sound that plays on damaged")]
-    public AudioClip OnDamageSfx;
+    public AudioClip? OnDamageSfx;
 
     public float CurrentHealth { get; private set; }
 
-    public UnityAction<float, Vector3, DamageType> OnDamaged;
-    public UnityAction OnDeath;
+    public UnityAction<float, Vector3, DamageType>? OnDamaged;
+    public UnityAction? OnDeath;
 
     public bool IsDead { get; private set; }
 
@@ -89,7 +89,7 @@ public class Health : MonoBehaviour {
         OnDamaged?.Invoke(damage, damagePosition, damageType);
 
         // Play audio clip
-        if (OnDamageSfx) {
+        if (OnDamageSfx != null) {
             AudioUtility.shared.CreateSFX(
                 OnDamageSfx,
                 transform.position,

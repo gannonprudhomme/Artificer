@@ -11,16 +11,16 @@ using UnityEngine.Events;
 // Currently used for getting access to the Health object of all enemies
 // so we get CrosshairDamageIndicatorUI.OnDamaged anytime an enemy is damaged
 public class EnemyManager : MonoBehaviour {
-    public static EnemyManager shared;
+    public static EnemyManager? shared;
 
     [Header("References")]
     [Tooltip("Reference to the current Nav Octree Space (on the level)")]
     // Used to load the Octree from memory
     public NavOctreeSpace? NavSpace = null;
 
-    public List<Enemy> activeEnemies { get; private set; }
+    public List<Enemy>? activeEnemies { get; private set; }
 
-    public UnityAction<Enemy> OnEnemyAdded;
+    public UnityAction<Enemy>? OnEnemyAdded;
 
     public Graph? WispGraph { get; private set; }
 
@@ -44,13 +44,13 @@ public class EnemyManager : MonoBehaviour {
     }
 
     public void AddEnemy(Enemy enemy) {
-        activeEnemies.Add(enemy);
+        activeEnemies!.Add(enemy);
 
         OnEnemyAdded?.Invoke(enemy);
     }
 
     // Remove an enemy from the list (when they die)
     public void RemoveEnemy(Enemy enemy) {
-        activeEnemies.Remove(enemy);
+        activeEnemies!.Remove(enemy);
     }
 }
