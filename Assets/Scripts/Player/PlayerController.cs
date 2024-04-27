@@ -41,6 +41,9 @@ public class PlayerController : Entity {
     // Why would this be on the PlayerController? Should there be some like World / Game object we get this from?
     public float GravityDownForce = 20f;
 
+    [Tooltip("Force applied downward when we're hovering")]
+    public float HoveringDownForce = 1.5f;
+
     [Tooltip("Distance from the bottom of the character controller capsule to test for grounded")]
     // I really need to see how other things to this, b/c in the past I ran into weird things w/ this and capsule size
     public float GroundCheckDistance = 0.05f;
@@ -239,7 +242,7 @@ public class PlayerController : Entity {
         // handle grounded movement
         if (IsGrounded) {
             // calculate the desired velocity from inputs, max speed, and current slope
-            Vector3 targetVelocity = worldSpaceMoveInput * MaxSpeedOnGround * speedModifier;
+            Vector3 targetVelocity = MaxSpeedOnGround * speedModifier * worldSpaceMoveInput;
 
             targetVelocity = GetDirectionReorientedOnSlope(targetVelocity.normalized, groundNormal, transform.up) * targetVelocity.magnitude;
 
@@ -274,6 +277,10 @@ public class PlayerController : Entity {
             float verticalVelocity = CharacterVelocity.y;
             // Note this is negative as it's a downward force
             float downForce = -GravityDownForce * Time.unscaledDeltaTime;
+            if (IsHovering()) {
+                downForce = -HoveringDownForce * Time.unscaledDeltaTime;
+            }
+
             float y = verticalVelocity + downForce; // note this is actually subtracting
 
             // Should we add a terminal velocity?
@@ -463,6 +470,14 @@ public class PlayerController : Entity {
 
         // Not jumping, returning existing CharacterVelocity
         return (false, previousCharacterVelocity);
+    }
+
+    // If we're jumping/falling and holding space at the same time
+    private bool IsHovering() {
+        bool isFalling = CharacterVelocity.y < -0.5f; // This number should really be relative to the hovering down force
+        bool shouldHover = inputHandler!.GetJumpInputHeld() && !IsGrounded && isFalling;
+
+        return shouldHover;
     }
 
     // Set values for the translucent-when-camera-close-to-player shader
