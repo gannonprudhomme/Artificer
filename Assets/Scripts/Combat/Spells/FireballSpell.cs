@@ -108,6 +108,10 @@ public class FireballSpell : Spell {
         // Alternate between them
         Vector3 muzzlePosition;
 
+        // Set animator values
+        PlayerAnimator!.SetBool("IsFiringFireball", true);
+        PlayerAnimator!.SetBool("IsFiringLeft", shouldFireWithLeftArm);
+
         if (shouldFireWithLeftArm) {
             muzzlePosition = muzzlePositions.leftArm;
         } else {

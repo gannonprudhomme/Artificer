@@ -62,55 +62,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6599605038313873947}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &3859848406646783890
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3876747061441040754}
-  - component: {fileID: 4968998340832715238}
-  m_Layer: 7
-  m_Name: Main Camera
-  m_TagString: MainCamera
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3876747061441040754
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3859848406646783890}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.004322774, z: -0, w: -0.9999907}
-  m_LocalPosition: {x: 0.008482369, y: 3.5609703, z: -0.119804196}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7596465692342951294}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4968998340832715238
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3859848406646783890}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IsGlobal: 1
-  priority: 0
-  blendDistance: 0
-  weight: 1
-  sharedProfile: {fileID: 11400000, guid: e1c059cbd2d93e64dad7c093b75a824e, type: 2}
 --- !u!1 &3982659394530763052
 GameObject:
   m_ObjectHideFlags: 0
@@ -136,7 +87,7 @@ Transform:
   m_GameObject: {fileID: 3982659394530763052}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -0.863, z: 3.55}
+  m_LocalPosition: {x: 0, y: -6.9, z: 3.55}
   m_LocalScale: {x: 0.8333333, y: 0.8333331, z: 0.8333331}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -270,6 +221,7 @@ GameObject:
   - component: {fileID: 8399264383566887028}
   - component: {fileID: 2869115556679671296}
   - component: {fileID: 3667666315035377316}
+  - component: {fileID: 4103907885057574645}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -290,7 +242,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3876747061441040754}
   - {fileID: 1494125901721257978}
   - {fileID: 3891283934947796380}
   - {fileID: 5254358834684783204}
@@ -339,7 +290,7 @@ MonoBehaviour:
   PlayerCamera: {fileID: 0}
   CameraAimPoint: {fileID: 0}
   PlayerMeshRenderer: {fileID: 7152185002000507461}
-  HeadTransform: {fileID: 2209735551376407989}
+  LookAtAnchor: {fileID: 2209735551376407989}
   PlayerLookAt: {fileID: 6702375350450175713}
   GravityDownForce: 25
   GroundCheckDistance: 1
@@ -449,7 +400,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AimPoint: {fileID: 3891283934947796380}
   TargetCollider: {fileID: 1162894015005027175}
-  PlayerCamera: {fileID: 0}
+  Camera: {fileID: 0}
 --- !u!114 &7115923844761297679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -603,6 +554,23 @@ MonoBehaviour:
   - {fileID: 956439932531060201}
   - {fileID: 9209006856352647787}
   - {fileID: 6599605038313873947}
+--- !u!114 &4103907885057574645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5020162517813680371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30700803d14a2e54bb3664fe6b2f9410, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  VirtualCamera: {fileID: 0}
+  DefaultFOV: 0
+  MaxSprintFOV: 0
+  MaxPlayerWalkSpeed: 15
+  MaxPlayerSprintSpeed: 25
 --- !u!1 &6792243995975969371
 GameObject:
   m_ObjectHideFlags: 0
@@ -742,6 +710,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7168665482649991474, guid: 0603253bf8d531a499f7852befa43981,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -7.232
       objectReference: {fileID: 0}
     - target: {fileID: -2590316659089638160, guid: 0603253bf8d531a499f7852befa43981,
         type: 3}
@@ -947,7 +920,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3c430f382484144e925c097c2d33cfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Weight: 1
+  m_Weight: 0.7
   m_Data:
     m_ConstrainedObject: {fileID: 2209735551376407989}
     m_SourceObjects:

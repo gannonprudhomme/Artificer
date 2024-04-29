@@ -36,9 +36,11 @@ public class IceWallSpell : Spell {
 
     /** Local variables **/
 
+    private readonly float fireDuration = 1f;
+    private float timeOfLastFire = Mathf.NegativeInfinity;
     private float entityBaseDamage = 0.0f;
 
-    private bool wasAimingLastFrame = false;
+    private bool wasChargingLastFrame = false;
 
     // We really shouldn't have to rely on this boolean - should just do it when it's first pressed?
     private bool hasPlayedChargeAudioThisCharge = false;
@@ -61,6 +63,10 @@ public class IceWallSpell : Spell {
         // idk do nothing while we're not aiming or w/e
 
         Recharge();
+
+        bool isFiring = Time.time - timeOfLastFire < fireDuration;
+        PlayerAnimator!.SetBool("IsFiringIceWall", isFiring);
+        PlayerAnimator!.SetBool("IsChargingIceWall", wasChargingLastFrame);
     }
 
     public override void AttackButtonHeld() {
@@ -68,8 +74,8 @@ public class IceWallSpell : Spell {
 
     public override void AttackButtonReleased() {
         // If we were aiming at it was released, spawn the Ice Wall
-        if (wasAimingLastFrame) {
-            wasAimingLastFrame = false;
+        if (wasChargingLastFrame) {
+            wasChargingLastFrame = false;
             hasPlayedChargeAudioThisCharge = false;
 
             // Destroy the aiming thing as we're not aiming anymore
@@ -99,7 +105,7 @@ public class IceWallSpell : Spell {
 
     private void Recharge() {
         // We should probably check if we need to rProjectileecharge in the first place
-        if (wasAimingLastFrame) { // Don't recharge if we were aiming
+        if (wasChargingLastFrame) { // Don't recharge if we were aiming
             return;
         }
 
@@ -165,8 +171,8 @@ public class IceWallSpell : Spell {
         eulerAngles.x = 0;
         var rotation = Quaternion.Euler(eulerAngles);
 
-        if (!wasAimingLastFrame) {
-            wasAimingLastFrame = true;
+        if (!wasChargingLastFrame) {
+            wasChargingLastFrame = true;
 
             aimingDecalProjectorInstance = Instantiate(
                 AimingDecalProjectorPrefab!,
@@ -208,10 +214,11 @@ public class IceWallSpell : Spell {
         );
 
         iceWall.DamagePerSpike = damagePerSpike;
+        timeOfLastFire = Time.time;
     }
 
     public override Texture2D? GetAimTexture() {
-        if (wasAimingLastFrame) {
+        if (wasChargingLastFrame) {
             if (canShootWhereAiming) {
                 // return dot image
                 return AimingImage!;

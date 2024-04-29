@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 #nullable enable
 
@@ -14,6 +15,10 @@ using UnityEngine;
     typeof(Target), // Not referenced in code, but required for Enemies
     typeof(Experience),
     typeof(GoldWallet)
+)]
+[RequireComponent(
+    typeof(Animator),
+    typeof(PlayerCameraController)
 )]
 public class PlayerController : Entity {
     /** PROPERTIES **/
@@ -87,6 +92,8 @@ public class PlayerController : Entity {
     private PlayerSpellsController? playerSpellsController;
     private InputHandler? inputHandler;
     private CharacterController? characterController;
+    private PlayerCameraController? cameraController;
+    private Animator? animator;
     private Vector3 groundNormal;
 
     private float lastTimeJumped = Mathf.NegativeInfinity;
@@ -97,11 +104,11 @@ public class PlayerController : Entity {
     private Interactable? currentAimedAtInteractable;
 
     // Values for smooth rotation the character for 3rd person camera
-    private readonly float turnSmoothTime = 0.1f;
+    private readonly float turnSmoothTime = 0.2f;
     private float turnSmoothVelocity;
 
     // Values for smooth rotation of the player look at (upper body rotation)
-    private readonly float lookAtSmoothTime = 0.15f; // originally 0.05
+    private readonly float lookAtSmoothTime = 0.3f; // originally 0.05
     private Vector3 lookAtSmoothVelocity = Vector3.zero;
     private Vector3 previousLookAtRotation = Vector3.zero;
 
@@ -138,9 +145,13 @@ public class PlayerController : Entity {
 
         playerSpellsController = GetComponent<PlayerSpellsController>();
 
+        animator = GetComponent<Animator>();
+
         experience.OnLevelUp += OnLevelUp; 
 
         characterController.enableOverlapRecovery = true;
+
+        cameraController = GetComponent<PlayerCameraController>();
 
         // UpdateCharacterHeight(true);
 
@@ -173,6 +184,10 @@ public class PlayerController : Entity {
         HandleInteracting();
 
         HandlePlayerShader();
+
+        SetPlayerAnimationVelocity();
+
+        cameraController!.PlayerVelocity = CharacterVelocity;
 
         // UpdateCharacterHeight(false) ???
     }
@@ -409,23 +424,29 @@ public class PlayerController : Entity {
         // Store our current rotation for the next frame
         previousLookAtRotation = finalAngles;
 
-        Debug.Log($"Velocity {lookAtSmoothVelocity}");
+    // Need to get where we're actually moving vs where we're looking
+    private void SetPlayerAnimationVelocity() {
+        // No clue if we need to normalize this but I assume scale matters? Idfk
+        Vector3 localVelocity = transform.InverseTransformDirection(CharacterVelocity);
+
+        Debug.Log($"Velocity: {localVelocity.x} {localVelocity.z}");
+
+        float dampTime = 0.1f;
+        animator!.SetFloat("SpeedX", value: localVelocity.x, dampTime: dampTime, Time.deltaTime);
+        // Y on the Blend Tree graph, z in Unity space
+        animator!.SetFloat("SpeedY", value: localVelocity.z, dampTime: dampTime, Time.deltaTime);
     }
 
     private Vector3 GetClampedPlayerLookAtAngle() {
-
-        // We  convert the inputAngle to the local space of the player in order to tell what "backwards" actually is
+        // We  convert the camera direction to the local space of the player in order to tell what "backwards" actually is
         Vector3 localCameraDirection = transform.InverseTransformDirection(PlayerCamera!.transform.forward);
         Vector3 localCameraAngle = Quaternion.LookRotation(localCameraDirection, Vector3.up).eulerAngles;
 
-        Vector3 startAngle = localCameraAngle;
-
-        // "Normalize" it to [-180, 180]
         // we don't actually have to do this - it's just easier to think about
         if (localCameraAngle.y > 180)
             localCameraAngle.y -= 360;
 
-        // clamp the angle so it's not looking directly behind the player (a bit left or a bit right)
+        // clamp the angle so it doesn't get past the LookAt max angle (well, it goes a *bit* past it, ~10 angles at the time of writing)
         float maxAngle = 50;
         localCameraAngle.y = Mathf.Clamp(localCameraAngle.y, -maxAngle, maxAngle);
 

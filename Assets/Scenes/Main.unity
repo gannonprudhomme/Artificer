@@ -954,12 +954,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 857635241860735809, guid: a20d026c81583784fb7b9a5d8be13c2d,
-        type: 3}
-      propertyPath: m_NavMeshData
-      value: 
-      objectReference: {fileID: 23800000, guid: eac6788a668982a42bb727994f2a6937,
-        type: 2}
     - target: {fileID: 1284685009078891471, guid: a20d026c81583784fb7b9a5d8be13c2d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1010,12 +1004,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1546955391672173486, guid: a20d026c81583784fb7b9a5d8be13c2d,
-        type: 3}
-      propertyPath: m_NavMeshData
-      value: 
-      objectReference: {fileID: 23800000, guid: be4945cadcfea2945987781015a80a07,
-        type: 2}
     - target: {fileID: 8792906675731632673, guid: a20d026c81583784fb7b9a5d8be13c2d,
         type: 3}
       propertyPath: m_Name
@@ -8219,10 +8207,45 @@ PrefabInstance:
       propertyPath: PlayerController
       value: 
       objectReference: {fileID: 7857456915802866201}
+    - target: {fileID: 5429969387219470273, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
+      propertyPath: field of view
+      value: 60.000004
+      objectReference: {fileID: 0}
     - target: {fileID: 5982928276165205717, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
         type: 3}
       propertyPath: m_Name
       value: Camera Objects
+      objectReference: {fileID: 0}
+    - target: {fileID: 6523497636477959976, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.029296875
+      objectReference: {fileID: 0}
+    - target: {fileID: 6523497636477959976, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.5857358
+      objectReference: {fileID: 0}
+    - target: {fileID: 6523497636477959976, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3.3919373
+      objectReference: {fileID: 0}
+    - target: {fileID: 7057261442278373558, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.029296875
+      objectReference: {fileID: 0}
+    - target: {fileID: 7057261442278373558, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.5857358
+      objectReference: {fileID: 0}
+    - target: {fileID: 7057261442278373558, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3.3919373
       objectReference: {fileID: 0}
     - target: {fileID: 7078143990826723513, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
         type: 3}
@@ -8273,6 +8296,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002336688457220282, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
+      propertyPath: CameraDistance
+      value: 17
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8539,6 +8567,11 @@ PrefabInstance:
       propertyPath: CameraAimPoint
       value: 
       objectReference: {fileID: 2023251542}
+    - target: {fileID: 5062329747764622900, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: FloatingDownForce
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5904277213977649697, guid: 809bd9093307112498109f7137d945f4,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -8595,8 +8628,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 3859848406646783890, guid: 809bd9093307112498109f7137d945f4, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 809bd9093307112498109f7137d945f4, type: 3}
