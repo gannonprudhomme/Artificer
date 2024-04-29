@@ -20,7 +20,7 @@ using UnityEngine.Animations.Rigging;
     typeof(Animator),
     typeof(PlayerCameraController)
 )]
-public class PlayerController : Entity {
+public class PlayerController : Entity, AimDelegate {
     /** PROPERTIES **/
 
     [Header("References")]
@@ -52,6 +52,13 @@ public class PlayerController : Entity {
     [Tooltip("Distance from the bottom of the character controller capsule to test for grounded")]
     // I really need to see how other things to this, b/c in the past I ran into weird things w/ this and capsule size
     public float GroundCheckDistance = 0.05f;
+
+    [Header("UI")]
+    [Tooltip("The normal aim indicator image which displays by default (when the user can shoot")]
+    public Texture2D? NormalAimTexture;
+
+    [Tooltip("Texture shown when the player is sprinting")]
+    public Texture2D? SpintingTexture;
 
     [Header("Movement")]
     [Tooltip("Max movement speed when grounded (when not sprinting)")]
@@ -87,7 +94,7 @@ public class PlayerController : Entity {
     private Experience? experience;
     private GoldWallet? goldWallet;
 
-    private Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
+    public Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
 
     private PlayerSpellsController? playerSpellsController;
     private InputHandler? inputHandler;
@@ -99,7 +106,7 @@ public class PlayerController : Entity {
     private float lastTimeJumped = Mathf.NegativeInfinity;
 
     // So I think this has to be public? But set it to private for now
-    private bool IsGrounded = true;
+    private bool isSprinting = false;
 
     private Interactable? currentAimedAtInteractable;
 
@@ -123,6 +130,8 @@ public class PlayerController : Entity {
 
     protected override float StartingBaseDamage => 12f;
     public override float CurrentBaseDamage => StartingBaseDamage + ((experience!.currentLevel - 1) * 2.4f);
+
+    public Texture2D? CurrentAimTexture { get; private set; }
 
     /** FUNCTIONS **/
 
@@ -187,7 +196,9 @@ public class PlayerController : Entity {
 
         SetPlayerAnimationVelocity();
 
-        cameraController!.PlayerVelocity = CharacterVelocity;
+        DetermineCrosshairTexture();
+
+        cameraController!.IsPlayerSprinting = isSprinting;
 
         // UpdateCharacterHeight(false) ???
     }
@@ -586,6 +597,16 @@ public class PlayerController : Entity {
 
         if (wasInteractedPressed && currentAimedAtInteractable != null) {
             currentAimedAtInteractable.OnSelected(goldWallet!);
+        }
+    }
+
+    private void DetermineCrosshairTexture() {
+        if (isSprinting) {
+            CurrentAimTexture = SpintingTexture;
+        } else if (playerSpellsController!.DetermineCurrentAimTexture() is Texture2D texture) {
+            CurrentAimTexture = texture;
+        } else {
+            CurrentAimTexture = NormalAimTexture;
         }
     }
 

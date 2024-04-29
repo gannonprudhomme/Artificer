@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4018273804263377339}
   - component: {fileID: 1882380415396001142}
   - component: {fileID: 4706648185472231540}
+  - component: {fileID: 6086751775280039394}
   - component: {fileID: 8304319607885402168}
   - component: {fileID: 8144513692469704507}
   - component: {fileID: 5059884670927395171}
@@ -70,6 +71,7 @@ MonoBehaviour:
   SpellChargeUIs:
   - {fileID: 5352573904831195692}
   - {fileID: 7006963042228413910}
+  - {fileID: 425068093230802940}
   SpellsController: {fileID: 0}
 --- !u!114 &4018273804263377339
 MonoBehaviour:
@@ -155,6 +157,19 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   MaxStrength: 1
+--- !u!114 &6086751775280039394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241678929247167197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 511ba0942935caa419e4b18e692f8973, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FPSLimit: 144
 --- !u!114 &8304319607885402168
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2604,7 +2619,7 @@ PrefabInstance:
     - target: {fileID: 6986872394884523686, guid: a6b827d8cffe9e941bf6eedb9432af62,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8191850114101240040, guid: a6b827d8cffe9e941bf6eedb9432af62,
         type: 3}
@@ -2736,6 +2751,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a6b827d8cffe9e941bf6eedb9432af62, type: 3}
+--- !u!114 &425068093230802940 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6986872394884523686, guid: a6b827d8cffe9e941bf6eedb9432af62,
+    type: 3}
+  m_PrefabInstance: {fileID: 7282459416879481178}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a986b0403001cb478b991dd0c8372ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &2005468040434939511 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 9134607156480915245, guid: a6b827d8cffe9e941bf6eedb9432af62,

@@ -32,10 +32,6 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     [Tooltip("Secondary camera used to avoid seeing weapon go through geometries?")]
     public Camera? SpellCamera;
 
-    [Header("UI")]
-    [Tooltip("The normal aim indicator image which displays by default (when the user can shoot")]
-    public Texture2D? NormalAimTexture;
-
     [Header("Spells")]
     public Spell? FirstSpellPrefab; // These have to be MonoBehaviors to be able to be assigned in Unity btw
     public Spell? SecondSpellPrefab;
@@ -148,7 +144,7 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         // but Ice Wall and Lightning Jump should be a good challenge
     }
 
-    private Texture2D DetermineCurrentAimTexture() {
+    public Texture2D? DetermineCurrentAimTexture() {
         Texture2D? aimTexture = null;
         foreach (var spell in spells) {
             if (spell.GetAimTexture() is Texture2D texture) {
@@ -159,7 +155,7 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         if (aimTexture != null) {
             return aimTexture;
         } else {
-            return NormalAimTexture!;
+            return null;
         }
     }
 
