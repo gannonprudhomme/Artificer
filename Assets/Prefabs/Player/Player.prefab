@@ -308,9 +308,7 @@ MonoBehaviour:
   VerticalRotationMax: 80
   JumpForce: 30
   CharacterVelocity: {x: 0, y: 0, z: 0}
-  groundNormal: {x: 0, y: 0, z: 0}
   lastTimeJumped: -Infinity
-  IsGrounded: 1
 --- !u!114 &6908111738488462613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -577,10 +575,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VirtualCamera: {fileID: 0}
-  DefaultFOV: 0
-  MaxSprintFOV: 0
+  DefaultFOV: 55
+  MaxSprintFOV: 70
   MaxPlayerWalkSpeed: 15
-  MaxPlayerSprintSpeed: 25
+  MaxPlayerSprintSpeed: 22
 --- !u!1 &6792243995975969371
 GameObject:
   m_ObjectHideFlags: 0

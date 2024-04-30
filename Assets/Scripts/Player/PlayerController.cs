@@ -97,6 +97,7 @@ public class PlayerController : Entity, AimDelegate {
     private Experience? experience;
     private GoldWallet? goldWallet;
 
+    [HideInInspector]
     public Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
 
     private PlayerSpellsController? playerSpellsController;
@@ -166,8 +167,6 @@ public class PlayerController : Entity, AimDelegate {
 
         cameraController = GetComponent<PlayerCameraController>();
 
-        // UpdateCharacterHeight(true);
-
         previousLookAtRotation = GetClampedPlayerLookAtAngle();
     }
 
@@ -203,8 +202,6 @@ public class PlayerController : Entity, AimDelegate {
         DetermineCrosshairTexture();
 
         cameraController!.IsPlayerSprinting = isSprinting;
-
-        // UpdateCharacterHeight(false) ???
     }
 
     // Future self here - I think this actually makes things harder cause I have to see where stuff comes from. We should just return values instead of modifying them in functions
