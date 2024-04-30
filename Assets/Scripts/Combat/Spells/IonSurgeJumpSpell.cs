@@ -15,10 +15,16 @@ public class IonSurgeJumpSpell : Spell {
     [Header("General (Ion Surge)")]
     public float SurgeJumpForce = 90f;
 
-    private float timeOfLastFire;
+    // TODO: We should actually calculate this based on the velocity of the player
+    // Or rather, how long we expect for it to take for the player to reach the peak of the ion surge jump
+    private readonly float animationDuration = 1.5f;
+    private float timeOfLastFire = Mathf.NegativeInfinity;
 
     void Update() {
         Recharge();
+
+        bool isActive = Time.time - timeOfLastFire < animationDuration;
+        PlayerAnimator!.SetBool("IsIonSurgeActive", isActive);
     }
 
     private void Recharge() {
@@ -39,6 +45,8 @@ public class IonSurgeJumpSpell : Spell {
         // Launch the player in the air
         if (UpdatePlayerVelocity != null)
             UpdatePlayerVelocity(Vector3.up * SurgeJumpForce);
+
+        timeOfLastFire = Time.time;
     }
 
 
