@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 #nullable enable
@@ -66,6 +67,9 @@ public abstract class Spell : MonoBehaviour {
     [Tooltip("Audio clip that plays when the spell is fired")]
     public AudioClip? ShootSfx;
     public Animator? PlayerAnimator { get; set; }
+    public UnityAction<Vector3>? UpdatePlayerVelocity { get; set; }
+
+    // We don't really need this anymore
     public Transform? SpellEffectsSpawnPoint { get; set; }
 
     // TODO: This is editable in the UI, and we def don't want that

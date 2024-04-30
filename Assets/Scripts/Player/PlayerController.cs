@@ -46,8 +46,11 @@ public class PlayerController : Entity, AimDelegate {
     // Why would this be on the PlayerController? Should there be some like World / Game object we get this from?
     public float GravityDownForce = 20f;
 
+    [Tooltip("The fastest the player can fall (when not hovering)")]
+    public float TerminalVelocity = -10f;
+
     [Tooltip("Force applied downward when we're hovering")]
-    public float HoveringDownForce = 1.5f;
+    public float HoveringTerminalVelocity = 1.5f;
 
     [Tooltip("Distance from the bottom of the character controller capsule to test for grounded")]
     // I really need to see how other things to this, b/c in the past I ran into weird things w/ this and capsule size
@@ -103,10 +106,11 @@ public class PlayerController : Entity, AimDelegate {
     private Animator? animator;
     private Vector3 groundNormal;
 
-    private float lastTimeJumped = Mathf.NegativeInfinity;
+    public float lastTimeJumped = Mathf.NegativeInfinity;
 
     // So I think this has to be public? But set it to private for now
     private bool isSprinting = false;
+    private bool IsGrounded = true;
 
     private Interactable? currentAimedAtInteractable;
 
@@ -259,7 +263,7 @@ public class PlayerController : Entity, AimDelegate {
     // Called by Update()
     private void HandleCharacterMovement() {
         // character movement handling
-        bool isSprinting = inputHandler!.GetSprintInputHeld();
+        isSprinting = inputHandler!.GetSprintInputHeld();
         float speedModifier = isSprinting ? SprintSpeedModifier : 1f;
 
         // Note this function also changes transform.rotation (yes this is bad design)
@@ -303,11 +307,11 @@ public class PlayerController : Entity, AimDelegate {
             float verticalVelocity = CharacterVelocity.y;
             // Note this is negative as it's a downward force
             float downForce = -GravityDownForce * Time.unscaledDeltaTime;
-            if (IsHovering()) {
-                downForce = -HoveringDownForce * Time.unscaledDeltaTime;
-            }
 
             float y = verticalVelocity + downForce; // note this is actually subtracting
+
+            // Clamp it to the terminal velocity
+            y = Mathf.Max(y, IsHovering() ? HoveringTerminalVelocity : TerminalVelocity);
 
             // Should we add a terminal velocity?
 
@@ -413,7 +417,7 @@ public class PlayerController : Entity, AimDelegate {
     private void HandlePlayerLookAt() {
         if (PlayerLookAt == null) return;
 
-        Vector3 targetAngle = GetClampedPlayerLookAtAngles();
+        Vector3 targetAngle = GetClampedPlayerLookAtAngle();
 
         // Determine final angle
         // Adds a rotation speed so the look at isn't instantenous
@@ -434,13 +438,12 @@ public class PlayerController : Entity, AimDelegate {
 
         // Store our current rotation for the next frame
         previousLookAtRotation = finalAngles;
+    }
 
     // Need to get where we're actually moving vs where we're looking
     private void SetPlayerAnimationVelocity() {
         // No clue if we need to normalize this but I assume scale matters? Idfk
         Vector3 localVelocity = transform.InverseTransformDirection(CharacterVelocity);
-
-        Debug.Log($"Velocity: {localVelocity.x} {localVelocity.z}");
 
         float dampTime = 0.1f;
         animator!.SetFloat("SpeedX", value: localVelocity.x, dampTime: dampTime, Time.deltaTime);
@@ -487,7 +490,7 @@ public class PlayerController : Entity, AimDelegate {
             // air (aka falling) - I assume for double jumping (this is probably an old comment)
             Vector3 retCharacterVelocity = new(
                 previousCharacterVelocity.x,
-                0f, // I'm not sure if we want to cancel this out? But hey maybe we do
+                previousCharacterVelocity.y, // I'm not sure if we want to cancel this out? But hey maybe we do
                 previousCharacterVelocity.z
             );
 

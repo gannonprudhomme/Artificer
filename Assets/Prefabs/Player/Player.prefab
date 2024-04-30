@@ -292,8 +292,12 @@ MonoBehaviour:
   PlayerMeshRenderer: {fileID: 7152185002000507461}
   LookAtAnchor: {fileID: 2209735551376407989}
   PlayerLookAt: {fileID: 6702375350450175713}
-  GravityDownForce: 25
+  GravityDownForce: 55
+  TerminalVelocity: -45
+  HoveringTerminalVelocity: -2
   GroundCheckDistance: 1
+  NormalAimTexture: {fileID: 2800000, guid: a24c355999c30944d8a5fabda2e7a98e, type: 3}
+  SpintingTexture: {fileID: 2800000, guid: 4b1abee6622b8424d9953e3bc6b4605d, type: 3}
   MaxSpeedOnGround: 15
   MovementSharpnessOnGround: 15
   MaxSpeedInAir: 13
@@ -302,7 +306,11 @@ MonoBehaviour:
   RotationSpeed: 200
   VerticalRotationMin: -80
   VerticalRotationMax: 80
-  JumpForce: 20
+  JumpForce: 30
+  CharacterVelocity: {x: 0, y: 0, z: 0}
+  groundNormal: {x: 0, y: 0, z: 0}
+  lastTimeJumped: -Infinity
+  IsGrounded: 1
 --- !u!114 &6908111738488462613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -334,14 +342,16 @@ MonoBehaviour:
   LeftArmSpellSpawnPoint: {fileID: 5287596396576582660}
   RightArmSpellSpawnPoint: {fileID: 8009151639064891985}
   SpellCamera: {fileID: 0}
-  NormalAimTexture: {fileID: 2800000, guid: a24c355999c30944d8a5fabda2e7a98e, type: 3}
   FirstSpellPrefab: {fileID: 8397145886222599420, guid: e1193c464af1ab646be9b3b49fca3674,
     type: 3}
   SecondSpellPrefab: {fileID: 5227877792274781671, guid: ddab98e7c19b12e4f9dd90cc7afbb5b2,
     type: 3}
+  ThirdSpellPrefab: {fileID: 8360938968974723689, guid: d2c8cda53ddcf5548a595519ed2b18f2,
+    type: 3}
   spells:
   - {fileID: 8397145886222599420, guid: e1193c464af1ab646be9b3b49fca3674, type: 3}
-  - {fileID: 0}
+  - {fileID: 5227877792274781671, guid: ddab98e7c19b12e4f9dd90cc7afbb5b2, type: 3}
+  - {fileID: 8360938968974723689, guid: d2c8cda53ddcf5548a595519ed2b18f2, type: 3}
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 0

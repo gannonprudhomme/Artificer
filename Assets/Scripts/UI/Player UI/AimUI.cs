@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class AimUI : MonoBehaviour {
     public RawImage AimImage;
 
-    public PlayerSpellsController aimDelegate;
+    public PlayerController aimDelegate;
 
     void Start() {
         if (aimDelegate == null) {

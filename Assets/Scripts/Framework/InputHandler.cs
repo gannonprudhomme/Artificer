@@ -16,6 +16,7 @@ class InputConstants {
     public const string Dash = "Jump";
     public const string FirstAttack = "FirstAttack";
     public const string SecondAttack = "SecondAttack";
+    public const string ThirdAttack = "ThirdAttack";
     public const string Interact = "Interact";
 }
 
@@ -107,6 +108,18 @@ public class InputHandler : MonoBehaviour {
 
     public bool GetSecondAttackInputReleased() {
         return !GetSecondAttackInputHeld() && secondAttackWasHeld;
+    }
+
+    public bool GetThirdAttackInputDown() {
+        return Input.GetButtonDown(InputConstants.ThirdAttack);
+    }
+
+    public bool GetThirdAttackInputHeld() {
+        return Input.GetButton(InputConstants.ThirdAttack);
+    }
+
+    public bool GetThirdAttackInputReleased() {
+        return Input.GetButtonUp(InputConstants.ThirdAttack);
     }
 
     public bool GetAimInputHeld() {

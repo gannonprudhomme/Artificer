@@ -12,9 +12,9 @@ public interface AimDelegate {
 }
 
 // We might want this to live in the Player module
-// [RequireComponent(typeof(PlayerController))] // Idk if we actually need this? Maybe PlayerController should require this? Regardless they should be attach on the same GameObject
-[RequireComponent(typeof(InputHandler))]
-public class PlayerSpellsController : MonoBehaviour, AimDelegate {
+[RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(InputHandler), typeof(Animator))]
+public class PlayerSpellsController : MonoBehaviour {
     [Header("References")]
     public InputHandler? inputHandler;
 
@@ -35,17 +35,18 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     [Header("Spells")]
     public Spell? FirstSpellPrefab; // These have to be MonoBehaviors to be able to be assigned in Unity btw
     public Spell? SecondSpellPrefab;
+    public Spell? ThirdSpellPrefab;
 
     public Spell[] spells = new Spell[2];
     
-    private Entity? player;
+    private PlayerController? player;
+    private Animator? animator;
 
     // Starts out at 12, increases by 2.4 every level
     // Setting this as constant for now, but it won't be later
     public const float baseDamage = 12.0f;
 
     public LayerMask playerLayerMask;
-    public Texture2D? CurrentAimTexture { get; protected set; }
 
     public bool IsForcingAimLookForward { get; private set; }
 
@@ -60,6 +61,11 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         if (SecondSpellPrefab != null) { // probs just want to yell if this is null, idk
             spells[1] = Instantiate(SecondSpellPrefab, RightArmSpellSpawnPoint!);
         }
+
+        if (ThirdSpellPrefab != null) {
+            spells[2] = Instantiate(ThirdSpellPrefab, RightArmSpellSpawnPoint!);
+        }
+
         // spells[2] = ThirdSpell;
         // spells[3] = FourthSpell;
 
@@ -68,8 +74,12 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
 		    Debug.LogError("Should have a PlayerController!");
 		}
 
+        animator = GetComponent<Animator>();
+
         foreach(var spell in spells) {
             spell.SpellEffectsSpawnPoint = SpellEffectsFireSpawnPoint;
+            spell.PlayerAnimator = animator;
+            spell.UpdatePlayerVelocity += UpdatePlayerVelocity;
         }
 
         IsForcingAimLookForward = false;
@@ -83,11 +93,6 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
     // Update is called once per frame
     void Update() {
         HandleAttackInput();
-
-        // Check all of the spells and see if it's okay to shoot where we're aiming
-        // if it's not we se canShootWhereAiming to false so the aim indicator changes
-        CurrentAimTexture = DetermineCurrentAimTexture();
-
         IsForcingAimLookForward = DetermineIsForceLookingForward();
     }
 
@@ -138,7 +143,21 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         } else if (inputHandler.GetSecondAttackInputReleased()) {
             spells[1].AttackButtonReleased();
         }
-        
+
+        if (inputHandler.GetThirdAttackInputHeld()) {
+            if (spells[2].CanShoot()) {
+                spells[2].ShootSpell(
+                    muzzlePositions: (LeftArmSpellSpawnPoint!.transform.position, RightArmSpellSpawnPoint!.transform.position),
+                    owner: gameObject,
+                    spellCamera: SpellCamera!,
+				    currDamage: player!.CurrentBaseDamage,
+                    layerToIgnore: playerLayerMask
+                );
+            }
+        } else if (inputHandler.GetThirdAttackInputReleased()) {
+            spells[2].AttackButtonReleased();
+        }
+
         // Maybe I should get the spells working first before preventing them from working at the same time?
         // I already know how to do fireball though so I don't *really* need to
         // but Ice Wall and Lightning Jump should be a good challenge
@@ -171,9 +190,11 @@ public class PlayerSpellsController : MonoBehaviour, AimDelegate {
         return isForceLookingForward;
     }
 
+    private void UpdatePlayerVelocity(Vector3 addedVelocity) {
+        Debug.Log($"Adding {addedVelocity}");
 
-    // We probably don't want this
-    void RestoreSpellCharges() {
-
+        // We reset the velocity - rather than add to it - as otherwise Ion Surge's boost won't do much when we're e.g. falling
+        player!.CharacterVelocity.y = addedVelocity.y;
+        player!.lastTimeJumped = Time.time;
     }
 }
