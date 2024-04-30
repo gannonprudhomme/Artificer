@@ -189,7 +189,7 @@ public class PlayerController : Entity, AimDelegate {
 
         HandleCharacterMovement();
 
-        HandleLooking();
+        HandleCameraRotation();
         HandlePlayerLookAt();
 
         CheckIfAimingAtInteractable();
@@ -392,7 +392,7 @@ public class PlayerController : Entity, AimDelegate {
     }
 
     // Called by Update()
-    private void HandleLooking() {
+    private void HandleCameraRotation() {
         if (CameraAimPoint == null) return;
 
         Vector2 mouseInput = new(x: inputHandler!.GetLookInputsHorizontal(), y: inputHandler!.GetLookInputsVertical());
@@ -416,6 +416,11 @@ public class PlayerController : Entity, AimDelegate {
     // Called by Update()
     private void HandlePlayerLookAt() {
         if (PlayerLookAt == null) return;
+
+        // TODO: Might also want to limit it so it's not completely behind the player
+        // we can also add per-axis limits here, e.g. so it doesn't look too far down
+        // At the moment the rotation is dampened but the look-at is instant - this should be flipped
+        // Also it doesn't seem to let you look backwards *AND* up/down - up/down (mostly up) is only when looking forward
 
         Vector3 targetAngle = GetClampedPlayerLookAtAngle();
 
@@ -451,6 +456,7 @@ public class PlayerController : Entity, AimDelegate {
         animator!.SetFloat("SpeedY", value: localVelocity.z, dampTime: dampTime, Time.deltaTime);
     }
 
+    // TODO: Might want to prevent it from looking too far downwards (especially if we're looking backwards)
     private Vector3 GetClampedPlayerLookAtAngle() {
         // We  convert the camera direction to the local space of the player in order to tell what "backwards" actually is
         Vector3 localCameraDirection = transform.InverseTransformDirection(PlayerCamera!.transform.forward);
