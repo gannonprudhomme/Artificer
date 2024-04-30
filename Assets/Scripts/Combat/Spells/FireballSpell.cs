@@ -58,6 +58,11 @@ public class FireballSpell : Spell {
         // Even if we're firing, we should be recharging?
         // (this may or may not be shared between spells - which is why the Component architecture may be nice for this)
         Recharge();
+
+        // Set animator values
+        float timeToNotFire = 1.5f;
+        bool isFiring = Time.time - lastTimeShot < timeToNotFire;
+        PlayerAnimator!.SetBool("IsFiringFireball", isFiring);
     }
 
     public override void AttackButtonHeld() { }
@@ -94,6 +99,7 @@ public class FireballSpell : Spell {
 		float playerBaseDamage,
         LayerMask layerToIgnore
     ) {
+        // TODO: Should I spawn this on the player
         AudioUtility.shared.CreateSFX(
             ShootSfx,
             spellCamera.transform.position,
