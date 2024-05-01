@@ -196,6 +196,6 @@ public class PlayerSpellsController : MonoBehaviour {
 
         // TODO: We should *really* have a better way to do this
         // Without this the player will get stuck to the ground w/ the ground check
-        player!.lastTimeJumped = Time.time; 
+        player!.lastTimeJumped = Time.time;
     }
 }

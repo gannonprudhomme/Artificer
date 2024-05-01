@@ -17,7 +17,7 @@ public class IonSurgeJumpSpell : Spell {
 
     // TODO: We should actually calculate this based on the velocity of the player
     // Or rather, how long we expect for it to take for the player to reach the peak of the ion surge jump
-    private readonly float animationDuration = 1.5f;
+    private readonly float animationDuration = 90f / 55f; // about 1.64 sec - SurgeJumpForce / GravityDownForce
     private float timeOfLastFire = Mathf.NegativeInfinity;
 
     void Update() {
@@ -48,7 +48,6 @@ public class IonSurgeJumpSpell : Spell {
 
         timeOfLastFire = Time.time;
     }
-
 
     public override void AttackButtonPressed() { }
     public override void AttackButtonHeld() { }

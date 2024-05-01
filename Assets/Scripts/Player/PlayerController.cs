@@ -42,7 +42,7 @@ public class PlayerController : Entity, AimDelegate {
     public Transform? PlayerLookAt;
 
     [Header("General")]
-    [Tooltip("Force applied downward when in the air")]
+    [Tooltip("Force applied downward when in the air in meters per second")]
     // Why would this be on the PlayerController? Should there be some like World / Game object we get this from?
     public float GravityDownForce = 20f;
 
@@ -451,6 +451,9 @@ public class PlayerController : Entity, AimDelegate {
         animator!.SetFloat("SpeedX", value: localVelocity.x, dampTime: dampTime, Time.deltaTime);
         // Y on the Blend Tree graph, z in Unity space
         animator!.SetFloat("SpeedY", value: localVelocity.z, dampTime: dampTime, Time.deltaTime);
+
+        animator!.SetBool("IsFalling", value: !IsGrounded);
+        animator!.SetFloat("VerticalSpeed", value: localVelocity.y, dampTime: dampTime, Time.deltaTime);
     }
 
     // TODO: Might want to prevent it from looking too far downwards (especially if we're looking backwards)
