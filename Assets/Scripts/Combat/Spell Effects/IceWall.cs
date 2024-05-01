@@ -18,6 +18,8 @@ public class IceWall : MonoBehaviour {
     private GameObject[] iceSpikesParents;
     private List<Collider> ignoredColliders;
 
+    private LayerMask levelMask;
+
     void Start() {
         // This should actually be triggering the affect (figure it'll be Aoe? But maybe not)
         //Destroy(this.gameObject, MaxLifeTime);
@@ -35,6 +37,8 @@ public class IceWall : MonoBehaviour {
 
         // Set the vertical values of the ice spikes
         PlaceIceSpikes();
+
+        levelMask = LayerMask.GetMask("Level");
     }
 
     void Update() {
@@ -63,11 +67,18 @@ public class IceWall : MonoBehaviour {
             // Vector3 rayCastPos = child.boxCollider.center + (Vector3.up * size / 2.0f);
             Vector3 rayCastPos = child.boxCollider.bounds.max;
 
-            Debug.DrawRay(rayCastPos, Vector3.down, Color.red);
+            Debug.DrawRay(rayCastPos, Vector3.down, Color.blue, 2.0f);
 
             // Raycast down
-            if (Physics.Raycast(rayCastPos, Vector3.down, out RaycastHit hit)) {
-                parent.transform.position = hit.point;
+            if (Physics.Raycast(
+                origin: rayCastPos,
+                direction: Vector3.down,
+                out RaycastHit hit,
+                maxDistance: 100f,
+                layerMask: ~levelMask
+            )) {
+                Debug.DrawLine(rayCastPos, hit.point, Color.green, 2.0f);
+                parent.transform.position = hit.point - (Vector3.up * 1.0f);
             } else {
                 print("we didn't hit anything, idk what to do here");
                 // maybe hide the child?

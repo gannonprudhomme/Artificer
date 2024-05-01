@@ -147,10 +147,8 @@ public class IceWallSpell : Spell {
 
         // Determine the aiming point
         var raycastHit = Physics.RaycastAll(
-            origin: spellCamera.transform.position, // Should this really be it though? blehhh
-            direction: spellCamera.transform.forward // Is this what we should do?
-            // We need to know what to hit in the first place tho - just level, not Entities?
-               // or if we aim at an entity should we center it at their feet? (do simpler for now)
+            origin: spellCamera.transform.position,
+            direction: spellCamera.transform.forward
         );
 
         if (raycastHit.Length == 0) {
