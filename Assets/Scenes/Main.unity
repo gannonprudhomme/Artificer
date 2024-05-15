@@ -4381,6 +4381,33 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 3633682984087498338}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1490544015 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4873153362123698398, guid: 809bd9093307112498109f7137d945f4,
+    type: 3}
+  m_PrefabInstance: {fileID: 7857456915802866194}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &1490544017
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1490544015}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ef673cabfa9fd6b408b562031495b6eb, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &1511340291
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8377,6 +8404,41 @@ PrefabInstance:
       propertyPath: Camera
       value: 
       objectReference: {fileID: 4311997422879298293}
+    - target: {fileID: 2940755583252577685, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: m_DirtyAABB
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2940755583252577685, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: m_AABB.m_Center.x
+      value: -0.000000029802322
+      objectReference: {fileID: 0}
+    - target: {fileID: 2940755583252577685, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: m_AABB.m_Center.y
+      value: -0.13229555
+      objectReference: {fileID: 0}
+    - target: {fileID: 2940755583252577685, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: m_AABB.m_Center.z
+      value: 1.8103751
+      objectReference: {fileID: 0}
+    - target: {fileID: 2940755583252577685, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: m_AABB.m_Extent.x
+      value: 0.68249214
+      objectReference: {fileID: 0}
+    - target: {fileID: 2940755583252577685, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: m_AABB.m_Extent.y
+      value: 0.77245766
+      objectReference: {fileID: 0}
+    - target: {fileID: 2940755583252577685, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: m_AABB.m_Extent.z
+      value: 1.3423933
+      objectReference: {fileID: 0}
     - target: {fileID: 3667666315035377316, guid: 809bd9093307112498109f7137d945f4,
         type: 3}
       propertyPath: m_Enabled
@@ -8402,6 +8464,11 @@ PrefabInstance:
       propertyPath: CameraAimPoint
       value: 
       objectReference: {fileID: 2023251542}
+    - target: {fileID: 5691449199721342968, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
     - target: {fileID: 7152185002000507461, guid: 809bd9093307112498109f7137d945f4,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -8460,7 +8527,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4873153362123698398, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1490544017}
   m_SourcePrefab: {fileID: 100100000, guid: 809bd9093307112498109f7137d945f4, type: 3}
 --- !u!114 &7857456915802866195 stripped
 MonoBehaviour:
