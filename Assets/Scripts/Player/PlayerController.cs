@@ -44,7 +44,10 @@ public class PlayerController : Entity, AimDelegate {
     [Header("General")]
     [Tooltip("Force applied downward when in the air in meters per second")]
     // Why would this be on the PlayerController? Should there be some like World / Game object we get this from?
-    public float GravityDownForce = 20f;
+    public float GravityDownForce = 55f;
+
+    [Tooltip("Force applied upward when hovering in the air, in meters per second")]
+    public float HoveringUpForce = 35f;
 
     [Tooltip("The fastest the player can fall (when not hovering)")]
     public float TerminalVelocity = -10f;
@@ -302,15 +305,19 @@ public class PlayerController : Entity, AimDelegate {
             // Handle vertical velocity (isn't limited like horizontal is)
 
             float verticalVelocity = CharacterVelocity.y;
+
             // Note this is negative as it's a downward force
-            float downForce = -GravityDownForce * Time.unscaledDeltaTime;
+            float downForce = (IsHovering() ? HoveringUpForce : -GravityDownForce) * Time.unscaledDeltaTime;
 
             float y = verticalVelocity + downForce; // note this is actually subtracting
 
             // Clamp it to the terminal velocity
-            y = Mathf.Max(y, IsHovering() ? HoveringTerminalVelocity : TerminalVelocity);
+            y = Mathf.Max(y, TerminalVelocity);
 
-            // Should we add a terminal velocity?
+            // If we're hovering, make the min value HoveringTerminalVelocity
+            if (IsHovering()) {
+                y = Mathf.Min(y, HoveringTerminalVelocity);
+            }
 
             CharacterVelocity = new Vector3(x, y, z);
         }
@@ -378,7 +385,6 @@ public class PlayerController : Entity, AimDelegate {
             // Rotate the character
             transform.rotation = Quaternion.Euler(0f, movingRotAngle, 0f);
         }
-
 
         // Determine worldSpaceMoveInput
         if (isMoving) {
@@ -517,6 +523,8 @@ public class PlayerController : Entity, AimDelegate {
     private bool IsHovering() {
         bool isFalling = CharacterVelocity.y < -0.5f; // This number should really be relative to the hovering down force
         bool shouldHover = inputHandler!.GetJumpInputHeld() && !IsGrounded && isFalling;
+
+        Debug.Log($"ShouldHover: {shouldHover}");
 
         return shouldHover;
     }
