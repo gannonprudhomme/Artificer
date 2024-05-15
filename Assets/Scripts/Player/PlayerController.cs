@@ -524,8 +524,6 @@ public class PlayerController : Entity, AimDelegate {
         bool isFalling = CharacterVelocity.y < -0.5f; // This number should really be relative to the hovering down force
         bool shouldHover = inputHandler!.GetJumpInputHeld() && !IsGrounded && isFalling;
 
-        Debug.Log($"ShouldHover: {shouldHover}");
-
         return shouldHover;
     }
 

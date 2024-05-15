@@ -77,7 +77,7 @@ public class IceWallSpike : MonoBehaviour {
 
     void Update() {
         if (lifetimePercentage >= 1.0f) { // we've reached the lifetime, detonate
-            Detonate();
+            Detonate(directHitCollider: null);
             return;
         }
 
@@ -89,17 +89,17 @@ public class IceWallSpike : MonoBehaviour {
     }
 
     private void OnTriggerEnter(Collider collider) {
-        Detonate();
+        Detonate(directHitCollider: collider);
     }
 
-    private void Detonate() {
+    private void Detonate(Collider? directHitCollider) {
         DamageArea!.InflictDamageOverArea(
-            damage,
-            transform.position, // Do better than this
-            Affiliation.Player,
-            null,
-            new FreezeStatusEffect(),
-            -1
+            damage: damage,
+            center: transform.position, // Do better than this
+            damageApplierAffiliation: Affiliation.Player,
+            directHitCollider: directHitCollider,
+            statusEffectToApply: new FreezeStatusEffect(),
+            layers: -1
         );
 
         AudioUtility.shared.CreateSFX(
