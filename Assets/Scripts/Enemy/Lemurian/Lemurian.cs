@@ -37,7 +37,7 @@ public class Lemurian : Enemy {
     public ParticleSystem? MeleeParticleSystemInstance;
 
     [Tooltip("The list of colliders on this so we can disable all of them when this dies")]
-    public List<BoxCollider> Colliders = new();
+    public Collider? Collider = new();
 
     public VisualEffect? FireballChargeVisualEffectInstance;
 
@@ -413,9 +413,7 @@ public class Lemurian : Enemy {
 
         PositionConstraint!.constraintActive = false;
 
-        foreach(var collider in Colliders) {
-            collider.enabled = false;
-        }
+        Collider!.enabled = false;
 
         Destroy(this.gameObject, 5f); // Destroy it in 5 seconds I guess? Probably should have an effect but w/e
     }
