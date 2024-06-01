@@ -222,6 +222,7 @@ GameObject:
   - component: {fileID: 2869115556679671296}
   - component: {fileID: 3667666315035377316}
   - component: {fileID: 4103907885057574645}
+  - component: {fileID: 4857897018764386295}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -245,6 +246,8 @@ Transform:
   - {fileID: 1494125901721257978}
   - {fileID: 3891283934947796380}
   - {fileID: 5254358834684783204}
+  - {fileID: 5875768307403543359}
+  - {fileID: 8181701154212046911}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -0.56, y: 89.774, z: 5.825}
 --- !u!143 &2692957549008379818
@@ -348,7 +351,7 @@ MonoBehaviour:
   ThirdSpellPrefab: {fileID: 8360938968974723689, guid: d2c8cda53ddcf5548a595519ed2b18f2,
     type: 3}
   spells:
-  - {fileID: 8397145886222599420, guid: e1193c464af1ab646be9b3b49fca3674, type: 3}
+  - {fileID: 4857897018764386295}
   - {fileID: 5227877792274781671, guid: ddab98e7c19b12e4f9dd90cc7afbb5b2, type: 3}
   - {fileID: 8360938968974723689, guid: d2c8cda53ddcf5548a595519ed2b18f2, type: 3}
   playerLayerMask:
@@ -499,7 +502,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5020162517813680371}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2d8418b0b9634b1892b0268dd9c2743, type: 3}
   m_Name: 
@@ -580,6 +583,28 @@ MonoBehaviour:
   MaxSprintFOV: 70
   MaxPlayerWalkSpeed: 15
   MaxPlayerSprintSpeed: 22
+--- !u!114 &4857897018764386295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5020162517813680371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8987905c3da32f94fb3a14a3c21d4485, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShootSfx: {fileID: 8300000, guid: afef4149297b39f4ca53ee5bd5466c0d, type: 3}
+  CurrentCharge: 0
+  SpellColorForUI: {r: 0.6320754, g: 0.26992488, b: 0.04472231, a: 0}
+  FireVisualEffectPrefab: {fileID: 1351230993019675440, guid: e1193c464af1ab646be9b3b49fca3674,
+    type: 3}
+  ProjectilePrefab: {fileID: 7383962033279725700, guid: 027140011ef981643875ee2387de2b08,
+    type: 3}
+  DelayBetweenShots: 0.7
+  LeftShootParticleSystem: {fileID: 7447438865896037751}
+  RightShootParticleSystem: {fileID: 5141791144318133879}
 --- !u!1 &6792243995975969371
 GameObject:
   m_ObjectHideFlags: 0
@@ -1263,4 +1288,179 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -5715784766596954140, guid: 0603253bf8d531a499f7852befa43981,
     type: 3}
   m_PrefabInstance: {fileID: 5719997003559013775}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6160527690682248837
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7596465692342951294}
+    m_Modifications:
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.1126709
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 3.7145681
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.39257812
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3144754410908367132, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_Sources.Array.data[0].sourceTransform
+      value: 
+      objectReference: {fileID: 5287596396576582660}
+    - target: {fileID: 7064521372868109150, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_Name
+      value: Fireball Shoot VFX (Shuriken) - Left
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f48b65e8dafa00b488b84b31997ef0db, type: 3}
+--- !u!4 &5875768307403543359 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+    type: 3}
+  m_PrefabInstance: {fileID: 6160527690682248837}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &7447438865896037751 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3613023228168598514, guid: f48b65e8dafa00b488b84b31997ef0db,
+    type: 3}
+  m_PrefabInstance: {fileID: 6160527690682248837}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8466563573763380613
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7596465692342951294}
+    m_Modifications:
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.1071777
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 3.715169
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.3946228
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3144754410908367132, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_Sources.Array.data[0].sourceTransform
+      value: 
+      objectReference: {fileID: 8009151639064891985}
+    - target: {fileID: 7064521372868109150, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: m_Name
+      value: Fireball Shoot VFX (Shuriken) - Right
+      objectReference: {fileID: 0}
+    - target: {fileID: 9029939996027888993, guid: f48b65e8dafa00b488b84b31997ef0db,
+        type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.15
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f48b65e8dafa00b488b84b31997ef0db, type: 3}
+--- !u!198 &5141791144318133879 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3613023228168598514, guid: f48b65e8dafa00b488b84b31997ef0db,
+    type: 3}
+  m_PrefabInstance: {fileID: 8466563573763380613}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8181701154212046911 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
+    type: 3}
+  m_PrefabInstance: {fileID: 8466563573763380613}
   m_PrefabAsset: {fileID: 0}

@@ -23,6 +23,12 @@ public class FireballSpell : Spell {
     [Tooltip("How long in seconds between shots")]
     public float DelayBetweenShots = 0.5f;
 
+    [Tooltip("Particle system which plays when we shoot from the left hand")]
+    public ParticleSystem? LeftShootParticleSystem;
+
+    [Tooltip("Particle system which plays when we shoot from the right hand")]
+    public ParticleSystem? RightShootParticleSystem;
+
     /** Abstract Spell Properties **/
 
     // How much charge (1.0f is a charge) is restored a second
@@ -119,8 +125,10 @@ public class FireballSpell : Spell {
         PlayerAnimator!.SetBool("IsFiringLeft", shouldFireWithLeftArm);
 
         if (shouldFireWithLeftArm) {
+            LeftShootParticleSystem!.Play();
             muzzlePosition = muzzlePositions.leftArm;
         } else {
+            RightShootParticleSystem!.Play();
             muzzlePosition = muzzlePositions.rightArm;
         }
         shouldFireWithLeftArm = !shouldFireWithLeftArm; // Flip it to the other spawn point

@@ -468,6 +468,7 @@ public class PlayerController : Entity, AimDelegate {
         Vector3 localCameraDirection = transform.InverseTransformDirection(PlayerCamera!.transform.forward);
         Vector3 localCameraAngle = Quaternion.LookRotation(localCameraDirection, Vector3.up).eulerAngles;
 
+        // Convert the local camera angle to [-180, 180]
         // we don't actually have to do this - it's just easier to think about
         if (localCameraAngle.y > 180)
             localCameraAngle.y -= 360;

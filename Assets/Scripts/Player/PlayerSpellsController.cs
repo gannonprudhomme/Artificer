@@ -57,7 +57,7 @@ public class PlayerSpellsController : MonoBehaviour {
         // This is obviously a shit way of doing this
         // really we should be able to provide spells as an array in Unity
         // but that array/list should be a fixed size. Surely that's possible
-        spells[0] = Instantiate(FirstSpellPrefab!, RightArmSpellSpawnPoint!);
+        
         if (SecondSpellPrefab != null) { // probs just want to yell if this is null, idk
             spells[1] = Instantiate(SecondSpellPrefab, RightArmSpellSpawnPoint!);
         }
