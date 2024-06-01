@@ -1,11 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using Codice.CM.SEIDInfo;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Animations;
 using UnityEngine.Animations.Rigging;
-using UnityEngine.Apple;
 
 // This (mainly Enemy) needs to:
 // - Aim at the player, and shoot when it can

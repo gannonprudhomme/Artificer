@@ -1,8 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Codice.CM.Client.Differences.Merge;
 using UnityEngine;
 
 // General attack

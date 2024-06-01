@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Codice.Client.BaseCommands.CheckIn.Progress;
 using UnityEngine;
 
 #nullable enable

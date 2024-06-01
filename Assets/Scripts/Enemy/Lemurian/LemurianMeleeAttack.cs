@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using PlasticGui.WorkspaceWindow;
 using UnityEngine;
 
 // Has an attack animation of 1 sec (presumably it actually "attacks" at the end of it)
