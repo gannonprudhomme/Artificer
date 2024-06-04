@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Player Material
-  m_Shader: {fileID: -6465566751694194690, guid: 8f6b9f483c1ab6746b4179415c5b6067,
+  m_Shader: {fileID: -6465566751694194690, guid: 51e917c54b201dd4b91e191252f8cc22,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -41,6 +41,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Base_Texture:
+        m_Texture: {fileID: 2800000, guid: 1676f4141da67164ba47717d4f508af6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -55,6 +59,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Diffuse:
+        m_Texture: {fileID: 2800000, guid: 1676f4141da67164ba47717d4f508af6, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -75,6 +83,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_f2eb2b1ea99c4c4388b318a51a301bd8_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 137c8ad6ea996c34cb8d29f870560dc0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -103,7 +115,7 @@ Material:
     - _CameraAngle: 0
     - _CameraMaxAngle: -80
     - _CameraMinAngle: -50
-    - _CameraVerticalAngle: -16.01
+    - _CameraVerticalAngle: 90.38
     - _Camera_Angle: 0
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -138,4 +150,5 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _WorldSpaceLightPos0: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
