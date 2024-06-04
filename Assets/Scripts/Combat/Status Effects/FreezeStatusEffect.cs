@@ -56,14 +56,15 @@ public class FreezeStatusEffect : BaseStatusEffect {
 			entity.AddParticleEffect(prefab);
 	    }
 
-
-        AudioUtility.shared.CreateSFX(
-            entity.OnEndFreezeSfx,
-            entity.transform.position,
-            AudioUtility.AudioGroups.EnemyEffects,
-            1f,
-            1f
-        );
+        if (entity.OnEndFreezeSfx != null) {
+            AudioUtility.shared.CreateSFX(
+                entity.OnEndFreezeSfx,
+                entity.transform.position,
+                AudioUtility.AudioGroups.EnemyEffects,
+                1f,
+                1f
+            );
+        }
     }
 
     public override bool HasEffectFinished() {
