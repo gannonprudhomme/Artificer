@@ -15,16 +15,31 @@ public class IonSurgeJumpSpell : Spell {
     [Header("General (Ion Surge)")]
     public float SurgeJumpForce = 90f;
 
+    [Tooltip("VFX instance for the left hand")]
+    public VisualEffect? LeftHandVFX;
+
+    [Tooltip("VFX instance for the right hand")]
+    public VisualEffect? RightHandVFX;
+
+
     // TODO: We should actually calculate this based on the velocity of the player
     // Or rather, how long we expect for it to take for the player to reach the peak of the ion surge jump
     private readonly float animationDuration = 90f / 55f; // about 1.64 sec - SurgeJumpForce / GravityDownForce
     private float timeOfLastFire = Mathf.NegativeInfinity;
+
+    private void Awake() {
+        StopVFX();
+    }
 
     void Update() {
         Recharge();
 
         bool isActive = Time.time - timeOfLastFire < animationDuration;
         PlayerAnimator!.SetBool("IsIonSurgeActive", isActive);
+
+        if (!isActive) {
+            StopVFX();
+        }
     }
 
     private void Recharge() {
@@ -47,6 +62,8 @@ public class IonSurgeJumpSpell : Spell {
             UpdatePlayerVelocity(Vector3.up * SurgeJumpForce);
 
         timeOfLastFire = Time.time;
+
+        PlayVFX();
     }
 
     public override void AttackButtonPressed() { }
@@ -63,5 +80,21 @@ public class IonSurgeJumpSpell : Spell {
 
     public override Texture2D? GetAimTexture() {
         return null;
+    }
+
+    private void PlayVFX() {
+        LeftHandVFX!.enabled = true;
+        RightHandVFX!.enabled = true;
+
+        LeftHandVFX!.Play();
+        RightHandVFX!.Play();
+    }
+
+    private void StopVFX() {
+        LeftHandVFX!.enabled = false;
+        RightHandVFX!.enabled = false;
+
+        LeftHandVFX!.Stop();
+        RightHandVFX!.Stop();
     }
 }

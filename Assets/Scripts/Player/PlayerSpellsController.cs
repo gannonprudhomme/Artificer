@@ -33,12 +33,14 @@ public class PlayerSpellsController : MonoBehaviour {
     public Camera? SpellCamera;
 
     [Header("Spells")]
-    public Spell? FirstSpellPrefab; // These have to be MonoBehaviors to be able to be assigned in Unity btw
-    public Spell? SecondSpellPrefab;
-    public Spell? ThirdSpellPrefab;
+    public FireballSpell? FireballSpell;
 
-    public Spell[] spells = new Spell[2];
-    
+    public IceWallSpell? SecondSpellPrefab;
+
+    public IonSurgeJumpSpell? IonSurgeJumpSpell;
+
+    public Spell[] spells { get; } = new Spell[3];
+
     private PlayerController? player;
     private Animator? animator;
 
@@ -57,17 +59,14 @@ public class PlayerSpellsController : MonoBehaviour {
         // This is obviously a shit way of doing this
         // really we should be able to provide spells as an array in Unity
         // but that array/list should be a fixed size. Surely that's possible
+
+        // We could do this way better
+        spells[0] = FireballSpell!;
+        spells[2] = IonSurgeJumpSpell!;
         
         if (SecondSpellPrefab != null) { // probs just want to yell if this is null, idk
             spells[1] = Instantiate(SecondSpellPrefab, RightArmSpellSpawnPoint!);
         }
-
-        if (ThirdSpellPrefab != null) {
-            spells[2] = Instantiate(ThirdSpellPrefab, RightArmSpellSpawnPoint!);
-        }
-
-        // spells[2] = ThirdSpell;
-        // spells[3] = FourthSpell;
 
 		player = GetComponent<PlayerController>();
 	    if (!player) {
