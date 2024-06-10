@@ -21,6 +21,7 @@ struct ExplosionPoint {
 struct ExplosionLine {
     public int startIndex;
     public int endIndex;
+    public float timeStart;
 
     public ExplosionLine((int, int) indices) {
         startIndex = indices.Item1;
@@ -58,7 +59,18 @@ public class IonSurgeJumpSpell : Spell {
 
     private float timeOfLastFire = Mathf.NegativeInfinity;
 
-    private readonly float explosionVFXLineLifetime = 1.0f; 
+    // TODO: We should actually calculate this based on the velocity of the player
+    // Or rather, how long we expect for it to take for the player to reach the peak of the ion surge jump
+    private float animationDuration {
+        get {
+            float gravityDownForce = 75f;
+            // about 1.64 sec (w/ 90 jump force) - SurgeJumpForce / GravityDownForce
+            return SurgeJumpForce / gravityDownForce;
+        }
+    }
+
+    // TODO: Make these private readonly when I've found a good value
+    private readonly explosionVFXLineLifetime = 1.0f; 
     private readonly int numExplosionVFXLineCycles = 4; // Will "flash" 4 times within the VFX lifetime
 
     // Time between the lines changing in the explosion VFX
@@ -70,37 +82,91 @@ public class IonSurgeJumpSpell : Spell {
     }
 
     private float timeOfLastExplosionVFXLineRefresh = Mathf.Infinity; // Don't want to refresh until this is set?
-    private readonly int pointsCount = 16;
+    // How many "points" there are in the explosion VFX
+    private readonly int explosionVFXPointsCount = 16;
+    private int explosionVFXLinesCount => explosionVFXPointsCount - 1;
 
-    // TODO: We should actually calculate this based on the velocity of the player
-    // Or rather, how long we expect for it to take for the player to reach the peak of the ion surge jump
-    private float animationDuration {
-        get {
-            float gravityDownForce = 75f;
-            // about 1.64 sec (w/ 90 jump force) - SurgeJumpForce / GravityDownForce
-            return SurgeJumpForce / gravityDownForce; 
-        }
-    }
+    private int currentLineMoveIndex = 0;
+    private ExplosionLine[]? currentLines = null;
+    private ExplosionLine[]? nextLines = null;
 
-    private void Awake() {
+    private void Start() {
         StopVFX();
+
+        // Initialize the GraphicsBuffers for the points and lines
+        // This assumes that they're constant (which they should be)
+        explosionLinesBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, explosionVFXLinesCount, Marshal.SizeOf(typeof(ExplosionLine)));
+        explosionPointsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, explosionVFXPointsCount, Marshal.SizeOf(typeof(ExplosionPoint)));
     }
 
-    void Update() {
+    private void Update() {
         Recharge();
 
         bool isActive = Time.time - timeOfLastFire < animationDuration;
         PlayerAnimator!.SetBool("IsIonSurgeActive", isActive);
-
-        if (isActive) {
-            bool shouldRegenerateLines = (Time.time - timeOfLastExplosionVFXLineRefresh) > delayBetweenExplosionVFXLineRefreshes;
-            if (shouldRegenerateLines) {
-                CreateAndPopulateLinesBuffer(numToCreate: pointsCount);
-            }
-        } else { // if not active, stop VFX
+        if (!isActive) { // if not active, stop VFX
             // We need to do this a bit sooner b/c of the trails bleh
             StopVFX();
         }
+
+        bool isExplosionLinesActive = (Time.time - timeOfLastFire) < explosionVFXLineLifetime;
+        if (isExplosionLinesActive) {
+            MigrateLinesToNextSet();
+        }
+    }
+
+    // really don't know if I need to do this or not but w/e doesn't hurt
+    private void OnDestroy() {
+        if (explosionPointsBuffer != null) {
+            explosionPointsBuffer!.Release();
+        }
+
+        if (explosionLinesBuffer != null) {
+            explosionLinesBuffer!.Release();
+        }
+    }
+
+    // Called in OnUpdate
+    // TODO: Move to the end
+    private void MigrateLinesToNextSet() {
+        // TODO: I'm a fucking idiot just use a queue!
+        // We should have a minimum amount of lines we should be displaying at once, namely at the beginning so its sort of pre-baked (and at the end?)
+        // Though I still haven't decided 
+
+        int prevLineMoveIndex = currentLineMoveIndex;
+
+        float percentCurrentCycleCompleted = (Time.time - timeOfLastExplosionVFXLineRefresh) / delayBetweenExplosionVFXLineRefreshes;
+
+        // Do we want to do this at the top or the bottom? I feel like the bottom? But idfk floats + frametime makes this weird cause we totally could miss some
+        // We're out of lines - on to the next!
+        bool isCycleCompleted = percentCurrentCycleCompleted >= 1.0f;
+        if (isCycleCompleted) {
+            currentLines = nextLines;
+            nextLines = GetLines(pointsCount: explosionVFXPointsCount);
+
+            timeOfLastExplosionVFXLineRefresh = Time.time;
+            percentCurrentCycleCompleted = 0f; // Reset it back to 0 since that's what we just did anyways
+        }
+
+        currentLineMoveIndex = (int) (percentCurrentCycleCompleted * explosionVFXLinesCount);
+
+        // Find the lines that were "newly added" this loop and update their time field
+        if (prevLineMoveIndex != currentLineMoveIndex) { // Don't want to do it if we just did it!
+            // We can basically always assume it's going to be in the next array
+            // We should also get how many of them were added rather than just the one
+            ExplosionLine copy = nextLines![currentLineMoveIndex];
+            copy.timeStart = Time.time;
+            nextLines![currentLineMoveIndex] = copy;
+        }
+
+        // If I was smart I wouldn't need this List - I could just pick & choose from each of them and combine
+        // using an array I create to pass into explosionsLineBuffer but bleh
+        List<ExplosionLine> lines = new(currentLines!.Length + nextLines!.Length);
+        lines.AddRange(currentLines!);
+        lines.AddRange(nextLines!);
+
+        List<ExplosionLine> slidingWindow = lines.GetRange(currentLineMoveIndex, explosionVFXLinesCount);
+        explosionLinesBuffer!.SetData(slidingWindow.ToArray()) ;
     }
 
     private void Recharge() {
@@ -157,15 +223,17 @@ public class IonSurgeJumpSpell : Spell {
 
         mainExplosionVFXInstance!.Play();
 
-        CreateAndPopulatePointsBuffer(numToCreate: pointsCount);
-        CreateAndPopulateLinesBuffer(numToCreate: pointsCount);
+        CreateAndPopulatePointsBuffer(numToCreate: explosionVFXPointsCount);
+        CreateAndPopulateLinesBuffer(numToCreate: explosionVFXPointsCount);
     }
 
     private void CreateAndPopulateLinesBuffer(int numToCreate) {
         ExplosionLine[] lines = GetLines(pointsCount: numToCreate);
 
-        explosionLinesBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, lines.Length, Marshal.SizeOf(typeof(ExplosionLine)));
-        explosionLinesBuffer.SetData(lines); // pass the data to the graphics buffer
+        currentLines = lines;
+        nextLines = GetLines(pointsCount: numToCreate); // Get another set
+        currentLineMoveIndex = 0; // Reset
+
         mainExplosionVFXInstance!.SetGraphicsBuffer("ExplosionLinesBuffer", explosionLinesBuffer);
         mainExplosionVFXInstance!.SetInt("Num Lines", lines.Length);
 
@@ -175,8 +243,7 @@ public class IonSurgeJumpSpell : Spell {
     private void CreateAndPopulatePointsBuffer(int numToCreate) {
         ExplosionPoint[] points = GetPoints(count: numToCreate, sphereRadius: ExplosionVFXRadius);
 
-        explosionPointsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, points.Length, Marshal.SizeOf(typeof(ExplosionPoint)));
-        explosionPointsBuffer.SetData(points); // pass the data to the graphics buffer
+        explosionPointsBuffer!.SetData(points); // pass the data to the graphics buffer
         mainExplosionVFXInstance!.SetGraphicsBuffer("ExplosionPointsBuffer", explosionPointsBuffer);
         mainExplosionVFXInstance!.SetInt("Num Points", points.Length);
     }
@@ -194,22 +261,9 @@ public class IonSurgeJumpSpell : Spell {
             Destroy(mainExplosionVFXInstance.gameObject);
             mainExplosionVFXInstance = null;
         }
-
-        if (explosionPointsBuffer != null) {
-        // This is problematic cause sometimes all of the pairs are already in there
-            explosionPointsBuffer!.Release();
-            explosionPointsBuffer = null;
-        }
-
-        if (explosionLinesBuffer != null) {
-            explosionLinesBuffer!.Release();
-            explosionLinesBuffer = null;
-        }
     }
 
 
-    // TODO: https://stackoverflow.com/a/44164075 Might want to do this so it's more of an even distribution?
-    // Or this https://www.mathworks.com/matlabcentral/answers/457965-how-to-generate-random-points-located-on-the-surface-of-a-hemisphere-with-its-center-at-2-1-3-an
     private static ExplosionPoint[] GetPoints(int count, float sphereRadius = 30f) {
         ExplosionPoint[] ret = new ExplosionPoint[count];
 
