@@ -26,6 +26,7 @@ struct ExplosionLine {
     public ExplosionLine((int, int) indices) {
         startIndex = indices.Item1;
         endIndex = indices.Item2;
+        timeStart = Time.time;
     }
 }
 
@@ -48,14 +49,14 @@ public class IonSurgeJumpSpell : Spell {
     [Tooltip("VFX prefab for the explosion")]
     public VisualEffect? MainExplosionVFXPrefab;
 
+    [Header("Debug")]
+    public bool DisableUpForce = false;
+
     // We create an instance as the world/local space conversion gets complicated
     // since we change the lines positions within the lifetime of the explosion VFX
     private VisualEffect? mainExplosionVFXInstance;
 
-    public float ExplosionVFXRadius = 15f;
-
-    private GraphicsBuffer? explosionPointsBuffer;
-    private GraphicsBuffer? explosionLinesBuffer;
+    private readonly float explosionVFXRadius = 20f;
 
     private float timeOfLastFire = Mathf.NegativeInfinity;
 
@@ -63,32 +64,33 @@ public class IonSurgeJumpSpell : Spell {
     // Or rather, how long we expect for it to take for the player to reach the peak of the ion surge jump
     private float animationDuration {
         get {
-            float gravityDownForce = 75f;
+            float gravityDownForce = 70f;
             // about 1.64 sec (w/ 90 jump force) - SurgeJumpForce / GravityDownForce
             return SurgeJumpForce / gravityDownForce;
         }
     }
 
-    // TODO: Make these private readonly when I've found a good value
-    private readonly explosionVFXLineLifetime = 1.0f; 
-    private readonly int numExplosionVFXLineCycles = 4; // Will "flash" 4 times within the VFX lifetime
+    private GraphicsBuffer? explosionPointsBuffer;
+    private GraphicsBuffer? explosionLinesBuffer;
 
-    // Time between the lines changing in the explosion VFX
-    // Determine the delay between each line refresh as a function of the lifetime & number of "cycles"
-    private float delayBetweenExplosionVFXLineRefreshes {
-        get {
-            return explosionVFXLineLifetime / numExplosionVFXLineCycles;
-        }
-    }
-
-    private float timeOfLastExplosionVFXLineRefresh = Mathf.Infinity; // Don't want to refresh until this is set?
-    // How many "points" there are in the explosion VFX
+    // The lifetime of the points + line
+    private readonly float lineAndPointsLifetime = 1.0f; 
+    // How many "points" there are in the explosion VFX in 
     private readonly int explosionVFXPointsCount = 16;
-    private int explosionVFXLinesCount => explosionVFXPointsCount - 1;
+    private int explosionVFXLinesCount => explosionVFXPointsCount - 1; // My line generating algorithm always ends up being 1 less than the points
+    // How many lines are added per second
+    // it should be *really* fast
+    public float lineAddRate = 200;
+    private float totalLinesOverLifetime => lineAddRate * lineAndPointsLifetime + (explosionVFXLinesCount / 2); // Add the initial amount of lines to the total count
 
-    private int currentLineMoveIndex = 0;
-    private ExplosionLine[]? currentLines = null;
-    private ExplosionLine[]? nextLines = null;
+    // How long a single line should be on the screen
+    // with the assumption that I want {explosionVFXLinesCount} lines on screen at all times
+    private float individualLineLifetime => (lineAndPointsLifetime / totalLinesOverLifetime) * explosionVFXLinesCount; // TODO: I think this is right?
+    private float lastTimeAddedLines = Mathf.NegativeInfinity;
+
+    private int lastLineIndexAdded = 0;
+    private List<ExplosionLine> currentLines = new();
+    private Queue<ExplosionLine> linesQueue = new();
 
     private void Start() {
         StopVFX();
@@ -109,9 +111,9 @@ public class IonSurgeJumpSpell : Spell {
             StopVFX();
         }
 
-        bool isExplosionLinesActive = (Time.time - timeOfLastFire) < explosionVFXLineLifetime;
+        bool isExplosionLinesActive = (Time.time - timeOfLastFire) < lineAndPointsLifetime;
         if (isExplosionLinesActive) {
-            MigrateLinesToNextSet();
+            RotateOrAddLines();
         }
     }
 
@@ -124,49 +126,6 @@ public class IonSurgeJumpSpell : Spell {
         if (explosionLinesBuffer != null) {
             explosionLinesBuffer!.Release();
         }
-    }
-
-    // Called in OnUpdate
-    // TODO: Move to the end
-    private void MigrateLinesToNextSet() {
-        // TODO: I'm a fucking idiot just use a queue!
-        // We should have a minimum amount of lines we should be displaying at once, namely at the beginning so its sort of pre-baked (and at the end?)
-        // Though I still haven't decided 
-
-        int prevLineMoveIndex = currentLineMoveIndex;
-
-        float percentCurrentCycleCompleted = (Time.time - timeOfLastExplosionVFXLineRefresh) / delayBetweenExplosionVFXLineRefreshes;
-
-        // Do we want to do this at the top or the bottom? I feel like the bottom? But idfk floats + frametime makes this weird cause we totally could miss some
-        // We're out of lines - on to the next!
-        bool isCycleCompleted = percentCurrentCycleCompleted >= 1.0f;
-        if (isCycleCompleted) {
-            currentLines = nextLines;
-            nextLines = GetLines(pointsCount: explosionVFXPointsCount);
-
-            timeOfLastExplosionVFXLineRefresh = Time.time;
-            percentCurrentCycleCompleted = 0f; // Reset it back to 0 since that's what we just did anyways
-        }
-
-        currentLineMoveIndex = (int) (percentCurrentCycleCompleted * explosionVFXLinesCount);
-
-        // Find the lines that were "newly added" this loop and update their time field
-        if (prevLineMoveIndex != currentLineMoveIndex) { // Don't want to do it if we just did it!
-            // We can basically always assume it's going to be in the next array
-            // We should also get how many of them were added rather than just the one
-            ExplosionLine copy = nextLines![currentLineMoveIndex];
-            copy.timeStart = Time.time;
-            nextLines![currentLineMoveIndex] = copy;
-        }
-
-        // If I was smart I wouldn't need this List - I could just pick & choose from each of them and combine
-        // using an array I create to pass into explosionsLineBuffer but bleh
-        List<ExplosionLine> lines = new(currentLines!.Length + nextLines!.Length);
-        lines.AddRange(currentLines!);
-        lines.AddRange(nextLines!);
-
-        List<ExplosionLine> slidingWindow = lines.GetRange(currentLineMoveIndex, explosionVFXLinesCount);
-        explosionLinesBuffer!.SetData(slidingWindow.ToArray()) ;
     }
 
     private void Recharge() {
@@ -185,7 +144,8 @@ public class IonSurgeJumpSpell : Spell {
         CurrentCharge -= 1;
 
         // Launch the player in the air
-        UpdatePlayerVelocity?.Invoke(Vector3.up * SurgeJumpForce);
+        if (!DisableUpForce)
+            UpdatePlayerVelocity?.Invoke(Vector3.up * SurgeJumpForce);
 
         timeOfLastFire = Time.time;
 
@@ -217,8 +177,9 @@ public class IonSurgeJumpSpell : Spell {
         RightHandVFX!.Play();
 
         mainExplosionVFXInstance = Instantiate(MainExplosionVFXPrefab!); // Spawn it in world space
-        mainExplosionVFXInstance!.SetFloat("Explosion Radius", ExplosionVFXRadius);
-        mainExplosionVFXInstance!.SetFloat("Line+Points Lifetime", explosionVFXLineLifetime);
+        mainExplosionVFXInstance!.SetFloat("Explosion Radius", explosionVFXRadius);
+        mainExplosionVFXInstance!.SetFloat("Line+Points Lifetime", lineAndPointsLifetime);
+        mainExplosionVFXInstance!.SetFloat("Individual Line Lifetime", individualLineLifetime);
         mainExplosionVFXInstance!.transform.position = transform.position;
 
         mainExplosionVFXInstance!.Play();
@@ -228,20 +189,29 @@ public class IonSurgeJumpSpell : Spell {
     }
 
     private void CreateAndPopulateLinesBuffer(int numToCreate) {
-        ExplosionLine[] lines = GetLines(pointsCount: numToCreate);
+        List<ExplosionLine> lines = GetLines(pointsCount: numToCreate);
 
-        currentLines = lines;
-        nextLines = GetLines(pointsCount: numToCreate); // Get another set
-        currentLineMoveIndex = 0; // Reset
+        linesQueue = new(); // Recreate it so we have a clean slate (really just to catch my mistakes)
 
+        int numToAdd = explosionVFXLinesCount / 2;
+
+        // On start, add them to the queue
+        // and we'll "prebake" half of them, but leave the other ~half
+        currentLines = lines.GetRange(0, numToAdd).ToList();
+        lastLineIndexAdded = numToAdd - 1;
+
+        // Add all of the remaining lines to the queue
+        for(int i = numToAdd; i < lines.Count; i++) {
+            linesQueue.Enqueue(lines[i]);
+        }
+
+        // Populate initial buffer
         mainExplosionVFXInstance!.SetGraphicsBuffer("ExplosionLinesBuffer", explosionLinesBuffer);
-        mainExplosionVFXInstance!.SetInt("Num Lines", lines.Length);
-
-        timeOfLastExplosionVFXLineRefresh = Time.time;
+        mainExplosionVFXInstance!.SetInt("Num Lines", lines.Count);
     }
 
     private void CreateAndPopulatePointsBuffer(int numToCreate) {
-        ExplosionPoint[] points = GetPoints(count: numToCreate, sphereRadius: ExplosionVFXRadius);
+        ExplosionPoint[] points = GetPoints(count: numToCreate, sphereRadius: explosionVFXRadius);
 
         explosionPointsBuffer!.SetData(points); // pass the data to the graphics buffer
         mainExplosionVFXInstance!.SetGraphicsBuffer("ExplosionPointsBuffer", explosionPointsBuffer);
@@ -310,7 +280,7 @@ public class IonSurgeJumpSpell : Spell {
     // Get a list of {pointsCount} lines that connect the points
     // with no two lines sharing the same start or end point such that each point only has one "outward" point
     // This may mean some points have more than 1 line coming *to* them, but not *from* them.
-    private static ExplosionLine[] GetLines(int pointsCount) {
+    private static List<ExplosionLine> GetLines(int pointsCount) {
         // Create a list containing integers from 0 to pointsCount - 1
         List<int> indices = new(pointsCount);
         for (int i = 0; i < pointsCount; i++) {
@@ -333,6 +303,46 @@ public class IonSurgeJumpSpell : Spell {
             indices.Remove(start);
         }
 
-        return pairs.Select(pair => new ExplosionLine(pair)).ToArray();
+        return pairs.Select(pair => new ExplosionLine(pair)).ToList();
+    }
+
+    private void RotateOrAddLines() {
+        // Should there be a delay from the start of the explosion vs when we start changing / adding the lines? urgh
+
+        float timeBetweenLineAdds = 1f / lineAddRate;
+        bool shouldAddLineThisFrame = Time.time - lastTimeAddedLines >= timeBetweenLineAdds;
+        
+        if (!shouldAddLineThisFrame) {
+            return;
+        }
+
+        if (linesQueue.Count == 0) { // Populate the queue if it's empty
+            List<ExplosionLine> newLines = GetLines(pointsCount: explosionVFXPointsCount);
+
+            foreach(ExplosionLine newLine in newLines) {
+                linesQueue.Enqueue(newLine);
+            }
+        }
+
+        lastTimeAddedLines = Time.time;
+
+        // take one from the top of the queue
+        ExplosionLine lineToAdd = linesQueue.Dequeue();
+        lineToAdd.timeStart = Time.time;
+
+        int nextIndex = (lastLineIndexAdded + 1) % explosionVFXLinesCount;
+
+        // Ensure it's big enough before we start replacing
+        if (nextIndex == currentLines.Count) {
+            currentLines.Add(lineToAdd);
+        } else {
+            // Overwrite
+            currentLines[nextIndex] = lineToAdd;
+        }
+
+        lastLineIndexAdded = nextIndex;
+
+        // finally, update the buffer
+        explosionLinesBuffer!.SetData(currentLines.ToArray());
     }
 }
