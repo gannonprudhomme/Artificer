@@ -750,7 +750,9 @@ MonoBehaviour:
   SurgeJumpForce: 90
   LeftHandVFX: {fileID: 4255345573392990696}
   RightHandVFX: {fileID: 2457237648499621962}
-  MainExplosionVFX: {fileID: 0}
+  MainExplosionVFXPrefab: {fileID: 125546236563378818, guid: 9c0163b2fe7e9ce47a60e4843cda2d93,
+    type: 3}
+  ExplosionVFXRadius: 15
 --- !u!1 &5352475266119036259
 GameObject:
   m_ObjectHideFlags: 0
