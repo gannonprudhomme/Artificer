@@ -747,12 +747,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShootSfx: {fileID: 0}
   CurrentCharge: 1
-  SurgeJumpForce: 90
+  SurgeJumpForce: 105
   LeftHandVFX: {fileID: 4255345573392990696}
   RightHandVFX: {fileID: 2457237648499621962}
   MainExplosionVFXPrefab: {fileID: 125546236563378818, guid: 9c0163b2fe7e9ce47a60e4843cda2d93,
     type: 3}
-  ExplosionVFXRadius: 15
+  TempDisableUpForce: 0
 --- !u!1 &5352475266119036259
 GameObject:
   m_ObjectHideFlags: 0
