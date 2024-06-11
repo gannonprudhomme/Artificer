@@ -92,6 +92,16 @@ public class IonSurgeJumpSpell : Spell {
 
         vfxHelper!.StopVFX(); // Temporary for testing! (since I'm spamming it);
         vfxHelper!.PlayVFX();
+
+        // Play sound effect
+        AudioUtility.shared.CreateSFX(
+            ShootSfx,
+            transform.position,
+            AudioUtility.AudioGroups.WeaponShoot,
+            0f,
+            10f
+        );
+
     }
 
     public override void AttackButtonPressed() { }
