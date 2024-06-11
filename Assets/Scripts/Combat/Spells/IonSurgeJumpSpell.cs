@@ -30,8 +30,12 @@ struct ExplosionLine {
     }
 }
 
+// TODO: Move a bunch of this shit over to like IonSurgeVFXHelper or something
+// this is way too much stuff & it's "polluting" this file
+
 public class IonSurgeJumpSpell : Spell {
-    public override float ChargeRate => 1f / 8f; // 8s cooldown...?
+    // public override float ChargeRate => 1f / 8f; // 8s cooldown...?
+    public override float ChargeRate => 1f;
     public override int MaxNumberOfCharges => 1;
     public override Color SpellColor => Color.blue;
     public override bool DoesBlockOtherSpells => false;
@@ -82,6 +86,9 @@ public class IonSurgeJumpSpell : Spell {
     // it should be *really* fast
     public float lineAddRate = 200;
     private float totalLinesOverLifetime => lineAddRate * lineAndPointsLifetime + (explosionVFXLinesCount / 2); // Add the initial amount of lines to the total count
+
+    // The radius of the points + lines
+    private float pointsAndLinesRadius => explosionVFXRadius * 0.75f;
 
     // How long a single line should be on the screen
     // with the assumption that I want {explosionVFXLinesCount} lines on screen at all times
@@ -187,7 +194,7 @@ public class IonSurgeJumpSpell : Spell {
         CreateAndPopulatePointsBuffer(numToCreate: explosionVFXPointsCount);
         CreateAndPopulateLinesBuffer(numToCreate: explosionVFXPointsCount);
     }
-
+ 
     private void CreateAndPopulateLinesBuffer(int numToCreate) {
         List<ExplosionLine> lines = GetLines(pointsCount: numToCreate);
 
@@ -210,8 +217,10 @@ public class IonSurgeJumpSpell : Spell {
         mainExplosionVFXInstance!.SetInt("Num Lines", lines.Count);
     }
 
+    // TODO: Add a gradual points fadeout(?)
+    // Maybe make them disappear towards the end of the lifetime? Like when their aren't any points connected to them idk
     private void CreateAndPopulatePointsBuffer(int numToCreate) {
-        ExplosionPoint[] points = GetPoints(count: numToCreate, sphereRadius: explosionVFXRadius);
+        ExplosionPoint[] points = GetPoints(count: numToCreate, sphereRadius: pointsAndLinesRadius);
 
         explosionPointsBuffer!.SetData(points); // pass the data to the graphics buffer
         mainExplosionVFXInstance!.SetGraphicsBuffer("ExplosionPointsBuffer", explosionPointsBuffer);
@@ -237,31 +246,29 @@ public class IonSurgeJumpSpell : Spell {
     private static ExplosionPoint[] GetPoints(int count, float sphereRadius = 30f) {
         ExplosionPoint[] ret = new ExplosionPoint[count];
 
-        List<Vector3> randomPoints = GeneratePointsOnHemisphere(count: count, radius: sphereRadius);
+        List<Vector3> randomPoints = GeneratePointsOnSphere(count: count, radius: sphereRadius);
 
         // Select == Collection.map in C#
         return randomPoints.Select(point => new ExplosionPoint(point)).ToArray();
     }
 
-    // Generates N evenly distributed points on a hemisphere, with a bit of randomness thrown in
+    // Generates N evenly distributed points on a sphere, with a bit of randomness thrown in
     // This uses a Fibonacci lattice so the points are evenly distributed (though idk what that is lol)
-    private static List<Vector3> GeneratePointsOnHemisphere(int count, float radius) {
+    private static List<Vector3> GeneratePointsOnSphere(int count, float radius) {
         List<Vector3> points = new();
         float phi = (1 + Mathf.Sqrt(5)) / 2; // Golden ratio
 
         float randomnessFactor = 0.1f;
 
         for (int i = 0; i < count; i++) {
-            // float theta = 2 * Mathf.PI * i / phi; // Longitude - normal
             float theta = 2 * Mathf.PI * (i / phi + randomnessFactor * (Random.value - 0.5f)); // Adds randomness
             float cosTheta = Mathf.Cos(theta);
             float sinTheta = Mathf.Sin(theta);
 
-            // Latitude using adapted Fibonacci lattice for hemisphere
+            // Latitude using adapted Fibonacci lattice for sphere
 
-            // float latitude = Mathf.Acos(1f - (i + 0.5f) / N); // Normal (hemisphere) - no randomness
-            // This latitude is how it changes for a hemipshere
-            float latitude = Mathf.Acos(1 - (i + 0.5f) / count + randomnessFactor * (Random.value - 0.5f)); // Adds randomness
+            // The 2* is how it changes between a sphere and a hemisphere (hemisphere doesn't have 2*)
+            float latitude = Mathf.Acos(1 - 2f * (i + 0.5f) / count + randomnessFactor * (Random.value - 0.5f)); // Adds randomness (Sphere)
             float sinLatitude = Mathf.Sin(latitude);
             float cosLatitude = Mathf.Cos(latitude);
 
@@ -275,7 +282,6 @@ public class IonSurgeJumpSpell : Spell {
 
         return points;
     }
-
 
     // Get a list of {pointsCount} lines that connect the points
     // with no two lines sharing the same start or end point such that each point only has one "outward" point
