@@ -40,7 +40,12 @@ public class IonSurgeVFXHelper {
     private readonly VisualEffect mainExplosionVFXPrefab;
     private VisualEffect? mainExplosionVFXInstance;
 
+    private Light explosionLightInstance;
+    private AnimationCurve explosionLightIntensityCurve;
+
     /** GENERAL CONSTANTS **/
+    private readonly float lightLifetime = 0.75f;
+    private readonly float baseLightIntensity = 1500f;
     private readonly float explosionVFXRadius = 20f; // TODO: Rename to explosionRadius (VFX is implied)
 
     /** POINTS & LINES CONSTANTS **/
@@ -71,12 +76,16 @@ public class IonSurgeVFXHelper {
         Transform playerTransform,
         VisualEffect leftHandVFXInstance,
         VisualEffect rightHandVFXInstance,
-        VisualEffect mainExplosionVFXPrefab
+        VisualEffect mainExplosionVFXPrefab,
+        Light explosionLightInstance,
+        AnimationCurve explosionLightIntensityCurve
     ) {
         this.playerTransform = playerTransform;
         this.leftHandVFXInstance = leftHandVFXInstance;
         this.rightHandVFXInstance = rightHandVFXInstance;
         this.mainExplosionVFXPrefab = mainExplosionVFXPrefab;
+        this.explosionLightInstance = explosionLightInstance;
+        this.explosionLightIntensityCurve = explosionLightIntensityCurve;
 
         // Initialize the GraphicsBuffers for the points and lines
         // This assumes that they're constant (which they should be)
@@ -91,12 +100,18 @@ public class IonSurgeVFXHelper {
         if (isExplosionAndLinesActive) {
             RotateOrAddLines();
         }
+
+        bool isLightActive = (Time.time - timeOfLastFire) <= (lightLifetime * 1.1f); // Give it a little buffer so it transitions to 0
+        if (isLightActive) {
+            float time = (Time.time - timeOfLastFire) / lightLifetime;
+            explosionLightInstance.intensity = baseLightIntensity * explosionLightIntensityCurve.Evaluate(Mathf.Max(time, 1f));
+        }
     }
 
     public void PlayVFX() {
-        Debug.Log("Playing!");
         leftHandVFXInstance!.enabled = true;
         rightHandVFXInstance!.enabled = true;
+        explosionLightInstance!.enabled = true;
 
         leftHandVFXInstance!.Play();
         rightHandVFXInstance!.Play();
@@ -111,12 +126,15 @@ public class IonSurgeVFXHelper {
 
         CreateAndPopulatePointsBuffer(numToCreate: explosionVFXPointsCount);
         CreateAndPopulateLinesBuffer(numToCreate: explosionVFXPointsCount);
+
+        // Initialize the light
+        explosionLightInstance!.intensity = baseLightIntensity;
     }
 
     public void StopVFX() {
-        Debug.Log("Stopping!");
         leftHandVFXInstance!.enabled = false;
         rightHandVFXInstance!.enabled = false;
+        explosionLightInstance!.enabled = false;
 
         leftHandVFXInstance!.Stop();
         rightHandVFXInstance!.Stop();

@@ -25,6 +25,12 @@ public class IonSurgeJumpSpell : Spell {
     [Tooltip("VFX prefab for the explosion")]
     public VisualEffect? MainExplosionVFXPrefab;
 
+    [Tooltip("Light which is enabled when the spell is triggered")]
+    public Light? ExplosionLight;
+
+    [Tooltip("Curve to multiply the intensity of the light by")]
+    public AnimationCurve? LightIntensityCurve;
+
     [Header("Debug")]
     public bool DisableUpForce = false;
 
@@ -48,7 +54,9 @@ public class IonSurgeJumpSpell : Spell {
             playerTransform: transform,
             leftHandVFXInstance: LeftHandVFX!,
             rightHandVFXInstance: RightHandVFX!,
-            mainExplosionVFXPrefab: MainExplosionVFXPrefab!
+            mainExplosionVFXPrefab: MainExplosionVFXPrefab!,
+            explosionLightInstance: ExplosionLight!,
+            explosionLightIntensityCurve: LightIntensityCurve!
         );
     }
 
