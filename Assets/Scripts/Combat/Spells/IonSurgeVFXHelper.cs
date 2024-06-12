@@ -40,11 +40,12 @@ public class IonSurgeVFXHelper {
     private readonly VisualEffect mainExplosionVFXPrefab;
     private VisualEffect? mainExplosionVFXInstance;
 
-    private Light explosionLightInstance;
-    private AnimationCurve explosionLightIntensityCurve;
+    private readonly Light explosionLightPrefab;
+    private Light? explosionLightInstance;
+    private readonly AnimationCurve explosionLightIntensityCurve;
 
     /** GENERAL CONSTANTS **/
-    private readonly float lightLifetime = 0.75f;
+    private readonly float lightLifetime = 1.25f;
     private readonly float baseLightIntensity = 1500f;
     private readonly float explosionVFXRadius = 20f; // TODO: Rename to explosionRadius (VFX is implied)
 
@@ -77,14 +78,14 @@ public class IonSurgeVFXHelper {
         VisualEffect leftHandVFXInstance,
         VisualEffect rightHandVFXInstance,
         VisualEffect mainExplosionVFXPrefab,
-        Light explosionLightInstance,
+        Light explosionLightPrefab,
         AnimationCurve explosionLightIntensityCurve
     ) {
         this.playerTransform = playerTransform;
         this.leftHandVFXInstance = leftHandVFXInstance;
         this.rightHandVFXInstance = rightHandVFXInstance;
         this.mainExplosionVFXPrefab = mainExplosionVFXPrefab;
-        this.explosionLightInstance = explosionLightInstance;
+        this.explosionLightPrefab = explosionLightPrefab;
         this.explosionLightIntensityCurve = explosionLightIntensityCurve;
 
         // Initialize the GraphicsBuffers for the points and lines
@@ -104,14 +105,13 @@ public class IonSurgeVFXHelper {
         bool isLightActive = (Time.time - timeOfLastFire) <= (lightLifetime * 1.1f); // Give it a little buffer so it transitions to 0
         if (isLightActive) {
             float time = (Time.time - timeOfLastFire) / lightLifetime;
-            explosionLightInstance.intensity = baseLightIntensity * explosionLightIntensityCurve.Evaluate(Mathf.Max(time, 1f));
+            explosionLightInstance.intensity = baseLightIntensity * explosionLightIntensityCurve.Evaluate(time);
         }
     }
 
     public void PlayVFX() {
         leftHandVFXInstance!.enabled = true;
         rightHandVFXInstance!.enabled = true;
-        explosionLightInstance!.enabled = true;
 
         leftHandVFXInstance!.Play();
         rightHandVFXInstance!.Play();
@@ -128,13 +128,15 @@ public class IonSurgeVFXHelper {
         CreateAndPopulateLinesBuffer(numToCreate: explosionVFXPointsCount);
 
         // Initialize the light
+        explosionLightInstance = Object.Instantiate(explosionLightPrefab!);
+        explosionLightInstance!.transform.position = playerTransform.position;
+
         explosionLightInstance!.intensity = baseLightIntensity;
     }
 
     public void StopVFX() {
         leftHandVFXInstance!.enabled = false;
         rightHandVFXInstance!.enabled = false;
-        explosionLightInstance!.enabled = false;
 
         leftHandVFXInstance!.Stop();
         rightHandVFXInstance!.Stop();
@@ -144,6 +146,11 @@ public class IonSurgeVFXHelper {
             mainExplosionVFXInstance!.Stop();
             Object.Destroy(mainExplosionVFXInstance.gameObject);
             mainExplosionVFXInstance = null;
+        }
+
+        if (explosionLightInstance != null) {
+            Object.Destroy(explosionLightInstance.gameObject);
+            explosionLightInstance = null;
         }
     }
 
