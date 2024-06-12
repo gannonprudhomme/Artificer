@@ -290,3 +290,4 @@ public class IonSurgeVFXHelper {
         explosionLinesBuffer!.SetData(currentLines.ToArray());
     }
 }
+
