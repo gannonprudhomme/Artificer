@@ -129,7 +129,8 @@ public class IonSurgeVFXHelper {
 
         // Initialize the light
         explosionLightInstance = Object.Instantiate(explosionLightPrefab!);
-        explosionLightInstance!.transform.position = playerTransform.position;
+        // Move it up a bit from the player's pos, otherwise it'll be really intense/concentrated on the ground
+        explosionLightInstance!.transform.position = playerTransform.position + (Vector3.up * 3.0f);
 
         explosionLightInstance!.intensity = baseLightIntensity;
     }
