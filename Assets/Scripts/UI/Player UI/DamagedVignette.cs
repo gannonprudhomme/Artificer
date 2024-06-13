@@ -40,6 +40,11 @@ public class DamagedVignette : MonoBehaviour {
         AnimateDamageTaken();
     }
 
+    private void OnDestroy() {
+        // Clean up at the end (so we don't get the red vignette when we exit play mode if we were just damaged)
+        VignetteMaterial.SetFloat(SHADER_STRENGTH, 0.0f);
+    }
+
     private void AnimateDamageTaken() { 
         // Calculate the time ([0, 1]) that has elapsed to feed into the animation curve
 	    float ratePerSec = PlayerHealth.MaxHealth * 0.3f;

@@ -752,36 +752,28 @@ MonoBehaviour:
   RightHandVFX: {fileID: 2457237648499621962}
   MainExplosionVFXPrefab: {fileID: 125546236563378818, guid: 9c0163b2fe7e9ce47a60e4843cda2d93,
     type: 3}
-  ExplosionLightPrefab: {fileID: 0}
+  ExplosionLightPrefab: {fileID: 1763349289515992238, guid: 4cafdf73c5083a24d960c241b6ecc42d,
+    type: 3}
   LightIntensityCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: -2.5253997
+      outSlope: -2.5253997
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.7291667
-    - serializedVersion: 3
-      time: 0.5
-      value: 1
-      inSlope: 0.013012392
-      outSlope: 0.013012392
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.725
+      outWeight: 0.054166667
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -5.8490624
-      outSlope: -5.8490624
+      inSlope: -0.11734929
+      outSlope: -0.11734929
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.049999952
+      inWeight: 0.34166664
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
