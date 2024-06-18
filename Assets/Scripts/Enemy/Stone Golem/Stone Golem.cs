@@ -3,6 +3,8 @@ using UnityEngine.AI;
 using UnityEngine.Animations;
 using UnityEngine.Animations.Rigging;
 
+#nullable enable
+
 // This (mainly Enemy) needs to:
 // - Aim at the player, and shoot when it can
 //   - The shooting shouldn't be fast enough where the player can't dodge it - it should be doable if they're thinking about it (or really fast)
@@ -30,13 +32,13 @@ public class StoneGolem : Enemy {
 
     [Header("References")]
     [Tooltip("The Mesh Rendered used to display this enemy. Used to set properties on its shader (material)")]
-    public SkinnedMeshRenderer MainMeshRenderer;
+    public SkinnedMeshRenderer? MainMeshRenderer;
 
     [Tooltip("Where on the Stone Golem we're going to aim its laser from")]
-    public Transform AimPoint;
+    public Transform? AimPoint;
 
     [Tooltip("Reference to the AimTarget PositionConstraint for the look-at constraint. Needed so we can set it to copy the location of the player")]
-    public PositionConstraint positionConstraint;
+    public PositionConstraint? positionConstraint;
 
     [Header("Navigation")]
     [Tooltip("Rotation speed when the target is within NavMeshAgent's stopping distance")]
@@ -44,16 +46,16 @@ public class StoneGolem : Enemy {
 
     [Header("Laser Attack")]
     [Tooltip("Audio clip that plays when the lasfalseer begins charging the laser (starts the attack)")]
-    public AudioClip LaserChargeSfx;
+    public AudioClip? LaserChargeSfx;
 
     [Tooltip("Audio clip that plays when the laser is finished charging & fires")]
-    public AudioClip LaserFireSfx;
+    public AudioClip? LaserFireSfx;
 
     [Tooltip("The curve which controls the size of the laser when it fires")]
-    public AnimationCurve LaserSizeCurve;
+    public AnimationCurve? LaserSizeCurve;
 
     [Tooltip("Reference to the Damage Area for the laser attack")]
-    public DamageArea LaserDamageArea;
+    public DamageArea? LaserDamageArea;
 
     // TODO: Remove this later, it was just for testing
     public float AimMoveSpeed = 15f;
@@ -62,9 +64,9 @@ public class StoneGolem : Enemy {
     // [Tooltip("Sound that plays on damaged")]
     // public AudioClip OnDamageClip;
 
-    private NavMeshAgent navMeshAgent;
-    private Animator animator;
-    private LineRenderer laserLineRenderer;
+    private NavMeshAgent? navMeshAgent;
+    private Animator? animator;
+    private LineRenderer? laserLineRenderer;
 
     private Vector3 lastTargetPosition = Vector3.positiveInfinity;
 
@@ -90,9 +92,9 @@ public class StoneGolem : Enemy {
     public override string EnemyIdentifier => "Stone Golem";
 
     private void OnAnimatorMove() {
-        Vector3 rootPosition = animator.rootPosition;
+        Vector3 rootPosition = animator!.rootPosition;
         // gotta ensure it matches the height
-        rootPosition.y = navMeshAgent.nextPosition.y;
+        rootPosition.y = navMeshAgent!.nextPosition.y;
         transform.position = rootPosition;
         navMeshAgent.nextPosition = rootPosition;
 
@@ -109,12 +111,12 @@ public class StoneGolem : Enemy {
         animator.speed = 1.3f;
 
         laserAttack = new GolemLaserAttack(
-            laserLineRenderer, AimPoint, Target.AimPoint, LaserDamageArea, LaserSizeCurve, LaserChargeSfx, LaserFireSfx
+            laserLineRenderer, AimPoint, Target!.AimPoint, LaserDamageArea, LaserSizeCurve, LaserChargeSfx, LaserFireSfx
         );
 
         ConfigureAnimatorAndNavMeshAgent();
 
-        health.OnDamaged += OnDamaged;
+        health!.OnDamaged += OnDamaged;
     }
 
     protected override void Update() {
@@ -132,11 +134,11 @@ public class StoneGolem : Enemy {
             if (!couldMoveLastFrame) {
                 couldMoveLastFrame = true;
                 // start up the animator & nav mesh agent
-                animator.speed = 1;
-                navMeshAgent.isStopped = false;
+                animator!.speed = 1;
+                navMeshAgent!.isStopped = false;
                 
                 // Make LookAt start working again (by moving the target, aka the player)
-                positionConstraint.constraintActive = true;
+                positionConstraint!.constraintActive = true;
             }
 
             SynchronizeAnimatorAndAgent();
@@ -146,19 +148,19 @@ public class StoneGolem : Enemy {
             couldMoveLastFrame = false;
 
             // stop animator & nav mesh agent
-            animator.speed = 0;
-            navMeshAgent.isStopped = true;
+            animator!.speed = 0;
+            navMeshAgent!.isStopped = true;
 
             // Stop the LookAt from moving by keeping the target in place
-            positionConstraint.constraintActive = false;
+            positionConstraint!.constraintActive = false;
         }
 
         // Set the animator's TimeSinceLastDamaged
         if (lastDamagedTime < Mathf.Infinity) {
-            animator.SetFloat("TimeSinceLastDamaged", (Time.time - lastDamagedTime));
+            animator!.SetFloat("TimeSinceLastDamaged", (Time.time - lastDamagedTime));
         } else {
             // Not positive if we need to do this
-            animator.SetFloat("TimeSinceLastDamaged", Mathf.Infinity);
+            animator!.SetFloat("TimeSinceLastDamaged", Mathf.Infinity);
         }
 
         laserAttack.aimSpeed = AimMoveSpeed;
@@ -166,18 +168,18 @@ public class StoneGolem : Enemy {
     }
 
     public override Vector3 GetMiddleOfMesh() {
-        return MainMeshRenderer.bounds.center;
+        return MainMeshRenderer!.bounds.center;
     }
 
     private void ConfigureAnimatorAndNavMeshAgent() {
-        animator.applyRootMotion = true;
+        animator!.applyRootMotion = true;
         // Want animator to drive movement, not agent
-        navMeshAgent.updatePosition = false;
+        navMeshAgent!.updatePosition = false;
         // So it's aligned where we're going (he has notes later in the video for setting this to false / when)
-        navMeshAgent.updateRotation = true;
+        navMeshAgent!.updateRotation = true;
 
         if (Target) {
-            navMeshAgent.SetDestination(Target.transform.position);
+            navMeshAgent.SetDestination(Target!.transform.position);
 
             // Make the TargetAim PositionConstraint copy the Destination's location
             // so the MultiAimConstraint correctly looks at the Destination (the player)
@@ -185,10 +187,10 @@ public class StoneGolem : Enemy {
                 sourceTransform = Target.AimPoint,
                 weight = 1.0f
             };
-            positionConstraint.SetSource(0, constraintSource);
+            positionConstraint!.SetSource(0, constraintSource);
 
             // Zero the offset so it matches the position of the target (the player)
-            positionConstraint.translationOffset = Vector3.zero;
+            positionConstraint!.translationOffset = Vector3.zero;
         } 
     }
 
@@ -197,7 +199,7 @@ public class StoneGolem : Enemy {
     // 
     // Source: https://www.youtube.com/watch?v=uAGjKxH4sDQ
     private void SynchronizeAnimatorAndAgent() {
-        Vector3 worldDeltaPosition = navMeshAgent.nextPosition - transform.position;
+        Vector3 worldDeltaPosition = navMeshAgent!.nextPosition - transform.position;
         worldDeltaPosition.y = 0;
 
         float dx = Vector3.Dot(transform.right, worldDeltaPosition);
@@ -220,8 +222,8 @@ public class StoneGolem : Enemy {
 
         bool shouldMove = velocity.magnitude > isMovingMin && navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance;
 
-        animator.SetBool("IsMoving", shouldMove);
-        animator.SetFloat("MovementSpeed", velocity.magnitude); // Based on 1D blend tree, need to pass in velocity.x & velocity.y separately for 2D
+        animator!.SetBool("IsMoving", shouldMove);
+        animator!.SetFloat("MovementSpeed", velocity.magnitude); // Based on 1D blend tree, need to pass in velocity.x & velocity.y separately for 2D
 
         // This is causing a bug
         // TODO: Rename this cause I'm still not 100% sure what this boolean does
@@ -243,13 +245,13 @@ public class StoneGolem : Enemy {
 
     // Remove this it was just for testing
     private void SetNavMeshDestination() {
-        float dist = Vector3.Distance(Target.AimPoint.position, lastTargetPosition);
+        float dist = Vector3.Distance(Target!.AimPoint!.position, lastTargetPosition);
         float minDist = 0.5f;
 
         if (dist > minDist) {
-            navMeshAgent.SetDestination(Target.AimPoint.position);
+            navMeshAgent!.SetDestination(Target!.AimPoint!.position);
 
-            lastTargetPosition = Target.AimPoint.position;
+            lastTargetPosition = Target!.AimPoint!.position;
         }
     }
 
@@ -268,13 +270,13 @@ public class StoneGolem : Enemy {
     // This rotates the Golem when it's within the stoping distance.
     private void RotateToTargetWhenWithinStoppinDistance() {
         float rotationSpeed = RotationSpeed;
-        float stoppingDistance = navMeshAgent.stoppingDistance;
-        float distanceToTarget = Vector3.Distance(transform.position, navMeshAgent.destination);
+        float stoppingDistance = navMeshAgent!.stoppingDistance;
+        float distanceToTarget = Vector3.Distance(transform.position, navMeshAgent!.destination);
         
         if (distanceToTarget < stoppingDistance) {
             // Do the movement
 
-            Vector3 direction = (navMeshAgent.destination - transform.position).normalized;
+            Vector3 direction = (navMeshAgent!.destination - transform.position).normalized;
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
 
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
@@ -288,6 +290,6 @@ public class StoneGolem : Enemy {
         }
     }
     public override Material GetMaterial() {
-        return MainMeshRenderer.material;
+        return MainMeshRenderer!.material;
     }
 }
