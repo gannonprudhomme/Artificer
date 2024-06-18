@@ -9,6 +9,7 @@ using UnityEngine;
 //
 // Go to Edit -> Shortcuts, add a new profile named {playModeID} and a reuse the existing / default one for the editor named {editModeID}.
 // Then for the Play Mode profile, remove the shortcut you don't want (in my case it was save for Ctrl+S)
+// I also change Enter Play Mode to Ctrl + R
 [InitializeOnLoad]
 public static class ChangePlayModeShortcuts {
     private static readonly string playModeID = "Play Mode";

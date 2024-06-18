@@ -105,7 +105,7 @@ public class IonSurgeVFXHelper {
         bool isLightActive = (Time.time - timeOfLastFire) <= (lightLifetime * 1.1f); // Give it a little buffer so it transitions to 0
         if (isLightActive) {
             float time = (Time.time - timeOfLastFire) / lightLifetime;
-            explosionLightInstance.intensity = baseLightIntensity * explosionLightIntensityCurve.Evaluate(time);
+            explosionLightInstance!.intensity = baseLightIntensity * explosionLightIntensityCurve.Evaluate(time);
         }
     }
 
