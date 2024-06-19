@@ -84,7 +84,8 @@ public class InteractablesDirector : MonoBehaviour {
         // I guess we can query the NavMesh?
 
         if (!TryFindRandomSpawnPosition(Level!, out Vector3 spawnPosition)) {
-            Debug.LogError("Couldn't spawn it");
+            // TODO: I should figure out why this is happening so freaking much
+            // Debug.LogError("Couldn't spawn it");
             return;
         }
 
@@ -118,7 +119,8 @@ public class InteractablesDirector : MonoBehaviour {
             } 
         }
 
-        Debug.LogError("Couldn't find a spawn point in 30 tries");
+        // TODO: I should figure out why this is happening so freaking much
+        // Debug.LogError("Couldn't find a spawn point in 30 tries");
 
         result = Vector3.negativeInfinity;
         return false;
