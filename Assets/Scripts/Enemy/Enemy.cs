@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.VFX;
 
 #nullable enable
 
@@ -13,7 +14,12 @@ public abstract class Enemy : Entity {
     // public EnemyHealthBar healthBar;
     public UIFollowPlayer? HealthAndStatusBarFollowPlayer;
 
+    [Tooltip("The VFX instance that's played when the enemy is stunned")]
+    public VisualEffect? StunnedStatusVFXInstance;
+
     private EnemyManager? enemyManager;
+
+    private bool isStunnedStatusEffectActive = false;
 
     // the Director is going to set this when we spawn the enemy
     public int ExperienceGrantedOnDeath { get; set; }
@@ -37,6 +43,8 @@ public abstract class Enemy : Entity {
         if (Target) {
             HealthAndStatusBarFollowPlayer!.Target = Target!.Camera!.transform;
 		}
+
+        StunnedStatusVFXInstance!.Stop();
     }
 
     protected virtual void OnDeath() {
@@ -58,5 +66,26 @@ public abstract class Enemy : Entity {
         }
 
         Destroy(this.gameObject);
+    }
+
+    // Ideally we'd just have some common (but not sub-classed) Stunned state which would let us do this
+    protected void StartStunnedVFXIfNotPlaying() {
+        if (isStunnedStatusEffectActive) {
+            return;
+        }
+
+        isStunnedStatusEffectActive = true;
+
+        StunnedStatusVFXInstance!.Play();
+    }
+
+    protected void StopStunnedVFX() {
+        if (!isStunnedStatusEffectActive) {
+            return;
+        }
+
+        isStunnedStatusEffectActive = false;
+
+        StunnedStatusVFXInstance!.Stop();
     }
 }

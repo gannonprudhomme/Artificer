@@ -162,7 +162,7 @@ public class Lemurian : Enemy {
         bool hasLineOfSightToTarget = DoesHaveLineOfSightToTarget();
 
         // First, check stun
-        if ((Time.time - timeOfLastStun) < stunFromDamageDuration ||IsStunned()) {
+        if ((Time.time - timeOfLastStun) < stunFromDamageDuration || IsStunned()) {
             return State.STUNNED;
         }
 
@@ -196,6 +196,13 @@ public class Lemurian : Enemy {
 
     // Given the result of DetermineCurrentState(), act on it
     private void PerformCurrentState() {
+        // This is why we need a state which gives us EnterState() & ExitState() functions
+        if (currentState != State.STUNNED) {
+            StopStunnedVFX();
+            navMeshAgent!.updateRotation = true;
+            PositionConstraint!.constraintActive = true;
+        }
+
         switch (currentState) {
             case State.USE_SECONDARY_AND_CHASE_SLOWING_DOWN:
             case State.USE_SECONDARY_AND_CHASE:
@@ -233,7 +240,10 @@ public class Lemurian : Enemy {
 
                 break;
             case State.STUNNED:
+                StartStunnedVFXIfNotPlaying();
                 // Why don't we if (isFrozen) break here?
+                navMeshAgent!.updateRotation = false; // Will rotate when stunned otherwise
+                PositionConstraint!.constraintActive = false;
 
                 fireballAttack!.canAttack = false;
                 meleeAttack!.canAttack = false;
@@ -400,6 +410,8 @@ public class Lemurian : Enemy {
 
     protected override void OnDeath() {
         // Note we're intentionally not calling base.OnDeath() cause we don't want to Destroy this (yet)
+
+        animator!.SetBool(ANIM_PARAM_IS_STUNNED, false);
 
         // I do think we want to do this?
         EnemyManager.shared!.RemoveEnemy(this);

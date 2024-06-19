@@ -161,6 +161,12 @@ public class StoneGolem : Enemy {
             laserAttack!.canAttack = true;
         }
 
+        if (IsStunned()) {
+            StartStunnedVFXIfNotPlaying();
+        } else {
+            StopStunnedVFX();
+        }
+
         // Set the animator's TimeSinceLastDamaged
         if (lastDamagedTime < Mathf.Infinity) {
             animator!.SetFloat("TimeSinceLastDamaged", (Time.time - lastDamagedTime));
