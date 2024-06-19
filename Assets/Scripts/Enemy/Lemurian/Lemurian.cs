@@ -77,17 +77,17 @@ public class Lemurian : Enemy {
     // Used so we know when the stun should wear off
     private float timeOfLastStun = Mathf.NegativeInfinity;
 
-    private const float stunDuration = 0.3f; // how long the stun actually lasts
+    private const float stunFromDamageDuration = 0.3f; // how long the stun actually lasts
 
     // Need to be 1.5 seconds until the last stun ended to stun again
-    private const float stunCooldown = 1.5f;
+    // TODO: Should this apply to the status effect too?
+    private const float stunFromDamageCooldown = 1.5f;
 
     public override string EnemyIdentifier => "Lemurian";
 
     private const string ANIM_PARAM_IS_DEAD = "IsDead";
     private const string ANIM_PARAM_IS_STUNNED = "IsStunned";
     private const string ANIM_PARAM_TIME_SINCE_LAST_HIT = "TimeSinceLastHit";
-    // used so we can't 
 
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator!.rootPosition;
@@ -162,7 +162,7 @@ public class Lemurian : Enemy {
         bool hasLineOfSightToTarget = DoesHaveLineOfSightToTarget();
 
         // First, check stun
-        if ((Time.time - timeOfLastStun) < stunDuration) {
+        if ((Time.time - timeOfLastStun) < stunFromDamageDuration ||IsStunned()) {
             return State.STUNNED;
         }
 
@@ -389,7 +389,7 @@ public class Lemurian : Enemy {
         float damageAsPercentOfMaxHealth = damage / health!.MaxHealth;
         if (damageAsPercentOfMaxHealth >= 0.15f) {
             float timeSinceLastHit = Time.time - timeOfLastHit;
-            if (timeSinceLastHit > stunCooldown) { // Needs to be {stunCooldown} seconds since we've been last hit to actually stun
+            if (timeSinceLastHit > stunFromDamageCooldown) { // Needs to be {stunCooldown} seconds since we've been last hit to actually stun
                 DoStun();
             }
         }

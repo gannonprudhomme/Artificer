@@ -15,7 +15,7 @@ using UnityEngine;
 // 
 // Freeze auto-kills enemy when they're under 30% health apparently
 public class FreezeStatusEffect : BaseStatusEffect {
-    public override string Name => "Frozen";
+    public override string Name => StatusEffectNames.Freeze;
 
     public override int CurrentStacks => 0;
 

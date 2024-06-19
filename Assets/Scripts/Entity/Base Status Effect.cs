@@ -1,8 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 #nullable enable
+
+public struct StatusEffectNames {
+    public static string Stunned = "Stunned";
+    public static string Burn = "Burn";
+    public static string Freeze = "Freeze";
+}
 
 // We need like a "Base Damage" which this is a subclass of
 // as some damage sources will just be flat damage, like the first hit from the fireball
@@ -18,11 +20,6 @@ public abstract class BaseStatusEffect {
 
     public virtual void OnStart(Entity entity) { } // Don't have to override it if you don't want!
 
-    /// <summary>
-    /// Returns the damage afflicted on that tick
-    /// </summary>
-    /// <param name="material"></param>
-    /// <returns></returns>
     public abstract void OnFixedUpdate(Entity entity);
     
     public abstract void OnUpdate(Entity entity);

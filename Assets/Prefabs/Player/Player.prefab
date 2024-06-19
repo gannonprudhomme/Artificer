@@ -226,6 +226,76 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 5287596396576582660}
     weight: 1
+--- !u!1 &4891835731277255856
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8305578443169845472}
+  - component: {fileID: 1020169250467427942}
+  m_Layer: 7
+  m_Name: Ion Surge Damage Area
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8305578443169845472
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4891835731277255856}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1303934949229841441}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1020169250467427942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4891835731277255856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72c2f4414b887ac4099e9d42d9713062, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EffectRadius: 15
+  DamageOverDistanceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.0123868985
+      outSlope: -0.0123868985
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.5375
+    - serializedVersion: 3
+      time: 1
+      value: 0.5
+      inSlope: -1.6174941
+      outSlope: -1.6174941
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.03333336
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  DebugShowRadius: 0
 --- !u!1 &4957851779865457625
 GameObject:
   m_ObjectHideFlags: 0
@@ -748,6 +818,7 @@ MonoBehaviour:
   ShootSfx: {fileID: 8300000, guid: 97df679b8a3c07846bd9ba00cf07fb48, type: 3}
   CurrentCharge: 1
   SurgeJumpForce: 105
+  DamageArea: {fileID: 1020169250467427942}
   LeftHandVFX: {fileID: 4255345573392990696}
   RightHandVFX: {fileID: 2457237648499621962}
   MainExplosionVFXPrefab: {fileID: 125546236563378818, guid: 9c0163b2fe7e9ce47a60e4843cda2d93,
@@ -921,7 +992,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1303934949229841441}
   m_Layer: 7
-  m_Name: Ion Surge VFX
+  m_Name: Ion Surge VFX + Damage Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -942,6 +1013,7 @@ Transform:
   m_Children:
   - {fileID: 3383268071864035161}
   - {fileID: 4081060503572781399}
+  - {fileID: 8305578443169845472}
   m_Father: {fileID: 7596465692342951294}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6792243995975969371

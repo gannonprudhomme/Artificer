@@ -8,11 +8,16 @@ using UnityEngine;
 // Idk if this should necessarily be a monobehavior
 // it's really just data + doing the computation for doing the damage
 public class DamageArea : MonoBehaviour {
+    [Header("General")]
     [Tooltip("Radius this damage applies over")]
     public float EffectRadius;
 
     [Tooltip("The curve representing how much damage % we should apply based on how close something is from the center of the damage area")]
     public AnimationCurve? DamageOverDistanceCurve;
+
+    [Header("Debug")]
+    [Tooltip("Enable to show the radius")]
+    public bool DebugShowRadius = false;
 
     public void InflictDamageOverArea(
         float damage,
@@ -75,8 +80,12 @@ public class DamageArea : MonoBehaviour {
     }
 
     private void OnDrawGizmosSelected() {
-        // Gizmos.color = Color.red;
-        // Gizmos.DrawSphere(transform.position, EffectRadius);
+        if (DebugShowRadius) {
+            var color = Color.red;
+            color.a = 0.5f;
+            Gizmos.color = color;
+            Gizmos.DrawSphere(transform.position, EffectRadius);
+        }
     }
 }
 

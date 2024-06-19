@@ -36,6 +36,7 @@ public class BurnStatusEffect: BaseStatusEffect {
             return (int)numStacks;
         }
     }
+    public override string Name => StatusEffectNames.Burn;
 
     public override string ImageName => "Burning Status Icon";
 
@@ -48,11 +49,11 @@ public class BurnStatusEffect: BaseStatusEffect {
     // This doesn't seem right
     private const float DamagePerTick = PlayerBaseDamage * 0.1f;
 
-    private Affiliation effectApplierAffiliation;
+    private readonly Affiliation effectApplierAffiliation;
     
     // We're going to consider damagePerStack to be the base damage that is initially applied when this is created
     // This will make it so if we have different things which apply Burn the meaning of stack will change, but it will work for now since we only have Fireball.
-    private float damagePerStack;
+    private readonly float damagePerStack;
 
     // How much damage this is going to apply over the duration of the effect
     private float damageLeftToApply;
@@ -88,10 +89,6 @@ public class BurnStatusEffect: BaseStatusEffect {
         this.burnSeed = Random.value * 100;
     }
 
-    public override string Name { 
-        // Doesn't matter what this is, as long it's unique to the status effect
-        get { return "Burn"; }
-    }
 
     public override bool HasEffectFinished() {
         return damageLeftToApply <= 0f;

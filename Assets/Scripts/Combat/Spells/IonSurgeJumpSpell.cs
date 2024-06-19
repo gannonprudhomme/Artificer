@@ -16,6 +16,9 @@ public class IonSurgeJumpSpell : Spell {
     [Header("General (Ion Surge)")]
     public float SurgeJumpForce = 90f;
 
+    [Tooltip("DamageArea instance for the spell")]
+    public DamageArea? DamageArea;
+
     [Tooltip("VFX instance for the left hand")]
     public VisualEffect? LeftHandVFX;
 
@@ -36,6 +39,8 @@ public class IonSurgeJumpSpell : Spell {
 
     // Controls all of the VFX for this, as there is *a lot*
     private IonSurgeVFXHelper? vfxHelper;
+
+    private readonly float damageCoefficient = 8.0f; // 800%
 
     // TODO: We should actually calculate this based on the velocity of the player
     // Or rather, how long we expect for it to take for the player to reach the peak of the ion surge jump
@@ -87,10 +92,22 @@ public class IonSurgeJumpSpell : Spell {
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
         GameObject owner,
         Camera spellCamera,
-        float currDamage,
+        float entityBaseDamage,
         LayerMask layerToIgnore
     ) {
         CurrentCharge -= 1;
+
+        DamageArea!.InflictDamageOverArea(
+            damage: entityBaseDamage * damageCoefficient,
+            center: transform.position,
+            damageApplierAffiliation: Affiliation.Player,
+            directHitCollider: null,
+            statusEffectToApply: new StunnedStatusEffect(
+                effectApplierAffiliation: Affiliation.Enemy,
+                duration: 2f
+            ),
+            layers: -1
+        );    
 
         // Launch the player in the air
         if (!DisableUpForce)
@@ -109,7 +126,6 @@ public class IonSurgeJumpSpell : Spell {
             0f,
             10f
         );
-
     }
 
     public override void AttackButtonPressed() { }

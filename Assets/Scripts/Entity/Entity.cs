@@ -144,4 +144,9 @@ public abstract class Entity : MonoBehaviour {
         // Well I guess this won't work for looping particles shat
         Destroy(particlesInstance, particlesInstance.main.duration);
     }
+
+    public bool IsStunned() {
+        // I hate that I can't really use an enum here
+        return statusEffects.ContainsKey(StatusEffectNames.Stunned);
+    }
 }

@@ -83,7 +83,7 @@ public class StoneGolem : Enemy {
     private bool couldMoveLastFrame = true;
 
     // Attacks
-    private GolemLaserAttack laserAttack;
+    private GolemLaserAttack? laserAttack;
 
     protected override float StartingBaseDamage => 20f;
     public override float CurrentBaseDamage => StartingBaseDamage;
@@ -129,7 +129,7 @@ public class StoneGolem : Enemy {
         // See if we have enough charge and search for the player
         SetNavMeshDestination();
 
-        if (!isFrozen) {
+        if (!isFrozen && !IsStunned()) {
             // If we can move this frame but couldn't last frame
             if (!couldMoveLastFrame) {
                 couldMoveLastFrame = true;
@@ -155,6 +155,12 @@ public class StoneGolem : Enemy {
             positionConstraint!.constraintActive = false;
         }
 
+        if (IsStunned() || isFrozen) {
+            laserAttack!.canAttack = false;
+        } else { // both are false
+            laserAttack!.canAttack = true;
+        }
+
         // Set the animator's TimeSinceLastDamaged
         if (lastDamagedTime < Mathf.Infinity) {
             animator!.SetFloat("TimeSinceLastDamaged", (Time.time - lastDamagedTime));
@@ -163,8 +169,8 @@ public class StoneGolem : Enemy {
             animator!.SetFloat("TimeSinceLastDamaged", Mathf.Infinity);
         }
 
-        laserAttack.aimSpeed = AimMoveSpeed;
-        laserAttack.OnUpdate(CurrentBaseDamage);
+        laserAttack!.aimSpeed = AimMoveSpeed;
+        laserAttack!.OnUpdate(CurrentBaseDamage);
     }
 
     public override Vector3 GetMiddleOfMesh() {
@@ -263,7 +269,7 @@ public class StoneGolem : Enemy {
         base.SetIsFrozen(isFrozen);
 
         // May not be the best way to do this, idrk
-        laserAttack.canAttack = !isFrozen;
+        laserAttack!.canAttack = !isFrozen;
     }
 
     // When the NavMeshAgent is within it's stopping distance, it won't rotate anymore.

@@ -44,10 +44,10 @@ public class Wisp : NavSpaceEnemy {
     private WispFireballAttack? attack = null;
 
     // Any single instance of damage that deals more than 10% of the total health will stun it & interrupts its attacks or movement
-    private const float stunHealthPercentage = 0.1f;
-    private const float stunDuration = 0.3f; // How long the stun actually lasts
+    private const float stunFromDamageHealthPercentage = 0.1f;
+    private const float stunFromDamageDuration = 0.3f; // How long the stun actually lasts
     private float timeOfLastStun = Mathf.NegativeInfinity;
-    private const float stunCooldown = 1.5f; // Needs to be 1.5 seconds until the last stun ended to stun again
+    private const float stunFromDamageCooldown = 1.5f; // Needs to be 1.5 seconds until the last stun ended to stun again
 
     private State currentState = State.CHASE;
 
@@ -109,7 +109,7 @@ public class Wisp : NavSpaceEnemy {
 
     private State DetermineCurrentState() {
         // I figure we should do this first?
-        if (isFrozen) {
+        if (isFrozen || IsStunned()) {
             // timeOfNextStateChange = Time.time + 1.0f;
             return State.STUNNED;
         }
@@ -137,20 +137,6 @@ public class Wisp : NavSpaceEnemy {
     }
 
     private void PerformCurrentState() {
-        // Honestly I'm wondering if isFrozen should just be one of the states
-        // Cause it basically is from how we handle it
-        //if (isFrozen) {
-            // prevent it from moving
-            // reset the ttack
-
-            // attack!.canAttack = false;
-
-            // Prevent LookAt constraint (will we even have that? Idek)
-            // return;
-
-            // Actually Stunned is going to all of the stuff above that
-        //}
-
         switch(currentState) {
             case State.USE_PRIMARY_AND_FLEE:
                 attack!.canAttack = true;
@@ -164,11 +150,12 @@ public class Wisp : NavSpaceEnemy {
                 LookAtTarget();
 
                 break;
-            case State.STUNNED:
+            case State.STUNNED: // Frozen + stunned status effects are both considered .STUNNED as well as from damage 
+                // prevent it from attacking
+                // TODO: Reset the attack
                 attack!.canAttack = false;
 
-                // Prevent moving
-                // Reset the attack and prevent it from attacking
+                // Prevent moving (by doing nothing)
 
                 break;
             case State.CHASE:
@@ -242,7 +229,7 @@ public class Wisp : NavSpaceEnemy {
     private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
         // If a single piece of damage is > 10% of the Wisp's max health, stun it
         float damageAsPercentOfHealth = damage / health!.MaxHealth;
-        if (damageAsPercentOfHealth > stunHealthPercentage) {
+        if (damageAsPercentOfHealth > stunFromDamageHealthPercentage) {
             currentState = State.STUNNED;
             timeOfLastStun = Time.time;
         }
@@ -363,6 +350,8 @@ public class Wisp : NavSpaceEnemy {
 
         // Any single instance of damage that deals more than 10% of total health will stun it
         // and interrupt its attacks or movement
+        //
+        // Note: This includes the frozen + stunned status effects, as well as being stunned from damage
         STUNNED,
 
         // Chase the target
