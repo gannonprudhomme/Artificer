@@ -39,7 +39,9 @@ public class PlayerSpellsController : MonoBehaviour {
 
     public IonSurgeJumpSpell? IonSurgeJumpSpell;
 
-    public Spell[] spells { get; } = new Spell[3];
+    public NanoSpearSpell? NanoSpearSpell;
+
+    public Spell[] spells { get; } = new Spell[4];
 
     private PlayerController? player;
     private Animator? animator;
@@ -63,6 +65,7 @@ public class PlayerSpellsController : MonoBehaviour {
         // We could do this way better
         spells[0] = FireballSpell!;
         spells[2] = IonSurgeJumpSpell!;
+        spells[3] = NanoSpearSpell!;
         
         if (SecondSpellPrefab != null) { // probs just want to yell if this is null, idk
             spells[1] = Instantiate(SecondSpellPrefab, RightArmSpellSpawnPoint!);
@@ -155,6 +158,20 @@ public class PlayerSpellsController : MonoBehaviour {
             }
         } else if (inputHandler.GetThirdAttackInputReleased()) {
             spells[2].AttackButtonReleased();
+        }
+
+        if (inputHandler.GetFourthAttackInputHeld()) {
+            if (spells[3].CanShoot()) {
+                spells[3].ShootSpell(
+                    muzzlePositions: (LeftArmSpellSpawnPoint!.transform.position, RightArmSpellSpawnPoint!.transform.position),
+                    owner: gameObject,
+                    spellCamera: SpellCamera!,
+				    currDamage: player!.CurrentBaseDamage,
+                    layerToIgnore: playerLayerMask
+                );
+            }
+        } else if (inputHandler.GetFourthAttackInputReleased()) {
+            spells[3].AttackButtonReleased();
         }
 
         // Maybe I should get the spells working first before preventing them from working at the same time?

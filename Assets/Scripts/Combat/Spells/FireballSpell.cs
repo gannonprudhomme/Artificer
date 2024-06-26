@@ -158,7 +158,7 @@ public class FireballSpell : Spell {
     // Returns the direction to fire the projectile in.
     // 
     // If we don't hit anything, we'll pick a "point" 100m away
-    private static Vector3 GetProjectileDirection(Camera spellCamera, Vector3 muzzlePosition, LayerMask playerLayerToIgnore) {
+    public static Vector3 GetProjectileDirection(Camera spellCamera, Vector3 muzzlePosition, LayerMask playerLayerToIgnore) {
         if (Physics.Raycast(
             origin: spellCamera.transform.position,
             direction: spellCamera.transform.forward,

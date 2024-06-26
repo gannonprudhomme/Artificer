@@ -404,6 +404,7 @@ GameObject:
   - component: {fileID: 4103907885057574645}
   - component: {fileID: 4857897018764386295}
   - component: {fileID: 152916059270972665}
+  - component: {fileID: 8959592792108440667}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -530,6 +531,7 @@ MonoBehaviour:
   SecondSpellPrefab: {fileID: 5227877792274781671, guid: ddab98e7c19b12e4f9dd90cc7afbb5b2,
     type: 3}
   IonSurgeJumpSpell: {fileID: 152916059270972665}
+  NanoSpearSpell: {fileID: 8959592792108440667}
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 128
@@ -828,6 +830,24 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   DisableUpForce: 0
+--- !u!114 &8959592792108440667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5020162517813680371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b626a06d305266b478c9e3f1fe9b8f40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShootSfx: {fileID: 0}
+  CurrentCharge: 1
+  ProjectilePrefab: {fileID: 3680103958273619034, guid: d08379cb3752f2143b80c4e610223d90,
+    type: 3}
+  ProjectileSpawnPoint: {fileID: 0}
+  AnimatedProjectileInstance: {fileID: 0}
 --- !u!1 &5352475266119036259
 GameObject:
   m_ObjectHideFlags: 0

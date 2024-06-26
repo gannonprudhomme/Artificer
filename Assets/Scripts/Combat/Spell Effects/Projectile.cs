@@ -57,6 +57,9 @@ public abstract class Projectile : MonoBehaviour {
     [Tooltip("Color of the projectile radius for debug view")]
     public Color RadiusColor = Color.cyan * 0.2f;
 
+    [Tooltip("Whether we should show the gizmo radius")]
+    public bool DebugDisplayRadius = false;
+
     /** Idk divider **/
     public Vector3 InitialPosition { get; protected set; }
     public Vector3 InitialDirection { get; protected set; }
@@ -230,10 +233,10 @@ public abstract class Projectile : MonoBehaviour {
         Destroy(this.gameObject);
     }
 
-    /*
     private void OnDrawGizmosSelected() {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(transform.position, Radius);
+        if (DebugDisplayRadius) {
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(transform.position, Radius);
+        }
     }
-    */
 }

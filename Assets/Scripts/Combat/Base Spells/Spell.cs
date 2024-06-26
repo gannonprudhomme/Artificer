@@ -64,6 +64,7 @@ public interface IHoldManualSpell : ISpell {
 // if they all controlled themselves (or would need to talk to other spells)
 // as such the spells manager has to manage them all
 public abstract class Spell : MonoBehaviour {
+    [Header("Spell (Inherited)")]
     [Tooltip("Audio clip that plays when the spell is fired")]
     public AudioClip? ShootSfx;
     public Animator? PlayerAnimator { get; set; }
