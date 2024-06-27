@@ -32,7 +32,7 @@ public class AimUI : MonoBehaviour {
     [Tooltip("The dots on the right side which represent primary spell charge")]
     public GameObject?[] primarySpellChargeImages = new GameObject[4];
 
-    public readonly float startPosition = 22.5f;
+    public readonly float animatedReticleStartPosition = 22.5f;
 
     private void Start() {
         if (aimDelegate == null) {
@@ -82,24 +82,24 @@ public class AimUI : MonoBehaviour {
     public void UpdateInnerReticlePositions(float multiplier) {
         TopInnerReticle!.localPosition = new(
             x: TopInnerReticle!.localPosition.x,
-            y: startPosition * multiplier,
+            y: animatedReticleStartPosition * multiplier,
             z: TopInnerReticle!.localPosition.z
         );
 
         BottomInnerReticle!.localPosition = new(
             x: BottomInnerReticle!.localPosition.x,
-            y: -startPosition * multiplier,
+            y: -animatedReticleStartPosition * multiplier,
             z: BottomInnerReticle!.localPosition.z
         );
 
         LeftInnerReticle!.localPosition = new(
-            x: -startPosition * multiplier,
+            x: -animatedReticleStartPosition * multiplier,
             y: LeftInnerReticle!.localPosition.y,
             z: LeftInnerReticle!.localPosition.z
         );
 
         RightInnerReticle!.localPosition = new(
-            x: startPosition * multiplier,
+            x: animatedReticleStartPosition * multiplier,
             y: RightInnerReticle!.localPosition.y,
             z: RightInnerReticle!.localPosition.z
         );

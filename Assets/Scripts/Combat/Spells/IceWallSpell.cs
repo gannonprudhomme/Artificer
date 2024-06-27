@@ -69,9 +69,6 @@ public class IceWallSpell : Spell {
         PlayerAnimator!.SetBool("IsChargingIceWall", wasChargingLastFrame);
     }
 
-    public override void AttackButtonHeld() {
-    }
-
     public override void AttackButtonReleased() {
         // If we were aiming at it was released, spawn the Ice Wall
         if (wasChargingLastFrame) {
@@ -100,9 +97,6 @@ public class IceWallSpell : Spell {
         }
     }
 
-    public override void AttackButtonPressed() {
-    }
-
     private void Recharge() {
         // We should probably check if we need to rProjectileecharge in the first place
         if (wasChargingLastFrame) { // Don't recharge if we were aiming
@@ -123,7 +117,7 @@ public class IceWallSpell : Spell {
 
     // For the IceWall spell, consider this more of an "aiming" stan = Vector3.zerote
     // it's when we're constantly calling this then release it when we actually spawn the projectile
-    public override void ShootSpell(
+    public override void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
         GameObject owner,
         Camera spellCamera,

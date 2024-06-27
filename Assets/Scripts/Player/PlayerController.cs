@@ -637,7 +637,6 @@ public class PlayerController : Entity {
         return transform.position + (transform.up * (atHeight - characterController!.radius));
     }
 
-
     // Used by GroundedCheck()
     private static bool IsNormalUnderSlopeLimit(
         Vector3 normal, // actual input

@@ -77,10 +77,6 @@ public class FireballSpell : Spell {
         PlayerAnimator!.SetBool("IsFiringFireball", isFiring);
     }
 
-    public override void AttackButtonHeld() { }
-    public override void AttackButtonReleased() { }
-    public override void AttackButtonPressed() { }
-
     private void Recharge() {
         // We should probably check if we need to rProjectileecharge in the first place
 
@@ -104,7 +100,7 @@ public class FireballSpell : Spell {
     }
 
     // We have enough charges - fire a projectile
-    public override void ShootSpell(
+    public override void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
         GameObject owner,
         Camera spellCamera,

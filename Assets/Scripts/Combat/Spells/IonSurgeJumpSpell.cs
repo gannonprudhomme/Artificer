@@ -88,7 +88,7 @@ public class IonSurgeJumpSpell : Spell {
         CurrentCharge = Mathf.Clamp(CurrentCharge, 0f, MaxNumberOfCharges);
     }
 
-    public override void ShootSpell(
+    public override void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
         GameObject owner,
         Camera spellCamera,
@@ -127,10 +127,6 @@ public class IonSurgeJumpSpell : Spell {
             10f
         );
     }
-
-    public override void AttackButtonPressed() { }
-    public override void AttackButtonHeld() { }
-    public override void AttackButtonReleased() { }
 
     public override bool CanShoot() { // This is basically AttackButtonHeld() lol
         return CurrentCharge >= MaxNumberOfCharges;

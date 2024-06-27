@@ -77,7 +77,7 @@ public class NanoSpearSpell : Spell {
 
     // We're starting to charge.
     // This won't be called when CanShoot() is false.
-    public override void ShootSpell(
+    public override void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
         GameObject owner,
         Camera spellCamera,
@@ -115,7 +115,6 @@ public class NanoSpearSpell : Spell {
 
         EndChargeAndFire();
     }
-
 
     // Called in Update()
     private void HandleChargingAttack() {
@@ -217,8 +216,5 @@ public class NanoSpearSpell : Spell {
             return FiringReticleAnimationCurve!.Evaluate((Time.time - timeOfFireStart) / fireAnimationDuration);
         }
     }
-
-    public override void AttackButtonHeld() { }
-    public override void AttackButtonPressed() { }
 }
 
