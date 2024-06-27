@@ -18,9 +18,10 @@ public class NanoSpearSpell : Spell {
     [Tooltip("What we animate (rather than actually shoot)")]
     public GameObject? AnimatedProjectileInstance;
 
-    [Tooltip("Curve over the lifetime of the charging that we animate the position of the reticle with")]
+    [Tooltip("Curve over the lifetime of the charging that we animate the position of the reticle with from [0, 1]")]
     public AnimationCurve? ChargingReticleAnimationCurve;
 
+    [Tooltip("Curve over the lifetime of the fire animation that we animate the position of the reticle with. From [0, 1]")]
     public AnimationCurve? FiringReticleAnimationCurve;
 
     // This shouldn't charge if we're currently aiming
@@ -46,7 +47,10 @@ public class NanoSpearSpell : Spell {
     private bool isChargingAttack = false;
 
     private float timeOfFireStart = Mathf.NegativeInfinity;
-    private readonly float fireAnimationDuration = 0.5f;
+    private readonly float fireAnimationDuration = 1.25f; // Ideally we'd get this from the animation directly
+
+    private float chargeEndPercentage = 0f;
+    private readonly float baseReticleMultiplier = 1f;
 
     private bool isPlayingFireAnimation {
         get {
@@ -232,9 +236,22 @@ public class NanoSpearSpell : Spell {
         if (!isChargingAttack && !isPlayingFireAnimation) {
             return null;
         } else if (isChargingAttack) {
-            return ChargingReticleAnimationCurve!.Evaluate((Time.time - timeOfChargeStart) / chargeDuration);
+            float time = (Time.time - timeOfChargeStart) / chargeDuration;
+            chargeEndPercentage = time;
+            // AnimationCurve's are from [0, 1]
+            return baseReticleMultiplier + ChargingReticleAnimationCurve!.Evaluate(time);
         } else /* if (isPlayingFireAnimation) */ {
-            return FiringReticleAnimationCurve!.Evaluate((Time.time - timeOfFireStart) / fireAnimationDuration);
+            float modifiedFireAnimDuration = fireAnimationDuration * 0.5f; // Should animate in half of the fire anim time?
+            float time = (Time.time - timeOfFireStart) / modifiedFireAnimDuration;
+
+            // calculate the modified time so that the curve starts at the chargeEndPercentage
+            // E.g. if we only charged 30% of the full charge time, then we should skip the first 30% of the firing curve
+            // if the chargeEndPercentage is 100% then we should animate the whole curve
+            // this way no matter where the reticle ends up it animates smoothly
+
+            float modifiedTime = time + Mathf.Clamp01(1 - chargeEndPercentage);
+
+            return baseReticleMultiplier + FiringReticleAnimationCurve!.Evaluate(modifiedTime);
         }
     }
 }
