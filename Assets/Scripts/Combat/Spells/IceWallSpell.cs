@@ -215,14 +215,14 @@ public class IceWallSpell : Spell {
         timeOfLastFire = Time.time;
     }
 
-    public override Texture2D? GetAimTexture() {
+    public override CrosshairReplacementImage? GetAimTexture() {
         if (wasChargingLastFrame) {
             if (canShootWhereAiming) {
                 // return dot image
-                return AimingImage!;
+                return CrosshairReplacementImage.Aiming!;
             } else { // can't shoot
                 // return X image
-                return CantSpawnImage!;
+                return CrosshairReplacementImage.CantFire!;
             }
         } else {
             return null;

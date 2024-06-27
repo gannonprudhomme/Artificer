@@ -139,8 +139,4 @@ public class IonSurgeJumpSpell : Spell {
     public override bool CanShootWhereAiming(Vector3 muzzlePosition, Camera spellCamera) {
         return true;
     }
-
-    public override Texture2D? GetAimTexture() {
-        return null;
-    }
 }

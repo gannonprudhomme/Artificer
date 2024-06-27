@@ -18,6 +18,11 @@ public class NanoSpearSpell : Spell {
     [Tooltip("What we animate (rather than actually shoot)")]
     public GameObject? AnimatedProjectileInstance;
 
+    [Tooltip("Curve over the lifetime of the charging that we animate the position of the reticle with")]
+    public AnimationCurve? ChargingReticleAnimationCurve;
+
+    public AnimationCurve? FiringReticleAnimationCurve;
+
     // This shouldn't charge if we're currently aiming
     public override float ChargeRate => 1f / 5f; // 5 second cooldown
 
@@ -108,7 +113,7 @@ public class NanoSpearSpell : Spell {
             return;
         }
 
-        HandleChargingAttack();
+        EndChargeAndFire();
     }
 
 
@@ -125,7 +130,7 @@ public class NanoSpearSpell : Spell {
 
         // Temporary - should be controlled by an Animation later
         float startScale = 0.1f;
-        float endScale = 1.0f;
+        float endScale = 2.0f;
 
         float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;
         float currentZScale = Mathf.Lerp(startScale, endScale, chargePercent);
@@ -142,8 +147,6 @@ public class NanoSpearSpell : Spell {
     }
 
     private void EndChargeAndFire() { // We released - fire!
-        Debug.Log("Firing!");
-
         timeOfFireStart = Time.time;
 
         isChargingAttack = false;
@@ -205,7 +208,15 @@ public class NanoSpearSpell : Spell {
         return isChargingAttack || isPlayingFireAnimation;
     }
 
-    public override Texture2D? GetAimTexture() { return null; }
+    public override float? GetInnerReticleMultiplier() {
+        if (!isChargingAttack && !isPlayingFireAnimation) {
+            return null;
+        } else if (isChargingAttack) {
+            return ChargingReticleAnimationCurve!.Evaluate((Time.time - timeOfChargeStart) / chargeDuration);
+        } else /* if (isPlayingFireAnimation) */ {
+            return FiringReticleAnimationCurve!.Evaluate((Time.time - timeOfFireStart) / fireAnimationDuration);
+        }
+    }
 
     public override void AttackButtonHeld() { }
     public override void AttackButtonPressed() { }

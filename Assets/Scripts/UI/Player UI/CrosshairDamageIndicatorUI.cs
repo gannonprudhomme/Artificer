@@ -18,8 +18,8 @@ public class CrosshairDamageIndicatorUI : MonoBehaviour {
     // Must be less than DisplayDuration
     private const float ScaleDuration = 6f / 60f;
 
-    private const float StartScale = 1.2f;
-    private const float EndScale = 1.0f;
+    private const float StartScale = 0.9f;
+    private const float EndScale = 0.6f;
 
     // Need to do this on Awake as the Enemys add themselves to EnemyManager in Start
     void Awake() {

@@ -5,12 +5,6 @@ using UnityEngine.UI;
 
 #nullable enable
 
-// Downside of modularization (or really, how I architectured this?
-// we don't want this to dependon the UI module, so we can't define this in the UI module like we should
-public interface AimDelegate {
-    public Texture2D? CurrentAimTexture { get; }
-}
-
 // We might want this to live in the Player module
 [RequireComponent(typeof(PlayerController))]
 [RequireComponent(typeof(InputHandler), typeof(Animator))]
@@ -179,19 +173,31 @@ public class PlayerSpellsController : MonoBehaviour {
         // but Ice Wall and Lightning Jump should be a good challenge
     }
 
-    public Texture2D? DetermineCurrentAimTexture() {
-        Texture2D? aimTexture = null;
+    public int GetPrimarySpellChargesCount() {
+        return (int) spells[0].CurrentCharge;
+    }
+
+    public CrosshairReplacementImage? DetermineCurrentAimTexture() {
         foreach (var spell in spells) {
-            if (spell.GetAimTexture() is Texture2D texture) {
-                aimTexture = texture;
+            // We're just going to return the first one; I don't forsee this being a problem
+            if (spell.GetAimTexture() is CrosshairReplacementImage image) {
+                return image;
             }   
         }
 
-        if (aimTexture != null) {
-            return aimTexture;
-        } else {
-            return null;
+        return null;
+    }
+
+    public float? DetermineCurrentReticleOffsetMultipler() {
+        foreach(var spell in spells) {
+            // Return the first one which gives a value (they should never intersect)
+            if (spell.GetInnerReticleMultiplier() is float multiplier) {
+                return multiplier;
+            }
+            // TODO: Add error checking in case we're trying to animate both at once?
         }
+
+        return null;
     }
 
     private bool DetermineIsForceLookingForward() {

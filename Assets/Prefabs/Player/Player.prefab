@@ -783,6 +783,39 @@ MonoBehaviour:
   DelayBetweenShots: 0.7
   LeftShootParticleSystem: {fileID: 7447438865896037751}
   RightShootParticleSystem: {fileID: 5141791144318133879}
+  ReticleAnimationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 11.64079
+      outSlope: 11.64079
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.23927505
+    - serializedVersion: 3
+      time: 0.09375
+      value: 1.6
+      inSlope: 0.004868941
+      outSlope: 0.004868941
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.25
+      value: 1
+      inSlope: 0.0000013495392
+      outSlope: 0.0000013495392
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 1
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &152916059270972665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -848,6 +881,54 @@ MonoBehaviour:
     type: 3}
   ProjectileSpawnPoint: {fileID: 0}
   AnimatedProjectileInstance: {fileID: 0}
+  ChargingReticleAnimationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 2
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  FiringReticleAnimationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 2
+      inSlope: -2
+      outSlope: -2
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: -2
+      outSlope: -2
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &5352475266119036259
 GameObject:
   m_ObjectHideFlags: 0

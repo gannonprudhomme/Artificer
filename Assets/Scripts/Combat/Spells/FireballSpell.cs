@@ -29,12 +29,15 @@ public class FireballSpell : Spell {
     [Tooltip("Particle system which plays when we shoot from the right hand")]
     public ParticleSystem? RightShootParticleSystem;
 
+    [Tooltip("Curve over the lifetime of the spell (animation) that we animate the position of the reticle with")]
+    public AnimationCurve? ReticleAnimationCurve;
+
     /** Abstract Spell Properties **/
 
     // How much charge (1.0f is a charge) is restored a second
     // This should be set so it takes 1.3 sec to restore a charge (it's not rn)
     public override float ChargeRate => 1f / 1.3f; // 1 charge per 1.3 seconds (~0.77 charges per second)
-    public override int MaxNumberOfCharges => 5; // Maybe rename to MaxCharge
+    public override int MaxNumberOfCharges => 4; // Maybe rename to MaxCharge
     public override bool DoesBlockOtherSpells => true;
     public override bool IsBlockedByOtherSpells => true;
     // There's gotta be some way to configure this
@@ -48,6 +51,9 @@ public class FireballSpell : Spell {
 
     // how long we force the player to look forward after we shot
     private const float lookForwardDuration = 1.5f;
+    // Note this plays at 1.5x speed so technically this is wrong?
+    // but I adjusted for it in the reticle animation curve so w/e
+    private readonly float animationDuration = 0.625f; 
 
     private bool shouldFireWithLeftArm = false;
 
@@ -173,8 +179,13 @@ public class FireballSpell : Spell {
         }
     }
 
-    public override Texture2D? GetAimTexture() {
-        return null;
+    public override float? GetInnerReticleMultiplier() {
+        bool isFiringAnimation = (Time.time - lastTimeShot) < animationDuration;
+        if (!isFiringAnimation) {
+            return null;
+        }
+
+        return ReticleAnimationCurve!.Evaluate((Time.time - lastTimeShot) / animationDuration);
     }
 
     public override bool ShouldForceLookForward() {

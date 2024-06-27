@@ -20,7 +20,7 @@ using UnityEngine.Animations.Rigging;
     typeof(Animator),
     typeof(PlayerCameraController)
 )]
-public class PlayerController : Entity, AimDelegate {
+public class PlayerController : Entity {
     /** PROPERTIES **/
 
     [Header("References")]
@@ -139,15 +139,8 @@ public class PlayerController : Entity, AimDelegate {
     protected override float StartingBaseDamage => 12f;
     public override float CurrentBaseDamage => StartingBaseDamage + ((experience!.currentLevel - 1) * 2.4f);
 
-    public Texture2D? CurrentAimTexture { get; private set; }
 
     /** FUNCTIONS **/
-
-    protected override void Awake() {
-        base.Awake();
-        // add this as an actor I guess?
-        // I find it a little odd that we have to do that
-    }
 
     protected override void Start() {
         base.Start();
@@ -201,8 +194,6 @@ public class PlayerController : Entity, AimDelegate {
         HandlePlayerShader();
 
         SetPlayerAnimationVelocity();
-
-        DetermineCrosshairTexture();
 
         cameraController!.IsPlayerSprinting = isSprinting;
     }
@@ -616,14 +607,24 @@ public class PlayerController : Entity, AimDelegate {
         }
     }
 
-    private void DetermineCrosshairTexture() {
+    public CrosshairReplacementImage? GetCurrentAimTexture() {
         if (isSprinting) {
-            CurrentAimTexture = SpintingTexture;
-        } else if (playerSpellsController!.DetermineCurrentAimTexture() is Texture2D texture) {
-            CurrentAimTexture = texture;
+            return CrosshairReplacementImage.Sprinting;
+        } else if (playerSpellsController!.DetermineCurrentAimTexture() is CrosshairReplacementImage texture) {
+            return texture;
         } else {
-            CurrentAimTexture = NormalAimTexture;
+            return null;
         }
+    }
+
+    // Unnecessary layer of indirection - we should just be able to reference the PlayerSpellsController in AimUI directly
+    // however it needs to get the aim texture from the PlayerController since we need to control the texture for sprinting
+    public float? GetCurrentReticleOffsetMultiplier() {
+        return playerSpellsController!.DetermineCurrentReticleOffsetMultipler();
+    }
+
+    public int GetPrimarySpellChargesCount() {
+        return playerSpellsController!.GetPrimarySpellChargesCount();
     }
 
     // Gets the center point of the bottom hemisphere of the character controller capsule
