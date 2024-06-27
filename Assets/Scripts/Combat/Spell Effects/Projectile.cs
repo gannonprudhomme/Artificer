@@ -71,7 +71,7 @@ public abstract class Projectile : MonoBehaviour {
     private List<Collider> ignoredColliders = new();
 
     private GameObject? owner;
-    private Affiliation ownerAffiliation;
+    protected Affiliation ownerAffiliation;
 
     // Used so we can let effects wrap up playing after a collision
     protected bool IsDead = false;
@@ -79,7 +79,7 @@ public abstract class Projectile : MonoBehaviour {
     // This is set every time we shoot rather than when a collision happens
     // so it could technically be out of date if the player levels up when this is in flight
     // but I think that's fine
-    private float entityBaseDamage = 0.0f;
+    protected float entityBaseDamage = 0.0f;
 
     /** Abstract functions **/
     protected virtual BaseStatusEffect? GetStatusEffect() { return null; }
@@ -207,23 +207,29 @@ public abstract class Projectile : MonoBehaviour {
         }
 
         // impact vfx
-        if (ImpactVfx) {
-            GameObject impactVfx = Instantiate(ImpactVfx!, point, Quaternion.LookRotation(normal));
-            
-            if (impactVfx.TryGetComponent(out VFXLightController vfxLightController)) {
-                vfxLightController.Play();
-            } else {
-                impactVfx.GetComponent<VisualEffect>().Play();
-            }
-
-            Destroy(impactVfx, ImpactVfxLifetime);
-        }
+        PlayVFX(point: point, normal: normal);
 
         if (ImpactSfxClip) {
             AudioUtility.shared.CreateSFX(ImpactSfxClip, point, AudioUtility.AudioGroups.Impact, 1f, 5f);
         }
 
         OnDeath();
+    }
+
+    protected void PlayVFX(Vector3 point, Vector3 normal) {
+        if (!ImpactVfx) {
+            return;
+        }
+
+        GameObject impactVfx = Instantiate(ImpactVfx!, point, Quaternion.LookRotation(normal));
+        
+        if (impactVfx.TryGetComponent(out VFXLightController vfxLightController)) {
+            vfxLightController.Play();
+        } else {
+            impactVfx.GetComponent<VisualEffect>().Play();
+        }
+
+        Destroy(impactVfx, ImpactVfxLifetime);
     }
 
     protected virtual void OnDeath() {
