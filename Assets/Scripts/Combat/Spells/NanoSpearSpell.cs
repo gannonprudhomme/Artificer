@@ -36,7 +36,10 @@ public class NanoSpearSpell : Spell {
     private readonly float minDamageCoefficient = 4.0f; // 400%
     private readonly float maxDamageCoefficient = 12.0f; // 1200%
 
+    private float minChargeDuration => chargeDuration * 0.3f;
     private readonly float chargeDuration = 2.0f; // It's honestly like 2 seconds? Play w/ it
+    private bool didReleaseEarly = false;
+
     private float entityBaseDamage;
     private float timeOfChargeStart = Mathf.NegativeInfinity;
     // If we're "charging" the attack (holding down the button to shoot & haven't "fired" yet)
@@ -48,6 +51,12 @@ public class NanoSpearSpell : Spell {
     private bool isPlayingFireAnimation {
         get {
             return Time.time - timeOfFireStart < fireAnimationDuration;
+        }
+    }
+
+    private bool hasReachedMinChargeDuration {
+        get {
+            return Time.time - timeOfChargeStart >= minChargeDuration;
         }
     }
 
@@ -66,6 +75,11 @@ public class NanoSpearSpell : Spell {
 
         if (isChargingAttack) {
             HandleChargingAttack();
+        }
+
+        // If we released early, wait until we've reached the min charge duration before firing
+        if (didReleaseEarly && hasReachedMinChargeDuration) {
+            EndChargeAndFire();
         }
 
         // Well ideally we wouldn't set this *every frame* but bleh whatever
@@ -111,6 +125,11 @@ public class NanoSpearSpell : Spell {
         Debug.Log("Attack button released!");
         if (!isChargingAttack) { // If we're not charging don't do anything
             return;
+        } else if (!hasReachedMinChargeDuration) {
+            didReleaseEarly = true;
+            return;
+        } else if (didReleaseEarly) { // If we've already set it, keep going
+            return;
         }
 
         EndChargeAndFire();
@@ -148,12 +167,14 @@ public class NanoSpearSpell : Spell {
     private void EndChargeAndFire() { // We released - fire!
         timeOfFireStart = Time.time;
 
+        didReleaseEarly = false; // Whether we released early or not, reset it
+
         isChargingAttack = false;
         PlayerAnimator!.SetBool("IsFiringNanoSpear", true);
         PlayerAnimator!.SetBool("IsChargingNanoSpear", false);
 
+        // TODO: I should probably normalize this so 0 is actually minChargeDuration
         float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;
-        // float damageCofficient = Mathf.Lerp(minDamageCoefficient, maxDamageCoefficient, chargePercent); // This is a bit overkill
         // Calculate the damage coefficient as a percentage of the min and max damage coefficients
         float damageCoefficient = ((maxDamageCoefficient - minDamageCoefficient) * chargePercent) + minDamageCoefficient;
 
