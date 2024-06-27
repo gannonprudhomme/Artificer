@@ -30,7 +30,7 @@ public class AimUI : MonoBehaviour {
     public RectTransform? BottomInnerReticle;
 
     [Tooltip("The dots on the right side which represent primary spell charge")]
-    public GameObject?[] primarySpellChargeImages = new GameObject[4];
+    public PrimarySpellChargeUI?[] primarySpellChargeImages = new PrimarySpellChargeUI[4];
 
     public readonly float animatedReticleStartPosition = 22.5f;
 
@@ -112,7 +112,11 @@ public class AimUI : MonoBehaviour {
         }
 
         for(int i = 0; i < primarySpellChargeImages.Length; i++) {
-            primarySpellChargeImages[i]!.SetActive(i < amount);
+            if (i < amount) {
+                primarySpellChargeImages[i]!.Show();
+            } else {
+                primarySpellChargeImages[i]!.Hide();
+            }
         }
     }
 }
