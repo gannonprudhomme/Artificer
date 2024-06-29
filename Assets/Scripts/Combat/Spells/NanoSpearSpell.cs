@@ -18,11 +18,19 @@ public class NanoSpearSpell : Spell {
     [Tooltip("What we animate (rather than actually shoot)")]
     public GameObject? AnimatedProjectileInstance;
 
+    [Header("Reticle Animation Curves")]
     [Tooltip("Curve over the lifetime of the charging that we animate the position of the reticle with from [0, 1]")]
     public AnimationCurve? ChargingReticleAnimationCurve;
 
     [Tooltip("Curve over the lifetime of the fire animation that we animate the position of the reticle with. From [0, 1]")]
     public AnimationCurve? FiringReticleAnimationCurve;
+
+    [Header("Projectile Size Animation Curves")]
+    [Tooltip("Curve for how the VFX projectile grows length-wise during the charge, normalized from [0, 1]")]
+    public AnimationCurve? ProjectileSizeAnimationCurve; // TODO: Rename to length
+
+    [Tooltip("Curve for how the VFX projectile grows on the Z-plane (x/y axii) during the charge, normalized from [0, 1]")]
+    public AnimationCurve? ProjectileHorizontalSizeAnimationCurve;
 
     // This shouldn't charge if we're currently aiming
     public override float ChargeRate => 1f / 5f; // 5 second cooldown
@@ -51,6 +59,10 @@ public class NanoSpearSpell : Spell {
 
     private float chargeEndPercentage = 0f;
     private readonly float baseReticleMultiplier = 1f;
+
+    private readonly float maxProjectileSize = 1.0f;
+
+    private readonly Vector3 chargeProjectileRotationSpeed = new(0f, 0f, 270f);
 
     private bool isPlayingFireAnimation {
         get {
@@ -121,6 +133,10 @@ public class NanoSpearSpell : Spell {
         CurrentCharge -= 1;
 
         timeOfChargeStart = Time.time;
+
+        // Do it for the first frame so we can update the size immediately upon charge
+        // We either do this or we reset the size at the end of the animation
+        HandleChargingAttack(); 
     }
 
     public override void AttackButtonReleased() { // We released - fire!
@@ -148,14 +164,16 @@ public class NanoSpearSpell : Spell {
         // idk if we need to do anything else tbh
 
         // Temporary - should be controlled by an Animation later
-        float startScale = 0.1f;
-        float endScale = 2.0f;
-
+        // Animate the scale / size change
+        
         float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;
-        float currentZScale = Mathf.Lerp(startScale, endScale, chargePercent);
+        float currentZScale = ProjectileSizeAnimationCurve!.Evaluate(chargePercent) * (maxProjectileSize);
 
-        float normalScale = 0.5f;
+        float normalScale = ProjectileHorizontalSizeAnimationCurve!.Evaluate(chargePercent) * maxProjectileSize;
         AnimatedProjectileInstance!.transform.localScale = new Vector3(normalScale, normalScale, currentZScale);
+
+        // Animate the rotation
+        AnimatedProjectileInstance!.transform.rotation *= Quaternion.Euler(chargeProjectileRotationSpeed * Time.deltaTime);
 
         MeshRenderer renderer = AnimatedProjectileInstance!.GetComponentInChildren<MeshRenderer>();
         if (renderer != null) {
