@@ -117,8 +117,6 @@ public class NanoSpearSpell : Spell {
 
         isChargingAttack = true;
 
-        Debug.Log("Starting to charge!");
-
         // Start charging (this assumes we have enough)
         CurrentCharge -= 1;
 
@@ -126,7 +124,6 @@ public class NanoSpearSpell : Spell {
     }
 
     public override void AttackButtonReleased() { // We released - fire!
-        Debug.Log("Attack button released!");
         if (!isChargingAttack) { // If we're not charging don't do anything
             return;
         } else if (!hasReachedMinChargeDuration) {
@@ -182,7 +179,7 @@ public class NanoSpearSpell : Spell {
         // Calculate the damage coefficient as a percentage of the min and max damage coefficients
         float damageCoefficient = ((maxDamageCoefficient - minDamageCoefficient) * chargePercent) + minDamageCoefficient;
 
-        Vector3 direction = FireballSpell.GetProjectileDirection(
+        Vector3 direction = FireballSpell.GetProjectileDirection( // Note we're just reusing the function, not related to Fireball
             spellCamera: spellCamera!,
             muzzlePosition: ProjectileSpawnPoint!.position,
             playerLayerToIgnore: (LayerMask)layerToIgnore! // Why is this weird

@@ -14,10 +14,10 @@ class InputConstants {
     public const string Sprint = "Sprint";
     public const string Jump = "Jump";
     public const string Dash = "Jump";
-    public const string FirstAttack = "FirstAttack";
-    public const string SecondAttack = "SecondAttack";
-    public const string ThirdAttack = "ThirdAttack";
-    public const string FourthAttack = "FourthAttack";
+    public const string FirstAttack = "FirstAttack"; // Fireball
+    public const string SecondAttack = "SecondAttack"; // Nano Spear
+    public const string ThirdAttack = "ThirdAttack"; // Ice Wall
+    public const string FourthAttack = "FourthAttack"; // Ion Surge
     public const string Interact = "Interact";
 }
 

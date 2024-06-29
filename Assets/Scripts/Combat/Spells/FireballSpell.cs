@@ -102,7 +102,7 @@ public class FireballSpell : Spell {
     // We have enough charges - fire a projectile
     public override void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
-        GameObject owner,
+        GameObject player,
         Camera spellCamera,
 		float playerBaseDamage,
         LayerMask layerToIgnore
@@ -110,7 +110,7 @@ public class FireballSpell : Spell {
         // TODO: Should I spawn this on the player
         AudioUtility.shared.CreateSFX(
             ShootSfx,
-            spellCamera.transform.position,
+            player.transform.position,
             AudioUtility.AudioGroups.WeaponShoot,
             0f,
             10f
@@ -144,7 +144,7 @@ public class FireballSpell : Spell {
             Quaternion.LookRotation(direction)
         );
 
-        newProjectile.Shoot(owner, Affiliation.Player, spellCamera, playerBaseDamage);
+        newProjectile.Shoot(player, Affiliation.Player, spellCamera, playerBaseDamage);
 
         lastTimeShot = Time.time;
 

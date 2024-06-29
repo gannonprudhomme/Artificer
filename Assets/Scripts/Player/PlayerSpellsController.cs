@@ -58,12 +58,12 @@ public class PlayerSpellsController : MonoBehaviour {
 
         // We could do this way better
         spells[0] = FireballSpell!;
-        spells[2] = IonSurgeJumpSpell!;
-        spells[3] = NanoSpearSpell!;
-        
-        if (SecondSpellPrefab != null) { // probs just want to yell if this is null, idk
-            spells[1] = Instantiate(SecondSpellPrefab, RightArmSpellSpawnPoint!);
+        spells[1] = NanoSpearSpell!;
+        if (SecondSpellPrefab != null) {
+            spells[2] = Instantiate(SecondSpellPrefab, RightArmSpellSpawnPoint!);
         }
+        spells[3] = IonSurgeJumpSpell!;
+        
 
 		player = GetComponent<PlayerController>();
 	    if (!player) {
