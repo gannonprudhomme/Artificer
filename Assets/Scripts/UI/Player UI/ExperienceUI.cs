@@ -8,15 +8,19 @@ public class ExperienceUI : MonoBehaviour {
     [Tooltip("The image used to show how much experience the player has")]
     public Image ExperienceFillImage;
 
+    [Tooltip("Text used for setting the player's current level in the bottom right")]
+    public TextMeshProUGUI CurrentLevelTextBottomRight;
+
     [Tooltip("Text used for setting the player's current level")]
-    public TextMeshProUGUI CurrentLevelText;
+    public TextMeshProUGUI CurrentLevelTextTopRight;
 
     [Tooltip("Reference to the experience component of the player")]
     public Experience Experience;
 
     // Start is called before the first frame update
     void Start() {
-        CurrentLevelText.text = $"{Experience.currentLevel}";
+        CurrentLevelTextBottomRight.text = $"{Experience.currentLevel}";
+        CurrentLevelTextTopRight.text = $"Lv. {Experience.currentLevel}";
     }
 
     // Update is called once per frame
@@ -30,6 +34,7 @@ public class ExperienceUI : MonoBehaviour {
         float percentage = (float) substracted / (float) experienceBetweenLevels;
 
         ExperienceFillImage.fillAmount = percentage;
-        CurrentLevelText.text = $"{Experience.currentLevel}";
+        CurrentLevelTextBottomRight.text = $"{Experience.currentLevel}";
+        CurrentLevelTextTopRight.text = $"Lv. {Experience.currentLevel}";
     }
 }
