@@ -31,6 +31,7 @@ public class IonSurgeJumpSpell : Spell {
     [Tooltip("Light prefab for when the spell is triggered")]
     public Light? ExplosionLightPrefab;
 
+    // TODO: Replace this with VFXLightController?
     [Tooltip("Curve to multiply the intensity of the light by")]
     public AnimationCurve? LightIntensityCurve;
 

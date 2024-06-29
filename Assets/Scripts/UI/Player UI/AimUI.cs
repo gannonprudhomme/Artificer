@@ -5,13 +5,14 @@ using UnityEngine.UI;
 
 #nullable enable
 
+// I should probably just rename this to Crosshair UI
 public class AimUI : MonoBehaviour {
     [Header("General")]
     [Tooltip("The parent of the crosshair images. Used so we can hide it when sprinting / etc")]
     public GameObject? CrosshairParent;
 
     [Tooltip("Reference to the Player Controller")]
-    public PlayerController? aimDelegate;
+    public PlayerController? aimDelegate; // Shouldn't this be the spells controller?
 
     [Header("Replacement Images")]
     [Tooltip("The image that replaces the crosshair when we're sprinting / aiming the ice wall / etc")]

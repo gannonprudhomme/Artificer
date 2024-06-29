@@ -23,6 +23,12 @@ public class SpellChargeUI : MonoBehaviour {
             fillAmount = 1;
         }
 
+        if (spell.MaxNumberOfCharges > 1) {
+            SpellChargeText.enabled = true;
+        } else {
+            SpellChargeText.enabled = false;
+        }
+
         SpellFillImage.fillAmount = fillAmount;
         SpellChargeText.text = $"{(int) spell.CurrentCharge}";
     }
