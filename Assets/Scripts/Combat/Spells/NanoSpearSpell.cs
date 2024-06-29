@@ -192,7 +192,7 @@ public class NanoSpearSpell : Spell {
         NanoSpearProjectile projectile = Instantiate(
             ProjectilePrefab!,
             ProjectileSpawnPoint!.transform.position,
-            spellCamera!.transform.rotation
+            Quaternion.LookRotation(direction)
         );
 
         projectile.Shoot(
