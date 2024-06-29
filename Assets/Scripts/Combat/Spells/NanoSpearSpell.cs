@@ -62,7 +62,7 @@ public class NanoSpearSpell : Spell {
 
     private readonly float maxProjectileSize = 1.0f;
 
-    private readonly Vector3 chargeProjectileRotationSpeed = new(0f, 0f, 270f);
+    private readonly Vector3 chargeProjectileRotationSpeed = new(0f, 0f, 360f * 1.5f);
 
     private bool isPlayingFireAnimation {
         get {
@@ -123,6 +123,8 @@ public class NanoSpearSpell : Spell {
             return;
         }
 
+        // Start charging! This will only be called once (next time isChargingAttack will be true)
+
         PlayerAnimator!.SetBool("IsChargingNanoSpear", true);
 
         AnimatedProjectileInstance!.SetActive(true);
@@ -136,7 +138,7 @@ public class NanoSpearSpell : Spell {
 
         // Do it for the first frame so we can update the size immediately upon charge
         // We either do this or we reset the size at the end of the animation
-        HandleChargingAttack(); 
+        HandleChargingAttack();
     }
 
     public override void AttackButtonReleased() { // We released - fire!
