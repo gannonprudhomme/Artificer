@@ -50,7 +50,8 @@ MonoBehaviour:
   Root: {fileID: 354397012903801792}
   Tip: {fileID: 6066423910050326419}
   MaxLifeTime: 5
-  ImpactVfx: {fileID: 0}
+  ImpactVfx: {fileID: 2446121693699218566, guid: 24c330947ee316d4d89b616c504b0de1,
+    type: 3}
   ImpactVfxLifetime: 5
   ImpactSfxClip: {fileID: 0}
   HittableLayers:
@@ -110,7 +111,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 0e4c8060eb91336438ce39f626f3ee0b, type: 2}
+      objectReference: {fileID: 2100000, guid: 4a6f186998fff3645b65a53ba163be11, type: 2}
     - target: {fileID: 3965999106406022701, guid: 333b16aac59365444afe6d25d8a72071,
         type: 3}
       propertyPath: m_LocalScale.x
