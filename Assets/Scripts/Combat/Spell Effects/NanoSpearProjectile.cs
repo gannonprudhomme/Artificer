@@ -5,7 +5,7 @@ using UnityEngine;
 #nullable enable
 
 public class NanoSpearProjectile : Projectile {
-    // AnimationController?
+    // TODO: I have to make a prefab for the VFX and that's dumb - probably just make a note about it
 
     // Entities we've already hit that we're going to now
     private List<Entity> alreadyDamagedEntities = new();
@@ -28,7 +28,6 @@ public class NanoSpearProjectile : Projectile {
 
         } else {
             // We didn't hit something, so it's probably the ground - the lifetime of the projectile is over!
-            Debug.Log($"Hit {collider.gameObject.name} - dying");
             OnDeath();
         }
 
