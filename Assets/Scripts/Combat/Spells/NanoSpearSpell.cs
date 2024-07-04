@@ -18,6 +18,11 @@ public class NanoSpearSpell : Spell {
     [Tooltip("What we animate (rather than actually shoot)")]
     public GameObject? AnimatedProjectileInstance;
 
+    [Header("VFX Instances")]
+    [Tooltip("VFX 'flakes' instance that plays around the projectile when charging")]
+    public VisualEffect? FlakesChargeProjectileVFXInstance;
+
+
     [Header("Reticle Animation Curves")]
     [Tooltip("Curve over the lifetime of the charging that we animate the position of the reticle with from [0, 1]")]
     public AnimationCurve? ChargingReticleAnimationCurve;
@@ -26,10 +31,10 @@ public class NanoSpearSpell : Spell {
     public AnimationCurve? FiringReticleAnimationCurve;
 
     [Header("Projectile Size Animation Curves")]
-    [Tooltip("Curve for how the VFX projectile grows length-wise during the charge, normalized from [0, 1]")]
+    [Tooltip("Curve for how the VFX projectile grows length-wise during the charge, NOT normalized")]
     public AnimationCurve? ProjectileSizeAnimationCurve; // TODO: Rename to length
 
-    [Tooltip("Curve for how the VFX projectile grows on the Z-plane (x/y axii) during the charge, normalized from [0, 1]")]
+    [Tooltip("Curve for how the VFX projectile grows on the Z-plane (x/y axii) during the charge, NOT normalized")]
     public AnimationCurve? ProjectileHorizontalSizeAnimationCurve;
 
     // This shouldn't charge if we're currently aiming
@@ -139,6 +144,8 @@ public class NanoSpearSpell : Spell {
         // Do it for the first frame so we can update the size immediately upon charge
         // We either do this or we reset the size at the end of the animation
         HandleChargingAttack();
+
+        FlakesChargeProjectileVFXInstance!.Play();
     }
 
     public override void AttackButtonReleased() { // We released - fire!
@@ -162,17 +169,15 @@ public class NanoSpearSpell : Spell {
             return;
         }
 
-        // Animate? This stuff should have already kicked off
-        // idk if we need to do anything else tbh
-
-        // Temporary - should be controlled by an Animation later
-        // Animate the scale / size change
         
         float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;
         float currentZScale = ProjectileSizeAnimationCurve!.Evaluate(chargePercent) * (maxProjectileSize);
 
         float normalScale = ProjectileHorizontalSizeAnimationCurve!.Evaluate(chargePercent) * maxProjectileSize;
         AnimatedProjectileInstance!.transform.localScale = new Vector3(normalScale, normalScale, currentZScale);
+
+        // Pass it to the VFX so it can spawn in the correct position
+        FlakesChargeProjectileVFXInstance!.SetFloat("Charge Projectils Z Scale", currentZScale);
 
         // Animate the rotation
         AnimatedProjectileInstance!.transform.rotation *= Quaternion.Euler(chargeProjectileRotationSpeed * Time.deltaTime);
@@ -193,6 +198,9 @@ public class NanoSpearSpell : Spell {
         isChargingAttack = false;
         PlayerAnimator!.SetBool("IsFiringNanoSpear", true);
         PlayerAnimator!.SetBool("IsChargingNanoSpear", false);
+
+        FlakesChargeProjectileVFXInstance!.Stop();
+
 
         // TODO: I should probably normalize this so 0 is actually minChargeDuration
         float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;
