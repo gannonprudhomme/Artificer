@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.VFX;
 
 #nullable enable
 
@@ -22,6 +23,11 @@ public class NanoSpearSpell : Spell {
     [Tooltip("VFX 'flakes' instance that plays around the projectile when charging")]
     public VisualEffect? FlakesChargeProjectileVFXInstance;
 
+    [Tooltip("VFX instance that plays on the left hand when we fire")]
+    public VisualEffect? LeftHandFireVFXInstance;
+
+    [Tooltip("VFX instance that plays on the right hand when we fire")]
+    public VisualEffect? RightHandFireVFXInstance;
 
     [Header("Reticle Animation Curves")]
     [Tooltip("Curve over the lifetime of the charging that we animate the position of the reticle with from [0, 1]")]
@@ -182,6 +188,7 @@ public class NanoSpearSpell : Spell {
         // Animate the rotation
         AnimatedProjectileInstance!.transform.rotation *= Quaternion.Euler(chargeProjectileRotationSpeed * Time.deltaTime);
 
+        // Pass the charge percent (age) to the charge projectile color shader
         MeshRenderer renderer = AnimatedProjectileInstance!.GetComponentInChildren<MeshRenderer>();
         if (renderer != null) {
             renderer.material.SetFloat("_Age", chargePercent);
@@ -201,6 +208,8 @@ public class NanoSpearSpell : Spell {
 
         FlakesChargeProjectileVFXInstance!.Stop();
 
+        LeftHandFireVFXInstance!.Play();
+        RightHandFireVFXInstance!.Play();
 
         // TODO: I should probably normalize this so 0 is actually minChargeDuration
         float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;
