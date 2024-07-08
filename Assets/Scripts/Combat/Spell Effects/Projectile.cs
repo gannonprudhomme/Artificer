@@ -208,11 +208,7 @@ public abstract class Projectile : MonoBehaviour {
 
         // impact vfx
         PlayVFX(point: point, normal: normal);
-
-        if (ImpactSfxClip) {
-            AudioUtility.shared.CreateSFX(ImpactSfxClip, point, AudioUtility.AudioGroups.Impact, 1f, 5f);
-        }
-
+        PlaySFX(point: point);
         OnDeath();
     }
 
@@ -230,6 +226,18 @@ public abstract class Projectile : MonoBehaviour {
         }
 
         Destroy(impactVfx, ImpactVfxLifetime);
+    }
+
+    protected void PlaySFX(Vector3 point) {
+        if (!ImpactSfxClip) return;
+
+        AudioUtility.shared.CreateSFX(
+            clip: ImpactSfxClip,
+            position: point,
+            audioGroup: AudioUtility.AudioGroups.Impact,
+            spatialBlend: 1f,
+            rolloffDistanceMin: 5f
+        );
     }
 
     protected virtual void OnDeath() {

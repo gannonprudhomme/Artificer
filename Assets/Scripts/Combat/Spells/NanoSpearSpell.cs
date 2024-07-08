@@ -10,6 +10,8 @@ using UnityEngine.VFX;
 // They will need to start charging and then sprint, and repeat this for each attack.
 public class NanoSpearSpell : Spell {
     [Header("General (Nano Spear Spell)")]
+    public AudioClip? ChargeSFX;
+
     [Tooltip("Prefab for the Nano Spear Projectile")]
     public NanoSpearProjectile? ProjectilePrefab;
 
@@ -89,6 +91,7 @@ public class NanoSpearSpell : Spell {
 
     private LayerMask? layerToIgnore;
     private Camera? spellCamera;
+    private GameObject? chargeSound;
 
     // Start is called before the first frame update
     private void Start() {
@@ -152,6 +155,15 @@ public class NanoSpearSpell : Spell {
         HandleChargingAttack();
 
         FlakesChargeProjectileVFXInstance!.Play();
+
+        // Play charge sound
+        chargeSound = AudioUtility.shared.CreateSFX(
+            clip: ChargeSFX!,
+            position: transform.position,
+            audioGroup: AudioUtility.AudioGroups.WeaponShoot,
+            spatialBlend: 0.0f,
+            rolloffDistanceMin: 10.0f
+        );
     }
 
     public override void AttackButtonReleased() { // We released - fire!
@@ -210,6 +222,20 @@ public class NanoSpearSpell : Spell {
 
         LeftHandFireVFXInstance!.Play();
         RightHandFireVFXInstance!.Play();
+
+        // If it hasn't been destroyed yet, destroy the charge sound so it stops playing
+        if (chargeSound != null) {
+            Destroy(chargeSound);
+        }
+
+        // Play fire sound
+        AudioUtility.shared.CreateSFX(
+            clip: ShootSfx!,
+            position: transform.position,
+            audioGroup: AudioUtility.AudioGroups.WeaponShoot,
+            spatialBlend: 0.0f,
+            rolloffDistanceMin: 10.0f
+        );
 
         // TODO: I should probably normalize this so 0 is actually minChargeDuration
         float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;

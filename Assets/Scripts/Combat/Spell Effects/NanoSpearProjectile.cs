@@ -31,8 +31,9 @@ public class NanoSpearProjectile : Projectile {
             OnDeath();
         }
 
-        // Figure we'll want to play VFX on whatever we hit
         PlayVFX(point: point, normal: normal);
+
+        PlaySFX(point: point);
     }
 
     protected override BaseStatusEffect? GetStatusEffect() {
