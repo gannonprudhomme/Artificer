@@ -58,4 +58,6 @@ public abstract class Spell : MonoBehaviour {
     public abstract bool CanShootWhereAiming(Vector3 muzzlePosition, Camera spellCamera);
 
     public virtual bool ShouldForceLookForward() { return false; }
+
+    public abstract bool ShouldCancelSprinting();
 }

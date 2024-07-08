@@ -77,6 +77,8 @@ public class NanoSpearSpell : Spell {
 
     private readonly Vector3 chargeProjectileRotationSpeed = new(0f, 0f, 360f * 1.5f);
 
+    private readonly float cancelSprintDuration = 0.2f;
+
     private bool isPlayingFireAnimation {
         get {
             return Time.time - timeOfFireStart < fireAnimationDuration;
@@ -170,11 +172,14 @@ public class NanoSpearSpell : Spell {
         if (!isChargingAttack) { // If we're not charging don't do anything
             return;
         } else if (!hasReachedMinChargeDuration) {
+            Debug.Log("Nano Spear charge released early!");
             didReleaseEarly = true;
             return;
         } else if (didReleaseEarly) { // If we've already set it, keep going
             return;
         }
+
+        Debug.Log("Firing Nano spear b/c released!");
 
         EndChargeAndFire();
     }
@@ -183,6 +188,7 @@ public class NanoSpearSpell : Spell {
     private void HandleChargingAttack() {
         bool isChargeCompleted = Time.time - timeOfChargeStart >= chargeDuration;
         if (isChargeCompleted) {
+            Debug.Log("Firing nano spear b/c charge completed!");
             EndChargeAndFire();
             return;
         }
@@ -290,6 +296,11 @@ public class NanoSpearSpell : Spell {
 
     public override bool ShouldForceLookForward() {
         return isChargingAttack || isPlayingFireAnimation;
+    }
+
+    // it should only cancel the start of the charge - we should be able to sprint while charging otherwise
+    public override bool ShouldCancelSprinting() {
+        return Time.time - timeOfChargeStart < cancelSprintDuration;
     }
 
     public override float? GetInnerReticleMultiplier() {

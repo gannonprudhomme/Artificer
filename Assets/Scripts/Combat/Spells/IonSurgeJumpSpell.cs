@@ -136,4 +136,8 @@ public class IonSurgeJumpSpell : Spell {
     public override bool CanShootWhereAiming(Vector3 muzzlePosition, Camera spellCamera) {
         return true;
     }
+
+    public override bool ShouldCancelSprinting() {
+        return Time.time - timeOfLastFire < animationDuration;
+    }
 }

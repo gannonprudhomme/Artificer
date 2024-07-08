@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 class InputConstants {
@@ -33,6 +31,7 @@ public class InputHandler : MonoBehaviour {
     // bool fireInputWasHeld;
     bool firstAttackWasHeld;
     bool secondAttackWasHeld;
+    bool sprintWasHeld;
     bool interactWasHeld;
 
     // Start is called before the first frame update
@@ -45,6 +44,7 @@ public class InputHandler : MonoBehaviour {
     void LateUpdate() {
         firstAttackWasHeld = GetFirstAttackInputHeld();
         secondAttackWasHeld = GetSecondAttackInputHeld();
+        sprintWasHeld = GetSprintInputHeld();
         interactWasHeld = GetInteractInputHeld();
     }
 
@@ -139,9 +139,17 @@ public class InputHandler : MonoBehaviour {
         return Input.GetButton(InputConstants.Aim);
     }
 
+    public bool GetSprintInputDown() {
+        return GetSprintInputHeld() && !sprintWasHeld;
+    }
+
     public bool GetSprintInputHeld() {
         return Input.GetButton(InputConstants.Sprint);
     }
+
+    public bool GetSprintInputReleased() {
+        return !GetSprintInputHeld() && sprintWasHeld;
+    } 
 
     public bool GetInteractInputDown() {
         return GetInteractInputHeld() && !interactWasHeld;

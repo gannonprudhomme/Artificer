@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 #nullable enable
 
@@ -29,7 +26,7 @@ public class PlayerSpellsController : MonoBehaviour {
     [Header("Spells")]
     public FireballSpell? FireballSpell;
 
-    public IceWallSpell? SecondSpellPrefab;
+    public IceWallSpell? IceWallSpell;
 
     public IonSurgeJumpSpell? IonSurgeJumpSpell;
 
@@ -59,11 +56,8 @@ public class PlayerSpellsController : MonoBehaviour {
         // We could do this way better
         spells[0] = FireballSpell!;
         spells[1] = NanoSpearSpell!;
-        if (SecondSpellPrefab != null) {
-            spells[2] = Instantiate(SecondSpellPrefab, RightArmSpellSpawnPoint!);
-        }
+        spells[2] = IceWallSpell!;
         spells[3] = IonSurgeJumpSpell!;
-        
 
 		player = GetComponent<PlayerController>();
 	    if (!player) {
@@ -95,7 +89,7 @@ public class PlayerSpellsController : MonoBehaviour {
     void HandleAttackInput() {
         for(int i = 0; i < spells.Length; i++) {
             if (GetAttackInputHeld(index: i)) {
-                if (spells[i].CanShoot()) {
+                if (spells[i].CanShoot()) { // I want to remove this kind of & just leave it up to the spells
                     spells[i].AttackButtonHeld(
                         muzzlePositions: (LeftArmSpellSpawnPoint!.transform.position, RightArmSpellSpawnPoint!.transform.position),
                         owner: this.gameObject,
@@ -112,6 +106,16 @@ public class PlayerSpellsController : MonoBehaviour {
 
     public int GetPrimarySpellChargesCount() {
         return (int) spells[0].CurrentCharge;
+    }
+
+    public bool ShouldCancelSprinting() {
+        foreach(var spell in spells) {
+            if (spell.ShouldCancelSprinting()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public CrosshairReplacementImage? DetermineCurrentAimTexture() {

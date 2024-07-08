@@ -112,7 +112,7 @@ public class PlayerController : Entity {
 
     public float lastTimeJumped = Mathf.NegativeInfinity;
 
-    // So I think this has to be public? But set it to private for now
+    private bool isSprintToggled = false;
     private bool isSprinting = false;
     private bool IsGrounded = true;
 
@@ -254,7 +254,7 @@ public class PlayerController : Entity {
     // Called by Update()
     private void HandleCharacterMovement() {
         // character movement handling
-        isSprinting = inputHandler!.GetSprintInputHeld();
+        DetermineIsSprinting();
         float speedModifier = isSprinting ? SprintSpeedModifier : 1f;
 
         // Note this function also changes transform.rotation (yes this is bad design)
@@ -596,6 +596,22 @@ public class PlayerController : Entity {
         if (!areAimingAtInteractable) {
             currentAimedAtInteractable = null;
         }
+    }
+
+    private void DetermineIsSprinting() {
+        // First, read the input to see if it's toggled or not
+        if (inputHandler!.GetSprintInputDown()) {
+            isSprintToggled = !isSprintToggled;
+        }
+
+        bool isForwardButtonHeld = inputHandler!.GetMoveInput().z > 0.1f;
+
+        // If we're not holding forward or a spell is preventing us from sprinting, cancel sprinting
+        if (!isForwardButtonHeld || playerSpellsController!.ShouldCancelSprinting()) {
+            isSprintToggled = false;
+        }
+
+        isSprinting = isSprintToggled && isForwardButtonHeld;
     }
 
     // Handling pressing E to interact

@@ -242,4 +242,8 @@ public class IceWallSpell : Spell {
 
         return false;
     }
+
+    public override bool ShouldCancelSprinting() {
+        return wasChargingLastFrame;
+    }
 }

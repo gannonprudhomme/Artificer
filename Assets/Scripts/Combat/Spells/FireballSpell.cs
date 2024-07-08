@@ -49,6 +49,7 @@ public class FireballSpell : Spell {
     private VisualEffect? fireVisualEffectInstance;
     private float lastTimeShot = Mathf.NegativeInfinity;
 
+    private const float cancelSprintDuration = 0.3f;
     // how long we force the player to look forward after we shot
     private const float lookForwardDuration = 1.5f;
     // Note this plays at 1.5x speed so technically this is wrong?
@@ -186,5 +187,9 @@ public class FireballSpell : Spell {
 
     public override bool ShouldForceLookForward() {
         return (Time.time - lastTimeShot) < lookForwardDuration;
+    }
+
+    public override bool ShouldCancelSprinting() {
+        return (Time.time - lastTimeShot) < cancelSprintDuration;
     }
 }
