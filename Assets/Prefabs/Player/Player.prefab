@@ -1143,6 +1143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShootSfx: {fileID: 0}
   CurrentCharge: 1
+  ChargeSFX: {fileID: 0}
   ProjectilePrefab: {fileID: 3680103958273619034, guid: d08379cb3752f2143b80c4e610223d90,
     type: 3}
   ProjectileSpawnPoint: {fileID: 1680490619059482196}
@@ -1422,7 +1423,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5591424592817854528}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.6531095, y: -0.0014208563, z: -0.016176626, w: 0.7570893}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.036519367, y: -0.8091991, z: 2.3811502}
   m_LocalScale: {x: 0.84001905, y: 0.8206077, z: 0.8383948}
   m_ConstrainProportionsScale: 0
@@ -2513,6 +2514,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Nano Spear Crystal
       objectReference: {fileID: 0}
+    - target: {fileID: -6347919006286127696, guid: 333b16aac59365444afe6d25d8a72071,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -5487234514125397636, guid: 333b16aac59365444afe6d25d8a72071,
         type: 3}
       propertyPath: endTime
@@ -2523,6 +2529,21 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 1458ee576284f8247962d732a1fa7b3b, type: 2}
+    - target: {fileID: 4451095640041635642, guid: 333b16aac59365444afe6d25d8a72071,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4451095640041635642, guid: 333b16aac59365444afe6d25d8a72071,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4451095640041635642, guid: 333b16aac59365444afe6d25d8a72071,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4451095640041635642, guid: 333b16aac59365444afe6d25d8a72071,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2541,12 +2562,12 @@ PrefabInstance:
     - target: {fileID: 4451095640041635642, guid: 333b16aac59365444afe6d25d8a72071,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7313538
       objectReference: {fileID: 0}
     - target: {fileID: 4451095640041635642, guid: 333b16aac59365444afe6d25d8a72071,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.6819983
       objectReference: {fileID: 0}
     - target: {fileID: 4451095640041635642, guid: 333b16aac59365444afe6d25d8a72071,
         type: 3}
@@ -2561,7 +2582,7 @@ PrefabInstance:
     - target: {fileID: 4451095640041635642, guid: 333b16aac59365444afe6d25d8a72071,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 86
       objectReference: {fileID: 0}
     - target: {fileID: 4451095640041635642, guid: 333b16aac59365444afe6d25d8a72071,
         type: 3}
