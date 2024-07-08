@@ -9,7 +9,6 @@ using UnityEngine.VFX;
 public class IonSurgeJumpSpell : Spell {
     public override float ChargeRate => 1f / 8f; // 8 second cooldown
     public override int MaxNumberOfCharges => 1;
-    public override Color SpellColor => Color.blue;
     public override bool DoesBlockOtherSpells => false;
     public override bool IsBlockedByOtherSpells => false;
 
@@ -96,6 +95,10 @@ public class IonSurgeJumpSpell : Spell {
         float entityBaseDamage,
         LayerMask layerToIgnore
     ) {
+        if (!CanShoot()) {
+            return;
+        }
+
         CurrentCharge -= 1;
 
         DamageArea!.InflictDamageOverArea(
@@ -129,7 +132,7 @@ public class IonSurgeJumpSpell : Spell {
         );
     }
 
-    public override bool CanShoot() { // This is basically AttackButtonHeld() lol
+    protected override bool CanShoot() { // This is basically AttackButtonHeld() lol
         return CurrentCharge >= MaxNumberOfCharges;
     }
 
@@ -139,5 +142,9 @@ public class IonSurgeJumpSpell : Spell {
 
     public override bool ShouldCancelSprinting() {
         return Time.time - timeOfLastFire < animationDuration;
+    }
+
+    public override bool ShouldBlockOtherSpells() {
+        return false;
     }
 }

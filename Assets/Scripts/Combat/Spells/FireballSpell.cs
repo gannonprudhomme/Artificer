@@ -42,7 +42,6 @@ public class FireballSpell : Spell {
     public override bool IsBlockedByOtherSpells => true;
     // There's gotta be some way to configure this
     // maybe make this retrieve a value set from Unity?
-    public override Color SpellColor => SpellColorForUI;
 
     /** Local variables **/
 
@@ -90,14 +89,16 @@ public class FireballSpell : Spell {
     }
 
     // If this doesn't get more complicated, this should be a property (computed var) probably?
-    public override bool CanShoot() {
-        // Should we check "Blocked by other spells" here?
-        // Or in PlayerSpellsController
+    protected override bool CanShoot() {
+        // Prevent this from being shot if a blocking spell is active
+        if (IsBlockingSpellActive) {
+            return false;
+        }
 
         bool hasEnoughCharge = CurrentCharge >= CHARGE_PER_SHOT;
         bool enoughTimeSinceLastShot = (Time.time - lastTimeShot) >= DelayBetweenShots;
 
-        return hasEnoughCharge && enoughTimeSinceLastShot;
+        return hasEnoughCharge && enoughTimeSinceLastShot && !IsBlockingSpellActive;
     }
 
     // We have enough charges - fire a projectile
@@ -108,6 +109,10 @@ public class FireballSpell : Spell {
 		float playerBaseDamage,
         LayerMask layerToIgnore
     ) {
+        if (!CanShoot()) {
+            return;
+        }
+    
         // TODO: Should I spawn this on the player
         AudioUtility.shared.CreateSFX(
             ShootSfx,
@@ -191,5 +196,9 @@ public class FireballSpell : Spell {
 
     public override bool ShouldCancelSprinting() {
         return (Time.time - lastTimeShot) < cancelSprintDuration;
+    }
+
+    public override bool ShouldBlockOtherSpells() {
+        return false;
     }
 }

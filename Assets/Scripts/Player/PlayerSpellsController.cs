@@ -75,31 +75,77 @@ public class PlayerSpellsController : MonoBehaviour {
         IsForcingAimLookForward = false;
     }
 
-    void Start() {
-        // Can we do this in Awake()?
+    private void Start() {
         inputHandler = GetComponent<InputHandler>();
     }
 
-    // Update is called once per frame
-    void Update() {
+    private void Update() {
         HandleAttackInput();
+
         IsForcingAimLookForward = DetermineIsForceLookingForward();
+
+        HandleSpellBlocking();
+        HandleSpellCancelling();
     }
 
-    void HandleAttackInput() {
+    private void HandleAttackInput() {
         for(int i = 0; i < spells.Length; i++) {
             if (GetAttackInputHeld(index: i)) {
-                if (spells[i].CanShoot()) { // I want to remove this kind of & just leave it up to the spells
-                    spells[i].AttackButtonHeld(
-                        muzzlePositions: (LeftArmSpellSpawnPoint!.transform.position, RightArmSpellSpawnPoint!.transform.position),
-                        owner: this.gameObject,
-                        spellCamera: SpellCamera!,
-                        currDamage: player!.CurrentBaseDamage,
-                        layerToIgnore: playerLayerMask
-                    );
-                }
+                spells[i].AttackButtonHeld(
+                    muzzlePositions: (LeftArmSpellSpawnPoint!.transform.position, RightArmSpellSpawnPoint!.transform.position),
+                    owner: this.gameObject,
+                    spellCamera: SpellCamera!,
+                    currDamage: player!.CurrentBaseDamage,
+                    layerToIgnore: playerLayerMask
+                );
             } else if (GetAttackInputReleased(index: i)) {
                 spells[i].AttackButtonReleased();
+            }
+        }
+    }
+
+    private void HandleSpellBlocking() {
+        bool isBlockingSpellActive = false;
+        int blockingSpell = -1;
+
+        for (int i = 0; i < spells.Length; i++) {
+            if (spells[i].ShouldBlockOtherSpells()) {
+                isBlockingSpellActive = true;
+                blockingSpell = i;
+                break;
+            }
+        }
+
+        for (int i = 0; i < spells.Length; i++) {
+            // Don't mark itself as being blocked
+            if (i == blockingSpell) {
+                continue;
+            }
+
+            spells[i].IsBlockingSpellActive = isBlockingSpellActive;
+        }
+    }
+
+    private void HandleSpellCancelling() {
+        // Handle cancelling
+        int cancelSpell = -1;
+        bool shouldCancel = false;
+        for(int i = 0; i < spells.Length; i++) {
+            if (spells[i].ShouldCancelOtherSpells()) {
+                shouldCancel = true;
+                cancelSpell = i;
+                break;
+            }
+        }
+
+        if (shouldCancel) {
+            for(int i = 0; i < spells.Length; i++) {
+                // Don't cancel itself
+                if (i == cancelSpell) {
+                    continue;
+                }
+
+                spells[i].Cancel();
             }
         }
     }

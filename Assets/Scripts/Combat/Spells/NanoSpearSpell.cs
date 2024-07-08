@@ -50,8 +50,6 @@ public class NanoSpearSpell : Spell {
 
     public override int MaxNumberOfCharges => 1;
 
-    public override Color SpellColor => Color.yellow;
-
     public override bool DoesBlockOtherSpells => true;
     public override bool IsBlockedByOtherSpells => true;
 
@@ -130,6 +128,10 @@ public class NanoSpearSpell : Spell {
         float entityBaseDamage,
         LayerMask layerToIgnore
     ) {
+        if (!CanShoot()) {
+            return;
+        }
+
         this.entityBaseDamage = entityBaseDamage;
         this.spellCamera = spellCamera;
         this.layerToIgnore = layerToIgnore;
@@ -172,14 +174,11 @@ public class NanoSpearSpell : Spell {
         if (!isChargingAttack) { // If we're not charging don't do anything
             return;
         } else if (!hasReachedMinChargeDuration) {
-            Debug.Log("Nano Spear charge released early!");
             didReleaseEarly = true;
             return;
         } else if (didReleaseEarly) { // If we've already set it, keep going
             return;
         }
-
-        Debug.Log("Firing Nano spear b/c released!");
 
         EndChargeAndFire();
     }
@@ -188,11 +187,9 @@ public class NanoSpearSpell : Spell {
     private void HandleChargingAttack() {
         bool isChargeCompleted = Time.time - timeOfChargeStart >= chargeDuration;
         if (isChargeCompleted) {
-            Debug.Log("Firing nano spear b/c charge completed!");
             EndChargeAndFire();
             return;
         }
-
         
         float chargePercent = (Time.time - timeOfChargeStart) / chargeDuration;
         float currentZScale = ProjectileSizeAnimationCurve!.Evaluate(chargePercent) * (maxProjectileSize);
@@ -272,9 +269,26 @@ public class NanoSpearSpell : Spell {
         AnimatedProjectileInstance!.SetActive(false);
     }
 
-    public override bool CanShoot() {
+    // Got cancelled by another spell, end it without firing
+    // This is a subset of EndChargeAndFire's logic
+    public override void Cancel() {
+        isChargingAttack = false;
+
+        PlayerAnimator!.SetBool("IsFiringNanoSpear", false);
+        PlayerAnimator!.SetBool("IsChargingNanoSpear", false);
+
+        FlakesChargeProjectileVFXInstance!.Stop();
+
+        if (chargeSound != null) {
+            Destroy(chargeSound);
+        }
+
+        AnimatedProjectileInstance!.SetActive(false);
+    }
+
+    protected override bool CanShoot() {
         // I might need to do something here w/ this
-        return CurrentCharge >= MaxNumberOfCharges;
+        return CurrentCharge >= MaxNumberOfCharges && !IsBlockingSpellActive;
     }
 
     private void Recharge() {
@@ -296,6 +310,10 @@ public class NanoSpearSpell : Spell {
 
     public override bool ShouldForceLookForward() {
         return isChargingAttack || isPlayingFireAnimation;
+    }
+
+    public override bool ShouldBlockOtherSpells() {
+        return isChargingAttack;
     }
 
     // it should only cancel the start of the charge - we should be able to sprint while charging otherwise

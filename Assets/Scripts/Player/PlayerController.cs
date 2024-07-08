@@ -598,6 +598,7 @@ public class PlayerController : Entity {
         }
     }
 
+    // Called in HandleCharacterMovement(), which is called in Update()
     private void DetermineIsSprinting() {
         // First, read the input to see if it's toggled or not
         if (inputHandler!.GetSprintInputDown()) {
@@ -682,7 +683,6 @@ public class PlayerController : Entity {
     }
 
     public void OnLevelUp(int level) {
-        Debug.Log($"Leveled up to {level}");
         // Increase health
         health!.IncreaseMaxHealth(33f);
 

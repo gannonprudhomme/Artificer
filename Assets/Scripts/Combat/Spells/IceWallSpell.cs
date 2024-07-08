@@ -8,8 +8,6 @@ using UnityEngine.VFX;
 
 public class IceWallSpell : Spell {
     [Header("Ice Wall Properties")]
-    public Color ExternalSpellColor;
-
     [Tooltip("The prefab to project on the ground so the user knows where they're aiming")]
     public GameObject? AimingDecalProjectorPrefab;
 
@@ -40,7 +38,6 @@ public class IceWallSpell : Spell {
     public override int MaxNumberOfCharges => 1;
     public override bool DoesBlockOtherSpells => true;
     public override bool IsBlockedByOtherSpells => true;
-    public override Color SpellColor => ExternalSpellColor;
 
     /** Local variables **/
 
@@ -48,7 +45,7 @@ public class IceWallSpell : Spell {
     private float timeOfLastFire = Mathf.NegativeInfinity;
     private float entityBaseDamage = 0.0f;
 
-    private bool wasChargingLastFrame = false;
+    private bool isCharging = false;
 
     // We really shouldn't have to rely on this boolean - should just do it when it's first pressed?
     private bool hasPlayedChargeAudioThisCharge = false;
@@ -62,6 +59,7 @@ public class IceWallSpell : Spell {
     private GameObject? aimingDecalProjectorInstance;
 
     private bool canShootWhereAiming = true;
+    private bool isAttackInputHeld = false;
 
     void Start() {
         CurrentCharge = MaxNumberOfCharges;
@@ -74,13 +72,13 @@ public class IceWallSpell : Spell {
 
         bool isFiring = Time.time - timeOfLastFire < fireDuration;
         PlayerAnimator!.SetBool("IsFiringIceWall", isFiring);
-        PlayerAnimator!.SetBool("IsChargingIceWall", wasChargingLastFrame);
+        PlayerAnimator!.SetBool("IsChargingIceWall", isCharging);
     }
 
     public override void AttackButtonReleased() {
         // If we were aiming at it was released, spawn the Ice Wall
-        if (wasChargingLastFrame) {
-            wasChargingLastFrame = false;
+        if (isCharging) {
+            isCharging = false;
             hasPlayedChargeAudioThisCharge = false;
 
             // Destroy the aiming thing as we're not aiming anymore
@@ -110,7 +108,7 @@ public class IceWallSpell : Spell {
 
     private void Recharge() {
         // We should probably check if we need to rProjectileecharge in the first place
-        if (wasChargingLastFrame) { // Don't recharge if we were aiming
+        if (isCharging) { // Don't recharge if we were aiming
             return;
         }
 
@@ -135,6 +133,10 @@ public class IceWallSpell : Spell {
         float entityBaseDamage,
         LayerMask layerToIgnore
     ) {
+        if (!CanShoot()) {
+            return;
+        }
+
         this.entityBaseDamage = entityBaseDamage;
 
         // We want to play the audio no matter what
@@ -174,8 +176,8 @@ public class IceWallSpell : Spell {
         eulerAngles.x = 0;
         var rotation = Quaternion.Euler(eulerAngles);
 
-        if (!wasChargingLastFrame) {
-            wasChargingLastFrame = true;
+        if (!isCharging) {
+            isCharging = true;
 
             aimingDecalProjectorInstance = Instantiate(
                 AimingDecalProjectorPrefab!,
@@ -202,9 +204,9 @@ public class IceWallSpell : Spell {
         canShootWhereAiming = true;
     }
 
-    public override bool CanShoot() {
-        bool hasEnoughCharge = CurrentCharge >= CHARGE_PER_SHOT;
-        return hasEnoughCharge;
+    protected override bool CanShoot() {
+        // Not blocked by other spells
+        return CurrentCharge >= CHARGE_PER_SHOT;
     }
 
     private void SpawnIceWall(float damagePerSpike) {
@@ -221,7 +223,7 @@ public class IceWallSpell : Spell {
     }
 
     public override CrosshairReplacementImage? GetAimTexture() {
-        if (wasChargingLastFrame) {
+        if (isCharging) {
             if (canShootWhereAiming) {
                 // return dot image
                 return CrosshairReplacementImage.Aiming!;
@@ -244,6 +246,15 @@ public class IceWallSpell : Spell {
     }
 
     public override bool ShouldCancelSprinting() {
-        return wasChargingLastFrame;
+        return isCharging;
+    }
+
+    public override bool ShouldBlockOtherSpells() {
+        return isCharging;
+    }
+
+    // It only cancels Nano Spear
+    public override bool ShouldCancelOtherSpells() {
+        return isCharging;
     }
 }

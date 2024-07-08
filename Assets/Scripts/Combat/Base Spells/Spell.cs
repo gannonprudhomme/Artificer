@@ -25,17 +25,19 @@ public abstract class Spell : MonoBehaviour {
     public Transform? SpellEffectsSpawnPoint { get; set; }
 
     // TODO: This is editable in the UI, and we def don't want that
+    [HideInInspector]
     public float CurrentCharge = 0.0f;
 
     public const float CHARGE_PER_SHOT = 1f;
 
+    public bool IsBlockingSpellActive = false;
+
     public abstract float ChargeRate { get; }
     public abstract int MaxNumberOfCharges { get; }
-    public abstract Color SpellColor { get; }
     public abstract bool DoesBlockOtherSpells { get; }
     public abstract bool IsBlockedByOtherSpells { get; }
 
-    public abstract bool CanShoot();
+    protected abstract bool CanShoot();
 
     public abstract void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
@@ -60,4 +62,11 @@ public abstract class Spell : MonoBehaviour {
     public virtual bool ShouldForceLookForward() { return false; }
 
     public abstract bool ShouldCancelSprinting();
+
+    public abstract bool ShouldBlockOtherSpells();
+
+    public virtual bool ShouldCancelOtherSpells() { return false; }
+
+    // Cancel the spell - only does something for nano spear
+    public virtual void Cancel() { }
 }
