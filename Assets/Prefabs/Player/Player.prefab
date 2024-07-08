@@ -670,6 +670,7 @@ GameObject:
   - component: {fileID: 4857897018764386295}
   - component: {fileID: 152916059270972665}
   - component: {fileID: 8959592792108440667}
+  - component: {fileID: 4276017042026391231}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -794,8 +795,7 @@ MonoBehaviour:
   RightArmSpellSpawnPoint: {fileID: 8009151639064891985}
   SpellCamera: {fileID: 0}
   FireballSpell: {fileID: 4857897018764386295}
-  SecondSpellPrefab: {fileID: 5227877792274781671, guid: ddab98e7c19b12e4f9dd90cc7afbb5b2,
-    type: 3}
+  IceWallSpell: {fileID: 4276017042026391231}
   IonSurgeJumpSpell: {fileID: 152916059270972665}
   NanoSpearSpell: {fileID: 8959592792108440667}
   playerLayerMask:
@@ -1141,9 +1141,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b626a06d305266b478c9e3f1fe9b8f40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShootSfx: {fileID: 0}
+  ShootSfx: {fileID: 8300000, guid: d4944784d2ee21747aa5ed8c863c11cd, type: 3}
   CurrentCharge: 1
-  ChargeSFX: {fileID: 0}
+  ChargeSFX: {fileID: 8300000, guid: 28b6f3d73571c1c4cbdd1c2f1a0d13d5, type: 3}
   ProjectilePrefab: {fileID: 3680103958273619034, guid: d08379cb3752f2143b80c4e610223d90,
     type: 3}
   ProjectileSpawnPoint: {fileID: 1680490619059482196}
@@ -1265,6 +1265,30 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4276017042026391231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5020162517813680371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f591ab9dab38044d9ec8dd8bae5bf9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShootSfx: {fileID: 8300000, guid: e0bad526168d7a24eb5b9e7235e5a691, type: 3}
+  CurrentCharge: 0
+  ExternalSpellColor: {r: 0, g: 0, b: 0, a: 0}
+  AimingDecalProjectorPrefab: {fileID: 8436627875365214546, guid: b441a44108320c640bf346386251e563,
+    type: 3}
+  IceWallPrefab: {fileID: 4019672662921543507, guid: dd2c8046204d1964aafc5a5eedf68576,
+    type: 3}
+  StartChageSfx: {fileID: 8300000, guid: d260ded8a8bcdf54d9dcc59b84f54735, type: 3}
+  AimingImage: {fileID: 2800000, guid: e97e33b248dad2842becb1237572463d, type: 3}
+  CantSpawnImage: {fileID: 2800000, guid: 3021ee26b9881c64bbad23406832b4f6, type: 3}
+  LeftHandShootVFXInstance: {fileID: 4688533113276248352}
+  RightHandShootVFXInstance: {fileID: 4755342697792211746}
 --- !u!1 &5352475266119036259
 GameObject:
   m_ObjectHideFlags: 0
@@ -1601,7 +1625,7 @@ GameObject:
   m_Component:
   - component: {fileID: 496983921577198938}
   m_Layer: 7
-  m_Name: Nano Spear Hand VFX
+  m_Name: Ice Wall + Nano Spear Hand VFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

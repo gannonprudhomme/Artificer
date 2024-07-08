@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.VFX;
 
 #nullable enable
 
@@ -23,6 +24,13 @@ public class IceWallSpell : Spell {
 
     [Tooltip("Image used when we're aiming and can't spawn the ice wall where we're aiming")]
     public Texture2D? CantSpawnImage;
+
+    [Header("VFX")]
+    [Tooltip("VFX which plays on the left hand when we fire")]
+    public VisualEffect? LeftHandShootVFXInstance;
+
+    [Tooltip("VFX which plays on the right hand when we fire")]
+    public VisualEffect? RightHandShootVFXInstance;
 
     private const float DamageCoefficient = 1.0f;
 
@@ -92,6 +100,9 @@ public class IceWallSpell : Spell {
                 0f,
                 10f
             );
+
+            LeftHandShootVFXInstance!.Play();
+            RightHandShootVFXInstance!.Play();
 
             SpawnIceWall(entityBaseDamage * DamageCoefficient);
         }
