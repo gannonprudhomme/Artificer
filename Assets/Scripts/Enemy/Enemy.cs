@@ -17,7 +17,13 @@ public abstract class Enemy : Entity {
     [Tooltip("The VFX instance that's played when the enemy is stunned")]
     public VisualEffect? StunnedStatusVFXInstance;
 
-    private EnemyManager? enemyManager;
+    [Tooltip("Where we instantiate the ExperienceGranter when the enemy dies")]
+    public Transform? ExperienceGranterSpawnPoint;
+
+    [Tooltip("Prefab of the experience granter. Created when the entity dies")]
+    public ExperienceGranter? ExperienceGranterPrefab;
+
+    protected EnemyManager? enemyManager;
 
     private bool isStunnedStatusEffectActive = false;
 
@@ -50,11 +56,27 @@ public abstract class Enemy : Entity {
     protected virtual void OnDeath() {
         enemyManager!.RemoveEnemy(this);
 
+        GrantExperienceAndGold();
+
+        Destroy(this.gameObject);
+    }
+
+    protected void GrantExperienceAndGold() {
         // Grant the Target experience I guess
         // There's gotta be a better way to do this
         if (Target!.TryGetComponent(out Experience experience)) {
             // We gotta calculate this somehow
-            experience.GainExperience(ExperienceGrantedOnDeath);
+            ExperienceGranter granter = Instantiate(
+                ExperienceGranterPrefab!,
+                ExperienceGranterSpawnPoint!.position,
+                Quaternion.identity
+            );
+
+            granter.Emit(
+                experienceToGrant: ExperienceGrantedOnDeath,
+                targetExperience: experience,
+                goalTransform: Target!.AimPoint!
+            );
         } else {
             Debug.LogError("Couldn't find Target's Experience");
         }
@@ -64,8 +86,6 @@ public abstract class Enemy : Entity {
         } else {
             Debug.LogError("Couldn't find Target's GoldWallet");
         }
-
-        Destroy(this.gameObject);
     }
 
     // Ideally we'd just have some common (but not sub-classed) Stunned state which would let us do this

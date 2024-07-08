@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &181962729558843374
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2906432624807561038}
+  m_Layer: 0
+  m_Name: Experience Spawn Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2906432624807561038
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181962729558843374}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 7.32, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7624902814649773823}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2085474370089250678
 GameObject:
   m_ObjectHideFlags: 0
@@ -303,6 +334,7 @@ Transform:
   - {fileID: 629133370672753814}
   - {fileID: 4620305194181598236}
   - {fileID: 4258122447810116405}
+  - {fileID: 2906432624807561038}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &227309694435722584
@@ -323,6 +355,9 @@ MonoBehaviour:
   Target: {fileID: 0}
   HealthAndStatusBarFollowPlayer: {fileID: 9018531038407074782}
   StunnedStatusVFXInstance: {fileID: 7432397596139013748}
+  ExperienceGranterSpawnPoint: {fileID: 2906432624807561038}
+  ExperienceGranterPrefab: {fileID: 3035492131057175853, guid: 53a2df5a1ea39e74184fb024d0adfca8,
+    type: 3}
   MainMeshRenderer: {fileID: 17677098403421449}
   AimPoint: {fileID: 3244650871039522762}
   positionConstraint: {fileID: 5831821557236258256}

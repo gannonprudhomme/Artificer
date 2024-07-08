@@ -414,13 +414,15 @@ public class Lemurian : Enemy {
         animator!.SetBool(ANIM_PARAM_IS_STUNNED, false);
 
         // I do think we want to do this?
-        EnemyManager.shared!.RemoveEnemy(this);
+        enemyManager!.RemoveEnemy(this);
 
         animator!.SetBool(ANIM_PARAM_IS_DEAD, true);
 
         PositionConstraint!.constraintActive = false;
 
         Collider!.enabled = false;
+
+        GrantExperienceAndGold();
 
         Destroy(this.gameObject, 5f); // Destroy it in 5 seconds I guess? Probably should have an effect but w/e
     }
