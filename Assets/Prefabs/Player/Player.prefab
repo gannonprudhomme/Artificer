@@ -1,5 +1,38 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1070967841450362661
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4814280241779385399}
+  m_Layer: 0
+  m_Name: Jetpack Flames Container
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4814280241779385399
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1070967841450362661}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.6531599, y: 0.0007104774, z: 0.010125866, w: 0.75715196}
+  m_LocalPosition: {x: 0.005014939, y: -0.40103155, z: -0.05334835}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2555206436527867238}
+  - {fileID: 7228981845568600356}
+  m_Father: {fileID: 3009165682261781629}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1181076152711192012
 GameObject:
   m_ObjectHideFlags: 0
@@ -761,6 +794,8 @@ MonoBehaviour:
   VerticalRotationMin: -80
   VerticalRotationMax: 80
   JumpForce: 30
+  LeftJetpackFlames: {fileID: 8920638017890352983}
+  RightJetpackFlames: {fileID: 4389623173392810773}
   CharacterVelocity: {x: 0, y: 0, z: 0}
   lastTimeJumped: -Infinity
 --- !u!114 &6908111738488462613
@@ -1041,6 +1076,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShootSfx: {fileID: 8300000, guid: afef4149297b39f4ca53ee5bd5466c0d, type: 3}
   CurrentCharge: 0
+  IsBlockingSpellActive: 0
   SpellColorForUI: {r: 0.6320754, g: 0.26992488, b: 0.04472231, a: 0}
   FireVisualEffectPrefab: {fileID: 1351230993019675440, guid: e1193c464af1ab646be9b3b49fca3674,
     type: 3}
@@ -1096,6 +1132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShootSfx: {fileID: 8300000, guid: 97df679b8a3c07846bd9ba00cf07fb48, type: 3}
   CurrentCharge: 1
+  IsBlockingSpellActive: 0
   SurgeJumpForce: 105
   DamageArea: {fileID: 1020169250467427942}
   LeftHandVFX: {fileID: 4255345573392990696}
@@ -1143,6 +1180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShootSfx: {fileID: 8300000, guid: d4944784d2ee21747aa5ed8c863c11cd, type: 3}
   CurrentCharge: 1
+  IsBlockingSpellActive: 0
   ChargeSFX: {fileID: 8300000, guid: 28b6f3d73571c1c4cbdd1c2f1a0d13d5, type: 3}
   ProjectilePrefab: {fileID: 3680103958273619034, guid: d08379cb3752f2143b80c4e610223d90,
     type: 3}
@@ -1279,7 +1317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShootSfx: {fileID: 8300000, guid: e0bad526168d7a24eb5b9e7235e5a691, type: 3}
   CurrentCharge: 0
-  ExternalSpellColor: {r: 0, g: 0, b: 0, a: 0}
+  IsBlockingSpellActive: 0
   AimingDecalProjectorPrefab: {fileID: 8436627875365214546, guid: b441a44108320c640bf346386251e563,
     type: 3}
   IceWallPrefab: {fileID: 4019672662921543507, guid: dd2c8046204d1964aafc5a5eedf68576,
@@ -1814,6 +1852,166 @@ VFXRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1001 &322295883477521632
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4814280241779385399}
+    m_Modifications:
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.235
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.637
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.028
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.0028742314
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.9071573
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.4207819
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.000015094873
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 180.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -0.13699341
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 49.768005
+      objectReference: {fileID: 0}
+    - target: {fileID: 9220633878268500849, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_Name
+      value: Left Jetpack Flames Cylinder
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2f6d463d8fc86254da91420e2efdb21f, type: 3}
+--- !u!4 &2555206436527867238 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+    type: 3}
+  m_PrefabInstance: {fileID: 322295883477521632}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8920638017890352983 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 9202401491762899895, guid: 2f6d463d8fc86254da91420e2efdb21f,
+    type: 3}
+  m_PrefabInstance: {fileID: 322295883477521632}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4854436619315030178
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4814280241779385399}
+    m_Modifications:
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.2356
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.637
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.028
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.0036467197
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.84574896
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.5335686
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.00001454353
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 180.354
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -0.22198486
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 64.495
+      objectReference: {fileID: 0}
+    - target: {fileID: 9220633878268500849, guid: 2f6d463d8fc86254da91420e2efdb21f,
+        type: 3}
+      propertyPath: m_Name
+      value: Right Jetpack Flames Cylinder
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2f6d463d8fc86254da91420e2efdb21f, type: 3}
+--- !u!23 &4389623173392810773 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 9202401491762899895, guid: 2f6d463d8fc86254da91420e2efdb21f,
+    type: 3}
+  m_PrefabInstance: {fileID: 4854436619315030178}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7228981845568600356 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2813884256944034182, guid: 2f6d463d8fc86254da91420e2efdb21f,
+    type: 3}
+  m_PrefabInstance: {fileID: 4854436619315030178}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5719997003559013775
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1967,6 +2165,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 8009151639064891985}
+    - targetCorrespondingSourceObject: {fileID: -1827556797050953230, guid: 0603253bf8d531a499f7852befa43981,
+        type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 4814280241779385399}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: -2624283790870348806, guid: 0603253bf8d531a499f7852befa43981,
         type: 3}

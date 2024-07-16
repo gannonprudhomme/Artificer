@@ -96,6 +96,12 @@ public class PlayerController : Entity {
     [Tooltip("Force applied upward when jumping")]
     public float JumpForce = 20f;
 
+    [Header("VFX")]
+    [Tooltip("Renderer for the left jetpack's flames")]
+    public MeshRenderer? LeftJetpackFlames;
+    [Tooltip("Renderer for the right jetpack's flames")]
+    public MeshRenderer? RightJetpackFlames;
+
     /** LOCAL VARIABLES **/
     private Experience? experience;
     private GoldWallet? goldWallet;
@@ -109,7 +115,10 @@ public class PlayerController : Entity {
     private PlayerCameraController? cameraController;
     private Animator? animator;
     private Vector3 groundNormal;
+    private Animator? leftJetpackFlamesAnimator;
+    private Animator? rightJetpackFlamesAnimator;
 
+    [HideInInspector]
     public float lastTimeJumped = Mathf.NegativeInfinity;
 
     private bool isSprintToggled = false;
@@ -129,9 +138,7 @@ public class PlayerController : Entity {
 
     /** CONSTANTS **/
 
-    // TODO: Describe this
     private const float JUMP_GROUNDING_PREVENTION_TIME = 0.2f;
-    // TODO: Describe this
     private const float GROUND_CHECK_DISTANCE_IN_AIR = 0.15f;
 
     /** ABSTRACT PROPERTIES **/
@@ -164,6 +171,9 @@ public class PlayerController : Entity {
         cameraController = GetComponent<PlayerCameraController>();
 
         previousLookAtRotation = GetClampedPlayerLookAtAngle();
+
+        leftJetpackFlamesAnimator = LeftJetpackFlames!.GetComponent<Animator>();
+        rightJetpackFlamesAnimator = RightJetpackFlames!.GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -194,6 +204,8 @@ public class PlayerController : Entity {
         HandlePlayerShader();
 
         SetPlayerAnimationVelocity();
+
+        HandleHoveringVFX();
 
         cameraController!.IsPlayerSprinting = isSprinting;
     }
@@ -517,6 +529,12 @@ public class PlayerController : Entity {
         bool shouldHover = inputHandler!.GetJumpInputHeld() && !IsGrounded && isFalling;
 
         return shouldHover;
+    }
+
+    private void HandleHoveringVFX() {
+        bool isHovering = IsHovering();
+        leftJetpackFlamesAnimator!.SetBool("IsHovering", isHovering);
+        rightJetpackFlamesAnimator!.SetBool("IsHovering", isHovering);
     }
 
     // Set values for the translucent-when-camera-close-to-player shader
