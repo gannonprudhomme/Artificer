@@ -2,6 +2,8 @@ using UnityEngine;
 
 #nullable enable
 
+// Note that the child of this is acxtually what contains the mesh renderer + animator
+// so we can set the scale of the child in IceWall to randomize without the animation overriding it
 [RequireComponent(typeof(BoxCollider))]
 public class IceWallSpike : MonoBehaviour {
     [Tooltip("SFX to play when the ice spike detonates (by collision or after lifetime is reached)")]
@@ -10,8 +12,8 @@ public class IceWallSpike : MonoBehaviour {
     [Tooltip("SFX to play when the ice spike is spawned in (becomes active)")]
     public AudioClip? SpawnSfx;
 
-    [Tooltip("The prefab to spawn when this detonates")]
-    public GameObject? DetonateParticlePrefab;
+    //[Tooltip("The prefab to spawn when this detonates")]
+    // public GameObject? DetonateParticlePrefab;
 
     public DamageArea? DamageArea;
 
@@ -58,7 +60,7 @@ public class IceWallSpike : MonoBehaviour {
     }
 
     void OnEnable() {
-        InitialRotation = transform.parent.transform.rotation;
+        InitialRotation = transform.rotation;
         lifetimeDuration = DetermineLifetime();
         detonationTime = Time.time + lifetimeDuration;
 
@@ -107,11 +109,6 @@ public class IceWallSpike : MonoBehaviour {
             5f
         );
 
-        // Instantiate the particle on the parent
-        // This really shouldn't be how this works but fuck it whatever
-        Instantiate(DetonateParticlePrefab!, transform.parent);
-
-        // We need to destroy the other "idle" particles too
         Destroy(this.gameObject);
     }
 
@@ -142,8 +139,7 @@ public class IceWallSpike : MonoBehaviour {
         float zAngleRotate = Mathf.Rad2Deg * (Mathf.Sin(Time.time * speed) * amount);
 
         // Apply it to the parent since this is attached to the child (parent has the corrected transform)
-        var parent = transform.parent.gameObject;
-        parent.transform.rotation = InitialRotation * Quaternion.Euler(xAngleRotate, 0f, zAngleRotate);
+        transform.rotation = InitialRotation * Quaternion.Euler(xAngleRotate, 0f, zAngleRotate);
     }
 
     private float DetermineLifetime() {

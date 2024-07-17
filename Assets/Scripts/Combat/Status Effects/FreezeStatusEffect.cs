@@ -52,9 +52,12 @@ public class FreezeStatusEffect : BaseStatusEffect {
         entity.SetIsFrozen(false);
 
         // Add the particle effect
+        // TODO:
+        /*
 	    if (entity.OnEndFreezeParticleSystemPrefab is ParticleSystem prefab) {
 			entity.AddParticleEffect(prefab);
 	    }
+        */
 
         if (entity.OnEndFreezeSfx != null) {
             AudioUtility.shared.CreateSFX(

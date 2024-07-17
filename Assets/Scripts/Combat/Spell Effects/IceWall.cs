@@ -1,88 +1,104 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-// This collects _all_ of the ice wall spikes
+#nullable enable
 
+// This collects _all_ of the ice wall spikes
 public class IceWall : MonoBehaviour {
-    // [Tooltip("Max lifetime of the ice wall")]
-    // public float MaxLifeTime = 5f;
+    [Tooltip("Prefab of the ice wall spike we spawn")]
+    public IceWallSpike? IceWallSpikePrefab;
 
     [Tooltip("Layers this can collide with")]
     public LayerMask HittableLayers = -1;
 
+    [Tooltip("The layer mask of the level - used for raycasting to place the ice spikes correctly")]
+    public LayerMask levelMask;
+
+    // Going to need to sync w/ the decal somehow
+    private float totalIceWallWidth = 12f * 4.5f;
+    // How long we wait between spawning each ice wall spike
+    private float delayBetweenIceWallSpawns = 0.05f;
+
     public float DamagePerSpike { get; set; }
 
-    private IceWallSpike[] iceSpikesChildren;
-    private GameObject[] iceSpikesParents;
-    private List<Collider> ignoredColliders;
+    private IceWallSpike[]? iceSpikes;
+    private readonly int totalIceSpikes = 12;
 
-    private LayerMask levelMask;
+    private int numIceSpikesSpawned = 0;
+    private float timeOfLastSpikeSpawn = Mathf.NegativeInfinity;
 
     void Start() {
-        // This should actually be triggering the affect (figure it'll be Aoe? But maybe not)
-        //Destroy(this.gameObject, MaxLifeTime);
-
-        // Get all of the children
-        iceSpikesChildren = GetComponentsInChildren<IceWallSpike>();
-
-        // Get the parents of the children because we added a parent to them
-        // so we can move the pivot (so they scale in one direction rather than in both directions for animations)
-        // this is annoying and I regret this - I should have just fixed the pivot in Blender
-        iceSpikesParents = new GameObject[iceSpikesChildren.Length];
-        for (int i = 0; i < iceSpikesChildren.Length; i++) {
-            iceSpikesParents[i] = iceSpikesChildren[i].transform.parent.gameObject;
-        }
-
-        // Set the vertical values of the ice spikes
-        PlaceIceSpikes();
-
-        levelMask = LayerMask.GetMask("Level");
+        iceSpikes = new IceWallSpike[totalIceSpikes];
     }
 
     void Update() {
-        // Check if lifetime has been hit and trigger all of the ice spikes to explode
+        // Check if we should destroy this instance (all of the ice wall spikes have detonated)
+
+        // Check if we need to spawn another ice wall spike pair
+        if (numIceSpikesSpawned < totalIceSpikes && Time.time - timeOfLastSpikeSpawn > delayBetweenIceWallSpawns) {
+            SpawnIceSpikePair();
+        }
     }
 
-    // Determine Y-value for each ice spike
-    // so they're not all in a line
-    private void PlaceIceSpikes() {
-        // I need to go up some amount from the ice spike
-        // (maybe it's height?)
-        // then raycast downwards, find the position it collides
-        // and set that to be where the ice spike spawns
-        for(int i = 0; i < iceSpikesParents.Length; i++) {
-            // If this is false we really fucked up, but check anyways
-            if (i >= iceSpikesChildren.Length) {
-                Debug.LogError("There's not enough children in the iceSpikesChildren array, returning");
-                return;
-            }
+    private void SpawnIceSpikePair() {
+        int spawnIndex = numIceSpikesSpawned / 2;
 
-            var parent = iceSpikesParents[i];
-            IceWallSpike child = iceSpikesChildren[i];
-		    child.damage = DamagePerSpike;
+        Debug.Log($"Spawning ice spikes at index {spawnIndex}");
 
-            // Raycast from the middle of the top face of the box collider
-            // Vector3 rayCastPos = child.boxCollider.center + (Vector3.up * size / 2.0f);
-            Vector3 rayCastPos = child.boxCollider.bounds.max;
 
-            Debug.DrawRay(rayCastPos, Vector3.down, Color.blue, 2.0f);
+        // Spawn one in negative
+        IceWallSpike negativeDirSpike = CreateAndPlaceIceSpike(pairSpawnIndex: spawnIndex, isNegative: true);
+        iceSpikes![numIceSpikesSpawned] = negativeDirSpike;
 
-            // Raycast down
-            if (Physics.Raycast(
-                origin: rayCastPos,
-                direction: Vector3.down,
-                out RaycastHit hit,
-                maxDistance: 100f,
-                layerMask: ~levelMask
-            )) {
-                Debug.DrawLine(rayCastPos, hit.point, Color.green, 2.0f);
-                parent.transform.position = hit.point - (Vector3.up * 1.0f);
-            } else {
-                print("we didn't hit anything, idk what to do here");
-                // maybe hide the child?
-            }
+        // Spawn one in positive
+        IceWallSpike positiveDirSpike = CreateAndPlaceIceSpike(pairSpawnIndex: spawnIndex, isNegative: false);
+        iceSpikes![numIceSpikesSpawned + 1] = negativeDirSpike;
+
+        numIceSpikesSpawned += 2;
+        timeOfLastSpikeSpawn = Time.time;
+    }
+
+    private IceWallSpike CreateAndPlaceIceSpike(int pairSpawnIndex, bool isNegative) {
+        IceWallSpike iceSpike = Instantiate(IceWallSpikePrefab!, parent: transform);
+        iceSpike.damage = DamagePerSpike;
+
+        // 0.5f is b/c we have an even amount - so the first pair spawns correctly & not on top of each other
+        float spawnPosition = (totalIceWallWidth / totalIceSpikes) * (pairSpawnIndex + 0.5f);
+
+        // First, determine horizontal position
+
+        // Note we should be using Vector3.left/.right, but the IceWall instance is spawned rotated 90 degrees
+        // than what it should be, and I'm too lazy to fix it b/c this works.
+        Vector3 direction = isNegative ? Vector3.back : Vector3.forward;
+        iceSpike.transform.localPosition = direction * spawnPosition;
+
+        // Determine vertical position
+
+        // Raycast from the middle of the top face of the box collider
+        Vector3 rayCastPos = iceSpike.transform.position + (Vector3.up * 10f);
+        Debug.DrawRay(rayCastPos, Vector3.down, Color.blue, 2.0f);
+
+        // Raycast down
+        if (Physics.Raycast(
+            origin: rayCastPos,
+            direction: Vector3.down,
+            out RaycastHit hit,
+            maxDistance: 100f,
+            layerMask: levelMask
+        )) {
+            Debug.DrawLine(rayCastPos, hit.point, Color.green, 2.0f);
+            iceSpike.transform.position = hit.point - (Vector3.up * 0.2f);
+        } else {
+            Debug.LogError($"ice spike raycast didn't hit anything for index: {pairSpawnIndex + (isNegative ? 0 : 1)}");
         }
+
+        // Randomize the scale
+        float scale = Random.Range(0.9f, 1.1f);
+        iceSpike.transform.localScale = new Vector3(scale, scale, scale);
+
+        // Randomly rotate it a bit by a few degrees only forward/left right, not up/down
+        iceSpike.transform.Rotate(Vector3.right, Random.Range(-4f, 4f));
+        iceSpike.transform.Rotate(Vector3.forward, Random.Range(-4f, 4f));
+
+        return iceSpike;
     }
 }

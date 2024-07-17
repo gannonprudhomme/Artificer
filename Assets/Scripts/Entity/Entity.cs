@@ -10,8 +10,8 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Health))]
 public abstract class Entity : MonoBehaviour {
     [Header("Entity (Inherited)")]
-    [Tooltip("Prefab for the particle system which plays when the freeze status effect ends")]
-    public ParticleSystem? OnEndFreezeParticleSystemPrefab;
+    // [Tooltip("Prefab for the particle system which plays when the freeze status effect ends")]
+    // public ParticleSystem? OnEndFreezeParticleSystemPrefab;
 
     [Tooltip("AudioClip which plays when the freeze status effect ends")]
     public AudioClip? OnEndFreezeSfx;
