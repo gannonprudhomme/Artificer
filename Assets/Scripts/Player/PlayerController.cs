@@ -1,8 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations.Rigging;
+using UnityEngine.VFX;
 
 #nullable enable
 
@@ -102,6 +101,9 @@ public class PlayerController : Entity {
     [Tooltip("Renderer for the right jetpack's flames")]
     public MeshRenderer? RightJetpackFlames;
 
+    [Tooltip("VFX instance which plays when the player starts to hover")]
+    public VisualEffect? JetpackHoverVFXInstance;
+
     /** LOCAL VARIABLES **/
     private Experience? experience;
     private GoldWallet? goldWallet;
@@ -124,6 +126,11 @@ public class PlayerController : Entity {
     private bool isSprintToggled = false;
     private bool isSprinting = false;
     private bool IsGrounded = true;
+
+    // Set every frame in HandleHoveringVFX()
+    private bool isHovering = false;
+    private float timeOfLastHoverVFXPlay = Mathf.NegativeInfinity;
+    private readonly float minTimeBetweenHoverVFXEmits = 0.5f;
 
     private Interactable? currentAimedAtInteractable;
 
@@ -532,7 +539,17 @@ public class PlayerController : Entity {
     }
 
     private void HandleHoveringVFX() {
-        bool isHovering = IsHovering();
+        bool newIsHovering = IsHovering();
+
+        // We weren't hovering before and now we are + it's been enough time since the last play - play the hover-start VFX!
+        bool hasBeenEnoughTimeSinceLastEmit = (Time.time - timeOfLastHoverVFXPlay > minTimeBetweenHoverVFXEmits);
+        if (newIsHovering && !isHovering && hasBeenEnoughTimeSinceLastEmit) {
+            JetpackHoverVFXInstance!.Play();
+            timeOfLastHoverVFXPlay = Time.time;
+        }
+
+        isHovering = newIsHovering;
+
         leftJetpackFlamesAnimator!.SetBool("IsHovering", isHovering);
         rightJetpackFlamesAnimator!.SetBool("IsHovering", isHovering);
     }

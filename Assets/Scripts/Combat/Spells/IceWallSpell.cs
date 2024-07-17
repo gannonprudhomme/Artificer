@@ -59,7 +59,6 @@ public class IceWallSpell : Spell {
     private GameObject? aimingDecalProjectorInstance;
 
     private bool canShootWhereAiming = true;
-    private bool isAttackInputHeld = false;
 
     void Start() {
         CurrentCharge = MaxNumberOfCharges;
@@ -205,7 +204,6 @@ public class IceWallSpell : Spell {
     }
 
     protected override bool CanShoot() {
-        // Not blocked by other spells
         return CurrentCharge >= CHARGE_PER_SHOT;
     }
 
