@@ -20,9 +20,6 @@ public class FireballSpell : Spell {
     // This should really be FireballProjectile, but tbh to FireballSpell it doesn't matter
     public Projectile? ProjectilePrefab; // Projectile will determine it's damage? Or should this? How dumb should the Projectile be?
 
-    [Tooltip("How long in seconds between shots")]
-    public float DelayBetweenShots = 0.5f;
-
     [Tooltip("Particle system which plays when we shoot from the left hand")]
     public ParticleSystem? LeftShootParticleSystem;
 
@@ -45,12 +42,16 @@ public class FireballSpell : Spell {
 
     /** Local variables **/
 
+    private readonly float DelayBetweenShots = 0.3f;
+
     private VisualEffect? fireVisualEffectInstance;
     private float lastTimeShot = Mathf.NegativeInfinity;
 
     private const float cancelSprintDuration = 0.3f;
     // how long we force the player to look forward after we shot
-    private const float lookForwardDuration = 1.5f;
+    // This should be similar to timeToNotFire
+    private const float lookForwardDuration = 1f;
+    private const float timeToNotFire = 1f;
     // Note this plays at 1.5x speed so technically this is wrong?
     // but I adjusted for it in the reticle animation curve so w/e
     private readonly float animationDuration = 0.625f; 
@@ -72,7 +73,6 @@ public class FireballSpell : Spell {
         Recharge();
 
         // Set animator values
-        float timeToNotFire = 1.5f;
         bool isFiring = Time.time - lastTimeShot < timeToNotFire;
         PlayerAnimator!.SetBool("IsFiringFireball", isFiring);
     }
