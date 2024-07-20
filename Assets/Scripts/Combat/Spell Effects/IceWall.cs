@@ -77,19 +77,9 @@ public class IceWall : MonoBehaviour {
         Vector3 rayCastPos = iceSpike.transform.position + (Vector3.up * 10f);
         Debug.DrawRay(rayCastPos, Vector3.down, Color.blue, 2.0f);
 
-        // Raycast down
-        if (Physics.Raycast(
-            origin: rayCastPos,
-            direction: Vector3.down,
-            out RaycastHit hit,
-            maxDistance: 100f,
-            layerMask: levelMask
-        )) {
-            Debug.DrawLine(rayCastPos, hit.point, Color.green, 2.0f);
-            iceSpike.transform.position = hit.point - (Vector3.up * 0.2f);
-        } else {
-            Debug.LogError($"ice spike raycast didn't hit anything for index: {pairSpawnIndex + (isNegative ? 0 : 1)}");
-        }
+        // Place it vertically using a raycast
+        Vector3 spawnPoint = RaycastPlacement(iceSpike) ?? iceSpike.transform.position;
+        iceSpike.transform.position = spawnPoint;
 
         // Randomize the scale
         float scale = Random.Range(0.9f, 1.1f);
@@ -100,5 +90,29 @@ public class IceWall : MonoBehaviour {
         iceSpike.transform.Rotate(Vector3.forward, Random.Range(-4f, 4f));
 
         return iceSpike;
+    }
+
+    private Vector3? RaycastPlacement(IceWallSpike iceSpike) {
+        for (int i = 1; i <= 5; i++) {
+            float offset = i * 10f;
+            Vector3 rayCastPos = iceSpike.transform.position + (Vector3.up * offset);
+            
+            if (Physics.Raycast(
+                origin: rayCastPos,
+                direction: Vector3.down,
+                out RaycastHit hit,
+                maxDistance: 100f,
+                layerMask: levelMask
+            ))
+            {
+                return hit.point - (Vector3.up * 0.2f);
+            }
+
+            // Didn't hit anything - try again
+        }
+
+        // return Vector3.zero;
+        Debug.LogError("Failed to place ice spike w/ raycast!");
+        return null;
     }
 }
