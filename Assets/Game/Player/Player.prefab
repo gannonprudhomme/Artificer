@@ -833,8 +833,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.03239939, y: 0.70496684, z: 0.039443314, w: 0.7074011}
   m_LocalPosition: {x: -1044.6589, y: 0.19, z: 232.1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.90000004, y: 0.90000004, z: 0.90000004}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1494125901721257978}
   - {fileID: 3891283934947796380}
@@ -883,7 +883,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2504f9d0c9028a48b3fd65f25d5bf6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnEndFreezeParticleSystemPrefab: {fileID: 0}
   OnEndFreezeSfx: {fileID: 0}
   PlayerCamera: {fileID: 0}
   CameraAimPoint: {fileID: 0}
@@ -1195,7 +1194,6 @@ MonoBehaviour:
     type: 3}
   ProjectilePrefab: {fileID: 7383962033279725700, guid: 027140011ef981643875ee2387de2b08,
     type: 3}
-  DelayBetweenShots: 0.7
   LeftShootParticleSystem: {fileID: 7447438865896037751}
   RightShootParticleSystem: {fileID: 5141791144318133879}
   ReticleAnimationCurve:
