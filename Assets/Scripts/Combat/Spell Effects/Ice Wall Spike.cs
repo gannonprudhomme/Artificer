@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.VFX;
 
 #nullable enable
 
@@ -11,6 +12,9 @@ public class IceWallSpike : MonoBehaviour {
 
     [Tooltip("SFX to play when the ice spike is spawned in (becomes active)")]
     public AudioClip? SpawnSfx;
+
+    [Tooltip("VFX that plays when this detonates")]
+    public VisualEffect? ExplosionVFXPrefab;
 
     //[Tooltip("The prefab to spawn when this detonates")]
     // public GameObject? DetonateParticlePrefab;
@@ -109,6 +113,11 @@ public class IceWallSpike : MonoBehaviour {
             5f
         );
 
+        VisualEffect detonateVFX = Instantiate(ExplosionVFXPrefab!, transform.position, Quaternion.identity);
+        detonateVFX.Play(); // Probs don't even need to do this
+
+        Destroy(detonateVFX, 1.0f); // Destroy the VFX after 1 second (probs gratious - only need like 0.5 sec in reality)
+
         Destroy(this.gameObject);
     }
 
@@ -138,7 +147,6 @@ public class IceWallSpike : MonoBehaviour {
         float xAngleRotate = Mathf.Rad2Deg * (Mathf.Sin(Time.time * speed) * amount);
         float zAngleRotate = Mathf.Rad2Deg * (Mathf.Sin(Time.time * speed) * amount);
 
-        // Apply it to the parent since this is attached to the child (parent has the corrected transform)
         transform.rotation = InitialRotation * Quaternion.Euler(xAngleRotate, 0f, zAngleRotate);
     }
 

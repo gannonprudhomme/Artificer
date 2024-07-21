@@ -30,11 +30,14 @@ public class IceWallSpell : Spell {
     [Tooltip("VFX which plays on the right hand when we fire")]
     public VisualEffect? RightHandShootVFXInstance;
 
+    [Header("Debug")]
+    public bool DebugQuickRecharge = false;
+
     private const float DamageCoefficient = 1.0f;
 
     /** Abstract Spell Properties **/
 
-    public override float ChargeRate => 0.2f;
+    public override float ChargeRate => DebugQuickRecharge ? 0.1f : 1f / 12f; // 12 second cooldown 
     public override int MaxNumberOfCharges => 1;
     public override bool DoesBlockOtherSpells => true;
     public override bool IsBlockedByOtherSpells => true;
