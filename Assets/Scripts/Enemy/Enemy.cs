@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -17,11 +18,14 @@ public abstract class Enemy : Entity {
     [Tooltip("The VFX instance that's played when the enemy is stunned")]
     public VisualEffect? StunnedStatusVFXInstance;
 
-    [Tooltip("Where we instantiate the ExperienceGranter when the enemy dies")]
-    public Transform? ExperienceGranterSpawnPoint;
+    [Tooltip("Where we instantiate the ExperienceGranter & DiedWhileFrozen VFX when the enemy dies")]
+    public Transform? VFXSpawnPoint;
 
     [Tooltip("Prefab of the experience granter. Created when the entity dies")]
     public ExperienceGranter? ExperienceGranterPrefab;
+
+    [Tooltip("VFX prefab which is created when the enemy dies from being frozen")]
+    public VisualEffect? DiedWhileFrozenVFXPrefab;
 
     protected EnemyManager? enemyManager;
 
@@ -58,6 +62,8 @@ public abstract class Enemy : Entity {
 
         GrantExperienceAndGold();
 
+        CheckAndPlayDiedWhileFrozenVFX();
+
         Destroy(this.gameObject);
     }
 
@@ -68,7 +74,7 @@ public abstract class Enemy : Entity {
             // We gotta calculate this somehow
             ExperienceGranter granter = Instantiate(
                 ExperienceGranterPrefab!,
-                ExperienceGranterSpawnPoint!.position,
+                VFXSpawnPoint!.position,
                 Quaternion.identity
             );
 
@@ -107,5 +113,20 @@ public abstract class Enemy : Entity {
         isStunnedStatusEffectActive = false;
 
         StunnedStatusVFXInstance!.Stop();
+    }
+
+    protected void CheckAndPlayDiedWhileFrozenVFX() {
+        if (!isFrozen) return;
+
+        VisualEffect deathFromFreezeVFX = Instantiate(
+            DiedWhileFrozenVFXPrefab!,
+            position: VFXSpawnPoint!.transform.position,
+            rotation: Quaternion.identity
+        );
+        deathFromFreezeVFX.gameObject.SetActive(true); // It's disabled for the stone golem (so we can have a custom variant w/o a prefab)
+        deathFromFreezeVFX.Play();
+
+        // Destroy it after it's done (guessing on time here)
+        Destroy(deathFromFreezeVFX, 2.0f);
     }
 }

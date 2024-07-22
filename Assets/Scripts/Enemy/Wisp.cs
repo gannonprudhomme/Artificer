@@ -324,9 +324,7 @@ public class Wisp : NavSpaceEnemy {
             deathVFX.Play();
 
             Destroy(deathVFX.gameObject, 1.0f);
-        } else {
-            Debug.LogError("DeathVFX was null!");
-        } 
+        }
     }
 
     protected void OnDrawGizmosSelected() {

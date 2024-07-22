@@ -424,6 +424,8 @@ public class Lemurian : Enemy {
 
         GrantExperienceAndGold();
 
+        CheckAndPlayDiedWhileFrozenVFX();
+
         Destroy(this.gameObject, 5f); // Destroy it in 5 seconds I guess? Probably should have an effect but w/e
     }
 

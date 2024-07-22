@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2906432624807561038}
   m_Layer: 0
-  m_Name: Experience Spawn Point
+  m_Name: VFX Spawn Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,7 +28,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 7.32, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7155176084002571191}
   m_Father: {fileID: 7624902814649773823}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2085474370089250678
@@ -349,14 +350,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b075fddab3c5224b9d41f352f443cb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnEndFreezeParticleSystemPrefab: {fileID: 0}
   OnEndFreezeSfx: {fileID: 8300000, guid: c26d4b27fa548344da8e9b7bbf2a9f96, type: 3}
   Target: {fileID: 0}
   HealthAndStatusBarFollowPlayer: {fileID: 9018531038407074782}
   StunnedStatusVFXInstance: {fileID: 7432397596139013748}
-  ExperienceGranterSpawnPoint: {fileID: 2906432624807561038}
+  VFXSpawnPoint: {fileID: 2906432624807561038}
   ExperienceGranterPrefab: {fileID: 3035492131057175853, guid: 53a2df5a1ea39e74184fb024d0adfca8,
     type: 3}
+  DiedWhileFrozenVFXPrefab: {fileID: 6766121165976404915}
   MainMeshRenderer: {fileID: 17677098403421449}
   AimPoint: {fileID: 3244650871039522762}
   positionConstraint: {fileID: 5831821557236258256}
@@ -872,6 +873,101 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2485edf6c4225ad4085c40e73f94033f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &6050316673400919022
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2906432624807561038}
+    m_Modifications:
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6486734575089545191, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+        type: 3}
+      propertyPath: m_Name
+      value: Scaled Died While Frozen
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4, type: 3}
+--- !u!2083052967 &6766121165976404915 stripped
+VisualEffect:
+  m_CorrespondingSourceObject: {fileID: 1013624030704029789, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6050316673400919022}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7155176084002571191 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3511471014476730457, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6050316673400919022}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6596772460420227881
 PrefabInstance:
   m_ObjectHideFlags: 0

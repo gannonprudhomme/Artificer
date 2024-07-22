@@ -1019,14 +1019,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e16bfc14ecd45ab4f9af4ec0eeffc22b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnEndFreezeParticleSystemPrefab: {fileID: 8473322574683904206, guid: 409f157a82e7c124cae2239e60036a9a,
-    type: 3}
   OnEndFreezeSfx: {fileID: 8300000, guid: c26d4b27fa548344da8e9b7bbf2a9f96, type: 3}
   Target: {fileID: 0}
   HealthAndStatusBarFollowPlayer: {fileID: 4788356072385812276}
   StunnedStatusVFXInstance: {fileID: 8730578524926399322}
-  ExperienceGranterSpawnPoint: {fileID: 4577986726505442575}
+  VFXSpawnPoint: {fileID: 4577986726505442575}
   ExperienceGranterPrefab: {fileID: 3035492131057175853, guid: 53a2df5a1ea39e74184fb024d0adfca8,
+    type: 3}
+  DiedWhileFrozenVFXPrefab: {fileID: 1013624030704029789, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
     type: 3}
   _SplineContainer: {fileID: 0}
   AimPoint: {fileID: 7239119930436975156}
