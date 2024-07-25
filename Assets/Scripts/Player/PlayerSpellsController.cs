@@ -3,7 +3,10 @@ using UnityEngine;
 #nullable enable
 
 // We might want this to live in the Player module
-[RequireComponent(typeof(PlayerController))]
+[RequireComponent(
+    typeof(PlayerController),
+    typeof(PlayerItemsController)
+)]
 [RequireComponent(typeof(InputHandler), typeof(Animator))]
 public class PlayerSpellsController : MonoBehaviour {
     [Header("References")]
@@ -35,6 +38,7 @@ public class PlayerSpellsController : MonoBehaviour {
     public Spell[] spells { get; } = new Spell[4];
 
     private PlayerController? player;
+    private PlayerItemsController? itemsController;
     private Animator? animator;
 
     // Starts out at 12, increases by 2.4 every level
@@ -77,6 +81,7 @@ public class PlayerSpellsController : MonoBehaviour {
 
     private void Start() {
         inputHandler = GetComponent<InputHandler>();
+        itemsController = GetComponent<PlayerItemsController>();
     }
 
     private void Update() {

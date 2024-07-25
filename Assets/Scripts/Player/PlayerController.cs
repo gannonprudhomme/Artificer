@@ -17,7 +17,8 @@ using UnityEngine.VFX;
 )]
 [RequireComponent(
     typeof(Animator),
-    typeof(PlayerCameraController)
+    typeof(PlayerCameraController),
+    typeof(PlayerItemsController)
 )]
 public class PlayerController : Entity {
     /** PROPERTIES **/
@@ -115,6 +116,7 @@ public class PlayerController : Entity {
     private InputHandler? inputHandler;
     private CharacterController? characterController;
     private PlayerCameraController? cameraController;
+    private PlayerItemsController? itemsController;
     private Animator? animator;
     private Vector3 groundNormal;
     private Animator? leftJetpackFlamesAnimator;
@@ -160,7 +162,7 @@ public class PlayerController : Entity {
         base.Start();
 
         characterController = GetComponent<CharacterController>();
-        // Handle null
+        characterController.enableOverlapRecovery = true;
 
         inputHandler = GetComponent<InputHandler>();
 
@@ -168,14 +170,13 @@ public class PlayerController : Entity {
         goldWallet = GetComponent<GoldWallet>();
 
         playerSpellsController = GetComponent<PlayerSpellsController>();
+        cameraController = GetComponent<PlayerCameraController>();
+        itemsController = GetComponent<PlayerItemsController>();
 
         animator = GetComponent<Animator>();
 
         experience.OnLevelUp += OnLevelUp; 
 
-        characterController.enableOverlapRecovery = true;
-
-        cameraController = GetComponent<PlayerCameraController>();
 
         previousLookAtRotation = GetClampedPlayerLookAtAngle();
 
@@ -609,11 +610,16 @@ public class PlayerController : Entity {
                 continue; // Out of screen bounds, don't try to raycast
             }
 
+            float distanceFromCameraToPlayer = Vector3.Distance(PlayerCamera!.transform.position, transform.position);
+
+            // it's in bounds, now check if we can actually hit it (i.e. it's not behind a wall)
             if (Physics.Raycast(
                 origin: PlayerCamera!.transform.position,
                 direction: PlayerCamera!.transform.forward,
                 out RaycastHit hit,
-                maxDistance: minDistanceToInteractableToBeHovering // Idk what to put for this
+                // Because minDistanceToInteractableToBeHovering is the distance from the camera to the player,
+                // we need to add the distance from the camera to the player to it
+                maxDistance: minDistanceToInteractableToBeHovering + distanceFromCameraToPlayer
             )) {
                 if (hit.collider.TryGetComponent(out ColliderInteractablePointer pointer) &&
                     pointer.Parent == nearbyInteractable // Do we really need to do this check?
