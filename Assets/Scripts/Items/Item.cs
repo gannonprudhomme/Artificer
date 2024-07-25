@@ -33,6 +33,38 @@ public abstract class Item: ScriptableObject {
 public interface ItemsDelegate {
     public float ModifiedSprintMultiplier { get; set; }
 
+    public int ModifiedSecondarySpellCharges { get; set; }
+
     public void PickupItem(Item item);
 }
 
+
+/*
+// Will only want one [controlling] instance of this presumably
+public class MedkitItem : Item{
+    public override string itemName => "Medkit";
+    public override string description => "2 seconds after getting hurt, heal for 20 plus an additional 5% (+5% per stack) of maximum health.";
+    public override Rarity rarity => Rarity.COMMON;
+
+    // We're going to need an Update() implementation here
+    // since we need to heal the player
+    // well shit maybe we won't idk
+}
+
+
+// Each instance could increment the jump counts itself
+public class HopooFeatherItem: Item {
+    public override string itemName => "Hopoo Feather";
+    public override string description => "Gain an extra jump. _(+1 per stack)_";
+    public override Rarity rarity => Rarity.UNCOMMON;
+}
+
+// We'd probably only want one [controlling] instance of this
+// and just pass it in the count
+public class UkeleleItem: Item { 
+    public override string itemName => "Ukelele";
+    // Occurs when the player hits an enemy
+    public override string description => "25% chance to fire chain lightning for 80% TOTAL damage on up to 3 _(+2 per stack)_ targets within 20m _(+2m per stack)._";
+    public override Rarity rarity => Rarity.UNCOMMON;
+}
+*/

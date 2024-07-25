@@ -8,7 +8,7 @@ using UnityEngine.VFX;
 
 public class IonSurgeJumpSpell : Spell {
     public override float ChargeRate => 1f / 8f; // 8 second cooldown
-    public override int MaxNumberOfCharges => 1;
+    public override int MaxNumberOfCharges { get; set; } = 1;
     public override bool DoesBlockOtherSpells => false;
     public override bool IsBlockedByOtherSpells => false;
 

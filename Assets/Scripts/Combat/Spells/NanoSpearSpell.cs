@@ -45,10 +45,13 @@ public class NanoSpearSpell : Spell {
     [Tooltip("Curve for how the VFX projectile grows on the Z-plane (x/y axii) during the charge, NOT normalized")]
     public AnimationCurve? ProjectileHorizontalSizeAnimationCurve;
 
-    // This shouldn't charge if we're currently aiming
-    public override float ChargeRate => 1f / 5f; // 5 second cooldown
+    [Header("Debug")]
+    public bool DebugQuickRecharge = false;
 
-    public override int MaxNumberOfCharges => 1;
+    // This shouldn't charge if we're currently aiming
+    public override float ChargeRate => !DebugQuickRecharge ? 1f / 5f : 1f; // 5 second cooldown
+
+    public override int MaxNumberOfCharges { get; set; } = 1;
 
     public override bool DoesBlockOtherSpells => true;
     public override bool IsBlockedByOtherSpells => true;
@@ -59,6 +62,8 @@ public class NanoSpearSpell : Spell {
     private float minChargeDuration => chargeDuration * 0.3f;
     private readonly float chargeDuration = 2.0f; // It's honestly like 2 seconds? Play w/ it
     private bool didReleaseEarly = false;
+
+    private float cooldownBetweenFires = 0.2f;
 
     private float entityBaseDamage;
     private float timeOfChargeStart = Mathf.NegativeInfinity;
@@ -79,13 +84,19 @@ public class NanoSpearSpell : Spell {
 
     private bool isPlayingFireAnimation {
         get {
-            return Time.time - timeOfFireStart < fireAnimationDuration;
+            // isChargingAttack check is incase we're charging the *next* attack (i.e. in case of backup magazine)
+            return Time.time - timeOfFireStart < fireAnimationDuration && !isChargingAttack;
         }
     }
 
     private bool hasReachedMinChargeDuration {
         get {
             return Time.time - timeOfChargeStart >= minChargeDuration;
+        }
+    }
+    private bool hasReachedMinDurationBetweenFires {
+        get {
+            return Time.time - timeOfFireStart >= cooldownBetweenFires;
         }
     }
 
@@ -137,11 +148,11 @@ public class NanoSpearSpell : Spell {
         this.layerToIgnore = layerToIgnore;
 
         if (isChargingAttack) { // If we're already charging don't do anything since we already started
-            Debug.LogError("We're already charging!"); // Should never happen
             return;
         }
 
         // Start charging! This will only be called once (next time isChargingAttack will be true)
+        didReleaseEarly = false;
 
         PlayerAnimator!.SetBool("IsChargingNanoSpear", true);
 
@@ -173,10 +184,10 @@ public class NanoSpearSpell : Spell {
     public override void AttackButtonReleased() { // We released - fire!
         if (!isChargingAttack) { // If we're not charging don't do anything
             return;
-        } else if (!hasReachedMinChargeDuration) {
+        } else if (!hasReachedMinChargeDuration) { // Released the mouse but didn't charge enough
             didReleaseEarly = true;
             return;
-        } else if (didReleaseEarly) { // If we've already set it, keep going
+        } else if (didReleaseEarly) { // If we've already set it, keep going - we'll check in Update() to see if we should fire
             return;
         }
 
@@ -288,7 +299,7 @@ public class NanoSpearSpell : Spell {
 
     protected override bool CanShoot() {
         // I might need to do something here w/ this
-        return CurrentCharge >= MaxNumberOfCharges && !IsBlockingSpellActive;
+        return CurrentCharge >= CHARGE_PER_SHOT && !IsBlockingSpellActive;
     }
 
     private void Recharge() {

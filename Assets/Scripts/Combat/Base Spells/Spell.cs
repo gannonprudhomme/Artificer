@@ -33,9 +33,16 @@ public abstract class Spell : MonoBehaviour {
     public bool IsBlockingSpellActive = false;
 
     public abstract float ChargeRate { get; }
-    public abstract int MaxNumberOfCharges { get; }
+    public abstract int MaxNumberOfCharges { get; set; }
     public abstract bool DoesBlockOtherSpells { get; }
     public abstract bool IsBlockedByOtherSpells { get; }
+
+    // Keep a reference to the initial max charges so we can increment it (for backup magazine)
+    public int InitialMaxCharges;
+
+    protected virtual void Awake() {
+        InitialMaxCharges = MaxNumberOfCharges;
+    }
 
     protected abstract bool CanShoot();
 

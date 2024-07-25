@@ -38,7 +38,7 @@ public class IceWallSpell : Spell {
     /** Abstract Spell Properties **/
 
     public override float ChargeRate => DebugQuickRecharge ? 0.1f : 1f / 12f; // 12 second cooldown 
-    public override int MaxNumberOfCharges => 1;
+    public override int MaxNumberOfCharges { get; set; } = 1;
     public override bool DoesBlockOtherSpells => true;
     public override bool IsBlockedByOtherSpells => true;
 
