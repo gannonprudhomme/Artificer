@@ -4,10 +4,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SpellChargeUI : MonoBehaviour {
-    public Image SpellFillImage;
-    public TextMeshProUGUI SpellChargeText;
+#nullable enable
 
+public class SpellChargeUI : MonoBehaviour {
+    public Image? SpellFillImage;
+    public TextMeshProUGUI? SpellChargeText;
+    public TextMeshProUGUI? CountdownText;
+
+    public Spell? spell { get; set; } = null;
     public Spell spell { get; set; }
 
     void Update() {
@@ -24,12 +28,22 @@ public class SpellChargeUI : MonoBehaviour {
         }
 
         if (spell.MaxNumberOfCharges > 1) {
-            SpellChargeText.enabled = true;
+            SpellChargeText!.enabled = true;
         } else {
-            SpellChargeText.enabled = false;
+            SpellChargeText!.enabled = false;
         }
 
-        SpellFillImage.fillAmount = fillAmount;
-        SpellChargeText.text = $"{(int) spell.CurrentCharge}";
+        SpellFillImage!.fillAmount = fillAmount;
+        SpellChargeText!.text = $"{(int) spell.CurrentCharge}";
+
+        if (spell!.isOnCooldown) {
+            CountdownText!.enabled = true;
+            float chargePercent = (spell.CurrentCharge / Spell.CHARGE_PER_SHOT);
+            int secondsRemaining = Mathf.CeilToInt((1 - chargePercent) / spell.ChargeRate);
+
+            CountdownText!.text = $"{secondsRemaining}";
+        } else {
+            CountdownText!.enabled = false;
+        }
     }
 }

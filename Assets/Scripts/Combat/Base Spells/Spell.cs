@@ -40,6 +40,12 @@ public abstract class Spell : MonoBehaviour {
     // Keep a reference to the initial max charges so we can increment it (for backup magazine)
     public int InitialMaxCharges;
 
+    public bool isOnCooldown {
+        get {
+            return CurrentCharge < CHARGE_PER_SHOT;
+        }
+    }
+
     protected virtual void Awake() {
         InitialMaxCharges = MaxNumberOfCharges;
     }
