@@ -16,6 +16,7 @@ Material:
   - _ADDITIONAL_LIGHTS
   - _ADDITIONAL_LIGHT_SHADOWS
   - _MAIN_LIGHT_SHADOWS
+  - _SHADOWS_SOFT
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -109,7 +110,7 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
-    - _Fresnel_Power: 0.39
+    - _Fresnel_Power: -0.07
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -122,7 +123,8 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _RefractionAmount: 0.39
-    - _Refraction_Amount: 0.54
+    - _Refraction_Amount: 0.056
+    - _SHADOWS_SOFT: 1
     - _Smoothness: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -133,7 +135,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.30015132, g: 0.5507738, b: 0.8962264, a: 1}
+    - _Color: {r: 0.4704966, g: 0.6547707, b: 0.9150943, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Fresnel_Color: {r: 0.5424528, g: 0.89351857, b: 1, a: 0}
     - _Ice_Tiling: {r: 4, g: 4, b: 0, a: 0}
