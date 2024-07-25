@@ -89,6 +89,8 @@ public class PlayerSpellsController : MonoBehaviour {
 
         IsForcingAimLookForward = DetermineIsForceLookingForward();
 
+        spells[1].MaxNumberOfCharges = spells[1].InitialMaxCharges + itemsController!.ModifiedSecondarySpellCharges;
+
         HandleSpellBlocking();
         HandleSpellCancelling();
     }

@@ -31,6 +31,8 @@ public abstract class Item: ScriptableObject {
 }
 
 public interface ItemsDelegate {
+    public float ModifiedSprintMultiplier { get; set; }
+
     public void PickupItem(Item item);
 }
 

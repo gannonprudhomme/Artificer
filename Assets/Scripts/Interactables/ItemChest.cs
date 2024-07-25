@@ -21,6 +21,15 @@ public class ItemChest : Interactable {
     // Set by the Player, but ideally it'd be set by the Director when we spawn this
     public GoldWallet? GoldWallet { get; set; }
 
+    [Tooltip("All items we can pick frmo")]
+    public AllItems? AllItems;
+
+    [Tooltip("Prefab we spawn when the chest is opened")]
+    public ItemPickup? ItemPickupPrefab;
+
+    [Tooltip("Layer mask for the level. Used to determine where to spawn the item")]
+    public LayerMask LevelLayerMask;
+
     // I think the Scene Director sets this?
     private int costToPurchase = 5; // Temp default value
 
@@ -55,7 +64,9 @@ public class ItemChest : Interactable {
         }
     }
 
-    public override void OnSelected(GoldWallet _) { // We don't need to pass this anymore
+    public override void OnSelected(GoldWallet _) { // TODO: We don't need to pass this anymore
+        if (hasBeenInteractedWith) return; // Don't do anything if it's already been opened
+
         // Note below spends the gold when it returns true
         if (!GoldWallet!.SpendGoldIfPossible(costToPurchase)) {
             // Don't do anything?
@@ -73,6 +84,11 @@ public class ItemChest : Interactable {
         CostText!.enabled = false;
 
         Animator!.SetBool(ANIM_IS_OPEN, true);
+
+        ItemPickup itemPickup = Instantiate(ItemPickupPrefab!, transform.position, Quaternion.identity);
+        itemPickup.startPosition = transform.position;
+        itemPickup.endPosition = DetermineItemSpawnPosition();
+        itemPickup.item = PickItemToDrop();
 
         // We spent it, do the other shit
 
@@ -94,5 +110,24 @@ public class ItemChest : Interactable {
 
     public override void OnNotNearby() {
         CostText!.enabled = false;
+    }
+
+    private Vector3 DetermineItemSpawnPosition() {
+        if (Physics.Raycast(
+            origin: transform.position + (transform.forward * 5f) + (Vector3.up * 10),
+            direction:  Vector3.down,
+            out RaycastHit hit,
+            maxDistance: 10f
+            // TODO: level mask should just be the level
+        )) {
+            return hit.point;
+        } else {
+            Debug.LogError("Couldn't find position for item!");
+            return transform.position + (transform.forward * 5f);
+        }
+    }
+
+    private Item PickItemToDrop() {
+        return AllItems!.CommonItems[Random.Range(0, AllItems!.CommonItems.Count)];
     }
 }

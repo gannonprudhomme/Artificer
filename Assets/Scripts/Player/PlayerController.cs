@@ -154,7 +154,7 @@ public class PlayerController : Entity {
 
     protected override float StartingBaseDamage => 12f;
     public override float CurrentBaseDamage => StartingBaseDamage + ((experience!.currentLevel - 1) * 2.4f);
-
+    private float currentSprintSpeedModifier => SprintSpeedModifier + itemsController!.ModifiedSprintMultiplier;
 
     /** FUNCTIONS **/
 
@@ -275,7 +275,7 @@ public class PlayerController : Entity {
     private void HandleCharacterMovement() {
         // character movement handling
         DetermineIsSprinting();
-        float speedModifier = isSprinting ? SprintSpeedModifier : 1f;
+        float speedModifier = isSprinting ? currentSprintSpeedModifier : 1f;
 
         // Note this function also changes transform.rotation (yes this is bad design)
         Vector3 worldSpaceMoveInput = HandlePlayerRotationMovementAndReturnMoveInput();

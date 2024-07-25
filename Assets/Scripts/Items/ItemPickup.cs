@@ -3,11 +3,10 @@ using UnityEngine.Splines;
 
 #nullable enable
 
+[RequireComponent(typeof(MeshFilter))]
 public class ItemPickup : MonoBehaviour {
-    // We could probably just GetComponent this
-    public MeshFilter? MeshFilter;
-
     // The item that is granted upon pickup
+    // [HideInInspector] // Only commented out for testing
     public Item? item;
 
     [HideInInspector]
@@ -31,7 +30,7 @@ public class ItemPickup : MonoBehaviour {
         );
 
         if (item != null) {
-            MeshFilter!.mesh = item.DropModelMesh!;
+            GetComponent<MeshFilter>()!.mesh = item.DropModelMesh!;
         } else {
             Debug.LogError("No Item for ItemPickup!");
         }

@@ -325,7 +325,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5212676012220499517}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 2.32, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -333,7 +333,7 @@ Transform:
   - {fileID: 7865509358084926065}
   - {fileID: 8676565532782920254}
   m_Father: {fileID: 4844885244258225738}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &6351112900572687296
 GameObject:
   m_ObjectHideFlags: 0
@@ -360,14 +360,14 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6351112900572687296}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6162339486773589191}
   m_Father: {fileID: 8676565532782920254}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0.71}
@@ -605,8 +605,12 @@ MonoBehaviour:
   UIFollowPlayer: {fileID: 8535964964600109822}
   CostText: {fileID: 2912574266678846875}
   Animator: {fileID: 4097331176474438400}
+  AllItems: {fileID: 11400000, guid: e2374badd916fae4b9ab0be4b7333d52, type: 2}
   ItemPickupPrefab: {fileID: 7644068661773226058, guid: b8759bd9169665a4981bc21c242f7ea8,
     type: 3}
+  LevelLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!95 &4097331176474438400
 Animator:
   serializedVersion: 5

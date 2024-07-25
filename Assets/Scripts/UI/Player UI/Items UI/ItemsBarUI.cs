@@ -10,13 +10,11 @@ public class ItemsBarUI : MonoBehaviour {
     [Tooltip("Prefab we use for making more Item UIs when we pick up items")]
     public ItemUI? ItemUIPrefab;
 
+    // Store a mapping to the UI elements so we can update their count when we pick up
     private Dictionary<string, ItemUI> itemUIs = new();
 
     private void Start() {
         ItemsController!.OnItemPickedUp += OnItemPickedUp;
-    }
-
-    private void Update() {
     }
 
     private void OnItemPickedUp(Item item, int count) {

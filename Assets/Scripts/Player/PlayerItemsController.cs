@@ -6,9 +6,16 @@ using UnityEngine.Events;
 #nullable enable
 
 public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
+    [HideInInspector]
+    private float _modifiedSprintMultiplier = 0;
     public Dictionary<string, List<Item>> items = new();
 
-    public UnityAction<Item, int> OnItemPickedUp;
+    public UnityAction<Item, int>? OnItemPickedUp;
+
+    public float ModifiedSprintMultiplier {
+        get => _modifiedSprintMultiplier;
+        set => _modifiedSprintMultiplier = value;
+    }
 
     void Update() {
         ResetValues();
@@ -33,5 +40,6 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     }
 
     private void ResetValues() {
+        _modifiedSprintMultiplier = 0;
     }
 }
