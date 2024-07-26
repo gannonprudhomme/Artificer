@@ -6,6 +6,7 @@ using UnityEngine.Events;
 #nullable enable
 
 public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
+    // TODO: Should I just do a abstract class so I don't have to do this BS?
     [HideInInspector]
     private float _modifiedSprintMultiplier = 0;
     [HideInInspector]
