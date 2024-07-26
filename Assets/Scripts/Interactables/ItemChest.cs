@@ -71,7 +71,6 @@ public class ItemChest : Interactable {
         if (!GoldWallet!.SpendGoldIfPossible(costToPurchase)) {
             // Don't do anything?
             return;
-
         }
         
         foreach(Material material in GetMaterials()) {
@@ -99,6 +98,12 @@ public class ItemChest : Interactable {
         // Play audio
 
         // For now, drop the item
+    }
+
+    public override void OnHover() {
+        base.OnHover();
+
+        HoverEvent!.OnHover("Open chest", costToPurchase);
     }
 
     public override void OnNearby() {

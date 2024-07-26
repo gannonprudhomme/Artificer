@@ -105,6 +105,9 @@ public class PlayerController : Entity {
     [Tooltip("VFX instance which plays when the player starts to hover")]
     public VisualEffect? JetpackHoverVFXInstance;
 
+    [Header("Events")]
+    public InteractableHoverEvent? InteractableHoverEvent;
+
     /** LOCAL VARIABLES **/
     private Experience? experience;
     private GoldWallet? goldWallet;
@@ -618,6 +621,7 @@ public class PlayerController : Entity {
 
         if (!isAnyInteractableInScreenBounds) {
             currentAimedAtInteractable = null;
+            InteractableHoverEvent!.OnNoHover?.Invoke();
             return;
         }
 
@@ -649,6 +653,10 @@ public class PlayerController : Entity {
             if (interactable != currentAimedAtInteractable) {
                 interactable.OnNotHovering();
             }
+        }
+
+        if (currentAimedAtInteractable == null) {
+            InteractableHoverEvent!.OnNoHover?.Invoke();
         }
     }
 

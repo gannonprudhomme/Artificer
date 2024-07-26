@@ -38,4 +38,10 @@ public class Barrel : Interactable {
 
         // Also give experience
     }
+
+    public override void OnHover() {
+        base.OnHover();
+
+        HoverEvent!.OnHover("Open barrel", null);
+    }
 }

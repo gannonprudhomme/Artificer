@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "ScriptableObjects/Items/EnergyDrink")]
 public class EnergyDrinkItem: Item { 
     public override string itemName => "Energy Drink";
-    public override string description => "Sprint speed is improved by 25%. _(+25% per stack)_";
+    public override string description => "Sprint speed is improved by 25%. (+25% per stack)";
     public override Rarity rarity => Rarity.COMMON;
 
     public override void OnUpdate(ItemsDelegate itemsController, int count) {

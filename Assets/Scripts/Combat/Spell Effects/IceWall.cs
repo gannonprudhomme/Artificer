@@ -42,9 +42,6 @@ public class IceWall : MonoBehaviour {
     private void SpawnIceSpikePair() {
         int spawnIndex = numIceSpikesSpawned / 2;
 
-        Debug.Log($"Spawning ice spikes at index {spawnIndex}");
-
-
         // Spawn one in negative
         IceWallSpike negativeDirSpike = CreateAndPlaceIceSpike(pairSpawnIndex: spawnIndex, isNegative: true);
         iceSpikes![numIceSpikesSpawned] = negativeDirSpike;

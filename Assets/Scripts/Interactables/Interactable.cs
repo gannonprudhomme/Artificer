@@ -13,6 +13,8 @@ using UnityEngine;
 // Note this contains both spawned interactables like Chests & Barells,
 // but also stuff like ItemPickup
 public abstract class Interactable : MonoBehaviour {
+    public InteractableHoverEvent? HoverEvent;
+
     protected bool hasBeenInteractedWith = false;
 
     // We should probably rename this since you don't "purchase" everything

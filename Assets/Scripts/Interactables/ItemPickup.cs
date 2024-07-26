@@ -100,14 +100,14 @@ public class ItemPickup : Interactable {
     }
 
     public override void OnHover() {
-        Debug.Log("Hovering on item pickup");
+        HoverEvent!.OnHover(item!.itemName, null);
+
         foreach(Material material in GetMaterials()) {
             material.SetInt(SHADER_OUTLINE_COLOR_FLIP, 1);
         }
     }
 
     public override void OnNotHovering() {
-        Debug.Log("Not hovering on item pickup");
         foreach(Material material in GetMaterials()) {
             material.SetInt(SHADER_OUTLINE_COLOR_FLIP, 0);
         }
