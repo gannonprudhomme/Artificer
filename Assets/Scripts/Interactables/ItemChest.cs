@@ -59,12 +59,12 @@ public class ItemChest : Interactable {
         if (GoldWallet != null) {
             // Set the color of the text depending on if we can afford this or not
             foreach (Material material in GetMaterials()) {
-                material.SetInt(SHADER_OUTLINE_CAN_AFFORD, GoldWallet.CanAfford(costToPurchase) == true ? 1 : 0);
+                material.SetInt(SHADER_OUTLINE_COLOR_FLIP, GoldWallet.CanAfford(costToPurchase) == true ? 1 : 0);
             }
         }
     }
 
-    public override void OnSelected(GoldWallet _) { // TODO: We don't need to pass this anymore
+    public override void OnSelected(GoldWallet _, ItemsDelegate itemsDelegate) {
         if (hasBeenInteractedWith) return; // Don't do anything if it's already been opened
 
         // Note below spends the gold when it returns true

@@ -577,7 +577,6 @@ public class PlayerController : Entity {
         // iterate through all of them
         // if we're "hovering" over them show the UI for it (in Interactable code)
         float minDistanceToInteractableToBeHovering = 20f;
-
         List<Interactable> nearbyInteractables = new();
         Interactable[] allInteractables = FindObjectsOfType<Interactable>();
         foreach(Interactable interactable in allInteractables) {
@@ -596,11 +595,15 @@ public class PlayerController : Entity {
             }
         }
 
-        bool areAimingAtInteractable = false;
-        foreach(Interactable nearbyInteractable in nearbyInteractables) {
+        // Now that we've collected all of the nearby interactables (and done the OnNearby()/OnNotNearby() for them)
+        // iterate through them and make sure there's some in the screen bounds before we do the raycast for OnHover
+
+        bool isAnyInteractableInScreenBounds = false;
+        foreach (Interactable nearbyInteractable in nearbyInteractables) {
             // First check if it's even in our FOV
             Vector3 screenPoint = PlayerCamera!.WorldToScreenPoint(nearbyInteractable.transform.position);
 
+            // TODO: this negate is dumb, flip it
             if (!(screenPoint.z > 0 && // if it's positive it's in front of us, negative if behind
                 screenPoint.x > 0 &&
                 screenPoint.x < Screen.width &&
@@ -608,34 +611,44 @@ public class PlayerController : Entity {
                 screenPoint.y < Screen.height
             )) {
                 continue; // Out of screen bounds, don't try to raycast
-            }
+            } else {
+                isAnyInteractableInScreenBounds = true;
+            } 
+        }
 
-            float distanceFromCameraToPlayer = Vector3.Distance(PlayerCamera!.transform.position, transform.position);
+        if (!isAnyInteractableInScreenBounds) {
+            currentAimedAtInteractable = null;
+            return;
+        }
 
-            // it's in bounds, now check if we can actually hit it (i.e. it's not behind a wall)
-            if (Physics.Raycast(
-                origin: PlayerCamera!.transform.position,
-                direction: PlayerCamera!.transform.forward,
-                out RaycastHit hit,
-                // Because minDistanceToInteractableToBeHovering is the distance from the camera to the player,
-                // we need to add the distance from the camera to the player to it
-                maxDistance: minDistanceToInteractableToBeHovering + distanceFromCameraToPlayer
-            )) {
-                if (hit.collider.TryGetComponent(out ColliderInteractablePointer pointer) &&
-                    pointer.Parent == nearbyInteractable // Do we really need to do this check?
-                ) {
-                    // Then check if we're actually aiming at it (middle of the screen??)
-                    currentAimedAtInteractable = nearbyInteractable;
-                    areAimingAtInteractable = true;
-                    nearbyInteractable.OnHover();
-                    break; // We can't do this for anything else (can only interact w/ one thing at a time)
-                }
+        // There's an interactable in the screen bounds, now raycast and see if we're aiming at anything
+
+        float distanceFromCameraToPlayer = Vector3.Distance(PlayerCamera!.transform.position, transform.position);
+
+        RaycastHit[] hits = Physics.RaycastAll(
+            origin: PlayerCamera!.transform.position,
+            direction: PlayerCamera!.transform.forward,
+            // Because minDistanceToInteractableToBeHovering is the distance from the camera to the player,
+            // we need to add the distance from the camera to the player to it
+            maxDistance: minDistanceToInteractableToBeHovering + distanceFromCameraToPlayer
+            // layerMask: 0 // TODO: Add a layer mask for interactables?
+        );
+
+        // Reset it
+        currentAimedAtInteractable = null;
+
+        foreach(RaycastHit hit in hits) {
+            if (hit.collider.TryGetComponent(out ColliderInteractablePointer pointer)) {
+                currentAimedAtInteractable = pointer.Parent;
+                currentAimedAtInteractable.OnHover();
             }
         }
 
-        // Reset it in case we're not aiming at anything (so pressing E won't do anything)
-        if (!areAimingAtInteractable) {
-            currentAimedAtInteractable = null;
+        // Call OnNotHovering for all of the interactables that aren't the one we're aiming at
+        foreach(Interactable interactable in nearbyInteractables) {
+            if (interactable != currentAimedAtInteractable) {
+                interactable.OnNotHovering();
+            }
         }
     }
 
@@ -661,7 +674,7 @@ public class PlayerController : Entity {
         bool wasInteractedPressed = inputHandler!.GetInteractInputDown();
 
         if (wasInteractedPressed && currentAimedAtInteractable != null) {
-            currentAimedAtInteractable.OnSelected(goldWallet!);
+            currentAimedAtInteractable.OnSelected(goldWallet!, itemsDelegate: itemsController!);
         }
     }
 

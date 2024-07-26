@@ -4,10 +4,12 @@ using UnityEngine.VFX;
 
 #nullable enable
 
-public class ItemPickup : MonoBehaviour {
+public class ItemPickup : Interactable {
     [Header("References")]
     public MeshRenderer? MeshRenderer;
     public MeshFilter? MeshFilter;
+    [Tooltip("Mesh Collider we use for the hover detection")]
+    public MeshCollider? ItemMeshCollider;
     public VisualEffect? OnSpawnVFX;
 
     [Tooltip("VFX which plays as soon as the actual item model appears")]
@@ -39,7 +41,7 @@ public class ItemPickup : MonoBehaviour {
 
     private BezierCurve curve;
 
-    void Start() {
+    protected override void Start() {
         startAnimationTime = Time.time;
 
         MeshRenderer!.enabled = false;
@@ -55,13 +57,20 @@ public class ItemPickup : MonoBehaviour {
 
         if (item != null) {
             MeshFilter!.mesh = item.DropModelMesh!;
+            ItemMeshCollider!.sharedMesh = item.DropModelMesh!;
         } else {
             Debug.LogError("No Item for ItemPickup!");
         }
 
         Light!.color = ColorForRarity(item!.rarity);
         OnSpawnVFX!.SetVector4("Color", ColorForRarity(item!.rarity));
-        // Also set it for the idle vfx
+        // TODO: Also set it for the idle vfx
+
+        foreach (Material material in GetMaterials()) {
+            material.SetColor(SHADER_OUTLINE_TRUE_COLOR, Color.yellow);
+            material.SetColor(SHADER_OUTLINE_FALSE_COLOR, Color.white);
+            material.SetInt(SHADER_OUTLINE_COLOR_FLIP, 0);
+        }
     }
 
     void Update() {
@@ -90,12 +99,34 @@ public class ItemPickup : MonoBehaviour {
         transform.position = CurveUtility.EvaluatePosition(curve, (Time.time - startAnimationTime) / animationDuration);
     }
 
+    public override void OnHover() {
+        Debug.Log("Hovering on item pickup");
+        foreach(Material material in GetMaterials()) {
+            material.SetInt(SHADER_OUTLINE_COLOR_FLIP, 1);
+        }
+    }
+
+    public override void OnNotHovering() {
+        Debug.Log("Not hovering on item pickup");
+        foreach(Material material in GetMaterials()) {
+            material.SetInt(SHADER_OUTLINE_COLOR_FLIP, 0);
+        }
+    }
+
+    public override void OnSelected(GoldWallet _, ItemsDelegate itemsDelegate) {
+        Pickup(itemsDelegate);
+    }
+
     private void OnTriggerEnter(Collider other) {
         if (other.TryGetComponent(out ItemsDelegate itemsDelegate)) {
-            itemsDelegate.PickupItem(item!);
-
-            Destroy(gameObject);
+            Pickup(itemsDelegate);
         }
+    }
+
+    private void Pickup(ItemsDelegate itemsDelegate) {
+        itemsDelegate.PickupItem(item!);
+
+        Destroy(gameObject);
     }
 
     private Color ColorForRarity(Item.Rarity rarity) {

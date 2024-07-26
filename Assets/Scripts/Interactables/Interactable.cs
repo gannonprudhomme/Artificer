@@ -8,16 +8,25 @@ using UnityEngine;
 // and we'd use an Octree "query" to even check if the player is close enough to anyt interactable
 // to check if we're aiming at it
 // but we'll just brute-force all of them for now
+
+// Anything that can be interacted with (by pressing E) and has e.g. an outline
+// Note this contains both spawned interactables like Chests & Barells,
+// but also stuff like ItemPickup
 public abstract class Interactable : MonoBehaviour {
     protected bool hasBeenInteractedWith = false;
 
     // We should probably rename this since you don't "purchase" everything
     // more of like a CanInteract or something
-    protected const string SHADER_OUTLINE_CAN_AFFORD = "_CanAfford";
+
+    // For chests this is "Can Afford"
+    // For item pickups this is "Is Hovering"
+    protected const string SHADER_OUTLINE_COLOR_FLIP = "_ColorFlip";
     protected const string SHADER_OUTLINE_IS_ENABLED = "_IsEnabled";
+    protected const string SHADER_OUTLINE_TRUE_COLOR = "_TrueColor";
+    protected const string SHADER_OUTLINE_FALSE_COLOR = "_FalseColor";
 
     // The user was hovering/aiming at it and pressed E to interact
-    public abstract void OnSelected(GoldWallet goldWallet);
+    public abstract void OnSelected(GoldWallet goldWallet, ItemsDelegate itemsDelegate);
 
 
     protected virtual void Start() {

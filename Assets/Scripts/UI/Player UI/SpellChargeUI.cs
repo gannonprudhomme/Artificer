@@ -12,7 +12,12 @@ public class SpellChargeUI : MonoBehaviour {
     public TextMeshProUGUI? CountdownText;
 
     public Spell? spell { get; set; } = null;
-    public Spell spell { get; set; }
+
+    private void Start() {
+        // TODO: Figure out how to add a border to the text
+        // CountdownText!.outlineWidth = 0.5f;
+        // CountdownText!.outlineColor = new Color(0, 0, 0, 1);
+    }
 
     void Update() {
         if (spell == null) {

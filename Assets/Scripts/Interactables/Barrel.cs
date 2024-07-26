@@ -23,7 +23,7 @@ public class Barrel : Interactable {
         }
     }
 
-    public override void OnSelected(GoldWallet goldWallet) {
+    public override void OnSelected(GoldWallet goldWallet, ItemsDelegate _) {
         Debug.Log("Barrel selected!");
 
         // Give it the money

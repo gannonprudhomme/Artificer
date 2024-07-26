@@ -754,10 +754,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -1619.0,
-            "y": -425.0,
-            "width": 207.9998779296875,
-            "height": 315.0
+            "x": -1626.0001220703125,
+            "y": -398.0000305175781,
+            "width": 208.0,
+            "height": 315.00006103515627
         }
     },
     "m_Slots": [
@@ -951,7 +951,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
     "m_ObjectId": "553d5e0d109249238e43a7c1b040e6f8",
     "m_Id": 0,
-    "m_DisplayName": "Can Buy Color",
+    "m_DisplayName": "TrueColor",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -991,7 +991,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
     "m_ObjectId": "57b22585400b4fd2b88fe481105e3882",
     "m_Id": 0,
-    "m_DisplayName": "Can't Buy Color",
+    "m_DisplayName": "FalseColor",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -1213,10 +1213,10 @@
     "m_Guid": {
         "m_GuidSerialized": "a631efb4-7901-4cb8-ac29-a90a67dbee19"
     },
-    "m_Name": "Can't Buy Color",
+    "m_Name": "FalseColor",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "Can't Buy Color",
-    "m_DefaultReferenceName": "_Can_t_Buy_Color",
+    "m_RefNameGeneratedByDisplayName": "FalseColor",
+    "m_DefaultReferenceName": "_FalseColor",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
@@ -1350,11 +1350,11 @@
     },
     "m_Name": "Object",
     "m_DrawState": {
-        "m_Expanded": true,
+        "m_Expanded": false,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -1665.0001220703125,
-            "y": 309.00006103515627,
+            "x": -1664.0,
+            "y": 310.0,
             "width": 153.0,
             "height": 173.0
         }
@@ -1444,7 +1444,7 @@
     "m_Type": "UnityEditor.ShaderGraph.BooleanMaterialSlot",
     "m_ObjectId": "889ada2147cc4d9f9f3d9f92c271c8a9",
     "m_Id": 0,
-    "m_DisplayName": "CanAfford",
+    "m_DisplayName": "ColorFlip",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -1562,10 +1562,10 @@
     "m_Guid": {
         "m_GuidSerialized": "328ae7db-bb1f-4f5b-a54a-360a8ff6f18a"
     },
-    "m_Name": "Can Buy Color",
+    "m_Name": "TrueColor",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "Can Buy Color",
-    "m_DefaultReferenceName": "_Can_Buy_Color",
+    "m_RefNameGeneratedByDisplayName": "TrueColor",
+    "m_DefaultReferenceName": "_TrueColor",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
@@ -1786,10 +1786,10 @@
             "m_Id": "29b3d947b1be437e97ddc2c71dc38687"
         },
         {
-            "m_Id": "7298844c84b24423b9be050de51bc338"
+            "m_Id": "bd2735ce3c5e406dac7fd8fef05835e9"
         },
         {
-            "m_Id": "bd2735ce3c5e406dac7fd8fef05835e9"
+            "m_Id": "7298844c84b24423b9be050de51bc338"
         },
         {
             "m_Id": "e9a5e768e049461eae9b59b74f607fe9"
@@ -1850,11 +1850,11 @@
     "m_Guid": {
         "m_GuidSerialized": "aa17b95d-1247-4b09-832d-4008c6320a8a"
     },
-    "m_Name": "CanAfford",
+    "m_Name": "ColorFlip",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "CanAfford",
-    "m_DefaultReferenceName": "_CanAfford",
-    "m_OverrideReferenceName": "_CanAfford",
+    "m_RefNameGeneratedByDisplayName": "ColorFlip",
+    "m_DefaultReferenceName": "_ColorFlip",
+    "m_OverrideReferenceName": "_ColorFlip",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
