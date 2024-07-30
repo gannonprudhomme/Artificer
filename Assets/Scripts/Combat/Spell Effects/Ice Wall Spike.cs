@@ -116,7 +116,7 @@ public class IceWallSpike : MonoBehaviour {
         VisualEffect detonateVFX = Instantiate(ExplosionVFXPrefab!, transform.position, Quaternion.identity);
         detonateVFX.Play(); // Probs don't even need to do this
 
-        Destroy(detonateVFX, 1.0f); // Destroy the VFX after 1 second (probs gratious - only need like 0.5 sec in reality)
+        Destroy(detonateVFX.gameObject, 1.0f); // Destroy the VFX after 1 second (probs gratious - only need like 0.5 sec in reality)
 
         Destroy(this.gameObject);
     }

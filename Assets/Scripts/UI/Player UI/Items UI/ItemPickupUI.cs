@@ -45,13 +45,11 @@ public class ItemPickupUI : MonoBehaviour {
         }
     }
     private void OnItemPickedUp(Item item, int _) {
-        Debug.Log("Picked up here");
         // Add it to the queue to be displayed
         itemsToDisplay.Enqueue(item);
     }
 
     private void DisplayItem(Item item) {
-        Debug.Log($"Displaying {item.itemName}");
         isDisplaying = true;
         canvas!.enabled = true;
         timeOfDisplayStart = Time.time;
@@ -59,9 +57,5 @@ public class ItemPickupUI : MonoBehaviour {
         ItemImage!.texture = item.Icon;
         ItemTitleText!.text = item.itemName;
         ItemSubtitleText!.text = item.description;
-    }
-
-    private void Hide() {
-        
     }
 }

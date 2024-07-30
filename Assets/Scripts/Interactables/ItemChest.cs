@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.VFX;
+using UnityEngine.Splines;
 
 #nullable enable
 
@@ -17,10 +19,18 @@ public class ItemChest : Interactable {
     [Tooltip("Animator for the chest")]
     public Animator? Animator; // Animator for the chest
 
-    // TODO: We need a better way of passing this. Maybe in SetUp()?
-    // Set by the Player, but ideally it'd be set by the Director when we spawn this
-    public GoldWallet? GoldWallet { get; set; }
+    [Header("VFX")]
+    [Tooltip("Left VFX which plays when we first interact with the chest")]
+    public VisualEffect? LeftInteractionVFXInstance;
+    [Tooltip("Right VFX which plays when we first interact with the chest")]
+    public VisualEffect? RightInteractionVFXInstance;
 
+    [Tooltip("Contains the path for the left interaction vfx")]
+    public SplineContainer? LeftInteractionVFXSplineContainer;
+    [Tooltip("Contains the path for the right interaction vfx")]
+    public SplineContainer? RightInteractionVFXSplineContainer;
+
+    [Header("Item")]
     [Tooltip("All items we can pick frmo")]
     public AllItems? AllItems;
 
@@ -30,11 +40,16 @@ public class ItemChest : Interactable {
     [Tooltip("Layer mask for the level. Used to determine where to spawn the item")]
     public LayerMask LevelLayerMask;
 
+    // TODO: We need a better way of passing this. Maybe in SetUp()?
+    // Set by the Player, but ideally it'd be set by the Director when we spawn this
+    public GoldWallet? GoldWallet { get; set; }
+
     // I think the Scene Director sets this?
     private int costToPurchase = 5; // Temp default value
 
     private float timeOfInteract = Mathf.NegativeInfinity;
-    private readonly float openVFXDuration = 0.5f;
+    private readonly float interactVFXDuration = 0.5f;
+    // Whether we've finished this interact VFX & have played the open VFX (and spawned the item)
     private bool hasOpened = false;
 
     private const string ANIM_HAS_INTERACTED = "HasInteracted";
@@ -55,6 +70,9 @@ public class ItemChest : Interactable {
 
         Animator!.SetBool(ANIM_HAS_OPENED, false);
         Animator!.SetBool(ANIM_HAS_INTERACTED, false);
+
+        LeftInteractionVFXInstance!.SetFloat("Lifetime", interactVFXDuration);
+        RightInteractionVFXInstance!.SetFloat("Lifetime", interactVFXDuration);
     }
 
     void Update() {
@@ -70,11 +88,11 @@ public class ItemChest : Interactable {
 
         // If we've interacted with it, check if we should play the actual open animation & spawn the item
         if (hasBeenInteractedWith && !hasOpened) {
-            bool isDoneWithOpenVFX = Time.time - timeOfInteract > openVFXDuration;
-            if (isDoneWithOpenVFX) {
-                Animator!.SetBool(ANIM_HAS_OPENED, true);
-                SpawnItem();
-                hasOpened = true;
+            bool isDoneWithInteractVFX = Time.time - timeOfInteract > interactVFXDuration;
+            if (isDoneWithInteractVFX) {
+                DoOpen();
+            } else {
+                HandleInteractionVFX();
             }
         }
     }
@@ -96,14 +114,14 @@ public class ItemChest : Interactable {
         timeOfInteract = Time.time;
         hasOpened = false;
 
+        LeftInteractionVFXInstance!.Play();
+        RightInteractionVFXInstance!.Play();
+
         // Hide the text (and never show it again)
         CostText!.enabled = false;
 
-        Animator!.SetBool(ANIM_HAS_INTERACTED, true);
-
         // Start the animation
-
-        // Play VFX
+        Animator!.SetBool(ANIM_HAS_INTERACTED, true);
 
         // Play audio
     }
@@ -127,8 +145,30 @@ public class ItemChest : Interactable {
         CostText!.enabled = false;
     }
 
+    // Called after the user interacts with the chest and we're playing the interaction VFX (before it's actually opened)
+    private void HandleInteractionVFX() {
+        float time = (Time.time - timeOfInteract) / interactVFXDuration;
+
+        Vector3 leftLocalPos = SplineUtility.EvaluatePosition(LeftInteractionVFXSplineContainer!.Splines[0]!, time);
+        Vector3 rightLocalPos = SplineUtility.EvaluatePosition(RightInteractionVFXSplineContainer!.Splines[0]!, time);
+
+        Vector3 leftWorldPos = LeftInteractionVFXSplineContainer!.transform.localToWorldMatrix.MultiplyPoint(leftLocalPos);
+        Vector3 rightWorldPos = RightInteractionVFXSplineContainer!.transform.localToWorldMatrix.MultiplyPoint(rightLocalPos);
+
+        LeftInteractionVFXInstance!.transform.position = leftWorldPos;
+        RightInteractionVFXInstance!.transform.position = rightWorldPos;
+    }
+
+    // Start the open animation & actually spawn the item
+    private void DoOpen() {
+        hasOpened = true;
+
+        Animator!.SetBool(ANIM_HAS_OPENED, true);
+        SpawnItem();
+    }
+
+    // We wait to call this until the interaction VFX is done playing
     private void SpawnItem() {
-        // Wait to do this until the open VFX is done
         ItemPickup itemPickup = Instantiate(ItemPickupPrefab!, transform.position, Quaternion.identity);
         itemPickup.startPosition = transform.position;
         itemPickup.endPosition = DetermineItemSpawnPosition();
