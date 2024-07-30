@@ -58,7 +58,6 @@ public class InteractablesDirector : MonoBehaviour {
         };
     }
 
-    // Start is called before the first frame update
     void Start() {
         numCredits = 220; // Depends on level, but we'll set it for Titanic Planes
 
@@ -75,37 +74,36 @@ public class InteractablesDirector : MonoBehaviour {
         // Done spawning
     }
 
-    // Update is called once per frame
-    void Update() {
-        
-    }
-
     private void SpawnInteratable(InteractableCard interactableCard) {
         // I guess we can query the NavMesh?
 
-        if (!TryFindRandomSpawnPosition(Level!, out Vector3 spawnPosition)) {
-            // TODO: I should figure out why this is happening so freaking much
-            // Debug.LogError("Couldn't spawn it");
+        if (!TryFindRandomSpawnPosition(Level!, out Vector3 spawnPosition, out Vector3 spawnNormal)) {
+            Debug.LogError($"Couldn't spawn {interactableCard.identifier}");
             return;
         }
 
+        Vector3 finalPosition = spawnPosition + (Vector3.up * -0.5f);
 
-        Interactable interactable = Instantiate(interactableCard.prefab, spawnPosition, Quaternion.identity);
-        interactable.transform.position = spawnPosition;
+        // Align the interactable w/ the normal of the surface we hit + add a random rotation
+        Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, spawnNormal);
+        Quaternion randomRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+        Quaternion rotation = normalRotation * randomRotation;
+
+        Interactable interactable = Instantiate(interactableCard.prefab, finalPosition, rotation);
 
         if (interactable is ItemChest itemChest) {
             itemChest.SetUp(
                 costToPurchase: interactableCard.spawnCost,
                 target: Target!,
                 goldWallet: FindObjectOfType<GoldWallet>() // This is awful but fuck it whatever
-            ); ;
+            );
         }
     }
 
-    private bool TryFindRandomSpawnPosition(GameObject level, out Vector3 result) {
+    private bool TryFindRandomSpawnPosition(GameObject level, out Vector3 position, out Vector3 normal) {
         Bounds bounds = GetBoundsFrom(obj: level);
 
-        for(int i = 0; i < 30; i++) {
+        for(int i = 0; i < 300; i++) { // It frequently takes 100 tries to get this right
             Vector3 randPosition = new(
                 Random.Range(bounds.min.x, bounds.max.x),
                 Random.Range(bounds.min.y, bounds.max.y),
@@ -113,16 +111,22 @@ public class InteractablesDirector : MonoBehaviour {
             );
 
             float agentHeight = 3.0f;
+
             if (NavMesh.SamplePosition(randPosition, out NavMeshHit hit, agentHeight * 2f, NavMesh.AllAreas)) {
-                result = hit.position;
-                return true;
+                position = hit.position;
+
+                if (GetNormalFromNavMeshHit(navMeshHit: hit, out Vector3 surfaceNormal)) {
+                    normal = surfaceNormal;
+
+                    return true;
+                } else {
+                    Debug.LogError($"Couldn't get surface normal for successful NavMesh SamplePosition");
+                }
             } 
         }
 
-        // TODO: I should figure out why this is happening so freaking much
-        // Debug.LogError("Couldn't find a spawn point in 30 tries");
-
-        result = Vector3.negativeInfinity;
+        position = Vector3.negativeInfinity;
+        normal = Vector3.negativeInfinity;
         return false;
     }
 
@@ -153,5 +157,19 @@ public class InteractablesDirector : MonoBehaviour {
         }
 
         return affordableAndSpawnable[Random.Range(0, affordableAndSpawnable.Count)];
+    }
+
+    private bool GetNormalFromNavMeshHit(NavMeshHit navMeshHit, out Vector3 normal) {
+        if (Physics.Raycast(
+            origin: navMeshHit.position + (Vector3.up * 1f),
+            direction: Vector3.down,
+            out RaycastHit hit
+        )) {
+            normal = hit.normal;
+            return true;
+        }
+
+        normal = Vector3.negativeInfinity;
+        return false;
     }
 }

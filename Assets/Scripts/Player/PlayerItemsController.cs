@@ -43,8 +43,6 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
         list.Add(item);
         items[item.itemName] = list; // Why do we have to do this? I thought it was a reference
 
-        Debug.Log($"Picked up {item.itemName}, now have {list.Count}");
-
         OnItemPickedUp?.Invoke(item, list.Count);
     }
 
