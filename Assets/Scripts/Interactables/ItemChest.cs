@@ -33,7 +33,13 @@ public class ItemChest : Interactable {
     // I think the Scene Director sets this?
     private int costToPurchase = 5; // Temp default value
 
-    private const string ANIM_IS_OPEN = "IsOpen";
+    private float timeOfInteract = Mathf.NegativeInfinity;
+    private readonly float openVFXDuration = 0.5f;
+    private bool hasOpened = false;
+
+    private const string ANIM_HAS_INTERACTED = "HasInteracted";
+    private const string ANIM_HAS_OPENED = "HasOpened";
+
     // Called when the Director spawns this
     public void SetUp(int costToPurchase, Target target, GoldWallet goldWallet) { // We could just pass in a Transform
         this.costToPurchase = costToPurchase;
@@ -41,17 +47,16 @@ public class ItemChest : Interactable {
         GoldWallet = goldWallet;
     }
 
-    // Start is called before the first frame update
     protected override void Start() {
         base.Start();
 
         // we need to get the Player / Target somehow and set it for UIFollowPlayer
         CostText!.text = $"${costToPurchase}";
 
-        Animator!.SetBool(ANIM_IS_OPEN, false);
+        Animator!.SetBool(ANIM_HAS_OPENED, false);
+        Animator!.SetBool(ANIM_HAS_INTERACTED, false);
     }
 
-    // Update is called once per frame
     void Update() {
         // Handle animation when it's opened probably
 
@@ -60,6 +65,16 @@ public class ItemChest : Interactable {
             // Set the color of the text depending on if we can afford this or not
             foreach (Material material in GetMaterials()) {
                 material.SetInt(SHADER_OUTLINE_COLOR_FLIP, GoldWallet.CanAfford(costToPurchase) == true ? 1 : 0);
+            }
+        }
+
+        // If we've interacted with it, check if we should play the actual open animation & spawn the item
+        if (hasBeenInteractedWith && !hasOpened) {
+            bool isDoneWithOpenVFX = Time.time - timeOfInteract > openVFXDuration;
+            if (isDoneWithOpenVFX) {
+                Animator!.SetBool(ANIM_HAS_OPENED, true);
+                SpawnItem();
+                hasOpened = true;
             }
         }
     }
@@ -78,32 +93,27 @@ public class ItemChest : Interactable {
         }
 
         hasBeenInteractedWith = true;
+        timeOfInteract = Time.time;
+        hasOpened = false;
 
         // Hide the text (and never show it again)
         CostText!.enabled = false;
 
-        Animator!.SetBool(ANIM_IS_OPEN, true);
-
-        ItemPickup itemPickup = Instantiate(ItemPickupPrefab!, transform.position, Quaternion.identity);
-        itemPickup.startPosition = transform.position;
-        itemPickup.endPosition = DetermineItemSpawnPosition();
-        itemPickup.item = PickItemToDrop();
-
-        // We spent it, do the other shit
+        Animator!.SetBool(ANIM_HAS_INTERACTED, true);
 
         // Start the animation
 
         // Play VFX
 
         // Play audio
-
-        // For now, drop the item
     }
 
     public override void OnHover() {
         base.OnHover();
 
-        HoverEvent!.OnHover("Open chest", costToPurchase);
+        if (!hasBeenInteractedWith) {
+            HoverEvent!.OnHover("Open chest", costToPurchase);
+        }
     }
 
     public override void OnNearby() {
@@ -115,6 +125,14 @@ public class ItemChest : Interactable {
 
     public override void OnNotNearby() {
         CostText!.enabled = false;
+    }
+
+    private void SpawnItem() {
+        // Wait to do this until the open VFX is done
+        ItemPickup itemPickup = Instantiate(ItemPickupPrefab!, transform.position, Quaternion.identity);
+        itemPickup.startPosition = transform.position;
+        itemPickup.endPosition = DetermineItemSpawnPosition();
+        itemPickup.item = PickItemToDrop();
     }
 
     private Vector3 DetermineItemSpawnPosition() {

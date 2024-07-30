@@ -76,6 +76,15 @@ public abstract class Interactable : MonoBehaviour {
             }
         }
 
+        SkinnedMeshRenderer[] skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+        foreach(SkinnedMeshRenderer renderer in skinnedMeshRenderers) {
+            Material[] materials = renderer.materials;
+
+            foreach(Material material in materials) {
+                ret.Add(material);
+            }
+        }
+
         return ret;
     }
 }

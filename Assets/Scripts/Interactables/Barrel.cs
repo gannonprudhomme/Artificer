@@ -42,6 +42,8 @@ public class Barrel : Interactable {
     public override void OnHover() {
         base.OnHover();
 
-        HoverEvent!.OnHover("Open barrel", null);
+        if (!hasBeenInteractedWith) {
+            HoverEvent!.OnHover("Open barrel", null);
+        }
     }
 }
