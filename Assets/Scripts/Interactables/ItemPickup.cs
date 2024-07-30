@@ -113,7 +113,7 @@ public class ItemPickup : SpawnableInteractable {
         }
     }
 
-    public override void OnSelected(GoldWallet _, ItemsDelegate itemsDelegate) {
+    public override void OnSelected(GoldWallet _, Experience __, Transform ___, ItemsDelegate itemsDelegate) {
         Pickup(itemsDelegate);
     }
 

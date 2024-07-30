@@ -90,6 +90,8 @@ public class InteractablesDirector : MonoBehaviour {
         spawnable.transform.position = spawnPosition + spawnable.GetSpawnPositionOffset();
         spawnable.transform.rotation = normalRotation * spawnable.GetSpawnRotationOffset();
 
+        // TODO: Pass difficulty coefficient in
+
         if (spawnable is ItemChest itemChest) {
             itemChest.SetUp(
                 costToPurchase: interactableCard.spawnCost,

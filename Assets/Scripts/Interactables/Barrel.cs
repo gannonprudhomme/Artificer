@@ -7,6 +7,9 @@ using UnityEngine;
 // Contains 8 gold & 4 exp
 [RequireComponent(typeof(Animator))]
 public class Barrel : SpawnableInteractable {
+    public ExperienceGranter? ExperienceGranterPrefab;
+
+    public Transform ExperienceGranterSpawnPoint;
 
     private Animator? animator;
 
@@ -23,12 +26,7 @@ public class Barrel : SpawnableInteractable {
         }
     }
 
-    public override void OnSelected(GoldWallet goldWallet, ItemsDelegate _) {
-        Debug.Log("Barrel selected!");
-
-        // Give it the money
-        goldWallet.GainGold(8);
-
+    public override void OnSelected(GoldWallet goldWallet, Experience experience, Transform targetTransform, ItemsDelegate _) {
         foreach(Material material in GetMaterials()) {
             material.SetInt(SHADER_OUTLINE_IS_ENABLED, 0);
         }
@@ -36,7 +34,21 @@ public class Barrel : SpawnableInteractable {
 
         hasBeenInteractedWith = true;
 
-        // Also give experience
+        // Grant gold
+        goldWallet.GainGold(8); // TODO: Scale w/ difficulty coefficient
+
+        // Grant experience
+        ExperienceGranter granter = Instantiate(
+            ExperienceGranterPrefab!,
+            position: ExperienceGranterSpawnPoint!.position,
+            rotation: Quaternion.identity
+        );
+        granter.Emit(
+            experienceToGrant: 4, // TODO: Scale w/ difficulty coefficient
+            targetExperience: experience,
+            goalTransform: targetTransform
+        );
+        
     }
 
     public override void OnHover() {

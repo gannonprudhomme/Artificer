@@ -100,7 +100,7 @@ public class ItemChest : SpawnableInteractable {
         }
     }
 
-    public override void OnSelected(GoldWallet _, ItemsDelegate itemsDelegate) {
+    public override void OnSelected(GoldWallet _, Experience __, Transform ___, ItemsDelegate itemsDelegate) {
         if (hasBeenInteractedWith) return; // Don't do anything if it's already been opened
 
         // Note below spends the gold when it returns true

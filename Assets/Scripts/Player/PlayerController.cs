@@ -11,7 +11,7 @@ using UnityEngine.VFX;
     typeof(PlayerSpellsController))
 ]
 [RequireComponent(
-    typeof(Target), // Not referenced in code, but required for Enemies
+    typeof(Target),
     typeof(Experience),
     typeof(GoldWallet)
 )]
@@ -124,6 +124,7 @@ public class PlayerController : Entity {
     private Vector3 groundNormal;
     private Animator? leftJetpackFlamesAnimator;
     private Animator? rightJetpackFlamesAnimator;
+    private Target? target;
 
     [HideInInspector]
     public float lastTimeJumped = Mathf.NegativeInfinity;
@@ -171,6 +172,7 @@ public class PlayerController : Entity {
 
         experience = GetComponent<Experience>();
         goldWallet = GetComponent<GoldWallet>();
+        target = GetComponent<Target>();
 
         playerSpellsController = GetComponent<PlayerSpellsController>();
         cameraController = GetComponent<PlayerCameraController>();
@@ -685,7 +687,12 @@ public class PlayerController : Entity {
         bool wasInteractedPressed = inputHandler!.GetInteractInputDown();
 
         if (wasInteractedPressed && currentAimedAtInteractable != null) {
-            currentAimedAtInteractable.OnSelected(goldWallet!, itemsDelegate: itemsController!);
+            currentAimedAtInteractable.OnSelected(
+                goldWallet!,
+                experience: experience!,
+                targetTransform: target!.AimPoint!,
+                itemsDelegate: itemsController!
+            );
         }
     }
 

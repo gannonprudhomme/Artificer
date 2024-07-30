@@ -34,7 +34,7 @@ public abstract class Interactable : MonoBehaviour {
     protected const string SHADER_OUTLINE_FALSE_COLOR = "_FalseColor";
 
     // The user was hovering/aiming at it and pressed E to interact
-    public abstract void OnSelected(GoldWallet goldWallet, ItemsDelegate itemsDelegate);
+    public abstract void OnSelected(GoldWallet goldWallet, Experience experience, Transform targetTransform, ItemsDelegate itemsDelegate);
 
     protected virtual void Start() {
         // Hide it at the start
