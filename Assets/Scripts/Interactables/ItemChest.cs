@@ -9,7 +9,7 @@ using UnityEngine.Splines;
 
 // This should really be like "Purchasable" or something
 [RequireComponent(typeof(Animator))]
-public class ItemChest : Interactable {
+public class ItemChest : SpawnableInteractable {
     [Header("Item Chest")]
     public UIFollowPlayer? UIFollowPlayer;
 
@@ -146,6 +146,14 @@ public class ItemChest : Interactable {
 
     public override void OnNotNearby() {
         CostText!.enabled = false;
+    }
+
+    public override Vector3 GetSpawnPositionOffset() {
+        return Vector3.up * -0.5f;
+    }
+
+    public override Quaternion GetSpawnRotationOffset() {
+        return Quaternion.Euler(x: 0, y: Random.Range(0, 360), z: 0);
     }
 
     // Called after the user interacts with the chest and we're playing the interaction VFX (before it's actually opened)

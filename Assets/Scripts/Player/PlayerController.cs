@@ -645,6 +645,9 @@ public class PlayerController : Entity {
             if (hit.collider.TryGetComponent(out ColliderInteractablePointer pointer)) {
                 currentAimedAtInteractable = pointer.Parent;
                 currentAimedAtInteractable.OnHover();
+            } else if (hit.collider.TryGetComponent(out Interactable interactable)) {
+                currentAimedAtInteractable = interactable;
+                currentAimedAtInteractable.OnHover();
             }
         }
 

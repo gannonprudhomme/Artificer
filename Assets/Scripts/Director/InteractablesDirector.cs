@@ -8,13 +8,13 @@ using UnityEngine.AI;
 class InteractableCard {
     public readonly string identifier;
     public readonly int spawnCost;
-    public readonly Interactable prefab;
+    public readonly SpawnableInteractable prefab;
     private readonly int spawnLimit;
 
     // Turned it into a class for this; I figured this was simpler than storing it in e.g. a dictionary
     public int numberSpawned = 0;
 
-    public InteractableCard(string identifier, int spawnCost, int spawnLimit, Interactable prefab) {
+    public InteractableCard(string identifier, int spawnCost, int spawnLimit, SpawnableInteractable prefab) {
         this.identifier = identifier;
         this.spawnCost = spawnCost;
         this.prefab = prefab;
@@ -82,16 +82,15 @@ public class InteractablesDirector : MonoBehaviour {
             return;
         }
 
-        Vector3 finalPosition = spawnPosition + (Vector3.up * -0.5f);
 
         // Align the interactable w/ the normal of the surface we hit + add a random rotation
         Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, spawnNormal);
-        Quaternion randomRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
-        Quaternion rotation = normalRotation * randomRotation;
 
-        Interactable interactable = Instantiate(interactableCard.prefab, finalPosition, rotation);
+        SpawnableInteractable spawnable = Instantiate(interactableCard.prefab, position: Vector3.zero, rotation: Quaternion.identity);
+        spawnable.transform.position = spawnPosition + spawnable.GetSpawnPositionOffset();
+        spawnable.transform.rotation = normalRotation * spawnable.GetSpawnRotationOffset();
 
-        if (interactable is ItemChest itemChest) {
+        if (spawnable is ItemChest itemChest) {
             itemChest.SetUp(
                 costToPurchase: interactableCard.spawnCost,
                 target: Target!,

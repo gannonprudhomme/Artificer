@@ -4,7 +4,7 @@ using UnityEngine.VFX;
 
 #nullable enable
 
-public class ItemPickup : Interactable {
+public class ItemPickup : SpawnableInteractable {
     [Header("References")]
     public MeshRenderer? MeshRenderer;
     public MeshFilter? MeshFilter;

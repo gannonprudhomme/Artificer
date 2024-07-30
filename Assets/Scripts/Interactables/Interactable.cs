@@ -4,6 +4,12 @@ using UnityEngine;
 
 #nullable enable
 
+// Bleh don't love this
+public abstract class SpawnableInteractable: Interactable {
+    public virtual Vector3 GetSpawnPositionOffset() { return Vector3.zero; }
+    public virtual Quaternion GetSpawnRotationOffset() { return Quaternion.identity; }
+}
+
 // If we wanted to be really efficient we could store this in the Octree somehow
 // and we'd use an Octree "query" to even check if the player is close enough to anyt interactable
 // to check if we're aiming at it
@@ -29,7 +35,6 @@ public abstract class Interactable : MonoBehaviour {
 
     // The user was hovering/aiming at it and pressed E to interact
     public abstract void OnSelected(GoldWallet goldWallet, ItemsDelegate itemsDelegate);
-
 
     protected virtual void Start() {
         // Hide it at the start

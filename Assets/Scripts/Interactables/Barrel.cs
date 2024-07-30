@@ -6,7 +6,7 @@ using UnityEngine;
 
 // Contains 8 gold & 4 exp
 [RequireComponent(typeof(Animator))]
-public class Barrel : Interactable {
+public class Barrel : SpawnableInteractable {
 
     private Animator? animator;
 
@@ -46,4 +46,18 @@ public class Barrel : Interactable {
             HoverEvent!.OnHover("Open barrel", null);
         }
     }
+
+    public override Vector3 GetSpawnPositionOffset() {
+        return Vector3.up * -1.5f;
+    }
+    public override Quaternion GetSpawnRotationOffset() {
+        float xzRange = 15;
+
+        return Quaternion.Euler(
+            x: Random.Range(-xzRange, xzRange),
+            y: Random.Range(0, 360),
+            z: Random.Range(-xzRange, xzRange) 
+        );
+    }
+
 }
