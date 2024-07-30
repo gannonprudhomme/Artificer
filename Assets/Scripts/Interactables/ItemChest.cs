@@ -20,6 +20,9 @@ public class ItemChest : Interactable {
     public Animator? Animator; // Animator for the chest
 
     [Header("VFX")]
+    [Tooltip("VFX which plays when we actually open the chest")]
+    public VisualEffect? OpenChestVFXInstance;
+
     [Tooltip("Left VFX which plays when we first interact with the chest")]
     public VisualEffect? LeftInteractionVFXInstance;
     [Tooltip("Right VFX which plays when we first interact with the chest")]
@@ -163,6 +166,7 @@ public class ItemChest : Interactable {
     private void DoOpen() {
         hasOpened = true;
 
+        OpenChestVFXInstance!.Play();
         Animator!.SetBool(ANIM_HAS_OPENED, true);
         SpawnItem();
     }
