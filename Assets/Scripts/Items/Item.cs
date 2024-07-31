@@ -1,11 +1,14 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
 
 #nullable enable
+
+// Enum for all possible items
+//
+// Namely needed so we can map ItemDisplayers to their coresponding Items and vice-versa.
+public enum ItemType {
+    BACKUP_MAGAZINE,
+    ENERGY_DRINK
+}
 
 public abstract class Item: ScriptableObject {
     [Header("Item (Base)")]
@@ -22,6 +25,8 @@ public abstract class Item: ScriptableObject {
     public abstract string description { get; }
 
     public abstract Rarity rarity { get; }
+
+    public abstract ItemType itemType { get; }
 
     public virtual void OnUpdate(ItemsDelegate itemsController, int count) { }
 

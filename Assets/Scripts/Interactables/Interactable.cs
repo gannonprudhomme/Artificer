@@ -81,6 +81,7 @@ public abstract class Interactable : MonoBehaviour {
             }
         }
 
+        // TODO: This is dumb we should just be assigning it
         SkinnedMeshRenderer[] skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
         foreach(SkinnedMeshRenderer renderer in skinnedMeshRenderers) {
             Material[] materials = renderer.materials;
