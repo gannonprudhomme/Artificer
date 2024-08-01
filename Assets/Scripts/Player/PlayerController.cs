@@ -636,8 +636,10 @@ public class PlayerController : Entity {
             direction: PlayerCamera!.transform.forward,
             // Because minDistanceToInteractableToBeHovering is the distance from the camera to the player,
             // we need to add the distance from the camera to the player to it
-            maxDistance: minDistanceToInteractableToBeHovering + distanceFromCameraToPlayer
+            maxDistance: minDistanceToInteractableToBeHovering + distanceFromCameraToPlayer,
             // layerMask: 0 // TODO: Add a layer mask for interactables?
+            layerMask: Physics.DefaultRaycastLayers,
+            queryTriggerInteraction: QueryTriggerInteraction.Collide // We want to hit triggers
         );
 
         // Reset it
