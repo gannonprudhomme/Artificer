@@ -931,6 +931,20 @@
 
 {
     "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.BooleanMaterialSlot",
+    "m_ObjectId": "823f90625a8248dbab8d37983af89fa7",
+    "m_Id": -1391306723,
+    "m_DisplayName": "Use Additional Lights",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "_Use_Additional_Lights",
+    "m_StageCapability": 3,
+    "m_Value": true,
+    "m_DefaultValue": false
+}
+
+{
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.SubGraphNode",
     "m_ObjectId": "8d9aeda373744a2e83ad938587eacba0",
     "m_Group": {
@@ -958,6 +972,9 @@
             "m_Id": "45d1815a7b894394a9fd406ce5e201ee"
         },
         {
+            "m_Id": "823f90625a8248dbab8d37983af89fa7"
+        },
+        {
             "m_Id": "35254f504bd744428db3674b49741d7b"
         }
     ],
@@ -973,12 +990,14 @@
     "m_PropertyGuids": [
         "24821a83-2a63-4485-90c0-7c122278e99f",
         "a34bad98-45ea-47d5-a6a0-de3191d8f571",
-        "8043a0e3-8be0-4b05-89e9-07e7025a04f7"
+        "8043a0e3-8be0-4b05-89e9-07e7025a04f7",
+        "546626f9-d34d-4f35-9b5f-ffb032f2be06"
     ],
     "m_PropertyIds": [
         -309163950,
         -1531604923,
-        -616195960
+        -616195960,
+        -1391306723
     ],
     "m_Dropdowns": [],
     "m_DropdownSelectedEntries": []
