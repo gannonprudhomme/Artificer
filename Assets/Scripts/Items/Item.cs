@@ -18,6 +18,9 @@ public abstract class Item: ScriptableObject {
     [Tooltip("Mesh prefab which displays when it's dropped")]
     public Mesh? DropModelMesh;
 
+    [Tooltip("Texture which displays on the mesh & is passed to the ItemPickup shader")]
+    public Texture2D? MeshTexture;
+
     // Name of the item, e.g. "Backup Magazine"
     public abstract string itemName { get; }
 

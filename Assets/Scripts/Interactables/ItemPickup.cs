@@ -41,6 +41,8 @@ public class ItemPickup : SpawnableInteractable {
 
     private BezierCurve curve;
 
+    private readonly string SHADER_ITEMPICKUP_TEXTURE = "_Texture";
+
     protected override void Start() {
         startAnimationTime = Time.time;
 
@@ -70,6 +72,7 @@ public class ItemPickup : SpawnableInteractable {
             material.SetColor(SHADER_OUTLINE_TRUE_COLOR, Color.yellow);
             material.SetColor(SHADER_OUTLINE_FALSE_COLOR, Color.white);
             material.SetInt(SHADER_OUTLINE_COLOR_FLIP, 0);
+            material.SetTexture(SHADER_ITEMPICKUP_TEXTURE, item!.MeshTexture);
         }
     }
 

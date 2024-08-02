@@ -775,7 +775,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -40}
-  m_SizeDelta: {x: 1075.5, y: 100}
+  m_SizeDelta: {x: 1075.5, y: 120}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &895504448134401735
 GameObject:
@@ -2802,7 +2802,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 50, y: 50}
+  m_CellSize: {x: 60, y: 60}
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -6909,11 +6909,6 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 6037514275017016745, guid: 6eccd6a4dffb88a42a196159630cb833,
-        type: 3}
-      propertyPath: m_Texture
-      value: 
-      objectReference: {fileID: 2800000, guid: 0c46786be08df3841a02c92d269efa8e, type: 3}
     - target: {fileID: 8288955372196396693, guid: 6eccd6a4dffb88a42a196159630cb833,
         type: 3}
       propertyPath: m_IsActive

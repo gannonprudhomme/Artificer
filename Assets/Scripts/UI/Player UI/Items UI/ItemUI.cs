@@ -22,7 +22,7 @@ public class ItemUI : MonoBehaviour {
     }
 
     private void Update() {
-        if (ItemCount == 0) {
+        if (ItemCount <= 1) {
             ItemCountText!.enabled = false;
         } else {
             ItemCountText!.enabled = true;
