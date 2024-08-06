@@ -13,15 +13,19 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     private float _modifiedSprintMultiplier = 0;
     [HideInInspector]
     private int _modifiedSecondarySpellCharges = 0;
+    [HideInInspector]
+    private int _modifiedNumberOfJumps = 0;
 
-    // We need to build one of these but w/ Transforms
-    public Dictionary<ItemType, List<Item>> items = new();
+    private Dictionary<ItemType, List<Item>> items = new();
 
     // Maps ItemTypes to their displayer.
     // Used to quickly lookup the corresponding ItemDisplayer for an item whenever we pick one up.
-    public Dictionary<ItemType, ItemDisplayer> itemDisplayerDict = new(); 
+    private Dictionary<ItemType, ItemDisplayer> itemDisplayerDict = new(); 
 
+    // For ItemPickupUI
     public UnityAction<Item, int>? OnItemPickedUp;
+
+    private PlayerController? playerController;
 
     public float ModifiedSprintMultiplier {
         get => _modifiedSprintMultiplier;
@@ -33,11 +37,19 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
         set => _modifiedSecondarySpellCharges = value;
     }
 
+    public int ModifiedNumberOfJumps {
+        get => _modifiedNumberOfJumps;
+        set => _modifiedNumberOfJumps = value;
+    }
+
     private void Awake() {
         CheckAllItemDisplayersPresentAndNotDuplicated();
         HideAllItemDisplayers();
 
         itemDisplayerDict = BuildItemDisplayersDict();
+
+        playerController = GetComponent<PlayerController>();
+        playerController.OnJumped += OnPlayerJumped;
     }
 
     private void Update() {
@@ -65,6 +77,7 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     private void ResetModifiers() {
         _modifiedSecondarySpellCharges = 0;
         _modifiedSprintMultiplier = 0;
+        _modifiedNumberOfJumps = 0;
     }
 
     private Dictionary<ItemType, ItemDisplayer> BuildItemDisplayersDict() {
@@ -113,6 +126,16 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     private void HideAllItemDisplayers() {
         foreach(ItemDisplayer itemDisplayer in ItemDisplayers) {
             itemDisplayer.gameObject.SetActive(false);
+        }
+    }
+
+    private void OnPlayerJumped(bool wasGrounded, Transform spawnTransform) {
+        foreach(ItemType itemType in items.Keys) {
+            // We just have to assume this won't fail
+            items[itemType][0].OnJump(
+                wasGrounded: wasGrounded,
+                spawnTransform: spawnTransform
+            );
         }
     }
 }

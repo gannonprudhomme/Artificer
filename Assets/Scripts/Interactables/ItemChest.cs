@@ -184,7 +184,7 @@ public class ItemChest : SpawnableInteractable {
         ItemPickup itemPickup = Instantiate(ItemPickupPrefab!, transform.position, Quaternion.identity);
         itemPickup.startPosition = transform.position;
         itemPickup.endPosition = DetermineItemSpawnPosition();
-        itemPickup.item = PickItemToDrop();
+        itemPickup.item = AllItems!.PickItem();
     }
 
     private Vector3 DetermineItemSpawnPosition() {
@@ -201,9 +201,5 @@ public class ItemChest : SpawnableInteractable {
             Debug.LogError("Couldn't find position for item!");
             return transform.position + (transform.forward * 5f);
         }
-    }
-
-    private Item PickItemToDrop() {
-        return AllItems!.CommonItems[Random.Range(0, AllItems!.CommonItems.Count)];
     }
 }

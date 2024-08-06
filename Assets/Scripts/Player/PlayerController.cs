@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.VFX;
 
 #nullable enable
@@ -154,11 +155,17 @@ public class PlayerController : Entity {
     private const float JUMP_GROUNDING_PREVENTION_TIME = 0.2f;
     private const float GROUND_CHECK_DISTANCE_IN_AIR = 0.15f;
 
+    /** Actions **/
+    public UnityAction<bool, Transform>? OnJumped; // <wasGrounded, spawnTransform>
+
     /** ABSTRACT PROPERTIES **/
 
     protected override float StartingBaseDamage => 12f;
     public override float CurrentBaseDamage => StartingBaseDamage + ((experience!.currentLevel - 1) * 2.4f);
     private float currentSprintSpeedModifier => SprintSpeedModifier + itemsController!.ModifiedSprintMultiplier;
+
+    private int totalNumberOfJumps => itemsController!.ModifiedNumberOfJumps + 1;
+    private int currentNumberOfJumpsBeforeGrounded = 1;
 
     /** FUNCTIONS **/
 
@@ -202,6 +209,14 @@ public class PlayerController : Entity {
             GetCapsuleTopHemisphere(characterController!.height),
             GetCapsuleBottomHemisphere()
         );
+
+        bool didIsGroundedChange = !IsGrounded && newIsGrounded;
+        // Used so we reset the # of jumps if we pick up a hopoo feather when grounded
+        bool didNumJumpsChange = newIsGrounded && (currentNumberOfJumpsBeforeGrounded != totalNumberOfJumps);
+        if (didIsGroundedChange || didNumJumpsChange) {
+            currentNumberOfJumpsBeforeGrounded = totalNumberOfJumps;
+        }
+
         IsGrounded = newIsGrounded;
         groundNormal = newGroundNormal;
 
@@ -340,18 +355,32 @@ public class PlayerController : Entity {
 
         // Handle jumping
 
-        (bool didJump, Vector3 newCharacterVelocity) = GetCanJumpAndVelocity(inputHandler!, CharacterVelocity, IsGrounded, JumpForce);
+        (bool didJump, Vector3 newCharacterVelocity) = GetCanJumpAndVelocity(
+            inputHandler!,
+            CharacterVelocity,
+            IsGrounded,
+            currentNumberOfJumpsBeforeGrounded,
+            JumpForce
+        );
+
         if (didJump) {
             // Set character velocity to new one
             CharacterVelocity = newCharacterVelocity;
 
             // remember last time we jumped because we need to prevent snapping to ground for a short time
             lastTimeJumped = Time.time;
-            // HasJumpedThisFrame = true; // I don't think we ever use this
+
+            // Call OnJumped before we change IsGrounded
+            OnJumped?.Invoke(
+                IsGrounded,
+                transform
+            ); 
 
             // Force grounding to false
             IsGrounded = false;
             groundNormal = Vector3.up;
+
+            currentNumberOfJumpsBeforeGrounded -= 1;
         }
 
         // Apply the velocity and deal with obstructions
@@ -510,9 +539,10 @@ public class PlayerController : Entity {
         InputHandler inputHandler, // we could pass in GetJumpInputDown(), but this is probably better (since we're not testing it)
         Vector3 previousCharacterVelocity,
         bool isGrounded,
+        float currentNumberOfJumps,
         float jumpForce
     ) {
-        bool shouldJump = inputHandler.GetJumpInputDown() && isGrounded;
+        bool shouldJump = inputHandler.GetJumpInputDown() && currentNumberOfJumps > 0;
         if (shouldJump) {
             // start by cancelling out the vertical component of our velocity
             // Note that we also want to do this when we're in the
@@ -523,11 +553,12 @@ public class PlayerController : Entity {
                 previousCharacterVelocity.z
             );
 
-            // then, add the jumpSpeed value upwards
-            retCharacterVelocity.y = jumpForce;
+            // Increase jump force for double/triple/etc jumps
+            bool isFirstJump = isGrounded;
+            float modifiedJumpForce = isFirstJump ? jumpForce : jumpForce * 1.3333f;
 
-            // play sound
-            // AudioSource.PlayOneShot(JumpSfx);
+            // then, add the jumpSpeed value upwards
+            retCharacterVelocity.y = modifiedJumpForce;
 
             return (true, retCharacterVelocity);
         }
