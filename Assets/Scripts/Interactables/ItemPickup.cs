@@ -20,12 +20,16 @@ public class ItemPickup : SpawnableInteractable {
 
     public Light? Light;
 
-    [Header("Colors")]
-    public Color CommonColor = Color.white;
-    public Color UncommonColor = Color.green;
+    [Header("Light Colors")]
+    public Color CommonLightColor = Color.white;
+    public Color UncommonLightColor = Color.green;
+
+    [Header("Outline Colors")]
+    public Color CommonOutlineColor = Color.white;
+    public Color UncommonOutlineColor = Color.green;
 
     // The item that is granted upon pickup
-    // [HideInInspector] // Only commented out for testing
+    [HideInInspector]
     public Item? item;
 
     [HideInInspector]
@@ -64,13 +68,17 @@ public class ItemPickup : SpawnableInteractable {
             Debug.LogError("No Item for ItemPickup!");
         }
 
-        Light!.color = ColorForRarity(item!.rarity);
-        OnSpawnVFX!.SetVector4("Color", ColorForRarity(item!.rarity));
+        Light!.color = LightColorForRarity(item!.rarity);
+
+        bool isUncommon = item!.rarity == Item.Rarity.UNCOMMON;
+        OnSpawnVFX!.SetBool("IsUncommon", isUncommon);
+        ExplosionSpawnVFX!.SetBool("IsUncommon", isUncommon);
+        IdleVFX!.SetBool("IsUncommon", isUncommon);
         // TODO: Also set it for the idle vfx
 
         foreach (Material material in GetMaterials()) {
             material.SetColor(SHADER_OUTLINE_TRUE_COLOR, Color.yellow);
-            material.SetColor(SHADER_OUTLINE_FALSE_COLOR, Color.white);
+            material.SetColor(SHADER_OUTLINE_FALSE_COLOR, OutlineColorForRarity(rarity: item!.rarity));
             material.SetInt(SHADER_OUTLINE_COLOR_FLIP, 0);
             material.SetTexture(SHADER_ITEMPICKUP_TEXTURE, item!.MeshTexture);
         }
@@ -132,10 +140,18 @@ public class ItemPickup : SpawnableInteractable {
         Destroy(gameObject);
     }
 
-    private Color ColorForRarity(Item.Rarity rarity) {
+    private Color LightColorForRarity(Item.Rarity rarity) {
         return rarity switch {
-            Item.Rarity.COMMON => CommonColor,
-            Item.Rarity.UNCOMMON => UncommonColor,
+            Item.Rarity.COMMON => CommonLightColor,
+            Item.Rarity.UNCOMMON => UncommonLightColor,
+            _ => throw new System.NotImplementedException()
+        };
+    }
+
+    private Color OutlineColorForRarity(Item.Rarity rarity) {
+        return rarity switch {
+            Item.Rarity.COMMON => CommonOutlineColor,
+            Item.Rarity.UNCOMMON => UncommonOutlineColor,
             _ => throw new System.NotImplementedException()
         };
     }
