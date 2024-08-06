@@ -19,7 +19,33 @@ public class AllItems : ScriptableObject {
             return OnlyItem;
         }
 
-        // return OnlyItem!;
-        return CommonItems[Random.Range(0, CommonItems.Count)];
+        Item.Rarity rarity = PickRandomRarity();
+        List<Item> rarityList = rarity switch {
+            Item.Rarity.COMMON => CommonItems,
+            Item.Rarity.UNCOMMON => UncommonItems,
+            _ => throw new System.Exception("Default case hit!"),
+        };
+
+        return rarityList[Random.Range(0, rarityList.Count)];
+    }
+
+    // Technically this isn't how RoR2 does drops - but it should be equivalent (and it's easier)
+    private Item.Rarity PickRandomRarity() {
+        float randomNumber = Random.Range(0.0f, 1.0f);
+
+        // [0, 79.2) -> Common
+        // [79.2, 99) -> Uncommon
+        // [99, 100] -> Rare
+        Debug.Log($"Item drop was {randomNumber}");
+
+        if (randomNumber < 0.792f) {
+            return Item.Rarity.COMMON;
+        } else if (randomNumber < 0.99f) {
+            return Item.Rarity.UNCOMMON;
+        } else {
+            // TODO: Return rare
+            Debug.Log("Should have dropped a rare!");
+            return Item.Rarity.UNCOMMON;
+        }
     }
 }
