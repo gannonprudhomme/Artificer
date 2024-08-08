@@ -20,6 +20,9 @@ public class IceWall : MonoBehaviour {
 
     public float DamagePerSpike { get; set; }
 
+    [HideInInspector]
+    public Entity? owner;
+
     private IceWallSpike[]? iceSpikes;
     private readonly int totalIceSpikes = 12;
 
@@ -57,6 +60,7 @@ public class IceWall : MonoBehaviour {
     private IceWallSpike CreateAndPlaceIceSpike(int pairSpawnIndex, bool isNegative) {
         IceWallSpike iceSpike = Instantiate(IceWallSpikePrefab!, parent: transform);
         iceSpike.damage = DamagePerSpike;
+        iceSpike.owner = owner;
 
         // 0.5f is b/c we have an even amount - so the first pair spawns correctly & not on top of each other
         float spawnPosition = (totalIceWallWidth / totalIceSpikes) * (pairSpawnIndex + 0.5f);

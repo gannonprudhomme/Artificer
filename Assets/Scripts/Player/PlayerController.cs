@@ -798,6 +798,13 @@ public class PlayerController : Entity {
         
     }
 
+    public override void OnAttackHitEntity(Entity hitEntity) {
+        itemsController!.OnAttackHitEntity(
+            playerBaseDamage: CurrentBaseDamage,
+            hitEntity
+        );
+    }
+
     // Uncomment this if you change the height / radius of the CharacterController and the player isn't being considered grounded
     // odds are you need to change the center value
     /*

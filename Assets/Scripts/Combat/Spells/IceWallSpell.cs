@@ -44,6 +44,7 @@ public class IceWallSpell : Spell {
 
     /** Local variables **/
 
+    private Entity? owner;
     private readonly float fireDuration = 1f;
     private float timeOfLastFire = Mathf.NegativeInfinity;
     private float entityBaseDamage = 0.0f;
@@ -130,7 +131,7 @@ public class IceWallSpell : Spell {
     // it's when we're constantly calling this then release it when we actually spawn the projectile
     public override void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
-        GameObject owner,
+        Entity owner,
         Camera spellCamera,
         float entityBaseDamage,
         LayerMask layerToIgnore
@@ -139,6 +140,7 @@ public class IceWallSpell : Spell {
             return;
         }
 
+        this.owner = owner;
         this.entityBaseDamage = entityBaseDamage;
 
         // We want to play the audio no matter what
@@ -220,6 +222,7 @@ public class IceWallSpell : Spell {
         );
 
         iceWall.DamagePerSpike = damagePerSpike;
+        iceWall.owner = owner;
         timeOfLastFire = Time.time;
     }
 

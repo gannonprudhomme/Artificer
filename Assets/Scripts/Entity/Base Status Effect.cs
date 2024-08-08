@@ -20,13 +20,13 @@ public abstract class BaseStatusEffect {
 
     public virtual void OnStart(Entity entity) { } // Don't have to override it if you don't want!
 
-    public abstract void OnFixedUpdate(Entity entity);
+    public virtual void OnFixedUpdate(Entity entity) { }
     
-    public abstract void OnUpdate(Entity entity);
+    public virtual void OnUpdate(Entity entity) { }
 
     public abstract bool HasEffectFinished();
 
-    public abstract void OnFinished(Entity entity);
+    public virtual void OnFinished(Entity entity) { }
 
     // Stack the effect if it's already active on the Entity / Health
     public abstract void StackEffect(BaseStatusEffect effect);

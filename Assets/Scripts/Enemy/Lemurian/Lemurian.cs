@@ -112,7 +112,7 @@ public class Lemurian : Enemy {
         SetDestination();
         ConfigureAnimatorAndNavMeshAgent();
 
-        fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, animator!, this.gameObject, Target!.AimPoint!, AimPoint!);
+        fireballAttack = new(FireballProjectilePrefab!, FireballChargeVisualEffectInstance!, animator!, this, Target!.AimPoint!, AimPoint!);
         meleeAttack = new(MeleeParticleSystemInstance!, this.gameObject, AimPoint, animator!, Target!, lemurianMask!);
 
 	    health!.OnDamaged += OnDamaged;

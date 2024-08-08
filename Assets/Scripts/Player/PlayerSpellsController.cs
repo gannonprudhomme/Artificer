@@ -41,10 +41,6 @@ public class PlayerSpellsController : MonoBehaviour {
     private PlayerItemsController? itemsController;
     private Animator? animator;
 
-    // Starts out at 12, increases by 2.4 every level
-    // Setting this as constant for now, but it won't be later
-    public const float baseDamage = 12.0f;
-
     public LayerMask playerLayerMask;
 
     public bool IsForcingAimLookForward { get; private set; }
@@ -100,7 +96,7 @@ public class PlayerSpellsController : MonoBehaviour {
             if (GetAttackInputHeld(index: i)) {
                 spells[i].AttackButtonHeld(
                     muzzlePositions: (LeftArmSpellSpawnPoint!.transform.position, RightArmSpellSpawnPoint!.transform.position),
-                    owner: this.gameObject,
+                    owner: player!,
                     spellCamera: SpellCamera!,
                     currDamage: player!.CurrentBaseDamage,
                     layerToIgnore: playerLayerMask

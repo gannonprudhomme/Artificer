@@ -30,10 +30,6 @@ public class StunnedStatusEffect : BaseStatusEffect {
         return (Time.time - timeOfStart) > duration;
     }
 
-    public override void OnFixedUpdate(Entity entity) { }
-    public override void OnUpdate(Entity entity) { }
-    public override void OnFinished(Entity entity) { }
-
     public override void StackEffect(BaseStatusEffect effect) {
         // Don't do anything - it shouldn't stack?
         // maybe just reset it? I don't think this situation will happen anytime soon though

@@ -70,7 +70,7 @@ public abstract class Projectile : MonoBehaviour {
     private Vector3 velocity;
     private List<Collider> ignoredColliders = new();
 
-    private GameObject? owner;
+    protected Entity? owner;
     protected Affiliation ownerAffiliation;
 
     // Used so we can let effects wrap up playing after a collision
@@ -89,10 +89,16 @@ public abstract class Projectile : MonoBehaviour {
         Destroy(this.gameObject, MaxLifeTime);
     }
 
+    private void Start() {
+        if (DamageArea != null) {
+            DamageArea!.OnEntityHit += OnDamageAreaHitEntity;
+        }
+    }
+
     // I intentionally put this above Update() since this will be called before it (probably)
     // Was originally OnShoot() I guess
     public virtual void Shoot(
-        GameObject owner, // (Root) Player game object
+        Entity owner, // (Root) Player game object
         Affiliation ownerAffiliation,
         Camera? spellCamera,  // don't actually need, remove this
 	    float entityBaseDamage
@@ -201,8 +207,12 @@ public abstract class Projectile : MonoBehaviour {
                 Entity entity = colliderParentPointer.entity;
 
                 entity.TakeDamage(damageAfterMultipler, ownerAffiliation, GetStatusEffect(), point);
+
+                owner!.OnAttackHitEntity(hitEntity: entity);
             } else if (collider.TryGetComponent<Entity>(out var entity)) {
                 entity.TakeDamage(damageAfterMultipler, ownerAffiliation, GetStatusEffect(), point);
+
+                owner!.OnAttackHitEntity(hitEntity: entity);
             }
         }
 
@@ -252,5 +262,9 @@ public abstract class Projectile : MonoBehaviour {
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(transform.position, Radius);
         }
+    }
+
+    private void OnDamageAreaHitEntity(Entity hitEntity) {
+        owner!.OnAttackHitEntity(hitEntity: hitEntity);
     }
 }

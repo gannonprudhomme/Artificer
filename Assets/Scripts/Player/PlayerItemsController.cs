@@ -138,4 +138,10 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
             );
         }
     }
+
+    public void OnAttackHitEntity(float playerBaseDamage, Entity entityHit) {
+        foreach(ItemType itemType in items.Keys) {
+            items[itemType][0].OnEnemyHit(playerBaseDamage, entityHit);
+        }
+    }
 }

@@ -104,7 +104,7 @@ public class FireballSpell : Spell {
     // We have enough charges - fire a projectile
     public override void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
-        GameObject player,
+        Entity player,
         Camera spellCamera,
 		float playerBaseDamage,
         LayerMask layerToIgnore

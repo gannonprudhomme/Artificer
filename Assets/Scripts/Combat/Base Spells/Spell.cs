@@ -54,7 +54,8 @@ public abstract class Spell : MonoBehaviour {
 
     public abstract void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
-        GameObject owner,
+        // This is Entity only so we can propogate an OnAttackHitEntity to Items
+        Entity owner,
         Camera spellCamera,
 	    // Current damage of the entity that owns this (Player)
 	    float currDamage,

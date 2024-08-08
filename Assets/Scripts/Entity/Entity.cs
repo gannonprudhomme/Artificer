@@ -39,6 +39,8 @@ public abstract class Entity : MonoBehaviour {
     public abstract Material? GetMaterial();
     public abstract Vector3 GetMiddleOfMesh();
 
+    public virtual void OnAttackHitEntity(Entity hitEntity) { }
+
     protected virtual void Awake() {
         health = GetComponent<Health>();
     }
@@ -82,14 +84,6 @@ public abstract class Entity : MonoBehaviour {
         }
     }
 
-    public virtual void SetIsFrozen(bool isFrozen) {
-        this.isFrozen = isFrozen;
-    }
-
-    public bool GetIsFrozen() {
-        return isFrozen;
-    }
-
     // This is what damage "appliers" (e.g. Projectiles / Spells) actually call.
     public void TakeDamage(
         float damage,
@@ -104,15 +98,7 @@ public abstract class Entity : MonoBehaviour {
 
         // Handle status effects
         if (appliedStatusEffect != null) {
-            // If we already have a stack of this type applied, stack them
-            if (statusEffects.ContainsKey(appliedStatusEffect.Name)) {
-                statusEffects[appliedStatusEffect.Name].StackEffect(appliedStatusEffect);
-            } else { // If we don't, trigger it & add it to the dictionary
-                appliedStatusEffect.OnStart(this);
-                OnStatusEffectAdded?.Invoke(appliedStatusEffect);
-
-                statusEffects[appliedStatusEffect.Name] = appliedStatusEffect;
-            }
+            AddOrStackStatusEffect(appliedStatusEffect);
         }
     }
 
@@ -133,20 +119,30 @@ public abstract class Entity : MonoBehaviour {
         TakeDamage(damage, damageApplierAffiliation, null, damageType);
     }
 
-    public void AddParticleEffect(ParticleSystem particlePrefab) {
-        if (health!.IsDead) return;
-
-        ParticleSystem particlesInstance = Instantiate(particlePrefab, transform);
-        particlesInstance.transform.position = GetMiddleOfMesh();
-
-        // Set it to happen in the middle of the mesh, but we should probably change this later
-
-        // Well I guess this won't work for looping particles shat
-        Destroy(particlesInstance, particlesInstance.main.duration);
-    }
-
     public bool IsStunned() {
         // I hate that I can't really use an enum here
         return statusEffects.ContainsKey(StatusEffectNames.Stunned);
+    }
+
+    public virtual void SetIsFrozen(bool isFrozen) {
+        this.isFrozen = isFrozen;
+    }
+
+    public bool GetIsFrozen() {
+        return isFrozen;
+    }
+
+    public void AddOrStackStatusEffect(BaseStatusEffect appliedStatusEffect) {
+        // If we already have a stack of this type applied, stack them
+        if (statusEffects.ContainsKey(appliedStatusEffect.Name)) {
+            Debug.Log($"Stacking status effect {appliedStatusEffect.Name} to {gameObject.name}");
+            statusEffects[appliedStatusEffect.Name].StackEffect(appliedStatusEffect);
+        } else { // If we don't, trigger it & add it to the dictionary
+            Debug.Log($"Adding status effect {appliedStatusEffect.Name} to {gameObject.name}");
+            appliedStatusEffect.OnStart(this);
+            OnStatusEffectAdded?.Invoke(appliedStatusEffect);
+
+            statusEffects[appliedStatusEffect.Name] = appliedStatusEffect;
+        }
     }
 }

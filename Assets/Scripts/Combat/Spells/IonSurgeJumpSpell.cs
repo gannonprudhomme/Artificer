@@ -42,6 +42,8 @@ public class IonSurgeJumpSpell : Spell {
 
     private readonly float damageCoefficient = 8.0f; // 800%
 
+    private Entity? owner;
+
     // TODO: We should actually calculate this based on the velocity of the player
     // Or rather, how long we expect for it to take for the player to reach the peak of the ion surge jump
     private float animationDuration {
@@ -63,6 +65,8 @@ public class IonSurgeJumpSpell : Spell {
             explosionLightPrefab: ExplosionLightPrefab!,
             explosionLightIntensityCurve: LightIntensityCurve!
         );
+
+        DamageArea!.OnEntityHit += OnDamageAreaHitEntity;
     }
 
     private void Update() {
@@ -90,7 +94,7 @@ public class IonSurgeJumpSpell : Spell {
 
     public override void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
-        GameObject owner,
+        Entity owner,
         Camera spellCamera,
         float entityBaseDamage,
         LayerMask layerToIgnore
@@ -98,6 +102,8 @@ public class IonSurgeJumpSpell : Spell {
         if (!CanShoot()) {
             return;
         }
+
+        this.owner = owner;
 
         CurrentCharge -= 1;
 
@@ -146,5 +152,9 @@ public class IonSurgeJumpSpell : Spell {
 
     public override bool ShouldBlockOtherSpells() {
         return false;
+    }
+
+    private void OnDamageAreaHitEntity(Entity hitEntity) {
+        owner!.OnAttackHitEntity(hitEntity: hitEntity);
     }
 }

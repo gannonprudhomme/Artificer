@@ -112,14 +112,6 @@ public class Health : MonoBehaviour {
         );
     }
 
-    void FixedUpdate() {
-        // Need to see if this renegerates over time
-        // though honestly that could just be in a HealthRegen component
-        // Note that some status effects will disable it
-
-        // Handle OnTick for status effects
-    }
-
     private void HandleDeath() {
         if (IsDead) // idk why we have this check
             return;

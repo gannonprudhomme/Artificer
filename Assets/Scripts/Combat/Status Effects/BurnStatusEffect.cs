@@ -89,7 +89,6 @@ public class BurnStatusEffect: BaseStatusEffect {
         this.burnSeed = Random.value * 100;
     }
 
-
     public override bool HasEffectFinished() {
         return damageLeftToApply <= 0f;
     }

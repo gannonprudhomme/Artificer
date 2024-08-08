@@ -74,10 +74,6 @@ public class FreezeStatusEffect : BaseStatusEffect {
         return (Time.time - lastTimeTriggered) >= effectDuration;
     }
 
-    // I don't think I need to do anything here
-    public override void OnFixedUpdate(Entity entity) {
-    }
-
     public override void OnUpdate(Entity entity) {
         // If at any point this entity's health is at 30%, kill it
         float healthPercentage = entity.health!.CurrentHealth / entity.health.MaxHealth;

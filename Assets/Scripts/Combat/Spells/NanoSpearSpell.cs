@@ -100,6 +100,7 @@ public class NanoSpearSpell : Spell {
         }
     }
 
+    private Entity? owner;
     private LayerMask? layerToIgnore;
     private Camera? spellCamera;
     private GameObject? chargeSound;
@@ -134,7 +135,7 @@ public class NanoSpearSpell : Spell {
     // This won't be called when CanShoot() is false.
     public override void AttackButtonHeld(
         (Vector3 leftArm, Vector3 rightArm) muzzlePositions,
-        GameObject owner,
+        Entity owner,
         Camera spellCamera,
         float entityBaseDamage,
         LayerMask layerToIgnore
@@ -143,6 +144,7 @@ public class NanoSpearSpell : Spell {
             return;
         }
 
+        this.owner = owner;
         this.entityBaseDamage = entityBaseDamage;
         this.spellCamera = spellCamera;
         this.layerToIgnore = layerToIgnore;
@@ -270,7 +272,7 @@ public class NanoSpearSpell : Spell {
         );
 
         projectile.Shoot(
-            owner: gameObject,
+            owner: owner!,
             ownerAffiliation: Affiliation.Player,
             spellCamera: spellCamera,
             entityBaseDamage: entityBaseDamage * damageCoefficient

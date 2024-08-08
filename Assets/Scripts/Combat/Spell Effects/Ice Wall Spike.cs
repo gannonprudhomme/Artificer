@@ -21,6 +21,9 @@ public class IceWallSpike : MonoBehaviour {
 
     public DamageArea? DamageArea;
 
+    [HideInInspector]
+    public Entity? owner;
+
     // How much damage this does on collision
     // Set in IceWall
     public float damage { get; set; }
@@ -61,6 +64,8 @@ public class IceWallSpike : MonoBehaviour {
         if (boxCollider == null) {
             Debug.LogError("IceWallSpike didn't have a BoxCollider");
         }
+
+        DamageArea!.OnEntityHit += OnDamageAreaHitEntity;
     }
 
     void OnEnable() {
@@ -154,5 +159,9 @@ public class IceWallSpike : MonoBehaviour {
         // Randomly determine what the lifetime is
         float offset = Random.Range(-lifetimeOffset, lifetimeOffset);
         return AverageLifetime + offset;
+    }
+
+    private void OnDamageAreaHitEntity(Entity hitEntity) {
+        owner!.OnAttackHitEntity(hitEntity: hitEntity);
     }
 }

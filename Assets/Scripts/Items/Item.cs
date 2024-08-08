@@ -36,6 +36,8 @@ public abstract class Item: ScriptableObject {
 
     public virtual void OnJump(bool wasGrounded, Transform spawnTransform) { }
 
+    public virtual void OnEnemyHit(float playerBaseDamage, Entity entityHit) { }
+
     public enum Rarity {
         COMMON, UNCOMMON
     }

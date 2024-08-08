@@ -16,7 +16,8 @@ public class LemurianFireballAttack: EnemyAttack {
     // Animator of the Lemurian so we can start the fireball animation
     private readonly Animator animator;
     // Transform of the lemurian so we can get the direction to the target
-    private readonly GameObject Owner;
+    // has to be an entity for Item's OnHit, but we don't actually use it as an Entity
+    private readonly Entity Owner;
     // Transform of the target so we can get the direction to the target
     private readonly Transform Target;
     private readonly Transform FirePoint;
@@ -41,7 +42,7 @@ public class LemurianFireballAttack: EnemyAttack {
         LemurianFireballProjectile projectilePrefab,
         VisualEffect chargeVisualEffectInstance,
         Animator animator,
-        GameObject owner,
+        Entity owner,
         Transform targetTransform,
         Transform firePoint
 	) {

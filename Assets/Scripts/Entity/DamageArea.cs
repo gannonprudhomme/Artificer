@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 #nullable enable
 
@@ -18,6 +19,8 @@ public class DamageArea : MonoBehaviour {
     [Header("Debug")]
     [Tooltip("Enable to show the radius")]
     public bool DebugShowRadius = false;
+
+    public UnityAction<Entity>? OnEntityHit;
 
     public void InflictDamageOverArea(
         float damage,
@@ -58,6 +61,8 @@ public class DamageArea : MonoBehaviour {
             _directHitEntity1.TakeDamage(damage, damageApplierAffiliation, statusEffectToApply);
             bool didRemove = entitiesToDamage.Remove(_directHitEntity1);
 
+            OnEntityHit?.Invoke(_directHitEntity1);
+
             // Just a error check, shouldn't ever happen really
             if (!didRemove) Debug.LogError("We were supposed to remove the direct hit entity but didn't!");
         }
@@ -76,6 +81,8 @@ public class DamageArea : MonoBehaviour {
             // Debug.Log($"Applying {damageAfterFalloff} based off of {damage} and distance {distanceFromCollider}, which is {distanceFromCollider / EffectRadius * 100.0f}%");
 
             entity.TakeDamage(damageAfterFalloff, damageApplierAffiliation, statusEffectToApply);
+
+            OnEntityHit?.Invoke(entity);
         }
     }
 
