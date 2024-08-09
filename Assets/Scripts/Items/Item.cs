@@ -8,7 +8,8 @@ using UnityEngine;
 public enum ItemType {
     BACKUP_MAGAZINE,
     ENERGY_DRINK,
-    HOPOO_FEATHER
+    HOPOO_FEATHER,
+    TRI_TIP_DAGGER
 }
 
 public abstract class Item: ScriptableObject {
