@@ -10,7 +10,7 @@ public class ItemPickupUI : MonoBehaviour {
     public RawImage? ItemImage;
     public TextMeshProUGUI? ItemTitleText;
     public TextMeshProUGUI? ItemSubtitleText;
-    public PlayerItemsController itemsController;
+    public PlayerItemsController? itemsController;
 
     private Canvas? canvas;
 
@@ -27,7 +27,7 @@ public class ItemPickupUI : MonoBehaviour {
         canvas = GetComponent<Canvas>();
         canvas.enabled = false;
 
-        itemsController.OnItemPickedUp += OnItemPickedUp;
+        itemsController!.OnItemPickedUp += OnItemPickedUp;
     }
 
     void Update() {

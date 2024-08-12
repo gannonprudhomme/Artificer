@@ -225,6 +225,37 @@ VFXRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1 &2639422938516369222
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4491880388730951914}
+  m_Layer: 0
+  m_Name: Bleed VFX Spawn Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4491880388730951914
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2639422938516369222}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4577986726505442575}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2781818406379795844
 GameObject:
   m_ObjectHideFlags: 0
@@ -987,6 +1018,7 @@ Transform:
   - {fileID: 4026441541533407356}
   - {fileID: 6617334448062441292}
   - {fileID: 7150337300574082109}
+  - {fileID: 4491880388730951914}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8857716599179543338
@@ -1020,6 +1052,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OnEndFreezeSfx: {fileID: 8300000, guid: c26d4b27fa548344da8e9b7bbf2a9f96, type: 3}
+  BleedVFXSpawnTransform: {fileID: 4491880388730951914}
   Target: {fileID: 0}
   HealthAndStatusBarFollowPlayer: {fileID: 4788356072385812276}
   StunnedStatusVFXInstance: {fileID: 8730578524926399322}

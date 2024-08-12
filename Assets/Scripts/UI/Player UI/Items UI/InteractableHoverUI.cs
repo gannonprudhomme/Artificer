@@ -9,15 +9,15 @@ using UnityEngine;
 public class InteractableHoverUI : MonoBehaviour {
     public TextMeshProUGUI? Text;
 
-    public InteractableHoverEvent HoverEvent;
+    public InteractableHoverEvent? HoverEvent;
 
     private Canvas? canvas;
 
     private void Start() {
         canvas = GetComponent<Canvas>();
 
-        HoverEvent.OnHover += OnHoverEvent;
-        HoverEvent.OnNoHover += OnNoHoverEvent;
+        HoverEvent!.OnHover += OnHoverEvent;
+        HoverEvent!.OnNoHover += OnNoHoverEvent;
     }
 
     private string MakeString(string name, int? cost) {

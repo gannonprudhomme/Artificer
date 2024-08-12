@@ -64,6 +64,8 @@ public abstract class Enemy : Entity {
 
         CheckAndPlayDiedWhileFrozenVFX();
 
+        CallAllStatusEffectsOnFinished();
+
         Destroy(this.gameObject);
     }
 
@@ -128,5 +130,11 @@ public abstract class Enemy : Entity {
 
         // Destroy it after it's done (guessing on time here)
         Destroy(deathFromFreezeVFX, 2.0f);
+    }
+
+    protected void CallAllStatusEffectsOnFinished() {
+        foreach(var statusEffect in statusEffects.Values) {
+            statusEffect.OnFinished(this);
+        }
     }
 }

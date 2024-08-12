@@ -50,7 +50,6 @@ public class DamageArea : MonoBehaviour {
 
         foreach (var collider in collidersOrderedByProximityToCenter) {
             if (collider.TryGetEntityFromCollider(out var entity) && !entitiesToDamage.ContainsKey(entity)) {
-                // Debug.Log($"Adding {entity.name}");
                 entitiesToDamage.Add(entity, collider);
             }
         }
@@ -61,7 +60,10 @@ public class DamageArea : MonoBehaviour {
             _directHitEntity1.TakeDamage(damage, damageApplierAffiliation, statusEffectToApply);
             bool didRemove = entitiesToDamage.Remove(_directHitEntity1);
 
-            OnEntityHit?.Invoke(_directHitEntity1);
+            // Having to do this check here indicates we should just be doing this in Health.cs
+            if (_directHitEntity1.health!.Affiliation != damageApplierAffiliation) {
+                OnEntityHit?.Invoke(_directHitEntity1);
+            }
 
             // Just a error check, shouldn't ever happen really
             if (!didRemove) Debug.LogError("We were supposed to remove the direct hit entity but didn't!");
@@ -78,11 +80,13 @@ public class DamageArea : MonoBehaviour {
             // but who cares if we're that accurate
             float distanceFromCollider = Vector3.Distance(collider.bounds.center, center);
             float damageAfterFalloff = damage * DamageOverDistanceCurve!.Evaluate(distanceFromCollider / EffectRadius);
-            // Debug.Log($"Applying {damageAfterFalloff} based off of {damage} and distance {distanceFromCollider}, which is {distanceFromCollider / EffectRadius * 100.0f}%");
 
             entity.TakeDamage(damageAfterFalloff, damageApplierAffiliation, statusEffectToApply);
 
-            OnEntityHit?.Invoke(entity);
+            // Having to do this check here indicates we should just be doing this in Health.cs
+            if (entity.health!.Affiliation != damageApplierAffiliation) {
+                OnEntityHit?.Invoke(entity);
+            }
         }
     }
 

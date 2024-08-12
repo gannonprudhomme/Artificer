@@ -16,6 +16,9 @@ public abstract class Entity : MonoBehaviour {
     [Tooltip("AudioClip which plays when the freeze status effect ends")]
     public AudioClip? OnEndFreezeSfx;
 
+    [Tooltip("Transform where we spawn the bleed VFX")]
+    public Transform? BleedVFXSpawnTransform;
+
     public Health? health { get; private set; }
 
     // We should only have one StatusEffect and when they stack they should modify the "main" one
@@ -98,7 +101,7 @@ public abstract class Entity : MonoBehaviour {
 
         // Handle status effects
         if (appliedStatusEffect != null) {
-            AddOrStackStatusEffect(appliedStatusEffect);
+            AddOrStackStatusEffect(appliedStatusEffect, damageApplierAffiliation);
         }
     }
 
@@ -132,7 +135,15 @@ public abstract class Entity : MonoBehaviour {
         return isFrozen;
     }
 
-    public void AddOrStackStatusEffect(BaseStatusEffect appliedStatusEffect) {
+    public void AddOrStackStatusEffect(
+        BaseStatusEffect appliedStatusEffect,
+        Affiliation damageApplierAffiliation
+    ) {
+        // If the same affiliation, don't do anything
+        if (health!.Affiliation == damageApplierAffiliation) {
+            return;
+        }
+
         // If we already have a stack of this type applied, stack them
         if (statusEffects.ContainsKey(appliedStatusEffect.Name)) {
             Debug.Log($"Stacking status effect {appliedStatusEffect.Name} to {gameObject.name}");

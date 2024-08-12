@@ -7,7 +7,8 @@ using UnityEngine.Events;
 
 public enum DamageType { 
      Normal,
-     Burn
+     Burn,
+     Bleed
 }
 
 public enum Affiliation {

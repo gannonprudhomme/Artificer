@@ -9,9 +9,9 @@ using UnityEngine;
 // it should be pretty generic, but I'll leave it as specific for now
 public class FireballProjectile : Projectile {
     protected override BaseStatusEffect? GetStatusEffect() {
-        // It does 50% of the damage the Fireball does
         return new BurnStatusEffect(
-            DamageMultipler * DamageEconomy.PlayerBaseDamage * 0.5f,
+            // Deals 50% of the damage the Fireball does
+            (entityBaseDamage * DamageMultipler) * 0.5f,
             Affiliation.Player
         );
     }

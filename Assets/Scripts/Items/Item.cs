@@ -33,11 +33,11 @@ public abstract class Item: ScriptableObject {
 
     public abstract ItemType itemType { get; }
 
-    public virtual void OnUpdate(ItemsDelegate itemsController, int count) { }
+    public virtual void OnUpdate(ItemsDelegate itemsController, int itemCount) { }
 
     public virtual void OnJump(bool wasGrounded, Transform spawnTransform) { }
 
-    public virtual void OnEnemyHit(float playerBaseDamage, Entity entityHit) { }
+    public virtual void OnEnemyHit(float playerBaseDamage, Entity entityHit, int itemCount) { }
 
     public enum Rarity {
         COMMON, UNCOMMON

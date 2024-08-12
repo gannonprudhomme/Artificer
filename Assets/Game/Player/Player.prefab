@@ -900,6 +900,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3634109928758265611}
   m_Mesh: {fileID: 5213698450833957816, guid: dfdf7755b482ac14bbd7dd90f3a1b6c8, type: 3}
+--- !u!1 &3728459640181230695
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5788154168514574372}
+  m_Layer: 7
+  m_Name: Bleed VFX Spawn Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5788154168514574372
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3728459640181230695}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 4.459, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7596465692342951294}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3951322916582721369
 GameObject:
   m_ObjectHideFlags: 0
@@ -1467,6 +1498,7 @@ Transform:
   - {fileID: 1303934949229841441}
   - {fileID: 496983921577198938}
   - {fileID: 8218754496745955885}
+  - {fileID: 5788154168514574372}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -0.56, y: 89.774, z: 5.825}
 --- !u!143 &2692957549008379818
@@ -1508,6 +1540,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OnEndFreezeSfx: {fileID: 0}
+  BleedVFXSpawnTransform: {fileID: 5788154168514574372}
   PlayerCamera: {fileID: 0}
   CameraAimPoint: {fileID: 0}
   PlayerMeshRenderer: {fileID: 7152185002000507461}

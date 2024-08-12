@@ -16,7 +16,10 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     [HideInInspector]
     private int _modifiedNumberOfJumps = 0;
 
-    private Dictionary<ItemType, List<Item>> items = new();
+    // We have to store the count here since Item is a ScriptableObject
+    // and increasing instance values on it will increase permanently - downside to ScriptableObjects!
+    // And we don't want to do a List as the value since there's literally no point (it'd be a bunch of the same reference anyways)
+    private Dictionary<ItemType, (Item, int)> items = new();
 
     // Maps ItemTypes to their displayer.
     // Used to quickly lookup the corresponding ItemDisplayer for an item whenever we pick one up.
@@ -55,21 +58,19 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     private void Update() {
         ResetModifiers();
 
-        foreach(var (itemName, itemList) in items) {
-            int count = itemList.Count;
+        foreach(var (itemName, itemCountTuple) in items) {
+            var (item, count) = itemCountTuple;
 
-            Item item = itemList[0];
-
-            item.OnUpdate(this, count: count);
+            item.OnUpdate(this, itemCount: count);
         }
     }
 
     public void PickupItem(Item item) {
-        List<Item> list = items.GetValueOrDefault(item.itemType, new List<Item>());
-        list.Add(item);
-        items[item.itemType] = list; // Why do we have to do this? I thought it was a reference
+        var (currItem, currCount) = items.GetValueOrDefault(item.itemType, (item, 0));
+        currCount += 1;
+        items[item.itemType] = (currItem, currCount);
 
-        OnItemPickedUp?.Invoke(item, list.Count);
+        OnItemPickedUp?.Invoke(item, currCount);
 
         itemDisplayerDict[item.itemType].gameObject.SetActive(true);
     }
@@ -130,9 +131,9 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     }
 
     private void OnPlayerJumped(bool wasGrounded, Transform spawnTransform) {
-        foreach(ItemType itemType in items.Keys) {
+        foreach(var (item, _) in items.Values) {
             // We just have to assume this won't fail
-            items[itemType][0].OnJump(
+            item.OnJump(
                 wasGrounded: wasGrounded,
                 spawnTransform: spawnTransform
             );
@@ -140,8 +141,8 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     }
 
     public void OnAttackHitEntity(float playerBaseDamage, Entity entityHit) {
-        foreach(ItemType itemType in items.Keys) {
-            items[itemType][0].OnEnemyHit(playerBaseDamage, entityHit);
+        foreach(var (item, count) in items.Values) {
+            item.OnEnemyHit(playerBaseDamage, entityHit, itemCount: count);
         }
     }
 }
