@@ -1,16 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 #nullable enable
-
-// This should:
-// - Handle the timing of the shader effects?
-// - Have an OnTick function which applies the damage?
-//   - Which also needs to affect the timing of the shader effect
-// - Apply the same to player's and enemies
-//   - Except for the shaders, which won't apply
-//
-// - Status Effects have different OnTicks apparently
-// - Do most of the work for the shaders, even though it won't apply to Players
 
 // Burn applies a percent of damage over time and disables health regeneration, and is stackable
 // The duration of Burn is proportional to the strength of the inflicting hit (relative to what?)
@@ -28,38 +19,55 @@ using UnityEngine;
 // not that totalDamageToApply is 50% of the damage applied on the fireball, but thats applied in FireballProjectile not here
 //
 // Note that b/c Fireball does 280% (2.8x) of base damage and it applies ignite for 50% of that damage, 140% = 1.4 sec
+// and each tick does 10% base damage (per stack), which is 12 dmg * 0.1 = 1.2 dmg per tick (which is rounded down for DamageTextSpawner - should it be rounded up? Ceil'd?)
+// 
+// TODO: Make it disable health regeneration?
 public class BurnStatusEffect: BaseStatusEffect {
-    public override int CurrentStacks {
-        get {
-            float numStacks = damageLeftToApply / damagePerStack;
-            numStacks = Mathf.Ceil(numStacks);
-            return (int)numStacks;
+    // Bleh we could just have multiple instances of BurnStatusEffect
+    // which would definitely make my life easier
+    // but coordinating for VFX between them would be complicated, so I'm going to leave it as one instance per N stacks
+    private class BurnStack {
+        public float damageToApply;
+
+        public BurnStack(
+            float damageToApply
+        ) {
+            this.damageToApply = damageToApply;
         }
     }
-    public override string Name => StatusEffectNames.Burn;
 
+    public override int CurrentStacks => stacks.Count;
+
+    public override string Name => StatusEffectNames.Burn;
     public override string ImageName => "Burning Status Icon";
 
-    // TODO: This is going to change as the player levels up
-    // We also need to get this from somewhere dynamically
-    private const float PlayerBaseDamage = 12.0f;
     private const int TicksPerSecond = 5;
 
-    // Each tick is 10% of *player* base damage - or is it the base damage of the fireball / attack?
-    // This doesn't seem right
-    private const float DamagePerTick = PlayerBaseDamage * 0.1f;
+    private readonly float playerBaseDamage;
+
+    // Each tick is 10% of *player* base damage
+    private float DamagePerTickPerStack => playerBaseDamage * 0.1f;
 
     private readonly Affiliation effectApplierAffiliation;
-    
-    // We're going to consider damagePerStack to be the base damage that is initially applied when this is created
-    // This will make it so if we have different things which apply Burn the meaning of stack will change, but it will work for now since we only have Fireball.
-    private readonly float damagePerStack;
 
     // How much damage this is going to apply over the duration of the effect
-    private float damageLeftToApply;
+    // Really only stored so we can use it to stack these (and create a BurnStack to add to the list)
+    private float damageToApply;
 
     // Used to count what frame should be considered a tick
     private float lastTickTime = Mathf.NegativeInfinity;
+
+    // Random seed used to change the base burn texture for the shader
+    // so each burn looks slightly different
+    // Generated on init
+    private readonly float burnSeed;
+
+    private List<BurnStack> stacks = new();
+    
+    // Multipled by (Time.time - lastTickTime) * TicksPerSecond
+    // The tick flash lasts for 6 frames, and there are 2 frames before the next one starts
+    // If I set below to 1 then there will be 0 frames between, if I set it to 1.5 there will be 4 frames between, so 1.25 it is
+    private const float shaderTicksPerSecondModifier = 1.5f;
 
     private const string SHADER_IS_BURNING_PARAM = "_IsBurning";
     private const string SHADER_TIME_SINCE_LAST_TICK_PARAM = "_TimeSinceLastBurnTick";
@@ -68,42 +76,30 @@ public class BurnStatusEffect: BaseStatusEffect {
     private const string SHADER_TICK_SEED_2 = "_TickSeed2";
     private const string SHADER_BURN_SEED = "_BurnSeed";
 
-    // Random seed used to change the base burn texture for the shader
-    // so each burn looks slightly different
-    // Generated on init
-    private float burnSeed;
-
-    // TODO: I need to do this
-    // We need to wait ~8 frames (~0.133... sec) to apply the burn effect
-    // private bool hasWaitedToApply = false;
-
     public BurnStatusEffect(
-        // For now it's going to be 12.0f * 2.8
-        float damage,
+        float damageToApply,
+        float entityBaseDamage,
         Affiliation effectApplierAffiliation
     ) {
-        this.damageLeftToApply = damage;
-        this.damagePerStack = damage;
+        this.damageToApply = damageToApply;
+        this.playerBaseDamage = entityBaseDamage;
         this.effectApplierAffiliation = effectApplierAffiliation;
 
         this.burnSeed = Random.value * 100;
+
+        // Add this as a stack
+        // If it's not the first one it doesn't even matter - it'll be garbage collected
+        stacks.Add(new BurnStack(damageToApply: damageToApply));
     }
 
     public override bool HasEffectFinished() {
-        return damageLeftToApply <= 0f;
+        return stacks.Count == 0;
     }
 
-    // Multipled by (Time.time - lastTickTime) * TicksPerSecond
-    // The tick flash lasts for 6 frames, and there are 2 frames before the next one starts
-    // If I set below to 1 then there will be 0 frames between, if I set it to 1.5 there will be 4 frames between, so 1.25 it is
-    private const float ticksPerSecondModifier = 1.5f;
-
     public override void OnUpdate(Entity entity) {
-        // We could just pass lastTickTime and have the shader do this
-        // that way it being smooth is guaranteed
-        // No variable names in a shader makes it a tougher sell tho
+        // Pass timeSinceLastTick so we can animate the burn effect shader
         if (entity.GetMaterial() is Material material) {
-            float modifiedTimeSinceLastTick = (Time.time - lastTickTime) * TicksPerSecond * ticksPerSecondModifier;
+            float modifiedTimeSinceLastTick = (Time.time - lastTickTime) * TicksPerSecond * shaderTicksPerSecondModifier;
             material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, modifiedTimeSinceLastTick);
         }
     }
@@ -112,42 +108,47 @@ public class BurnStatusEffect: BaseStatusEffect {
     // so this can handle its own OnTick functionality (as diff status effects have diff tick rates)
     public override void OnFixedUpdate(Entity entity) {
         Material? material = entity.GetMaterial();
-        if (material is Material _material) { 
+        if (material != null) { 
             material.SetInt(SHADER_IS_BURNING_PARAM, 1);
             material.SetFloat(SHADER_BURN_SEED, burnSeed);
 		} 
 
-        if (damageLeftToApply == 0) {
+        if (stacks.Count == 0) {
             // This isn't going to happen - it's handled by Entity,
             // but we still need a base case
             return;
         }
 
-        // See if this is a tick
-        // TODO: I wonder if I should use Coroutines for this?
+        // Check if this is a tick
         if (IsFrameATick()) {
-            if (material is Material _material1) {
-                _material1.SetFloat(SHADER_TICK_SEED_1, Random.value * 100);
-                _material1.SetFloat(SHADER_TICK_SEED_2, Random.value * 100);
-                _material1.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, 0);
-            }
-
-            float damage = OnTick(material);
-            entity.TakeDamage(damage, effectApplierAffiliation, DamageType.Burn);
-
-            lastTickTime = Time.time;
+            OnTick(entity);
         }
     }
 
-    // Apply damage (or heal)
-    private float OnTick(Material? material) {
-        damageLeftToApply -= DamagePerTick;
+    // Apply damage
+    private void OnTick(Entity entity) { // TODO: This is weird - do we even need this? This doesn't help much
+        lastTickTime = Time.time;
 
-        if (material is Material _material) {
+        // Check if this is a tick
+        if (entity.GetMaterial() is Material _material) {
             _material.SetInt(SHADER_WAS_DAMAGED, 1);
+            _material.SetFloat(SHADER_TICK_SEED_1, Random.value * 100);
+            _material.SetFloat(SHADER_TICK_SEED_2, Random.value * 100);
+            _material.SetFloat(SHADER_TIME_SINCE_LAST_TICK_PARAM, 0);
         }
 
-        return DamagePerTick;
+        float damagePerTick = DamagePerTickPerStack * stacks.Count;
+        entity.TakeDamage(damagePerTick, effectApplierAffiliation, DamageType.Burn);
+
+        // Decrease the stacks damage left to apply - then if they're at 0, then remove them
+        for(int i = stacks.Count - 1; i >= 0; i--) { // Need to go in reverse b/c we might be removing
+            stacks[i].damageToApply -= DamagePerTickPerStack;
+
+            if (stacks[i].damageToApply <= 0) {// if it's at 0, remove it
+                stacks.RemoveAt(i);
+                Debug.Log($"Removing stack at {i}");
+            }
+        }
     }
 
     // Called in Health when HasEffectFinished() returns false
@@ -170,7 +171,9 @@ public class BurnStatusEffect: BaseStatusEffect {
 
         BurnStatusEffect newBurnEffect = (BurnStatusEffect) effect;
 
-        this.damageLeftToApply += newBurnEffect.damageLeftToApply;
+        // Create a new stack
+        BurnStack stack = new(newBurnEffect.damageToApply);
+        stacks.Add(stack);
     }
 
     // Returns true if this frame should be considered a tick
