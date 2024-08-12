@@ -64,6 +64,7 @@ MonoBehaviour:
   DamageMultipler: 2.8
   DamageArea: {fileID: 4503799739896363830}
   RadiusColor: {r: 0, g: 0.2, b: 0.2, a: 0.2}
+  DebugDisplayRadius: 0
 --- !u!114 &4503799739896363830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76,7 +77,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72c2f4414b887ac4099e9d42d9713062, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EffectRadius: 2
+  EffectRadius: 5
   DamageOverDistanceCurve:
     serializedVersion: 2
     m_Curve:
