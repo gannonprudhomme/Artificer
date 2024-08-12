@@ -805,6 +805,23 @@ public class PlayerController : Entity {
         );
     }
 
+    // For Ion Surge
+    public void SetVerticalVelocity(float verticalSpeed) {
+        // We reset the velocity - rather than add to it - as otherwise Ion Surge's boost won't do much when we're e.g. falling
+        CharacterVelocity.y = verticalSpeed;
+
+        // Without this the player will get stuck to the ground w/ the ground check
+        lastTimeJumped = Time.time;
+
+        // If we were grounded when we called this then we need to reduce a jump,
+        // since this is basically the same thing as a jump
+        // Without this we'll be able to jump in mid-air (without a hopoo feather)
+
+        if (IsGrounded) {
+            currentNumberOfJumpsBeforeGrounded -= 1;
+        }
+    }
+
     // Uncomment this if you change the height / radius of the CharacterController and the player isn't being considered grounded
     // odds are you need to change the center value
     /*

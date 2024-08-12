@@ -203,12 +203,7 @@ public class PlayerSpellsController : MonoBehaviour {
     }
 
     private void UpdatePlayerVelocity(Vector3 addedVelocity) {
-        // We reset the velocity - rather than add to it - as otherwise Ion Surge's boost won't do much when we're e.g. falling
-        player!.CharacterVelocity.y = addedVelocity.y;
-
-        // TODO: We should *really* have a better way to do this
-        // Without this the player will get stuck to the ground w/ the ground check
-        player!.lastTimeJumped = Time.time;
+        player!.SetVerticalVelocity(addedVelocity.y);
     }
 
     private bool GetAttackInputHeld(int index) {
