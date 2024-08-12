@@ -68,7 +68,7 @@ public class DamagedVignette : MonoBehaviour {
         VignetteMaterial.SetFloat(SHADER_STRENGTH, strength);
     }
 
-    private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
+    private void OnDamaged(float damage, Vector3? _, DamageType __) {
 	    damageLeftToAnimate += damage;
     }
 

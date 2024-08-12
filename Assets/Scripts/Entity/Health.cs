@@ -42,7 +42,7 @@ public class Health : MonoBehaviour {
 
     public float CurrentHealth { get; private set; }
 
-    public UnityAction<float, Vector3, DamageType>? OnDamaged;
+    public UnityAction<float, Vector3?, DamageType>? OnDamaged;
     public UnityAction? OnDeath;
 
     public bool IsDead { get; private set; }
@@ -73,7 +73,7 @@ public class Health : MonoBehaviour {
     // Pass Vector3.negativeInfinity if damagePosition isn't relevant
     public void TakeDamage(
         float damage,
-        Vector3 damagePosition,
+        Vector3? damagePosition,
         Affiliation sourceAffiliation,
         DamageType damageType
     ) {
@@ -107,7 +107,7 @@ public class Health : MonoBehaviour {
     public void Kill() {
         TakeDamage(
             Mathf.Infinity,
-            Vector3.negativeInfinity,
+            damagePosition: null,
             Affiliation.Player, // Since this is only called by FreezeStatusEffect, setting as Player for now
             DamageType.Normal
         );

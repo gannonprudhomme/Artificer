@@ -28,9 +28,6 @@ public class DamageTextSpawner : MonoBehaviour {
     [Tooltip("Color used for the bleed status effect")]
     public Color BleedDamageTextColor;
 
-    // Where we should start spawning the damage text
-    public Transform? StartPosition { get; set; }
-
     // Start is called before the first frame update
     void Start() {
         health!.OnDamaged += SpawnDamageText;
@@ -38,16 +35,16 @@ public class DamageTextSpawner : MonoBehaviour {
 
     // We should really pass an int cause we don't do decimals
     // Where do we want to handle this?
-    public void SpawnDamageText(float damage, Vector3 spawnPosition, DamageType damageType) {
+    public void SpawnDamageText(float damage, Vector3? spawnPosition, DamageType damageType) {
         // We shouldn't have to do this - it should be done automatically
         // we might want to do this for stuff like the Fire Status Effect damage over time
-        if (spawnPosition.x == Mathf.NegativeInfinity) {
-            spawnPosition = CanvasTransform!.position;
+        if (spawnPosition == null) {
+            spawnPosition = CanvasTransform!.position + (Vector3.right * GetRandomSpawnOffset());
         }
 
         // DamageText newInst = Instantiate(DamageTextPrefab, this.transform);
         DamageText newInst = Instantiate(DamageTextPrefab!, CanvasTransform);
-        newInst.transform.position = spawnPosition;
+        newInst.transform.position = (Vector3) spawnPosition;
         // Cast it to an int since we don't want to show decimals
         newInst.Damage = (int) damage;
         newInst.SetTextColor(GetColorFromDamageType(damageType));
@@ -60,5 +57,10 @@ public class DamageTextSpawner : MonoBehaviour {
             DamageType.Bleed  => BleedDamageTextColor,
                             _ => Color.green,
         };
+    }
+
+    private float GetRandomSpawnOffset() {
+        float offset = Random.Range(-1.5f, 1.5f);
+        return offset;
     }
 }

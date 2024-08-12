@@ -226,7 +226,7 @@ public class Wisp : NavSpaceEnemy {
         transform.rotation = Quaternion.RotateTowards(transform.rotation, lookRotationToTarget, Time.deltaTime * RotationSpeed);
     }
 
-    private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
+    private void OnDamaged(float damage, Vector3? _, DamageType __) {
         // If a single piece of damage is > 10% of the Wisp's max health, stun it
         float damageAsPercentOfHealth = damage / health!.MaxHealth;
         if (damageAsPercentOfHealth > stunFromDamageHealthPercentage) {

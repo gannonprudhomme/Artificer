@@ -394,7 +394,7 @@ public class Lemurian : Enemy {
 		}
     }
 
-    private void OnDamaged(float damage, Vector3 damagePosition, DamageType damageType) {
+    private void OnDamaged(float damage, Vector3? damagePosition, DamageType damageType) {
         // if damage was > 15% of max health, Lemurian should be stunned
         float damageAsPercentOfMaxHealth = damage / health!.MaxHealth;
         if (damageAsPercentOfMaxHealth >= 0.15f) {

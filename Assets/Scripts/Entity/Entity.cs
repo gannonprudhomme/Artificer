@@ -92,7 +92,7 @@ public abstract class Entity : MonoBehaviour {
         float damage,
         Affiliation damageApplierAffiliation, // Affiliation of who caused this damage
         BaseStatusEffect? appliedStatusEffect, // Optional
-        Vector3 damagePosition, // Used to place where the damage text spawns from
+        Vector3? damagePosition, // Used to place where the damage text spawns from
         DamageType damageType = DamageType.Normal
     ) {
         if (health!.IsDead) return;
@@ -112,7 +112,7 @@ public abstract class Entity : MonoBehaviour {
         BaseStatusEffect? appliedStatusEffect,
         DamageType damageType = DamageType.Normal
     ) {
-        TakeDamage(damage, damageApplierAffiliation, appliedStatusEffect, Vector3.negativeInfinity, damageType);
+        TakeDamage(damage, damageApplierAffiliation, appliedStatusEffect, damagePosition: null, damageType);
     }
 
     // TODO: I don't actually think I need this, I can just make default-values for above null

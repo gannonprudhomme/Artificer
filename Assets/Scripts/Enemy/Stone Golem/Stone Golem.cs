@@ -267,7 +267,7 @@ public class StoneGolem : Enemy {
         }
     }
 
-    private void OnDamaged(float damage, Vector3 damagedPos, DamageType damageType) {
+    private void OnDamaged(float damage, Vector3? _, DamageType __) {
         lastDamagedTime = Time.time;
     }
 

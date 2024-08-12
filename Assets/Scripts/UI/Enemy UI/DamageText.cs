@@ -1,7 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+
+#nullable enable
 
 // An individual Damage text instance
 // 
@@ -9,6 +9,9 @@ using UnityEngine;
 // It also randomly determines it's starts and end position (based on a range)
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class DamageText : MonoBehaviour {
+    [Tooltip("The alpha value over time. Normalized to time of [0, 1]")]
+    public AnimationCurve AlphaFadeCurve;
+
     public int Damage { get; set; }
 
     private TextMeshProUGUI damageText;
@@ -34,11 +37,10 @@ public class DamageText : MonoBehaviour {
         // damageText.text = $"{Damage}";
 
         // Random value between [2.0, 4.0]
-        float upMove = (Random.value * 2f) + 2f;
+        float upMove = Random.Range(2f, 4f);
 
         // Random value between [-2.0, 2.0]
-        float horizontalMove = (Random.value * 4f) - 2f;
-
+        float horizontalMove = Random.Range(-2f, 2f);
 
         // Get the end position of this - it should move upwards & horizontally
         startPosition = transform.position;
@@ -67,28 +69,7 @@ public class DamageText : MonoBehaviour {
             timeLeft / Lifetime
         );
 
-        // We only want to fade it out in the last X% of the "animation"
-
-        const float percentToAnimateAlpha = 0.2f;
-
-        if (timeLeft / Lifetime <= percentToAnimateAlpha) {
-            // Need to convert [0.0f, 0.2f] to [0.0f, 1.0f]
-
-            damageText.alpha = Mathf.Lerp(
-                1f,
-                0f,
-                // [0.0f, {percentToAnimateAlpha}] -> [0.0f, 1.0f]
-                timeLeft / Lifetime * (percentToAnimateAlpha / 1f)
-            );
-        }
-
-        /*
-        damageText.alpha = Mathf.Lerp(
-            1f,
-            0f,
-            (Time.time - startTime) / Lifetime
-        );
-        */
+        damageText.alpha = AlphaFadeCurve.Evaluate((Time.time - startTime) / Lifetime);
     }
 
     public void SetTextColor(Color color) {

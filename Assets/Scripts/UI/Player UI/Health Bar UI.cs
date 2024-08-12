@@ -80,7 +80,7 @@ public class HealthBarUI : MonoBehaviour {
     }
 
     // Every time we get damaged 
-    private void OnDamaged(float damage, Vector3 damagedPos, DamageType damageType) {
+    private void OnDamaged(float damage, Vector3? _, DamageType __) {
         damageToAnimate += damage;
     } 
 }
