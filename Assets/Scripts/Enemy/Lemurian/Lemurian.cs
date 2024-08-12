@@ -411,6 +411,10 @@ public class Lemurian : Enemy {
     protected override void OnDeath() {
         // Note we're intentionally not calling base.OnDeath() cause we don't want to Destroy this (yet)
 
+        // Reset the speed in case we were frozen
+        // otherwise the death animation won't play
+        animator!.speed = 1;
+
         animator!.SetBool(ANIM_PARAM_IS_STUNNED, false);
 
         // I do think we want to do this?
