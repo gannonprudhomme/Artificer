@@ -6,10 +6,14 @@ using UnityEngine;
 //
 // Namely needed so we can map ItemDisplayers to their coresponding Items and vice-versa.
 public enum ItemType {
+    // Common Items
     BACKUP_MAGAZINE,
     ENERGY_DRINK,
+    TRI_TIP_DAGGER,
+    GASOLINE,
+
+    // Uncommon Items
     HOPOO_FEATHER,
-    TRI_TIP_DAGGER
 }
 
 public abstract class Item: ScriptableObject {
@@ -28,6 +32,7 @@ public abstract class Item: ScriptableObject {
 
     // This really needs to be an AttributedString equivalent
     public abstract string description { get; }
+    public abstract string longDescription { get; }
 
     public abstract Rarity rarity { get; }
 
@@ -38,6 +43,8 @@ public abstract class Item: ScriptableObject {
     public virtual void OnJump(bool wasGrounded, Transform spawnTransform) { }
 
     public virtual void OnEnemyHit(float playerBaseDamage, Entity entityHit, int itemCount) { }
+
+    public virtual void OnEnemyKilled(Vector3 killedEnemyPosition, float playerBaseDamage, int itemCount) { }
 
     public enum Rarity {
         COMMON, UNCOMMON

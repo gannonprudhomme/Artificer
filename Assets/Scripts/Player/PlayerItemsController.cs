@@ -6,6 +6,10 @@ using UnityEngine.Events;
 #nullable enable
 
 public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
+    [Tooltip("ScriptableObject which we use to subscribe to OnEnemyKilled events.")]
+    public OnEnemyKilledEvent? OnEnemyKilledEvent;
+
+    [Tooltip("Reference to all of the Item Displayers. Will output errors if it's misconfigured.")]
     public List<ItemDisplayer> ItemDisplayers = new();
 
     // TODO: Should I just do a abstract class so I don't have to do this BS?
@@ -53,6 +57,8 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
 
         playerController = GetComponent<PlayerController>();
         playerController.OnJumped += OnPlayerJumped;
+
+        OnEnemyKilledEvent!.Event += OnEnemyKilled;
     }
 
     private void Update() {
@@ -143,6 +149,16 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     public void OnAttackHitEntity(float playerBaseDamage, Entity entityHit) {
         foreach(var (item, count) in items.Values) {
             item.OnEnemyHit(playerBaseDamage, entityHit, itemCount: count);
+        }
+    }
+
+    private void OnEnemyKilled(Vector3 killedEnemyPosition) {
+        foreach(var (item, count) in items.Values) {
+            item.OnEnemyKilled(
+                killedEnemyPosition,
+                playerBaseDamage: playerController!.CurrentBaseDamage,
+                itemCount: count
+            );
         }
     }
 }

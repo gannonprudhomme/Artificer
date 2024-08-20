@@ -19,7 +19,8 @@ public class TriTipDagger : Item {
 
     public override string itemName => "Tri-Tip Dagger";
     public override ItemType itemType => ItemType.TRI_TIP_DAGGER;
-    public override string description => "10% (+10% per stack) chance to bleed an enemy for 240% base damage.";
+    public override string description => "Gain +10% chance to bleed enemies on hit.";
+    public override string longDescription => "10% (+10% per stack) chance to bleed an enemy for 240% base damage.";
     public override Rarity rarity => Rarity.COMMON;
 
     public override void OnEnemyHit(float playerBaseDamage, Entity entityHit, int itemCount) {

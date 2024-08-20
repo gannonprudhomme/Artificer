@@ -29,7 +29,8 @@ public class DamageArea : MonoBehaviour {
         // The collider we actually hit to trigger this. Used so we know which entity (if any) should get a "direct" hit (no falloff)
         Collider? directHitCollider,
         BaseStatusEffect? statusEffectToApply,
-        LayerMask layers
+        LayerMask layers,
+        DamageType directDamageType = DamageType.Normal
     ) {
         Dictionary<Entity, Collider> entitiesToDamage = new();
         Entity? directHitEntity = null;
@@ -57,7 +58,7 @@ public class DamageArea : MonoBehaviour {
         // Rather than check every time in the foreach below,
         // apply direct damage to it and remove it from the Set
         if (directHitEntity is Entity _directHitEntity1) {
-            _directHitEntity1.TakeDamage(damage, damageApplierAffiliation, statusEffectToApply);
+            _directHitEntity1.TakeDamage(damage, damageApplierAffiliation, statusEffectToApply, damageType: directDamageType);
             bool didRemove = entitiesToDamage.Remove(_directHitEntity1);
 
             // Having to do this check here indicates we should just be doing this in Health.cs
@@ -81,7 +82,7 @@ public class DamageArea : MonoBehaviour {
             float distanceFromCollider = Vector3.Distance(collider.bounds.center, center);
             float damageAfterFalloff = damage * DamageOverDistanceCurve!.Evaluate(distanceFromCollider / EffectRadius);
 
-            entity.TakeDamage(damageAfterFalloff, damageApplierAffiliation, statusEffectToApply);
+            entity.TakeDamage(damageAfterFalloff, damageApplierAffiliation, statusEffectToApply, damageType: directDamageType);
 
             // Having to do this check here indicates we should just be doing this in Health.cs
             if (entity.health!.Affiliation != damageApplierAffiliation) {

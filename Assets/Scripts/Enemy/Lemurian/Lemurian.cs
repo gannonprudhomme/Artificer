@@ -432,6 +432,8 @@ public class Lemurian : Enemy {
 
         CallAllStatusEffectsOnFinished();
 
+        OnEnemyKilledEvent!.Event?.Invoke(BleedVFXSpawnTransform!.transform.position);
+
         Destroy(this.gameObject, 5f); // Destroy it in 5 seconds I guess? Probably should have an effect but w/e
     }
 

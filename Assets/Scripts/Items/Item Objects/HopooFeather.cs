@@ -12,7 +12,8 @@ public class HopooFeather : Item {
     public override string itemName => "Hopoo Feather";
     public override ItemType itemType => ItemType.HOPOO_FEATHER;
 
-    public override string description => "Gain +1 (+1 per stack) maximum jump count.";
+    public override string description => "Gain an extra jump.";
+    public override string longDescription => "Gain +1 (+1 per stack) maximum jump count.";
 
     public override Rarity rarity => Rarity.UNCOMMON;
 

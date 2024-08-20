@@ -27,6 +27,9 @@ public abstract class Enemy : Entity {
     [Tooltip("VFX prefab which is created when the enemy dies from being frozen")]
     public VisualEffect? DiedWhileFrozenVFXPrefab;
 
+    [Tooltip("Scriptable object event that gets triggered when the enemy dies. Used to propogate the event to Items.")]
+    public OnEnemyKilledEvent? OnEnemyKilledEvent;
+
     protected EnemyManager? enemyManager;
 
     private bool isStunnedStatusEffectActive = false;
@@ -65,6 +68,8 @@ public abstract class Enemy : Entity {
         CheckAndPlayDiedWhileFrozenVFX();
 
         CallAllStatusEffectsOnFinished();
+
+        OnEnemyKilledEvent!.Event?.Invoke(BleedVFXSpawnTransform!.transform.position);
 
         Destroy(this.gameObject);
     }
