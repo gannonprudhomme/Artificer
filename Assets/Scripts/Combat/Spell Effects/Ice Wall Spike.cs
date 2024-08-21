@@ -64,8 +64,6 @@ public class IceWallSpike : MonoBehaviour {
         if (boxCollider == null) {
             Debug.LogError("IceWallSpike didn't have a BoxCollider");
         }
-
-        DamageArea!.OnEntityHit += OnDamageAreaHitEntity;
     }
 
     void OnEnable() {
@@ -103,6 +101,7 @@ public class IceWallSpike : MonoBehaviour {
     private void Detonate(Collider? directHitCollider) {
         DamageArea!.InflictDamageOverArea(
             damage: damage,
+            procCoefficient: 1f,
             center: transform.position, // Do better than this
             damageApplierAffiliation: Affiliation.Player,
             directHitCollider: directHitCollider,
@@ -159,9 +158,5 @@ public class IceWallSpike : MonoBehaviour {
         // Randomly determine what the lifetime is
         float offset = Random.Range(-lifetimeOffset, lifetimeOffset);
         return AverageLifetime + offset;
-    }
-
-    private void OnDamageAreaHitEntity(Entity hitEntity) {
-        owner!.OnAttackHitEntity(hitEntity: hitEntity);
     }
 }

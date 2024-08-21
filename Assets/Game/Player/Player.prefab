@@ -1541,6 +1541,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OnEndFreezeSfx: {fileID: 0}
   BleedVFXSpawnTransform: {fileID: 5788154168514574372}
+  OnEntityHitEvent: {fileID: 11400000, guid: 7840444d77c364448922a63c5b113761, type: 2}
   PlayerCamera: {fileID: 0}
   CameraAimPoint: {fileID: 0}
   PlayerMeshRenderer: {fileID: 7152185002000507461}
@@ -1620,6 +1621,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OnEnemyKilledEvent: {fileID: 11400000, guid: a3e8f53344c2a3042828ce89e604b2e1, type: 2}
+  OnEntityHitEvent: {fileID: 11400000, guid: 7840444d77c364448922a63c5b113761, type: 2}
   ItemDisplayers:
   - {fileID: 6740110724599810548}
   - {fileID: 4221639565424394382}

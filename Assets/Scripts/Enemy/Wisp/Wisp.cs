@@ -274,7 +274,6 @@ public class Wisp : NavSpaceEnemy {
     }
 
     public override Vector3 GetMiddleOfMesh() {
-        return Vector3.zero;
     }
 
     protected override bool ColliderCast(Vector3 position, out RaycastHit? hit) {

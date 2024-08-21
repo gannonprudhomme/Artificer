@@ -10,14 +10,14 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Health))]
 public abstract class Entity : MonoBehaviour {
     [Header("Entity (Inherited)")]
-    // [Tooltip("Prefab for the particle system which plays when the freeze status effect ends")]
-    // public ParticleSystem? OnEndFreezeParticleSystemPrefab;
-
     [Tooltip("AudioClip which plays when the freeze status effect ends")]
     public AudioClip? OnEndFreezeSfx;
 
     [Tooltip("Transform where we spawn the bleed VFX")]
     public Transform? BleedVFXSpawnTransform;
+
+    [Tooltip("ScriptableObject which we use to publish OnEntityHit events for items (e.g. Ukulele)")]
+    public OnEntityHitEvent? OnEntityHitEvent;
 
     public Health? health { get; private set; }
 
@@ -42,14 +42,11 @@ public abstract class Entity : MonoBehaviour {
     public abstract Material? GetMaterial();
     public abstract Vector3 GetMiddleOfMesh();
 
-    public virtual void OnAttackHitEntity(Entity hitEntity) { }
-
     protected virtual void Awake() {
         health = GetComponent<Health>();
     }
 
-    protected virtual void Start() {
-    }
+    protected virtual void Start() { }
 
     protected virtual void Update() {
         foreach (var statusEffectName in statusEffects.Keys) {
@@ -90,6 +87,7 @@ public abstract class Entity : MonoBehaviour {
     // This is what damage "appliers" (e.g. Projectiles / Spells) actually call.
     public void TakeDamage(
         float damage,
+        float procCoefficient,
         Affiliation damageApplierAffiliation, // Affiliation of who caused this damage
         BaseStatusEffect? appliedStatusEffect, // Optional
         Vector3? damagePosition, // Used to place where the damage text spawns from
@@ -98,6 +96,14 @@ public abstract class Entity : MonoBehaviour {
         if (health!.IsDead) return;
 
         health!.TakeDamage(damage, damagePosition, damageApplierAffiliation, damageType);
+
+        OnEntityHitEvent!.Event!.Invoke(new OnEntityHitData(
+            playerBaseDamage: CurrentBaseDamage,
+            attackTotalDamage: damage,
+            entityHit: this,
+            procCoefficient: procCoefficient,
+            inflicterAffiliation: damageApplierAffiliation
+        ));
 
         // Handle status effects
         if (appliedStatusEffect != null) {
@@ -108,18 +114,24 @@ public abstract class Entity : MonoBehaviour {
     // Available so we can apply damage if we don't know where exactly on the Collider it happened
     public void TakeDamage(
         float damage,
+        float procCoefficient,
         Affiliation damageApplierAffiliation,
         BaseStatusEffect? appliedStatusEffect,
         DamageType damageType = DamageType.Normal
     ) {
-        TakeDamage(damage, damageApplierAffiliation, appliedStatusEffect, damagePosition: null, damageType);
+        TakeDamage(damage, procCoefficient, damageApplierAffiliation, appliedStatusEffect, damagePosition: null, damageType);
     }
 
     // TODO: I don't actually think I need this, I can just make default-values for above null
     // Take flat damage
     // TODO: Do I actually want this? I suppose I might?
-    public void TakeDamage(float damage, Affiliation damageApplierAffiliation, DamageType damageType = DamageType.Normal) {
-        TakeDamage(damage, damageApplierAffiliation, null, damageType);
+    public void TakeDamage(
+        float damage,
+        float procCoefficient,
+        Affiliation damageApplierAffiliation,
+        DamageType damageType = DamageType.Normal
+    ) {
+        TakeDamage(damage, procCoefficient, damageApplierAffiliation, null, damageType);
     }
 
     public bool IsStunned() {

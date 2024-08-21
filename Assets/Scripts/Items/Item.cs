@@ -42,7 +42,7 @@ public abstract class Item: ScriptableObject {
 
     public virtual void OnJump(bool wasGrounded, Transform spawnTransform) { }
 
-    public virtual void OnEnemyHit(float playerBaseDamage, Entity entityHit, int itemCount) { }
+    public virtual void OnEnemyHit(MonoBehaviour owner, int itemCount, OnEntityHitData onHitData) { }
 
     public virtual void OnEnemyKilled(Vector3 killedEnemyPosition, float playerBaseDamage, int itemCount) { }
 

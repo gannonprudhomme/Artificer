@@ -80,6 +80,7 @@ public abstract class Projectile : MonoBehaviour {
     // so it could technically be out of date if the player levels up when this is in flight
     // but I think that's fine
     protected float entityBaseDamage = 0.0f;
+    protected float procCoefficient;
 
     /** Abstract functions **/
     protected virtual BaseStatusEffect? GetStatusEffect() { return null; }
@@ -89,25 +90,21 @@ public abstract class Projectile : MonoBehaviour {
         Destroy(this.gameObject, MaxLifeTime);
     }
 
-    private void Start() {
-        if (DamageArea != null) {
-            DamageArea!.OnEntityHit += OnDamageAreaHitEntity;
-        }
-    }
-
     // I intentionally put this above Update() since this will be called before it (probably)
     // Was originally OnShoot() I guess
     public virtual void Shoot(
         Entity owner, // (Root) Player game object
         Affiliation ownerAffiliation,
         Camera? spellCamera,  // don't actually need, remove this
-	    float entityBaseDamage
+	    float entityBaseDamage,
+        float procCoefficient
     ) {
         lastRootPosition = Root!.position; 
         velocity = transform.forward * Speed;
         ignoredColliders = new List<Collider>(); // Idk why we need to do this frankly it's not like this gets reused
         this.owner = owner;
         this.ownerAffiliation = ownerAffiliation;
+        this.procCoefficient = procCoefficient;
 
         // Ignore colliders of owner
         //Collider[] ownerColliders = owner.GetComponents<Collider>();
@@ -196,6 +193,7 @@ public abstract class Projectile : MonoBehaviour {
         if (DamageArea is DamageArea _DamageArea) { // If a DamageArea was provided, use that
             _DamageArea.InflictDamageOverArea(
                 damageAfterMultipler,
+                procCoefficient: procCoefficient,
                 point,
                 ownerAffiliation,
                 collider,
@@ -206,13 +204,9 @@ public abstract class Projectile : MonoBehaviour {
             if (collider.TryGetComponent<ColliderParentPointer>(out var colliderParentPointer)) {
                 Entity entity = colliderParentPointer.entity;
 
-                entity.TakeDamage(damageAfterMultipler, ownerAffiliation, GetStatusEffect(), point);
-
-                owner!.OnAttackHitEntity(hitEntity: entity);
+                entity.TakeDamage(damageAfterMultipler, procCoefficient: procCoefficient, ownerAffiliation, GetStatusEffect(), point);
             } else if (collider.TryGetComponent<Entity>(out var entity)) {
-                entity.TakeDamage(damageAfterMultipler, ownerAffiliation, GetStatusEffect(), point);
-
-                owner!.OnAttackHitEntity(hitEntity: entity);
+                entity.TakeDamage(damageAfterMultipler, procCoefficient: procCoefficient, ownerAffiliation, GetStatusEffect(), point);
             }
         }
 
@@ -262,9 +256,5 @@ public abstract class Projectile : MonoBehaviour {
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(transform.position, Radius);
         }
-    }
-
-    private void OnDamageAreaHitEntity(Entity hitEntity) {
-        owner!.OnAttackHitEntity(hitEntity: hitEntity);
     }
 }

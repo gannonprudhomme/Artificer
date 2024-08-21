@@ -275,7 +275,8 @@ public class NanoSpearSpell : Spell {
             owner: owner!,
             ownerAffiliation: Affiliation.Player,
             spellCamera: spellCamera,
-            entityBaseDamage: entityBaseDamage * damageCoefficient
+            entityBaseDamage: entityBaseDamage * damageCoefficient,
+            procCoefficient: 1f
         );
 
         // At the same time, disable what we wanimate

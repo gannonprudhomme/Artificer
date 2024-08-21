@@ -21,9 +21,8 @@ public class NanoSpearProjectile : Projectile {
             }
 
             // Otherwise, hit it
-            entity.TakeDamage(entityBaseDamage * DamageMultipler, ownerAffiliation, GetStatusEffect(), point);
-
-            owner!.OnAttackHitEntity(hitEntity: entity);
+            float damage = entityBaseDamage * DamageMultipler;
+            entity.TakeDamage(damage, procCoefficient: 1f, ownerAffiliation, GetStatusEffect(), point);
 
             // Add it to the list of entities we've hit
             alreadyDamagedEntities.Add(entity);

@@ -20,10 +20,9 @@ public class DamageArea : MonoBehaviour {
     [Tooltip("Enable to show the radius")]
     public bool DebugShowRadius = false;
 
-    public UnityAction<Entity>? OnEntityHit;
-
     public void InflictDamageOverArea(
         float damage,
+        float procCoefficient,
         Vector3 center,
         Affiliation damageApplierAffiliation,
         // The collider we actually hit to trigger this. Used so we know which entity (if any) should get a "direct" hit (no falloff)
@@ -50,6 +49,7 @@ public class DamageArea : MonoBehaviour {
         ).ToArray();
 
         foreach (var collider in collidersOrderedByProximityToCenter) {
+            // If we can get the entity and we're not already damaging it (aka it isn't the direct hit entity)
             if (collider.TryGetEntityFromCollider(out var entity) && !entitiesToDamage.ContainsKey(entity)) {
                 entitiesToDamage.Add(entity, collider);
             }
@@ -58,13 +58,8 @@ public class DamageArea : MonoBehaviour {
         // Rather than check every time in the foreach below,
         // apply direct damage to it and remove it from the Set
         if (directHitEntity is Entity _directHitEntity1) {
-            _directHitEntity1.TakeDamage(damage, damageApplierAffiliation, statusEffectToApply, damageType: directDamageType);
+            _directHitEntity1.TakeDamage(damage, procCoefficient: procCoefficient, damageApplierAffiliation, statusEffectToApply, damageType: directDamageType);
             bool didRemove = entitiesToDamage.Remove(_directHitEntity1);
-
-            // Having to do this check here indicates we should just be doing this in Health.cs
-            if (_directHitEntity1.health!.Affiliation != damageApplierAffiliation) {
-                OnEntityHit?.Invoke(_directHitEntity1);
-            }
 
             // Just a error check, shouldn't ever happen really
             if (!didRemove) Debug.LogError("We were supposed to remove the direct hit entity but didn't!");
@@ -82,12 +77,7 @@ public class DamageArea : MonoBehaviour {
             float distanceFromCollider = Vector3.Distance(collider.bounds.center, center);
             float damageAfterFalloff = damage * DamageOverDistanceCurve!.Evaluate(distanceFromCollider / EffectRadius);
 
-            entity.TakeDamage(damageAfterFalloff, damageApplierAffiliation, statusEffectToApply, damageType: directDamageType);
-
-            // Having to do this check here indicates we should just be doing this in Health.cs
-            if (entity.health!.Affiliation != damageApplierAffiliation) {
-                OnEntityHit?.Invoke(entity);
-            }
+            entity.TakeDamage(damageAfterFalloff, procCoefficient: procCoefficient, damageApplierAffiliation, statusEffectToApply, damageType: directDamageType);
         }
     }
 

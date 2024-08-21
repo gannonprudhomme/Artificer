@@ -9,6 +9,9 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     [Tooltip("ScriptableObject which we use to subscribe to OnEnemyKilled events.")]
     public OnEnemyKilledEvent? OnEnemyKilledEvent;
 
+    [Tooltip("ScriptableObject which we use to subscribe to OnEntityHit events.")]
+    public OnEntityHitEvent? OnEntityHitEvent;
+
     [Tooltip("Reference to all of the Item Displayers. Will output errors if it's misconfigured.")]
     public List<ItemDisplayer> ItemDisplayers = new();
 
@@ -59,6 +62,7 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
         playerController.OnJumped += OnPlayerJumped;
 
         OnEnemyKilledEvent!.Event += OnEnemyKilled;
+        OnEntityHitEvent!.Event += OnEntityHit;
     }
 
     private void Update() {
@@ -146,9 +150,13 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
         }
     }
 
-    public void OnAttackHitEntity(float playerBaseDamage, Entity entityHit) {
+    public void OnEntityHit(OnEntityHitData onHitData) {
         foreach(var (item, count) in items.Values) {
-            item.OnEnemyHit(playerBaseDamage, entityHit, itemCount: count);
+            item.OnEnemyHit(
+                owner: this,
+                itemCount: count,
+                onHitData: onHitData
+            );
         }
     }
 

@@ -12,8 +12,8 @@ public class LemurianFireballProjectile : Projectile {
 
     private const float MainFireballParticleLifetime = 0.7f;
 
-    public override void Shoot(Entity owner, Affiliation ownerAffiliation, Camera? spellCamera, float entityBaseDamage) {
-        base.Shoot(owner, ownerAffiliation, spellCamera, entityBaseDamage);
+    public override void Shoot(Entity owner, Affiliation ownerAffiliation, Camera? spellCamera, float entityBaseDamage, float procCoefficient) {
+        base.Shoot(owner, ownerAffiliation, spellCamera, entityBaseDamage, procCoefficient);
 
         MainFireballVisualEffect!.SetFloat("Lifetime", MainFireballParticleLifetime);
         MainFireballVisualEffect!.SetInt("IsMoving", 1);

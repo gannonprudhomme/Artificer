@@ -150,7 +150,7 @@ public class FireballSpell : Spell {
             Quaternion.LookRotation(direction)
         );
 
-        newProjectile.Shoot(player, Affiliation.Player, spellCamera, playerBaseDamage);
+        newProjectile.Shoot(player, Affiliation.Player, spellCamera, playerBaseDamage, procCoefficient: 1f);
 
         lastTimeShot = Time.time;
 

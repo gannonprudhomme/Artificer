@@ -62,7 +62,7 @@ public class BleedStatusEffect : BaseStatusEffect {
 
         float damageThisTick = totalDamageToDeal / (duration * ticksPerSecond); // 20% per tick
 
-        entity.TakeDamage(damageThisTick, Affiliation.Player, damageType: DamageType.Bleed);
+        entity.TakeDamage(damageThisTick, procCoefficient: 0f, Affiliation.Player, damageType: DamageType.Bleed);
     }
 
     public override bool HasEffectFinished() {

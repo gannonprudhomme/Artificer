@@ -279,6 +279,7 @@ public class GolemLaserAttack: EnemyAttack {
             // Trigger the damage area
             damageArea.InflictDamageOverArea(
                 entityBaseDamage * DamageCoefficient,
+                procCoefficient: 1f,
                 hit.point,
                 Affiliation.Enemy,
                 hit.collider,

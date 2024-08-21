@@ -23,24 +23,22 @@ public class TriTipDagger : Item {
     public override string longDescription => "10% (+10% per stack) chance to bleed an enemy for 240% base damage.";
     public override Rarity rarity => Rarity.COMMON;
 
-    public override void OnEnemyHit(float playerBaseDamage, Entity entityHit, int itemCount) {
-        float procCoefficient = 1.0f; // TODO: Pass proc chance so we can multiply it by the chance for e.g. Ukulele
-
+    public override void OnEnemyHit(MonoBehaviour owner, int itemCount, OnEntityHitData onHitData) {
         float value = Random.value;
         float percentChance = 0.1f * itemCount; // each stack increases chance by 10%
-        bool didTriggerChance = value <= (percentChance * procCoefficient);
+        bool didTriggerChance = value <= (percentChance * onHitData.procCoefficient);
 
         if (!didTriggerChance && !DebugAlwaysTrigger) {
             return;
         };
 
         BleedStatusEffect bleedStatusEffect = new(
-            damageToDeal: playerBaseDamage * 2.4f, // 240% base damage
+            damageToDeal: onHitData.playerBaseDamage * 2.4f, // 240% base damage
             startVFXPrefab: BleedStartVFX!,
             tickVFXPrefab: BleedTickVFX!
         );
         
-        entityHit.AddOrStackStatusEffect(
+        onHitData.entityHit.AddOrStackStatusEffect(
             appliedStatusEffect: bleedStatusEffect,
             damageApplierAffiliation: Affiliation.Player
         );

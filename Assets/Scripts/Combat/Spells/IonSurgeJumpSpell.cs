@@ -65,8 +65,6 @@ public class IonSurgeJumpSpell : Spell {
             explosionLightPrefab: ExplosionLightPrefab!,
             explosionLightIntensityCurve: LightIntensityCurve!
         );
-
-        DamageArea!.OnEntityHit += OnDamageAreaHitEntity;
     }
 
     private void Update() {
@@ -109,6 +107,7 @@ public class IonSurgeJumpSpell : Spell {
 
         DamageArea!.InflictDamageOverArea(
             damage: entityBaseDamage * damageCoefficient,
+            procCoefficient: 1f,
             center: transform.position,
             damageApplierAffiliation: Affiliation.Player,
             directHitCollider: null,
@@ -152,9 +151,5 @@ public class IonSurgeJumpSpell : Spell {
 
     public override bool ShouldBlockOtherSpells() {
         return false;
-    }
-
-    private void OnDamageAreaHitEntity(Entity hitEntity) {
-        owner!.OnAttackHitEntity(hitEntity: hitEntity);
     }
 }

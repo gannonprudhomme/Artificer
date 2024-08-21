@@ -257,7 +257,7 @@ public class WispFireballAttack: EnemyAttack {
 
     private void OnProjectileHit(RaycastHit hit) {
         if (hit.collider.TryGetEntityFromCollider(out Entity entityToDamage)) {
-            entityToDamage.TakeDamage(damagePerProjectile, Affiliation.Enemy);
+            entityToDamage.TakeDamage(damagePerProjectile, procCoefficient: 0.33f, Affiliation.Enemy);
         }
 
         // TODO: Regardless of *what* we hit, spawn the on hit vfx

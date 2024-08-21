@@ -104,6 +104,7 @@ public class Health : MonoBehaviour {
         HandleDeath();
     }
 
+    // Only used for killing instantly when health is below 30% when frozen
     public void Kill() {
         TakeDamage(
             Mathf.Infinity,

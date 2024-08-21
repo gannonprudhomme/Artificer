@@ -798,13 +798,6 @@ public class PlayerController : Entity {
         
     }
 
-    public override void OnAttackHitEntity(Entity hitEntity) {
-        itemsController!.OnAttackHitEntity(
-            playerBaseDamage: CurrentBaseDamage,
-            hitEntity
-        );
-    }
-
     // For Ion Surge
     public void SetVerticalVelocity(float verticalSpeed) {
         // We reset the velocity - rather than add to it - as otherwise Ion Surge's boost won't do much when we're e.g. falling

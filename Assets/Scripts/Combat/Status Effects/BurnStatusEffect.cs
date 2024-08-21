@@ -138,7 +138,7 @@ public class BurnStatusEffect: BaseStatusEffect {
         }
 
         float damagePerTick = DamagePerTickPerStack * stacks.Count;
-        entity.TakeDamage(damagePerTick, effectApplierAffiliation, DamageType.Burn);
+        entity.TakeDamage(damagePerTick, procCoefficient: 0f, effectApplierAffiliation, DamageType.Burn);
 
         // Decrease the stacks damage left to apply - then if they're at 0, then remove them
         for(int i = stacks.Count - 1; i >= 0; i--) { // Need to go in reverse b/c we might be removing
