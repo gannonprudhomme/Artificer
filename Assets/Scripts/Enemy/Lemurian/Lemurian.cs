@@ -36,15 +36,18 @@ public class Lemurian : Enemy {
 
     public VisualEffect? FireballChargeVisualEffectInstance;
 
+    public override string EnemyIdentifier => "Lemurian";
+    protected override float StartingBaseDamage => 12f;
+    protected override float StartingHealth => 80f;
+    protected override float HealthIncreasePerLevel => 24f;
+    protected override float DamageIncreasePerLevel => 2.4f;
+
     private NavMeshAgent? navMeshAgent;
     private Animator? animator;
 
     // This isn't *really* optional since it's assigned in Start()
     private LemurianFireballAttack? fireballAttack;
     private LemurianMeleeAttack? meleeAttack;
-
-    protected override float StartingBaseDamage => 12;
-    public override float CurrentBaseDamage => StartingBaseDamage;
 
     // The point where the lemurian is strafing to
     private Vector3 strafePosition = Vector3.negativeInfinity;
@@ -82,8 +85,6 @@ public class Lemurian : Enemy {
     // Need to be 1.5 seconds until the last stun ended to stun again
     // TODO: Should this apply to the status effect too?
     private const float stunFromDamageCooldown = 1.5f;
-
-    public override string EnemyIdentifier => "Lemurian";
 
     private const string ANIM_PARAM_IS_DEAD = "IsDead";
     private const string ANIM_PARAM_IS_STUNNED = "IsStunned";

@@ -38,6 +38,15 @@ public abstract class Enemy : Entity {
     public int ExperienceGrantedOnDeath { get; set; }
     public int GoldGrantedOnDeath => ExperienceGrantedOnDeath * 2;
 
+    // Set by the director when this is spawned
+    public float Level = 1;
+    
+    protected abstract float StartingHealth { get; }
+    protected abstract float HealthIncreasePerLevel { get; }
+    protected abstract float DamageIncreasePerLevel { get; }
+    public float MaxHealth => StartingHealth + (HealthIncreasePerLevel * Level);
+    public override float CurrentBaseDamage => StartingBaseDamage + (DamageIncreasePerLevel * Level);
+
     public abstract string EnemyIdentifier { get; }
 
     protected override void Start() {
@@ -51,6 +60,7 @@ public abstract class Enemy : Entity {
 
         enemyManager.AddEnemy(this);
 
+        health!.SetMaxHealth(MaxHealth);
         health!.OnDeath += OnDeath;
 
         if (Target) {

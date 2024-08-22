@@ -58,24 +58,35 @@ public abstract class CombatDirector: MonoBehaviour {
     // But it would be nice to just have a single place to change these values, so I'll do this for now 
     protected EnemyCard[]? enemyCards;
 
+    private const int playerCount = 1;
+
+    private float playerFactor {
+        get {
+            return 1 + 0.3f * (playerCount - 1);
+        }
+    }
+
     // Idk where we're going to get this from
     // We need some form of (global?) (readonly) level state
     // Probably move this into a GameManager class?
     protected float difficultyCoefficient {
         get {
-            int playerCount = 1;
-            float playerFactor = 1 + 0.3f * (playerCount - 1);
-
             float difficultyValue = 2.0f; // 1 for Drizzle, 2 for Rainstorm, 3 for Monsoon
             float timeFactor = 0.0506f * difficultyValue * (float) Mathf.Pow(playerCount, 0.2f);
 
-            int stagesCompleted = 0; // TODO: Get this from some GameManager
+            int stagesCompleted = 1; // TODO: Get this from some GameManager
             float stageFactor = (float)Mathf.Pow(1.15f, stagesCompleted);
 
             float tempTestingTimePlayed = 5.0f; // add 5 extra minutes
             float timeInMinutes = (Time.time / 60.0f) + tempTestingTimePlayed;
 
             return (playerFactor + timeInMinutes * timeFactor) * stageFactor;
+        }
+    }
+
+    private float enemyLevel {
+        get {
+            return 1 + ((difficultyCoefficient - playerFactor) / 0.33f);
         }
     }
 
@@ -160,16 +171,16 @@ public abstract class CombatDirector: MonoBehaviour {
         Enemy enemy = Instantiate(enemyCard.prefab, spawnPosition, Quaternion.identity);
         enemy.transform.position = spawnPosition;
         enemy.Target = Target;
+        enemy.Level = enemyLevel;
+        // Set the XP reward for killing this monster
+        // This also sets gold granted on death (which is 2x experience granted on death)
         enemy.ExperienceGrantedOnDeath = (int) (difficultyCoefficient * enemyCard.spawnCost * experienceMultipler);
 
         // Debug.Log($"Spawning {enemyCard.identifier} with experience to be granted of {enemy.ExperienceGrantedOnDeath}");
 
         numCredits -= enemyCard.spawnCost;
 
-        // Calculate HP based on Tier? We don't need to do this (yet)
         // Give it "Boost" items to apply HP & damage multiplers???
-        // Set the xp reward for killing this monster
-        // set the gold reward for killing this monster
     }
 
     // Pick a point a random distance from the player on the Nav Mesh

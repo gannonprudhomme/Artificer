@@ -60,6 +60,14 @@ public class StoneGolem : Enemy {
     // TODO: Remove this later, it was just for testing
     public float AimMoveSpeed = 15f;
 
+    // Has to match up with its NavMesh agent name 
+    public override string EnemyIdentifier => "Stone Golem";
+
+    protected override float StartingBaseDamage => 20f;
+    protected override float StartingHealth => 480f;
+    protected override float HealthIncreasePerLevel => 144f;
+    protected override float DamageIncreasePerLevel => 4f;
+
     // TODO: We might want this to be in here instead of Health, but this is fine for now
     // [Tooltip("Sound that plays on damaged")]
     // public AudioClip OnDamageClip;
@@ -85,11 +93,6 @@ public class StoneGolem : Enemy {
     // Attacks
     private GolemLaserAttack? laserAttack;
 
-    protected override float StartingBaseDamage => 20f;
-    public override float CurrentBaseDamage => StartingBaseDamage;
-
-    // Has to match up with its NavMesh agent name 
-    public override string EnemyIdentifier => "Stone Golem";
 
     private void OnAnimatorMove() {
         Vector3 rootPosition = animator!.rootPosition;

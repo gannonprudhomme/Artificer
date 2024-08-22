@@ -132,4 +132,10 @@ public class Health : MonoBehaviour {
     public void IncreaseRegenRate(float byAmount) {
         HealthRegenRate += byAmount;
     }
+
+    // Set by the Enemy when we spawn it
+    public void SetMaxHealth(float maxHealth) {
+        MaxHealth = maxHealth;
+        CurrentHealth = maxHealth;
+    }
 }

@@ -53,9 +53,12 @@ public class Wisp : NavSpaceEnemy {
 
     /* Abstract properties */
     public override string EnemyIdentifier => "Wisp";
-    protected override float StartingBaseDamage => 3.5f;
-    public override float CurrentBaseDamage => StartingBaseDamage;
     public override float Speed => MoveSpeed; // Probably just hardcode this later
+
+    protected override float StartingHealth => 35f;
+    protected override float StartingBaseDamage => 3.5f;
+    protected override float HealthIncreasePerLevel => 10f;
+    protected override float DamageIncreasePerLevel => 0.7f;
 
     protected override void Start() {
         base.Start();
