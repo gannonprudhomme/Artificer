@@ -68,6 +68,8 @@ public class ItemPickup : SpawnableInteractable {
             Debug.LogError("No Item for ItemPickup!");
         }
 
+        ItemMeshCollider!.enabled = false; // Disable it until the animation is done
+
         Light!.color = LightColorForRarity(item!.rarity);
 
         bool isUncommon = item!.rarity == Item.Rarity.UNCOMMON;
@@ -99,6 +101,8 @@ public class ItemPickup : SpawnableInteractable {
                 Light!.enabled = true;
 
                 hasDoneWrapUpAnimation = true;
+
+                ItemMeshCollider!.enabled = true;
             }
 
             float rotate = 50f;
