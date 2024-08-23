@@ -35,8 +35,7 @@ public class Ukulele : Item {
     public override void OnEnemyHit(MonoBehaviour owner, int itemCount, OnEntityHitData onHitData) {
         float chance = 0.25f * onHitData.procCoefficient;
 
-        // bool didTrigger = Random.value <= chance;
-        bool didTrigger = onHitData.procCoefficient >= 0.75f;
+        bool didTrigger = Random.value <= chance;
         if (!didTrigger) {
             return;
         }

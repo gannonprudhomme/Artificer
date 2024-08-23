@@ -896,8 +896,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8611375346645668938}
   - component: {fileID: 8208314189157148778}
-  - component: {fileID: 70075012644163019}
-  - component: {fileID: 8308347272356170280}
+  - component: {fileID: 90421867195760102}
   - component: {fileID: 6411282241222630139}
   - component: {fileID: 4927456164499661992}
   m_Layer: 7
@@ -915,8 +914,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3634109928758265611}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.21876553, y: -0.12857062, z: -0.8929504, w: 0.37182078}
-  m_LocalPosition: {x: -0.625, y: 6.128, z: -0.55}
+  m_LocalRotation: {x: 0.2187658, y: -0.12857069, z: -0.8929505, w: 0.37182063}
+  m_LocalPosition: {x: -0.625, y: 6.127999, z: -0.5499946}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -935,8 +934,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CorrespondingItemType: 2
---- !u!1818360608 &70075012644163019
-PositionConstraint:
+--- !u!1773428102 &90421867195760102
+ParentConstraint:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -946,32 +945,19 @@ PositionConstraint:
   serializedVersion: 2
   m_Weight: 1
   m_TranslationAtRest: {x: -0.625, y: 6.128, z: -0.55}
-  m_TranslationOffset: {x: -0.6418186, y: 0.5895624, z: -0.5074449}
+  m_RotationAtRest: {x: -3.8377466, y: -29.169659, z: -133.78778}
+  m_TranslationOffsets:
+  - {x: -0.58251953, y: 0.5591831, z: -0.41436768}
+  m_RotationOffsets:
+  - {x: -0.4474176, y: -28.526731, z: -135.58813}
   m_AffectTranslationX: 1
   m_AffectTranslationY: 1
   m_AffectTranslationZ: 1
-  m_Active: 1
-  m_IsLocked: 0
-  m_Sources:
-  - sourceTransform: {fileID: 2656377692502483790}
-    weight: 1
---- !u!1818360609 &8308347272356170280
-RotationConstraint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3634109928758265611}
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Weight: 1
-  m_RotationAtRest: {x: -3.8377466, y: -29.169659, z: -133.78778}
-  m_RotationOffset: {x: -0.4474176, y: -28.526731, z: -135.58813}
   m_AffectRotationX: 1
   m_AffectRotationY: 1
   m_AffectRotationZ: 1
   m_Active: 1
-  m_IsLocked: 0
+  m_IsLocked: 1
   m_Sources:
   - sourceTransform: {fileID: 2656377692502483790}
     weight: 1
