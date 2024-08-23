@@ -14,6 +14,7 @@ public enum ItemType {
 
     // Uncommon Items
     HOPOO_FEATHER,
+    UKULELE
 }
 
 public abstract class Item: ScriptableObject {
@@ -42,6 +43,7 @@ public abstract class Item: ScriptableObject {
 
     public virtual void OnJump(bool wasGrounded, Transform spawnTransform) { }
 
+    // Owner is needed for spawning Coroutines (initially for Ukulele)
     public virtual void OnEnemyHit(MonoBehaviour owner, int itemCount, OnEntityHitData onHitData) { }
 
     public virtual void OnEnemyKilled(Vector3 killedEnemyPosition, float playerBaseDamage, int itemCount) { }

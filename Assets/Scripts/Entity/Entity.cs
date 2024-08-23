@@ -97,13 +97,16 @@ public abstract class Entity : MonoBehaviour {
 
         health!.TakeDamage(damage, damagePosition, damageApplierAffiliation, damageType);
 
-        OnEntityHitEvent!.Event!.Invoke(new OnEntityHitData(
-            playerBaseDamage: CurrentBaseDamage,
-            attackTotalDamage: damage,
-            entityHit: this,
-            procCoefficient: procCoefficient,
-            inflicterAffiliation: damageApplierAffiliation
-        ));
+        if (damageApplierAffiliation == Affiliation.Player) {
+            // yes, this is more accurately described as on OnEnemyHit
+            OnEntityHitEvent!.Event!.Invoke(new OnEntityHitData(
+                playerBaseDamage: CurrentBaseDamage,
+                attackTotalDamage: damage,
+                entityHit: this,
+                procCoefficient: procCoefficient,
+                inflicterAffiliation: damageApplierAffiliation
+            ));
+        }
 
         // Handle status effects
         if (appliedStatusEffect != null) {

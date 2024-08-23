@@ -991,7 +991,7 @@ GameObject:
   - component: {fileID: 7668814627267589394}
   - component: {fileID: 58745658741215778}
   - component: {fileID: 2273064787772423570}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wisp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1063,6 +1063,7 @@ MonoBehaviour:
   DiedWhileFrozenVFXPrefab: {fileID: 1013624030704029789, guid: 4af5fd6bfa6f11641a7d0b59cb7b81d4,
     type: 3}
   OnEnemyKilledEvent: {fileID: 11400000, guid: a3e8f53344c2a3042828ce89e604b2e1, type: 2}
+  Level: 1
   _SplineContainer: {fileID: 0}
   AimPoint: {fileID: 7239119930436975156}
   MainMeshRenderer: {fileID: 2748328311632913509}
@@ -1218,16 +1219,31 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.x
       value: -90
       objectReference: {fileID: 0}
+    - target: {fileID: -4594952121019151238, guid: 010cd2d8cf4ee094a8fa730d317924dd,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 010cd2d8cf4ee094a8fa730d317924dd,
         type: 3}
       propertyPath: m_Name
       value: Wisp
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 010cd2d8cf4ee094a8fa730d317924dd,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 2718293502517152725, guid: 010cd2d8cf4ee094a8fa730d317924dd,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: a394df476751f954994789684555a615, type: 2}
+    - target: {fileID: 5828931806034552283, guid: 010cd2d8cf4ee094a8fa730d317924dd,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

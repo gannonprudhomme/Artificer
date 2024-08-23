@@ -626,6 +626,131 @@ RotationConstraint:
   m_Sources:
   - sourceTransform: {fileID: 1121388853898660935}
     weight: 1
+--- !u!1 &3516006125697792983
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7947461505904846544}
+  - component: {fileID: 4560532635441499833}
+  - component: {fileID: 6637514049566779561}
+  - component: {fileID: 77310009990712150}
+  - component: {fileID: 6215718621994357670}
+  m_Layer: 7
+  m_Name: Ukulele
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7947461505904846544
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3516006125697792983}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.35905144, y: 0.932508, z: 0.036274757, w: -0.013967075}
+  m_LocalPosition: {x: -0.22596572, y: 4.8829994, z: -1.105991}
+  m_LocalScale: {x: 0.45000002, y: 0.45000002, z: 0.45000002}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 8218754496745955885}
+  m_LocalEulerAnglesHint: {x: -4.455, y: 180, z: 42.117}
+--- !u!114 &4560532635441499833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3516006125697792983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb336c31fe9e59f409d715f7a8ddaed5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CorrespondingItemType: 5
+--- !u!1773428102 &6637514049566779561
+ParentConstraint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3516006125697792983}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Weight: 1
+  m_TranslationAtRest: {x: -0.226, y: 4.883, z: -1.106}
+  m_RotationAtRest: {x: -4.455363, y: 180, z: 42.117218}
+  m_TranslationOffsets:
+  - {x: -0.2322998, y: 0.08299637, z: -1.0279999}
+  m_RotationOffsets:
+  - {x: -12.870952, y: -178.36916, z: 40.786583}
+  m_AffectTranslationX: 1
+  m_AffectTranslationY: 1
+  m_AffectTranslationZ: 1
+  m_AffectRotationX: 1
+  m_AffectRotationY: 1
+  m_AffectRotationZ: 1
+  m_Active: 1
+  m_IsLocked: 1
+  m_Sources:
+  - sourceTransform: {fileID: 3009165682261781629}
+    weight: 1
+--- !u!23 &77310009990712150
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3516006125697792983}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 2d54fda71260c6146afaa8e6c24f1657, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &6215718621994357670
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3516006125697792983}
+  m_Mesh: {fileID: -8899503997208718001, guid: 5de76541191463846b015444b6af3be0, type: 3}
 --- !u!1 &3627544818310421763
 GameObject:
   m_ObjectHideFlags: 0
@@ -1628,6 +1753,7 @@ MonoBehaviour:
   - {fileID: 5297911476690258769}
   - {fileID: 8208314189157148778}
   - {fileID: 2951271287825016219}
+  - {fileID: 4560532635441499833}
 --- !u!114 &6764804481775821007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2623,6 +2749,7 @@ Transform:
   - {fileID: 8047574905478820062}
   - {fileID: 8611375346645668938}
   - {fileID: 4533094186572067032}
+  - {fileID: 7947461505904846544}
   m_Father: {fileID: 7596465692342951294}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7660635771478774672

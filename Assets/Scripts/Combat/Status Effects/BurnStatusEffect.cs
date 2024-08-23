@@ -146,7 +146,6 @@ public class BurnStatusEffect: BaseStatusEffect {
 
             if (stacks[i].damageToApply <= 0) {// if it's at 0, remove it
                 stacks.RemoveAt(i);
-                Debug.Log($"Removing stack at {i}");
             }
         }
     }

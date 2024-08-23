@@ -393,6 +393,7 @@ MonoBehaviour:
     type: 3}
   DiedWhileFrozenVFXPrefab: {fileID: 6766121165976404915}
   OnEnemyKilledEvent: {fileID: 11400000, guid: a3e8f53344c2a3042828ce89e604b2e1, type: 2}
+  Level: 1
   MainMeshRenderer: {fileID: 17677098403421449}
   AimPoint: {fileID: 3244650871039522762}
   positionConstraint: {fileID: 5831821557236258256}
@@ -1101,6 +1102,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Golem (Mesh)
       objectReference: {fileID: 0}
+    - target: {fileID: -6060378001726661624, guid: 69d5f21fa28b24b41a1954cc85b58acb,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: -2615821021834133984, guid: 69d5f21fa28b24b41a1954cc85b58acb,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -1110,6 +1116,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Stone Golem FBX
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 69d5f21fa28b24b41a1954cc85b58acb,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 2958817221983685307, guid: 69d5f21fa28b24b41a1954cc85b58acb,
         type: 3}
@@ -1136,6 +1147,11 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 67a3399bd8ab6674cbef6cdbd7b7e9c6, type: 2}
+    - target: {fileID: 7036213049465896255, guid: 69d5f21fa28b24b41a1954cc85b58acb,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 8879528566716807029, guid: 69d5f21fa28b24b41a1954cc85b58acb,
         type: 3}
       propertyPath: m_LocalScale.x

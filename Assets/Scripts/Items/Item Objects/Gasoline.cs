@@ -38,6 +38,7 @@ public class Gasoline : Item {
 
         damageAreaInstance.InflictDamageOverArea(
             damage: damageToApply,
+            procCoefficient: 0f, // I guess? It's not said if it has one but I assume it doesn't
             center: killedEnemyPosition,
             damageApplierAffiliation: Affiliation.Player,
             directHitCollider: null,

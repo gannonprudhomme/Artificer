@@ -277,6 +277,9 @@ public class Wisp : NavSpaceEnemy {
     }
 
     public override Vector3 GetMiddleOfMesh() {
+        // I should honestly just do this manually w/ a Transform
+        // Bleed VFX should also probably just use this
+        return MainMeshRenderer!.bounds.center;
     }
 
     protected override bool ColliderCast(Vector3 position, out RaycastHit? hit) {
