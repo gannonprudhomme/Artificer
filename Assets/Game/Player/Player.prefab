@@ -272,8 +272,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8136430234542625418}
   - component: {fileID: 6740110724599810548}
-  - component: {fileID: 7861811598084600277}
-  - component: {fileID: 4183356048369362869}
+  - component: {fileID: 8998581673977604633}
   - component: {fileID: 6608924123193454979}
   - component: {fileID: 4509119624893870080}
   m_Layer: 7
@@ -291,8 +290,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2818969540093598879}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.2781433, y: -0.06925623, z: -0.9574741, w: 0.032913044}
-  m_LocalPosition: {x: 1.148, y: 4.777, z: 0.198}
+  m_LocalRotation: {x: -0.2781435, y: -0.06925625, z: -0.95747405, w: 0.032912977}
+  m_LocalPosition: {x: 1.1480036, y: 4.7770405, z: 0.19802518}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -311,8 +310,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CorrespondingItemType: 0
---- !u!1818360608 &7861811598084600277
-PositionConstraint:
+--- !u!1773428102 &8998581673977604633
+ParentConstraint:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -322,37 +321,20 @@ PositionConstraint:
   serializedVersion: 2
   m_Weight: 1
   m_TranslationAtRest: {x: 1.148, y: 4.777, z: 0.198}
-  m_TranslationOffset: {x: 0.16329944, y: 0.66038847, z: 0.15639436}
+  m_RotationAtRest: {x: -8.680899, y: 32.289074, z: -178.57982}
+  m_TranslationOffsets:
+  - {x: -0.20770264, y: -0.15917969, z: 0.46142578}
+  m_RotationOffsets:
+  - {x: -25.487679, y: -15.644665, z: -1.6486686}
   m_AffectTranslationX: 1
   m_AffectTranslationY: 1
   m_AffectTranslationZ: 1
-  m_Active: 1
-  m_IsLocked: 1
-  m_Sources:
-  - sourceTransform: {fileID: 6599605038313873947}
-    weight: 1
-  - sourceTransform: {fileID: 9209006856352647787}
-    weight: 1
---- !u!1818360609 &4183356048369362869
-RotationConstraint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2818969540093598879}
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Weight: 1
-  m_RotationAtRest: {x: -13.035268, y: 41.937527, z: 176.1054}
-  m_RotationOffset: {x: -29.639503, y: -4.8491483, z: -3.2337396}
   m_AffectRotationX: 1
   m_AffectRotationY: 1
   m_AffectRotationZ: 1
   m_Active: 1
   m_IsLocked: 1
   m_Sources:
-  - sourceTransform: {fileID: 6599605038313873947}
-    weight: 1
   - sourceTransform: {fileID: 9209006856352647787}
     weight: 1
 --- !u!23 &6608924123193454979
@@ -1740,6 +1722,8 @@ MonoBehaviour:
   - {fileID: 8208314189157148778}
   - {fileID: 2951271287825016219}
   - {fileID: 4560532635441499833}
+  - {fileID: 0}
+  _ATGMissileSpawnPoint: {fileID: 0}
 --- !u!114 &6764804481775821007
 MonoBehaviour:
   m_ObjectHideFlags: 0
