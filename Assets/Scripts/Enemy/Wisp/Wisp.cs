@@ -78,12 +78,6 @@ public class Wisp : NavSpaceEnemy {
         );
 
         health!.OnDamaged += OnDamaged;
-
-        if (EnemyManager.shared!.WispGraph != null) {
-            graph = EnemyManager.shared.WispGraph;
-        } else {
-            Debug.LogError("Did not have a graph to load - we can't navigate!");
-        }
     }
 
     float lastTimePathSet = Mathf.NegativeInfinity;
@@ -195,13 +189,12 @@ public class Wisp : NavSpaceEnemy {
         TraversePath();
     }
 
-    // Not gonna return an optional since we really shouldn't ever miss this?
     private Vector3 FindStrafePosition() {
         Vector3 randomMove = Random.insideUnitSphere * 50f;
         randomMove.y = Mathf.Clamp(randomMove.y, -2.0f, 2.0f); // Clamp the y so we don't move too much up & down, just side-to-side
         randomMove += transform.position;
 
-        return graph!.FindNearestToPosition(randomMove).center;
+        return randomMove;
     }
 
     private void DoChase() {
@@ -282,20 +275,19 @@ public class Wisp : NavSpaceEnemy {
         return MainMeshRenderer!.bounds.center;
     }
 
-    protected override bool ColliderCast(Vector3 position, out RaycastHit? hit) {
+    protected override bool ColliderCast(Vector3 position, Vector3 startPosition, out RaycastHit? hit) {
         if (Collider == null) {
             hit = null;
             return false;
         }
 
-        Vector3 direction = (position - transform.position).normalized;
-        float distance = Vector3.Distance(transform.position, position);
+        Vector3 direction = (position - startPosition).normalized;
+        float distance = Vector3.Distance(startPosition, position);
 
         // We could cache this, but eh
         Vector3 size = Collider.bounds.size;
         float biggestSide = Mathf.Max(size.x, Mathf.Max(size.y, size.z));
 
-        // I couldn't figure out BoxCast so this is good enough
         if (Physics.SphereCast(
             transform.position,
             radius: biggestSide,

@@ -4,6 +4,12 @@ using UnityEngine;
 
 #nullable enable
 
+// An Octree is a tree data structure in which each internal node has exactly eight children.
+// They are used here to divide the level by recursively subdividing the space into eight octants, or OctreeNodes in this codebase.
+// 
+// This class is intended as the data structure which holds the OctreeNodes, just like a LinkedList really just contains functions to operate w/ the nodes
+// It uses the class OctreeGenerator to generate itself
+//
 // Heavily based off of https://github.com/supercontact/PathFindingEnhanced
 public class Octree  {
     // Should be calculated based on the smallest agent's size
@@ -31,9 +37,9 @@ public class Octree  {
     ) {
         Center = center;
 
-        Size = CalculateSize(min, max);
+        Size = OctreeGenerator.CalculateSize(min, max);
 
-        MaxDivisionLevel = CalculateMaxDivisionLevel(smallestActorDimension, Size);
+        MaxDivisionLevel = OctreeGenerator.CalculateMaxDivisionLevel(smallestActorDimension, Size);
         Debug.Log($"Calculated max division level: {MaxDivisionLevel} and size: {Size}");
     }
 
@@ -65,51 +71,105 @@ public class Octree  {
 
         root = new OctreeNode(0, new int[] { 0, 0, 0 }, this);
 
-        GenerateForGameObject(rootGameObject, calculateForChildren: true);
+        OctreeGenerator.GenerateForGameObject(rootGameObject, root, MaxDivisionLevel, calculateForChildren: true);
+
+        Debug.Log("Finished! Marking in bounds leaves");
 
         // Now that the Octree is generated, mark what is/isn't in bounds
         // by iterating through all leaves and Raycasting downwards
         // though note that if a OctreeNode contains a collision, it is automatically marked as in bounds
         // (not that it matters that much, since they're ignored during Graph generation)
-        MarkInBoundsLeaves();
+        OctreeGenerator.MarkInBoundsLeaves(root: root);
     }
 
-    private void GenerateForGameObject(GameObject currGameObject, bool calculateForChildren = true) {
+    public void MarkInboundsLeaves() {
+        if (root == null) {
+            Debug.LogError("Octree: No root to mark inbounds leaves for!");
+            return;
+        }
+
+        OctreeGenerator.MarkInBoundsLeaves(root: root);
+    }
+
+    // Returns true if there's a collision between origin and endPosition.
+    //
+    // Going to start off doing a Raycast, but we should probs move to a SphereCast (and then a CapsuleCast)
+    public bool Raycast(Vector3 origin, Vector3 endPosition) {
+        float sampleDistance = 0.25f; // TODO: Replace this with DDA Algorithm later
+
+        OctreeNode? currentNode = root!.FindNodeForPosition(origin);
+        if (currentNode == null) {
+            Debug.LogError($"Couldn't find the node for position {origin}");
+            return true; // Since true is the "stop" case
+        }
+
+        Vector3 rayDirection = (endPosition - origin).normalized;
+
+        Vector3 currentPosition = origin;
+        // Need to get a "time" for where we are on the line (with origin as start & endPosition as the end)
+        float totalDistance = Vector3.Distance(origin, endPosition);
+
+        while(Vector3.Distance(currentPosition, origin) < totalDistance) { // Aka while we haven't reached the end position
+            currentNode = root!.FindNodeForPosition(currentPosition);
+
+            if (currentNode!.containsCollision) {
+                // We could theoretically figure out where we intersected this node, but it doesn't matter
+                return true;
+            }
+
+            // Move it forward!
+            // TODO: This is about where we'll put DDA Algorithm in
+            currentPosition += rayDirection * sampleDistance;
+        }
+
+        // We didn't hit anything (since we never returned and the loop break'd)
+        return false;
+    }
+
+    public List<OctreeNode> GetAllNodes(bool onlyLeaves = false) {
+        return OctreeGenerator.GetAllNodes(root: root!, onlyLeaves);
+    }
+}
+
+public class OctreeGenerator {
+    public static void GenerateForGameObject(GameObject currGameObject, OctreeNode root, int maxDivisionLevel, bool calculateForChildren = true) {
         if (currGameObject.TryGetComponent(out MeshFilter meshFilter)) {
             // We're using sharedMesh - don't modify it!
-            VoxelizeForMesh(meshFilter.sharedMesh, currGameObject);
+            VoxelizeForMesh(meshFilter.sharedMesh, root, currGameObject, maxDivisionLevel);
         }
 
         if (!calculateForChildren) return;
 
-        // Calculate for the chilren (recursively)
+        // Calculate for the children GameObjects of currGameObject (recursively)
         for(int i = 0; i < currGameObject.transform.childCount; i++) {
             GameObject childObj = currGameObject.transform.GetChild(i).gameObject;
 
             if (!childObj.activeInHierarchy) continue; // Only generate on active game objects
 
-            GenerateForGameObject(childObj, calculateForChildren);
+            GenerateForGameObject(childObj, root, maxDivisionLevel, calculateForChildren);
         }
     }
 
-    private void VoxelizeForMesh(Mesh mesh, GameObject currGameObject) {
-        int[] triangles = mesh.triangles;
+    public static void VoxelizeForMesh(Mesh mesh, OctreeNode root, GameObject currGameObject, int maxDivisionLevel) {
+        int[] triangles = mesh.triangles; // 1D matrix of the triangle point-indices, where every 3 elements is a triangle
         Vector3[] vertsLocalSpace = mesh.vertices;
         Vector3[] normals = mesh.normals;
         Vector3[] vertsWorldSpace = new Vector3[vertsLocalSpace.Length];
 
-        // Convert the vertices into world space from local space
-        // using currGameObject
+        // Convert the vertices into world space from local space using currGameObject
         for(int i = 0; i < vertsLocalSpace.Length; i++) {
+            // TODO: Why tf am I doing *0 here?
             vertsWorldSpace[i] = currGameObject.transform.TransformPoint(vertsLocalSpace[i]) + (currGameObject.transform.TransformDirection(normals[i]) * 0);
         }
 
+        // Iterate through the 1D array of triangle point-indices,
+        // where every 3 ints are a point (or rather, the index of a point in vertsWorldSpace)
         for(int i = 0; i < triangles.Length / 3; i++) {
             Vector3 point1 = vertsWorldSpace[triangles[3 * i]];
             Vector3 point2 = vertsWorldSpace[triangles[3 * i + 1]];
             Vector3 point3 = vertsWorldSpace[triangles[3 * i + 2]];
 
-            root!.DivideTriangleUntilLevel(point1, point2, point3, MaxDivisionLevel);
+            root.DivideTriangleUntilLevel(point1, point2, point3, maxDivisionLevel);
         }
     }
 
@@ -118,13 +178,12 @@ public class Octree  {
     // A node is in bounds if:
     // 1. It contains a collision
     // 2. If we raycast downwards and hit something
-    private void MarkInBoundsLeaves() {
+    public static void MarkInBoundsLeaves(OctreeNode root) {
         // Find all of the leaves
         // This is not "efficient" but eh idrc
         // TODO: Should we do this for ALL nodes? Maybe if we have multiple different-sized flying enemies
         // (for if we only want all nodes at {MaxDivisionLevel-1})
-        List<OctreeNode> allLeaves = GetAllNodes().FindAll(node => node.IsLeaf);
-
+        List<OctreeNode> allLeaves = GetAllNodes(root: root).FindAll(node => node.IsLeaf);
         int outOfBoundsCount = 0;
         foreach(var leaf in allLeaves) {
             // No need to raycast if it contains a collision - we already know we care about this
@@ -143,15 +202,19 @@ public class Octree  {
             }
         }
 
+        Debug.Log($"Marked {outOfBoundsCount} nodes out-of-bounds and {allLeaves.Count - outOfBoundsCount} in-bounds");
     }
 
-    public List<OctreeNode> GetAllNodes(bool onlyLeaves = false) {
-        if (root == null) return new();
+    public static List<OctreeNode> GetAllNodes(OctreeNode root, bool onlyLeaves = false) {
+        if (root == null) {
+            Debug.LogError("GetAllNodes: Root was null!");
+            return new();
+        }
 
         return root.GetAllNodes(onlyLeaves);
     }
 
-    private static int CalculateSize(Vector3 min, Vector3 max) {
+    public static int CalculateSize(Vector3 min, Vector3 max) {
         float length = max.x - min.x;
         float height = max.y - min.y;
         float width = max.z - min.z;
@@ -172,7 +235,7 @@ public class Octree  {
 
     // Determine the smallest number of divisions we need in order to have the smallest OctreeNode
     // that is still just bigger (exclusive) than the smallest actor's volume
-    private static int CalculateMaxDivisionLevel(Vector3 smallestActorDimension, int octreeSize) {
+    public static int CalculateMaxDivisionLevel(Vector3 smallestActorDimension, int octreeSize) {
         float smallestActorVolume = smallestActorDimension.x * smallestActorDimension.y * smallestActorDimension.z;
 
         int currMinDivisionLevel = 0;

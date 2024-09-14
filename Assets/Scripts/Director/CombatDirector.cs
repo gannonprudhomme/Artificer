@@ -150,7 +150,7 @@ public abstract class CombatDirector: MonoBehaviour {
             // Ok but I like actually need a reference to the graph for this enemy
             // for this
             // I guess for now I'll just get it
-            Graph? enemyGraph = enemyManager.WispGraph;
+            Graph? enemyGraph = OctreeManager.shared!.Graph;
             if (enemyGraph != null && FindFlyingSpawnPosition(playerPosition: target.AimPoint!.position, enemyGraph, out Vector3 result)) {
                 spawnPosition = result;
             } else {

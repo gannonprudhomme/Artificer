@@ -11,16 +11,9 @@ using UnityEngine.Events;
 public class EnemyManager : MonoBehaviour {
     public static EnemyManager? shared;
 
-    [Header("References")]
-    [Tooltip("Reference to the current Nav Octree Space (on the level)")]
-    // Used to load the Octree from memory
-    public NavOctreeSpace? NavSpace = null;
-
     public List<Enemy>? activeEnemies { get; private set; }
 
     public UnityAction<Enemy>? OnEnemyAdded;
-
-    public Graph? WispGraph { get; private set; }
 
     void Awake() {
         activeEnemies = new();
@@ -30,15 +23,6 @@ public class EnemyManager : MonoBehaviour {
         }
 
         shared = this;
-
-        if (NavSpace != null) {
-            NavSpace.LoadIfNeeded(); // Load it from memory. Takes < 100ms
-
-            // Generate the graph to be used for navigation
-            WispGraph = GraphGenerator.GenerateGraph(NavSpace.octree!, shouldBuildDiagonals: true);
-        } else {
-            Debug.LogError("NavOctreeSpace was not set!");
-        }
     }
 
     public void AddEnemy(Enemy enemy) {

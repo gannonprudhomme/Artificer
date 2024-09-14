@@ -44,6 +44,10 @@ public class NavOctreeSpaceEditor : Editor {
             navOctreeSpace.GenerateOctree();
         }
 
+        if (GUILayout.Button("Mark In-Bounds leaves")) {
+            navOctreeSpace.MarkInboundsLeaves();
+        }
+
         if (GUILayout.Button("Save")) {
             navOctreeSpace.Save();
         }

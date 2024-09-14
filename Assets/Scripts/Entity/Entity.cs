@@ -161,10 +161,8 @@ public abstract class Entity : MonoBehaviour {
 
         // If we already have a stack of this type applied, stack them
         if (statusEffects.ContainsKey(appliedStatusEffect.Name)) {
-            Debug.Log($"Stacking status effect {appliedStatusEffect.Name} to {gameObject.name}");
             statusEffects[appliedStatusEffect.Name].StackEffect(appliedStatusEffect);
         } else { // If we don't, trigger it & add it to the dictionary
-            Debug.Log($"Adding status effect {appliedStatusEffect.Name} to {gameObject.name}");
             appliedStatusEffect.OnStart(this);
             OnStatusEffectAdded?.Invoke(appliedStatusEffect);
 

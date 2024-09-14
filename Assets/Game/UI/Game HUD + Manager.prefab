@@ -84,6 +84,7 @@ GameObject:
   - component: {fileID: 8144513692469704507}
   - component: {fileID: 5059884670927395171}
   - component: {fileID: 924512519039455422}
+  - component: {fileID: 7577129529653198943}
   m_Layer: 0
   m_Name: Game HUD + Manager
   m_TagString: Untagged
@@ -191,7 +192,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58afc85562fa8d24c8e99b34a478f96c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NavSpace: {fileID: 0}
 --- !u!114 &4706648185472231540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,6 +338,19 @@ MonoBehaviour:
     type: 3}
   BarrelPrefab: {fileID: 7448950240430336365, guid: 7cf8bc7669efdad46a80cb071e6da326,
     type: 3}
+--- !u!114 &7577129529653198943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241678929247167197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40e4693fb61dc024cb88d7240837ad5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NavSpace: {fileID: 0}
 --- !u!1 &428638818991627893
 GameObject:
   m_ObjectHideFlags: 0

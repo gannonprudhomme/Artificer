@@ -81,6 +81,10 @@ public static class GraphGenerator {
             ret[octLeaf] = newNode;
         }
 
+        if (count == 0) {
+            Debug.LogError("GraphGenerator: Input Octree didn't have any leaves in-bounds or without collisions!");
+        }
+
         return ret;
     }
 

@@ -28,7 +28,7 @@ public class NavOctreeSpace : MonoBehaviour {
         octree = new Octree(
             min: bounds.min,
             max: bounds.max,
-            smallestActorDimension: Vector3.one * 5f,
+            smallestActorDimension: Vector3.one * 2.5f,
             center: bounds.center
         );
 
@@ -42,6 +42,15 @@ public class NavOctreeSpace : MonoBehaviour {
         List<OctreeNode> allNodes = octree.GetAllNodes();
         List<OctreeNode> leaves = allNodes.FindAll((node) => node.children == null);
         Debug.Log($"Finished generating octree with {allNodes.Count} nodes and {leaves.Count} leaves in {stopwatch.ElapsedMilliseconds} ms");
+    }
+
+    public void MarkInboundsLeaves() {
+        if (octree == null) {
+            Debug.LogError("No Octree Loaded!");
+            return;
+        }
+
+        octree.MarkInboundsLeaves();
     }
 
     // Save the generated octree to a file

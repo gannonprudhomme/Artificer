@@ -16,7 +16,7 @@ using UnityEngine;
 //
 // We assign each node an index (where root has 0) based on the order Octree.GetAllNodes() returns
 // then when we serialize the nodes we also serialize their parent's index
-// so when we deserlialize we can re-construct each OctreeNode.children correctly
+// so when we deserlialize we can re-construct each OctreeNode.children correctly (i.e. figure out which parent it should connect to)
 public class OctreeSerializer {
     // Writes the given Octree to a file in binary format using the given BinaryWriter
     public static void Serialize(Octree octree, BinaryWriter writer) {

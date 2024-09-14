@@ -274,8 +274,6 @@ public class GolemLaserAttack: EnemyAttack {
             -1,
             QueryTriggerInteraction.Ignore
         )) {
-            Debug.Log("laser attack hit something!");
-
             // Trigger the damage area
             damageArea.InflictDamageOverArea(
                 entityBaseDamage * DamageCoefficient,
@@ -291,8 +289,6 @@ public class GolemLaserAttack: EnemyAttack {
             // lastEndAimPoint = hit.point;
 
             // TODO: Spawn the explosion VFX
-        } else {
-            Debug.Log("Laser attack didn't hit anything ack");
         }
     }
 

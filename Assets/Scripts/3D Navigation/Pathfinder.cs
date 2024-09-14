@@ -2,10 +2,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// Helper class for generating a path using the A* algoritm
+#nullable enable
+
+// Helper class for generating a path against the Graph (generated from an Octree) using the A* algoritm
 //
-// Runs pretty damn fast as-is so didn't look into theta* or lazy theta*
+// Pathsmoothing needs the Octree so can do a Raycast
 public static class Pathfinder {
+    // Generates a path using A*
+    //
+    // Runs pretty damn fast as-is so didn't look into theta* or lazy theta*
     public static List<Vector3> GeneratePath(Graph graph, Vector3 start, Vector3 end) {
         GraphNode startNode = graph.FindNearestToPosition(start);
         GraphNode endNode = graph.FindNearestToPosition(end);
@@ -28,8 +33,10 @@ public static class Pathfinder {
         }
 
         var heap = new C5.IntervalHeap<GraphNode>(new GraphNodeComparer(gCosts, hCosts));
+        #nullable disable // Nullable won't work here inherently
         C5.IPriorityQueueHandle<GraphNode> currHandle = null;
         heap.Add(ref currHandle, startNode); // Do we want to do the handle stuff?
+        #nullable enable
         handlesDict[startNode] = currHandle;
 
         GraphNode current = startNode; // Redundant (we're about to pop it), just ensures it's never null
@@ -98,6 +105,101 @@ public static class Pathfinder {
         path.Reverse();
 
         return path;
+    }
+
+    public static (List<Vector3>, List<Vector3>) GenerateSmoothedPath(
+        Vector3 start,
+        Vector3 end,
+        Graph graph,
+        Octree octree,
+        HashSet<Vector3>? positionsToKeep = null
+    ) {
+        List<Vector3> rawPath = GeneratePath(graph, start, end);
+
+        List<Vector3> copy = new(rawPath); // Make a copy for temp output
+
+        List<Vector3> smoothedPath = SmoothPath(rawPath, graph, octree, positionsToKeep); // Technically this modified rawPath
+
+        return (smoothedPath, copy);
+    }
+
+    // We need to be able to *not* smooth certain positions
+    private static List<Vector3> SmoothPath(
+        List<Vector3> inputPath,
+        Graph graph,
+        Octree octree,
+        HashSet<Vector3>? positionsToKeep = null
+    ) {
+        if (inputPath.Count == 0) {
+            Debug.LogError("SmoothPath was given an empty inputPath!");
+            return inputPath;
+        }
+
+
+        // Starting with the first point, draw a line between it and every point from the end backwards
+        // the first point that doens't collide with anything is where we draw a point
+        // then we move forward, selecting the "new" second point and continue
+        // We need to use the Octree to check for collisions
+        // 
+        // We theoretically could do an actual Physics.Raycast, but we have an Octree for that!
+        // 
+        // This will reduce redudant points / turns and thus make the path feel way less jaggy
+        // I'd say it gets over the worst part of the Octree, but this probably happens to any of the ways to represent space
+
+        int index = 0;
+
+        // Keep going until we're at the last point
+        while (index < inputPath.Count) { // Note inputPath.Count is going to change over time
+
+            AttemptToRemovePointsStartingFrom(index, inputPath, octree, positionsToKeep);
+
+            index++; // Move to the next point
+        }
+
+        return inputPath;
+    }
+
+    // Starting from startIndex, iterates from the end of the path to the point right after startIndex
+    // attempting to find the first (aka closest to the end) path that doesn't contain a collision
+    // so we can remove redundant points & decrease the jagginess of the path.
+    // 
+    // Helper function for SmoothPath (basically one step of it)
+    private static void AttemptToRemovePointsStartingFrom(
+        int startIndex,
+        List<Vector3> inputPath,
+        Octree octree,
+        HashSet<Vector3>? positionsToKeep = null
+    ) {
+        // inputPath.Size should be max ~50 (and in all likelihood, probs just ~15)
+        Vector3 start = inputPath[startIndex];
+
+        // Iterate from end to the point right after the startIndex
+        // though we don't actually need to hit that point - we know we can draw a line between them
+        for (int i = inputPath.Count - 1; i > startIndex; i--) {
+            // Check if we can draw a line between the two points
+            // If we can, remove all of the points between them (keeping them two)
+            // then we're done
+
+            Vector3 end = inputPath[i];
+
+            if (positionsToKeep != null && positionsToKeep.Contains(end)) continue; // Don't remove ones we were told to keep!
+
+            // Can we draw a line between start & end?
+            bool hasCollisionBetweenStartAndEnd = octree.Raycast(start, end);
+            if (!hasCollisionBetweenStartAndEnd) {
+                // we can draw a line between the points!
+                // Thus, remove all of the points between them
+                int numberToRemove = i - startIndex - 1;
+                inputPath.RemoveRange(startIndex + 1, numberToRemove);
+
+                // Debug.Log($"Removed {numberToRemove} nodes in path at startIdx {startIndex}");
+
+                // we're done
+                return;
+            }
+        }
+
+        // If we got here, then we couldn't simplify this path anymore
     }
 }
 
