@@ -41,7 +41,7 @@ public class Graph {
 
     // Find the nearest GraphNode to the position
     public GraphNode? FindNearestToPosition(Vector3 position) {
-        OctreeNode? octreeNode = octree.root?.FindNodeForPosition(position);
+        OctreeNode? octreeNode = octree.FindNodeForPosition(position);
 
         if (octreeNode == null) {
             Debug.LogError($"Couldn't find an OctreeNode for position {position}");

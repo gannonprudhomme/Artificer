@@ -7,7 +7,8 @@ using UnityEngine.VFX;
 #nullable enable
 
 [RequireComponent(
-    typeof(Animator)
+    typeof(Animator),
+    typeof(Rigidbody)
 )]
 public class Wisp : NavSpaceEnemy {
     [Header("References (Wisp)")]
@@ -171,30 +172,53 @@ public class Wisp : NavSpaceEnemy {
     private Vector3 strafeEndPosition = Vector3.negativeInfinity;
 
     private void DoStrafe() {
-        // Choose a point to strafe to
-        // And calculate the path to it
-        // then actually start moving
         float distanceToStrafeEndPos = (strafeEndPosition - transform.position).magnitude;
         bool hasReachedStrafeEndPos = distanceToStrafeEndPos <= 0.1f;
-        
-        if (hasReachedStrafeEndPos || (previousState != State.USE_PRIMARY_AND_STRAFE && previousState != State.USE_PRIMARY_AND_FLEE)) {
-            // choose a new strafe position 
 
-            strafeEndPosition = FindStrafePosition();
+        // I honestly don't remember why I added this condition
+        // but I think it's so we know we should pick a new strafe position?
+        // as these states are the ones we strafe in
+        bool didWeNotStrafeInPrevState = previousState != State.USE_PRIMARY_AND_STRAFE && previousState != State.USE_PRIMARY_AND_FLEE;
 
-            // Calculate the path to it
-            CreatePathTo(strafeEndPosition);
+        // Chose a new strafe position if we need to
+        bool shouldChooseNewStrafePosition = hasReachedStrafeEndPos || didWeNotStrafeInPrevState;
+        if (shouldChooseNewStrafePosition) {
+            if (FindStrafePosition(out Vector3 newPosition)) {
+                strafeEndPosition = newPosition;
+                CreatePathTo(strafeEndPosition);
+
+            } else { // Couldn't find it (unlikely, hopefully)
+                strafeEndPosition = Vector3.positiveInfinity; // Reset it so we're forced to check it next time
+                Debug.LogError("Wisp: Couldn't find a valid position to strafe to");
+                return;
+            }
         }
 
         TraversePath();
     }
 
-    private Vector3 FindStrafePosition() {
-        Vector3 randomMove = Random.insideUnitSphere * 50f;
-        randomMove.y = Mathf.Clamp(randomMove.y, -2.0f, 2.0f); // Clamp the y so we don't move too much up & down, just side-to-side
-        randomMove += transform.position;
+    private bool FindStrafePosition(out Vector3 newStrafePosition) {
+        for (int i = 0; i < 10; i++) {
+            Vector3 randomMove = Random.insideUnitSphere * 50f;
+            randomMove.y = Mathf.Clamp(randomMove.y, -2.0f, 2.0f); // Clamp the y so we don't move too much up & down, just side-to-side
+            randomMove += transform.position;
 
-        return randomMove;
+            // Check that this is a valid position that we can move to
+            // If we don't do this then we'll end up in invalid positions, e.g. below the map
+            OctreeNode? nearestNode = OctreeManager.shared!.Octree!.FindNodeForPosition(randomMove);
+
+            if (nearestNode == null || nearestNode.containsCollision || !nearestNode.isInBounds) {
+                continue;
+            }
+
+            newStrafePosition = randomMove;
+            return true;
+        }
+
+        Debug.LogError("Wisp: Couldn't find a valid position in 10 tries");
+
+        newStrafePosition = Vector3.positiveInfinity;
+        return false;
     }
 
     private void DoChase() {

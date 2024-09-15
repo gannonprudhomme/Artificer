@@ -93,6 +93,17 @@ public class Octree  {
         OctreeGenerator.MarkInBoundsLeaves(root: root);
     }
 
+    public OctreeNode? FindNodeForPosition(Vector3 position) {
+        if (root == null) {
+            Debug.LogError("Octree: No root to find nearest node for!");
+            return null;
+        }
+
+        // I should probably check if this is even in the bounds of the Octree
+
+        return root.FindNodeForPosition(position);
+    }
+
     // Returns true if there's a collision between origin and endPosition.
     //
     // While this does run pretty fast, it could be much faster:
@@ -106,7 +117,7 @@ public class Octree  {
     public bool Raycast(Vector3 origin, Vector3 endPosition) {
         float sampleDistance = 1f; // TODO: Replace this with DDA Algorithm later
 
-        OctreeNode? currentNode = root!.FindNodeForPosition(origin);
+        OctreeNode? currentNode = FindNodeForPosition(origin);
         if (currentNode == null) {
             Debug.LogError($"Couldn't find the node for position {origin}");
             return true; // Since true is the "stop" case
@@ -119,7 +130,7 @@ public class Octree  {
         float totalDistance = Vector3.Distance(origin, endPosition);
 
         while (Vector3.Distance(currentPosition, origin) < totalDistance) { // Aka while we haven't reached the end position
-            currentNode = root!.FindNodeForPosition(currentPosition);
+            currentNode = FindNodeForPosition(currentPosition);
 
             if (currentNode!.containsCollision) {
                 // We could theoretically figure out where we intersected this node, but it doesn't matter

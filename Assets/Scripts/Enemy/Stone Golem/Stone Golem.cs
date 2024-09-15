@@ -125,6 +125,8 @@ public class StoneGolem : Enemy {
     protected override void Update() {
         base.Update();
 
+        if (health!.IsDead) return;
+
         // Search for the player
 
         // If we have a target, do pathfinding? (Ensure we're in a good spot to shoot)
