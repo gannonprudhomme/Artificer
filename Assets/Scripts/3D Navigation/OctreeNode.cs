@@ -4,6 +4,9 @@ using UnityEngine;
 
 #nullable enable
 
+// An OctreeNode is a node in an Octree
+//
+// If this is a leaf, it will be used as a node in the Graph that we use for pathfinding 
 public class OctreeNode {
     public readonly int nodeLevel;
     public readonly int[] index;
@@ -23,11 +26,23 @@ public class OctreeNode {
 
     public bool childrenContainsCollision { get; private set; }
 
-    public bool isInBounds = false; // { get; private set; }
+    public bool isInBounds = false;
 
     public bool IsLeaf {
         get { return children == null; }
     }
+
+    // All leaf neighbors
+    //
+    // Only populated for leaves (regardless of whether they contain a collision or not)
+    public List<OctreeNode>? neighbors = null;
+
+    // All of our leaf neighbors that are in bounds & don't contain a collision
+    //
+    // If *this* node contains a collision/isn't in bounds,
+    // this will still be populated (assuming it has valid in bounds / no collision neighbors)
+    // but those valid neighbors won't have an edge to *this* node. (i.e. it will be one-directional invalid -> valid, not invalid <-> valid)
+    public List<OctreeNode>? inBoundsNeighborsWithoutCollisions = null;
 
     // Used when generating the Octree from a mesh
     public OctreeNode(
@@ -68,6 +83,9 @@ public class OctreeNode {
 
     // Finds the node that contains this position, recursively,
     // assuming the position is in bounds of the node.
+    //
+    // This is pretty fast - it runs in constant time, or rather O(maxNumberOfDivisions), which is usually around 8.j
+    // since, starting from the root, we only go into the node which contains the position.
     public OctreeNode? FindNodeForPosition(Vector3 position) {
         // Check bounds
         bool isPositionInBoundsOfOctree = true; // We can do this with the node
@@ -248,6 +266,16 @@ public class OctreeNode {
         }
 
         return ret;
+    }
+
+    public void AddEdgeTo(OctreeNode neighbor) {
+        // We only want to connect to neighbors that are valid (in bounds & no collisions)
+        bool neighborValid = neighbor.isInBounds && !neighbor.containsCollision;
+        if (neighborValid) {
+            inBoundsNeighborsWithoutCollisions ??= new();
+
+            inBoundsNeighborsWithoutCollisions.Add(neighbor);
+        }
     }
 
     // Calculate what the center for this node is

@@ -233,7 +233,12 @@ public abstract class CombatDirector: MonoBehaviour {
             // 1. We're inside of an existing OctreeNode / the one we're in isn't marked out of bounds
             // 2. If the (smallest) Octreenode we're in contains a collision
             // but we don't have access to the Octree :( so brute forcing it is!
-            GraphNode nearestNode = graph.FindNearestToPosition(randomPosition);
+            GraphNode? nearestNode = graph.FindNearestToPosition(randomPosition);
+
+            if (nearestNode == null) {
+                Debug.LogError($"Couldn't find nearest node to position {randomPosition}");
+                continue;
+            }
 
             float minSpawnDistanceFromPlayer = minAndMaxSpawnDistanceFromPlayer.Item1;
             float distToNodeFromPlayer = Vector3.Distance(playerPosition, nearestNode.center);

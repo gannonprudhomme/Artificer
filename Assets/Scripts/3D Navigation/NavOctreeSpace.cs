@@ -1,11 +1,15 @@
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using UnityEngine;
 
 #nullable enable
 
 // Component to go on the (parent-most) Level game object
+//
 // Intended to be the equivalent of NavMeshSurface
+//
+// Generate the Octree in the editor using NavOctreeSpaceEditor 
 public class NavOctreeSpace : MonoBehaviour {
     [Header("Debug")]
     public bool DisplayLeaves = false; // Displays the leaves
@@ -17,6 +21,9 @@ public class NavOctreeSpace : MonoBehaviour {
 
     public bool DisplayBounds = false;
 
+    public bool DisplayNeighbors = false;
+
+    // Must call Load() / LoadIfNeeded() to populate this
     public Octree? octree { get; private set; }
 
     private Bounds? calculatedBounds = null; // For debug displaying
@@ -100,6 +107,19 @@ public class NavOctreeSpace : MonoBehaviour {
         Debug.Log($"Read Octree from '{GetFileName()}' and got {nodeCount} nodes in {ms} ms");
     }
 
+    public void BuildNeighbors() {
+        if (octree == null) return;
+
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+        GraphGenerator.PopulateOctreeNeighbors(octree, shouldBuildDiagonals: true);
+        stopwatch.Stop();
+
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+
+        Debug.Log($"Finished building neighbors in {ms} ms");
+    }
+
     private Bounds GetBounds() {
         // This gets renderers from this GameObject(Component), as well as it's children recursively
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
@@ -129,8 +149,8 @@ public class NavOctreeSpace : MonoBehaviour {
             Gizmos.color = Color.blue;
             Gizmos.DrawWireCube(calculatedBounds.Value.center, Vector3.one * longestSide);
         }
-
-        if (!(DisplayLeaves || DisplayCollisions || DisplayIndices || DisplayIsInBounds || DisplayOutOfBounds || DisplayNonLeaves)) return;
+ 
+        if (!(DisplayLeaves || DisplayCollisions || DisplayIndices || DisplayIsInBounds || DisplayOutOfBounds || DisplayNonLeaves || DisplayNeighbors)) return;
 
         if (octree == null) return;
 
@@ -176,5 +196,33 @@ public class NavOctreeSpace : MonoBehaviour {
                 inBoundsLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
+
+        if (DisplayNeighbors) {
+            List<(Vector3, Vector3)> validNeighbors = new();
+
+            foreach(OctreeNode node in allLeaves) {
+                if (node.inBoundsNeighborsWithoutCollisions != null) {
+                    foreach (OctreeNode neighbor in node.inBoundsNeighborsWithoutCollisions) {
+                        validNeighbors.Add((node.center, neighbor.center));
+                    }
+                }
+            }
+
+            Gizmos.color = Color.blue;
+            DrawLineList(validNeighbors);
+        }
+    }
+
+    private static void DrawLineList(List<(Vector3, Vector3)> lines) {
+        int currIndex = 0;
+        Vector3[] linesToDraw = new Vector3[lines.Count * 2];
+        foreach((Vector3, Vector3) pair in lines) {
+            linesToDraw[currIndex] = pair.Item1;
+            linesToDraw[currIndex + 1] = pair.Item2;
+
+            currIndex += 2;
+        }
+
+        Gizmos.DrawLineList(linesToDraw);
     }
 }

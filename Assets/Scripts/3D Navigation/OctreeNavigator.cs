@@ -7,7 +7,6 @@ using System.Linq;
 #nullable enable
 
 public class OctreeNavigator {
-    private readonly SplineContainer splineContainer;
     private readonly float speed;
 
     // Graph we use to navigate
@@ -23,9 +22,6 @@ public class OctreeNavigator {
     // we use this to replace positions
     private int futureKnotsIndex = -1;
     private List<float3> knotPositions = new();
-
-    private List<Vector3> debugCurrentPath = new();
-    private List<Vector3> debugRawPath = new();
 
     private float currT = 0;
     private float pathLength = -1f;
@@ -48,7 +44,6 @@ public class OctreeNavigator {
         Transform ownerTransform,
         Graph graph,
         Octree octree,
-        SplineContainer splineContainer,
         float speed,
         ColliderCastDelegate colliderCast
     ) {
@@ -56,7 +51,6 @@ public class OctreeNavigator {
         this.graph = graph;
         this.octree = octree;
         this.speed = speed;
-        this.splineContainer = splineContainer;
         this.colliderCast = colliderCast;
     }
 
@@ -97,15 +91,9 @@ public class OctreeNavigator {
 
         // Insert the nearest previous knot to the current position into the beginningh of the path
         // before we generating the new spline path so the curve maintains it's shape (i.e. so we don't have sharp & random turns)
-        debugCurrentPath = path;
         currentSplinePath = ConvertToSpline(path);
 
         if (currentSplinePath == null) return;
-
-        if (splineContainer.Splines.Count > 0) {
-            splineContainer.RemoveSplineAt(0);
-        }
-        splineContainer.AddSpline(currentSplinePath);
 
         pathLength = currentSplinePath.GetLength();
 
@@ -137,7 +125,6 @@ public class OctreeNavigator {
         // Insert the nearest previous knot to the current position into the beginningh of the path
         // before we generating the new spline path so the curve maintains it's shape (i.e. so we don't have sharp & random turns)
 
-        debugCurrentPath = path;
         currentSplinePath = ConvertToSpline(path);
 
         if (currentSplinePath == null) return;
@@ -163,16 +150,13 @@ public class OctreeNavigator {
             return new() { startPosition, goalPosition };
         } else {
             // No straight shot - use the Graph/Octree to pathfind!
-            var (smoothedPath, rawPath) = Pathfinder.GenerateSmoothedPath(
+            return Pathfinder.GenerateSmoothedPath(
                 start: startPosition,
                 end: goalPosition,
                 graph: graph,
                 octree: octree,
                 positionsToKeep: positionsToKeep
             );
-
-            debugRawPath = rawPath;
-            return smoothedPath;
         }
     }
 
@@ -214,30 +198,6 @@ public class OctreeNavigator {
         }
 
         return spline;
-    }
-
-    public void DrawGraph() {
-        graph.DrawGraph(true);
-    }
-
-    public void DrawPath() {
-        DrawPath(debugCurrentPath, Color.red, Color.red);
-
-        DrawPath(debugRawPath, Color.blue, Color.blue);
-    }
-
-    public static void DrawPath(List<Vector3> path, Color nodeColor, Color edgeColor) {
-        for(int i = 0; i < path.Count - 1; i++) {
-            // Debug.DrawLine(path[i], path[i + 1], Color.red, 0.1f);
-            Gizmos.color = edgeColor;
-            Gizmos.DrawLine(path[i], path[i + 1]);
-
-            Gizmos.color = nodeColor;
-            Gizmos.DrawSphere(path[i], 1f);
-        }
-
-        // Draw the last path sphere
-        Gizmos.DrawSphere(path[path.Count - 1], 1f);
     }
 }
 

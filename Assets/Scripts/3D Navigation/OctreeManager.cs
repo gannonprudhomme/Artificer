@@ -30,5 +30,7 @@ public class OctreeManager : MonoBehaviour {
         NavSpace!.LoadIfNeeded();
 
         Graph = GraphGenerator.GenerateGraph(NavSpace!.octree!, shouldBuildDiagonals: true);
+
+        GraphGenerator.PopulateOctreeNeighbors(NavSpace!.octree!, shouldBuildDiagonals: true);
     }
 }

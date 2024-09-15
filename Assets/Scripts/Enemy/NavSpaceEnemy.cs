@@ -32,7 +32,6 @@ public abstract class NavSpaceEnemy : Enemy {
             ownerTransform: transform,
             graph: OctreeManager.shared!.Graph!,
             octree: OctreeManager.shared!.Octree!,
-            _SplineContainer!,
             speed: Speed,
             colliderCast: ColliderCast
         );

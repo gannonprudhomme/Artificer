@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Profiling;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 #nullable enable
 
@@ -12,8 +14,13 @@ public static class Pathfinder {
     //
     // Runs pretty damn fast as-is so didn't look into theta* or lazy theta*
     public static List<Vector3> GeneratePath(Graph graph, Vector3 start, Vector3 end) {
-        GraphNode startNode = graph.FindNearestToPosition(start);
-        GraphNode endNode = graph.FindNearestToPosition(end);
+        GraphNode? startNode = graph.FindNearestToPosition(start);
+        GraphNode? endNode = graph.FindNearestToPosition(end);
+
+        if (startNode == null || endNode == null) {
+            Debug.LogError("Couldn't find start/end node for GeneratePath!");
+            return new();
+        }
 
         HashSet<GraphNode> closedSet = new();
 
@@ -32,17 +39,22 @@ public static class Pathfinder {
             };
         }
 
+        HashSet<GraphNode> openSet = new(); // Only used b/c heap.Contains is really slow for some reason
         var heap = new C5.IntervalHeap<GraphNode>(new GraphNodeComparer(gCosts, hCosts));
+
         #nullable disable // Nullable won't work here inherently
         C5.IPriorityQueueHandle<GraphNode> currHandle = null;
         heap.Add(ref currHandle, startNode); // Do we want to do the handle stuff?
+        openSet.Add(startNode);
         #nullable enable
+
         handlesDict[startNode] = currHandle;
 
         GraphNode current = startNode; // Redundant (we're about to pop it), just ensures it's never null
         while(!heap.IsEmpty) {
             // Pop the top of the heap, which is the minimum f-cost node (f = g + h) and mark it as the current node
             current = heap.DeleteMin();
+            openSet.Remove(current);
 
             closedSet.Add(current);
 
@@ -51,19 +63,18 @@ public static class Pathfinder {
             }
 
             // Populate all current node's neighbors
-            foreach(KeyValuePair<GraphNode, float> keyValuePair in current.edges) {
+            foreach (KeyValuePair<GraphNode, float> keyValuePair in current.edges) {
                 GraphNode neighbor = keyValuePair.Key;
                 float edgeDistance = keyValuePair.Value;
 
                 if (closedSet.Contains(neighbor)) continue; // Skip this if neighbor we've already visited it
 
-                // I think this means the open set
-                bool isNeighborInHeap = heap.Contains(neighbor);
+                bool isNeighborInHeap = openSet.Contains(neighbor); // aka heap.Contains(neighbor)
 
                 float currG = gCosts.GetValueOrDefault(current, 0);
                 float movementCostToNeighbor = currG + edgeDistance;
                 float neighborG = gCosts.GetValueOrDefault(neighbor, 0);
-                
+
                 if (movementCostToNeighbor < neighborG || !isNeighborInHeap) {
                     // We're going to act on this neighbor, update it's g & h costs now
                     gCosts[neighbor] = movementCostToNeighbor;
@@ -75,12 +86,16 @@ public static class Pathfinder {
                     parents[neighbor] = current;
 
                     if (!isNeighborInHeap) {
-                        // var neighborHandle = handlesDict!.GetValueOrDefault(neighbor, null);
+                        #nullable disable
                         C5.IPriorityQueueHandle<GraphNode> neighborHandle = null;
                         heap.Add(ref neighborHandle, neighbor);
+                        openSet.Add(neighbor);
+                        #nullable enable
+
                         handlesDict[neighbor] = neighborHandle;
                     } else {
                         C5.IPriorityQueueHandle<GraphNode> neighborHandle = handlesDict[neighbor];
+
                         heap.Replace(neighborHandle, neighbor); // Update it with the new values we set above
                     }
                 }
@@ -107,7 +122,7 @@ public static class Pathfinder {
         return path;
     }
 
-    public static (List<Vector3>, List<Vector3>) GenerateSmoothedPath(
+    public static List<Vector3> GenerateSmoothedPath(
         Vector3 start,
         Vector3 end,
         Graph graph,
@@ -116,11 +131,7 @@ public static class Pathfinder {
     ) {
         List<Vector3> rawPath = GeneratePath(graph, start, end);
 
-        List<Vector3> copy = new(rawPath); // Make a copy for temp output
-
-        List<Vector3> smoothedPath = SmoothPath(rawPath, graph, octree, positionsToKeep); // Technically this modified rawPath
-
-        return (smoothedPath, copy);
+        return SmoothPath(rawPath, graph, octree, positionsToKeep); // Technically this modified rawPath
     }
 
     // We need to be able to *not* smooth certain positions

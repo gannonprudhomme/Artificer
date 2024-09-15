@@ -9,6 +9,8 @@ using UnityEngine;
 // 
 // This class is intended as the data structure which holds the OctreeNodes, just like a LinkedList really just contains functions to operate w/ the nodes
 // It uses the class OctreeGenerator to generate itself
+// 
+// It is held by NavOctreeSpace (equivalent of NavMeshSurface), which itself is accessed through OctreeManager (singleton)
 //
 // Heavily based off of https://github.com/supercontact/PathFindingEnhanced
 public class Octree  {
@@ -93,9 +95,16 @@ public class Octree  {
 
     // Returns true if there's a collision between origin and endPosition.
     //
-    // Going to start off doing a Raycast, but we should probs move to a SphereCast (and then a CapsuleCast)
+    // While this does run pretty fast, it could be much faster:
+    //
+    // Currently we sample by moving along the ray by a fixed distance (0.25f) and checking if we hit anything then move forward.
+    // In actuality we should use the DDA Algorithm, which is like a "smart step" in that it knows exactly how far forward
+    // along the ray we should move to find the bounds of the next entry, in our case to the next OctreeNode.
+    //
+    // But I'm currently too lazy to figure out the math, as it's complicated given we need to know the size of the OctreeNode we're in,
+    // on top of the DDA Algorithm itself.
     public bool Raycast(Vector3 origin, Vector3 endPosition) {
-        float sampleDistance = 0.25f; // TODO: Replace this with DDA Algorithm later
+        float sampleDistance = 1f; // TODO: Replace this with DDA Algorithm later
 
         OctreeNode? currentNode = root!.FindNodeForPosition(origin);
         if (currentNode == null) {
@@ -109,7 +118,7 @@ public class Octree  {
         // Need to get a "time" for where we are on the line (with origin as start & endPosition as the end)
         float totalDistance = Vector3.Distance(origin, endPosition);
 
-        while(Vector3.Distance(currentPosition, origin) < totalDistance) { // Aka while we haven't reached the end position
+        while (Vector3.Distance(currentPosition, origin) < totalDistance) { // Aka while we haven't reached the end position
             currentNode = root!.FindNodeForPosition(currentPosition);
 
             if (currentNode!.containsCollision) {

@@ -55,5 +55,9 @@ public class NavOctreeSpaceEditor : Editor {
         if (GUILayout.Button("Load")) {
             navOctreeSpace.Load();
         }
+
+        if (GUILayout.Button("Build Neighbors")) {
+            navOctreeSpace.BuildNeighbors();
+        }
     }
 }
