@@ -67,6 +67,8 @@ public class OctreeNavigator {
         }
     }
 
+    // Pathfind from the pathStartPosition, while ensuring we keep the originalPosition and the pathStartPosition in the Path
+    //
     // TODO: Combine this with the CreatePathTo fucntion
     // This function is pretty hyper focused on the AtG Missile's use case
     public void CreatePathGuaranteeingPositions(Vector3 goalPosition, Vector3 pathStartPosition, Vector3 originalPosition) {
@@ -89,7 +91,7 @@ public class OctreeNavigator {
             path.Insert(0, GetPreviousKnot(currentSplinePath, currT)); 
         }
 
-        // Insert the nearest previous knot to the current position into the beginningh of the path
+        // Insert the nearest previous knot to the current position into the beginning of the path
         // before we generating the new spline path so the curve maintains it's shape (i.e. so we don't have sharp & random turns)
         currentSplinePath = ConvertToSpline(path);
 

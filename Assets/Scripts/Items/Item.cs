@@ -14,7 +14,8 @@ public enum ItemType {
 
     // Uncommon Items
     HOPOO_FEATHER,
-    UKULELE
+    UKULELE,
+    ATG_MISSILE
 }
 
 public abstract class Item: ScriptableObject {
@@ -27,6 +28,9 @@ public abstract class Item: ScriptableObject {
 
     [Tooltip("Texture which displays on the mesh & is passed to the ItemPickup shader")]
     public Texture2D? MeshTexture;
+
+    [Tooltip("Emission texture which displays on the mesh & is passed to the ItemPickup shader. Many items will not have this present")]
+    public Texture2D? MeshEmissionTexture;
 
     // Name of the item, e.g. "Backup Magazine"
     public abstract string itemName { get; }
@@ -44,7 +48,7 @@ public abstract class Item: ScriptableObject {
     public virtual void OnJump(bool wasGrounded, Transform spawnTransform) { }
 
     // Owner is needed for spawning Coroutines (initially for Ukulele)
-    public virtual void OnEnemyHit(MonoBehaviour owner, int itemCount, OnEntityHitData onHitData) { }
+    public virtual void OnEnemyHit(ItemsDelegate itemsController, MonoBehaviour owner, int itemCount, OnEntityHitData onHitData) { }
 
     public virtual void OnEnemyKilled(Vector3 killedEnemyPosition, float playerBaseDamage, int itemCount) { }
 
@@ -59,6 +63,8 @@ public interface ItemsDelegate {
     public int ModifiedSecondarySpellCharges { get; set; }
 
     public int ModifiedNumberOfJumps { get; set; }
+
+    public Transform? ATGMissileSpawnPoint { get; }
 
     public void PickupItem(Item item);
 }

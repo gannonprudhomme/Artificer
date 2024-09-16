@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-824298487139385141
+--- !u!114 &-8273326798921545001
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Ukulele
+  m_Name: AtG Missle Projectile
   m_Shader: {fileID: -6465566751694194690, guid: 0d1735174ba0e494f9ec7768d146fba1,
     type: 3}
   m_Parent: {fileID: 0}
@@ -90,7 +90,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Texture:
-        m_Texture: {fileID: 2800000, guid: f5f3facf2b504d94fac7a7d6ae87eb6b, type: 3}
+        m_Texture: {fileID: 2800000, guid: f2a93853c2684524dabb5d2d636b8a1a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -127,6 +127,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _Light_Probe_Contribution: 3.5
     - _MAIN_LIGHT_SHADOWS: 1
     - _Metallic: 0
     - _OcclusionStrength: 1
@@ -135,7 +136,7 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _SHADOWS_SOFT: 1
-    - _Smoothness: 0.7
+    - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

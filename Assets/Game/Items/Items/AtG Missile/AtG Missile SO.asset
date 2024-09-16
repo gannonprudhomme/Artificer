@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9c0f31379af4b141866c57f240ffc1c, type: 3}
+  m_Name: AtG Missile SO
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 2800000, guid: 7484ff08184b9e44ab50dd6562bcf137, type: 3}
+  DropModelMesh: {fileID: 3392798674556678557, guid: ee3cbba789f835c46a0d91d666bf1647,
+    type: 3}
+  MeshTexture: {fileID: 2800000, guid: 2550b05ff4faca6478a9879202125028, type: 3}
+  MeshEmissionTexture: {fileID: 2800000, guid: a31e0476a1a2cba49b920c09e8736274, type: 3}
+  ProjectilePrefab: {fileID: 1937120299687143702, guid: ce104ac569f33424da6abbfe092b2c05,
+    type: 3}
+  DebugFireOnAllHits: 1

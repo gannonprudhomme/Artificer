@@ -23,7 +23,7 @@ public class TriTipDagger : Item {
     public override string longDescription => "10% (+10% per stack) chance to bleed an enemy for 240% base damage.";
     public override Rarity rarity => Rarity.COMMON;
 
-    public override void OnEnemyHit(MonoBehaviour owner, int itemCount, OnEntityHitData onHitData) {
+    public override void OnEnemyHit(ItemsDelegate _, MonoBehaviour __, int itemCount, OnEntityHitData onHitData) {
         float value = Random.value;
         float percentChance = 0.1f * itemCount; // each stack increases chance by 10%
         bool didTriggerChance = value <= (percentChance * onHitData.procCoefficient);

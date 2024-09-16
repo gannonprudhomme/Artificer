@@ -15,6 +15,12 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     [Tooltip("Reference to all of the Item Displayers. Will output errors if it's misconfigured.")]
     public List<ItemDisplayer> ItemDisplayers = new();
 
+    [Header("Item Properties")]
+    [Tooltip("Where we spawn the AtG Missile Projectile")]
+    public Transform? _ATGMissileSpawnPoint;
+    public Transform? ATGMissileSpawnPoint => _ATGMissileSpawnPoint;
+
+
     // TODO: Should I just do a abstract class so I don't have to do this BS?
     [HideInInspector]
     private float _modifiedSprintMultiplier = 0;
@@ -153,6 +159,7 @@ public class PlayerItemsController : MonoBehaviour, ItemsDelegate {
     public void OnEntityHit(OnEntityHitData onHitData) {
         foreach(var (item, count) in items.Values) {
             item.OnEnemyHit(
+                itemsController: this,
                 owner: this,
                 itemCount: count,
                 onHitData: onHitData

@@ -32,7 +32,7 @@ public class Ukulele : Item {
 
     // TODO: Need the proc coefficient here
     // Note this doesn't hit the entity that we actually hit (`entityHit`)
-    public override void OnEnemyHit(MonoBehaviour owner, int itemCount, OnEntityHitData onHitData) {
+    public override void OnEnemyHit(ItemsDelegate _, MonoBehaviour owner, int itemCount, OnEntityHitData onHitData) {
         float chance = 0.25f * onHitData.procCoefficient;
 
         bool didTrigger = Random.value <= chance;

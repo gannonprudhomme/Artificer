@@ -42,7 +42,8 @@ public class Wisp : NavSpaceEnemy {
     // Degrees per second
     public float RotationSpeed = 20.0f; // public only so we can manually tweak the speed in the editor
 
-    private WispFireballAttack? attack = null;
+    private WispFireballAttack? attack;
+    private Rigidbody? rigidBody;
 
     // Any single instance of damage that deals more than 10% of the total health will stun it & interrupts its attacks or movement
     private const float stunFromDamageHealthPercentage = 0.1f;
@@ -64,7 +65,10 @@ public class Wisp : NavSpaceEnemy {
     protected override void Start() {
         base.Start();
 
+        // Needs a RigidBody for colliding with triggers
         Animator animator = GetComponent<Animator>();
+        rigidBody = GetComponent<Rigidbody>();
+        rigidBody.isKinematic = true;
 
         attack = new WispFireballAttack(
             target: Target!,
