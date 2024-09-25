@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -8,16 +7,20 @@ using UnityEngine.AI;
 class InteractableCard {
     public readonly string identifier;
     public readonly int spawnCost;
-    public readonly SpawnableInteractable prefab;
+    public readonly int weight;
+    public readonly int? baseGoldCost;
+    public readonly Spawnable prefab;
     private readonly int spawnLimit;
 
     // Turned it into a class for this; I figured this was simpler than storing it in e.g. a dictionary
     public int numberSpawned = 0;
 
-    public InteractableCard(string identifier, int spawnCost, int spawnLimit, SpawnableInteractable prefab) {
+    public InteractableCard(string identifier, int spawnCost, int spawnLimit, int weight, int? baseGoldCost, Spawnable prefab) {
         this.identifier = identifier;
         this.spawnCost = spawnCost;
+        this.weight = weight;
         this.prefab = prefab;
+        this.baseGoldCost = baseGoldCost;
         this.spawnLimit = spawnLimit;
     }
 
@@ -36,8 +39,11 @@ public class InteractablesDirector : MonoBehaviour {
     [Header("Interactables")]
     public ItemChest? ItemChestPrefab;
     public Barrel? BarrelPrefab;
+    public MultishopTerminal? MultishopTerminalPrefab;
 
     private InteractableCard[]? interactableCards;
+
+    public const float difficultyCoefficient = 1f; // Difficulty coefficient at the start. TODO: pass this in
 
     private int numCredits = 0;
 
@@ -47,13 +53,25 @@ public class InteractablesDirector : MonoBehaviour {
                 identifier: "ItemChest",
                 spawnCost: 15,
                 spawnLimit: 45,
+                weight: 24,
+                baseGoldCost: 25,
                 prefab: ItemChestPrefab!
             ), // 15 is for a small chest
             new(
                 identifier: "Barrel",
                 spawnCost: 1,
                 spawnLimit: 10,
+                weight: 10,
+                baseGoldCost: null,
                 BarrelPrefab!
+            ),
+            new(
+                identifier: "MultishopTerminal",
+                spawnCost: 20, 
+                spawnLimit: 10,
+                weight: 8,
+                baseGoldCost: 25,
+                MultishopTerminalPrefab!
             )
         };
     }
@@ -86,17 +104,32 @@ public class InteractablesDirector : MonoBehaviour {
         // Align the interactable w/ the normal of the surface we hit + add a random rotation
         Quaternion normalRotation = Quaternion.FromToRotation(Vector3.up, spawnNormal);
 
-        SpawnableInteractable spawnable = Instantiate(interactableCard.prefab, position: Vector3.zero, rotation: Quaternion.identity);
-        spawnable.transform.position = spawnPosition + spawnable.GetSpawnPositionOffset();
-        spawnable.transform.rotation = normalRotation * spawnable.GetSpawnRotationOffset();
+        MonoBehaviour spawnable = Instantiate(interactableCard.prefab.Prefab, position: Vector3.zero, rotation: Quaternion.identity);
 
-        // TODO: Pass difficulty coefficient in
+        if (spawnable is Spawnable _spawnable) { // It always will be
+            spawnable.transform.position = spawnPosition + _spawnable.GetSpawnPositionOffset();
+            spawnable.transform.rotation = normalRotation * _spawnable.GetSpawnRotationOffset();
+        }
 
+        int baseGoldCost = -1;
+        if (interactableCard.baseGoldCost != null) {
+            baseGoldCost = interactableCard.baseGoldCost.Value;
+        }
+
+        int costToPurchase = (int)(baseGoldCost * Mathf.Pow(difficultyCoefficient, 1.25f));
+
+        // Booo reflection - code smell!
         if (spawnable is ItemChest itemChest) {
             itemChest.SetUp(
-                costToPurchase: interactableCard.spawnCost,
+                costToPurchase: costToPurchase,
                 target: Target!,
                 goldWallet: FindObjectOfType<GoldWallet>() // This is awful but fuck it whatever
+            );
+        } else if (spawnable is MultishopTerminal multishopTerminal) {
+            multishopTerminal.SetUp(
+                costToPurchase: costToPurchase,
+                target: Target!,
+                goldWallet: FindAnyObjectByType<GoldWallet>()
             );
         }
     }
@@ -157,7 +190,30 @@ public class InteractablesDirector : MonoBehaviour {
             return null;
         }
 
-        return affordableAndSpawnable[Random.Range(0, affordableAndSpawnable.Count)];
+        return GetRandomWeightedCard(affordableAndSpawnable);
+    }
+
+    // Gets a random card from the list of cards, weighted by the weight of each card
+    //
+    // In actuality I should be using the "Alias Method", but I have max of 3 cards so I'm just doing whatever is easiest
+    //
+    // Source: https://softwareengineering.stackexchange.com/a/15064
+    private static InteractableCard GetRandomWeightedCard(List<InteractableCard> cards) {
+        int totalWeight = 0;
+        InteractableCard selectedCard = cards[0];
+
+        foreach(InteractableCard card in cards) {
+            int weight = card.weight;
+            int rand = Random.Range(0, totalWeight + weight);
+
+            if (rand >= totalWeight) { // probability of this is weight/(totalWeight+weight)
+                selectedCard = card; // it is the probability of discarding last selected element and selecting current one instead
+            }
+
+            totalWeight += weight;
+        }
+
+        return selectedCard;
     }
 
     private bool GetNormalFromNavMeshHit(NavMeshHit navMeshHit, out Vector3 normal) {

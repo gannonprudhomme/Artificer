@@ -14,12 +14,18 @@ public class AllItems : ScriptableObject {
     [Tooltip("When set, only drops this")]
     public Item? OnlyItem = null;
 
-    public Item PickItem() {
+    public Item PickItem(Item.Rarity? specifiedRarity = null) {
         if (OnlyItem != null) {
             return OnlyItem;
         }
 
-        Item.Rarity rarity = PickRandomRarity();
+        Item.Rarity rarity;
+        if (specifiedRarity != null) {
+            rarity = specifiedRarity.Value;
+        } else {
+            rarity = PickRandomRarity();
+        }
+
         List<Item> rarityList = rarity switch {
             Item.Rarity.COMMON => CommonItems,
             Item.Rarity.UNCOMMON => UncommonItems,
@@ -36,8 +42,6 @@ public class AllItems : ScriptableObject {
         // [0, 79.2) -> Common
         // [79.2, 99) -> Uncommon
         // [99, 100] -> Rare
-        Debug.Log($"Item drop was {randomNumber}");
-
         if (randomNumber < 0.792f) {
             return Item.Rarity.COMMON;
         } else if (randomNumber < 0.99f) {

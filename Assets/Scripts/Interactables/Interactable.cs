@@ -4,10 +4,14 @@ using UnityEngine;
 
 #nullable enable
 
-// Bleh don't love this
-public abstract class SpawnableInteractable: Interactable {
-    public virtual Vector3 GetSpawnPositionOffset() { return Vector3.zero; }
-    public virtual Quaternion GetSpawnRotationOffset() { return Quaternion.identity; }
+public interface Spawnable {
+    public Vector3 GetSpawnPositionOffset();
+    public Quaternion GetSpawnRotationOffset();
+    
+    // We need some way of getting access to a MonoBehavior so we can spawn it
+    // but we can't have this be an [abstract] class b/c of the Multishop needing to be Spawnable,
+    // but not directly interactable (it's children are the Interactable ones)
+    public MonoBehaviour Prefab { get; } // Not really a great name for this; but it's always just `=> this`
 }
 
 // If we wanted to be really efficient we could store this in the Octree somehow
@@ -69,7 +73,7 @@ public abstract class Interactable : MonoBehaviour {
 
     // This should just require one material not a list
     // but I'll update this when I actually make the mesh + texture
-    protected List<Material> GetMaterials() {
+    protected virtual IEnumerable<Material> GetMaterials() {
         List<Material> ret = new();
 
         MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();

@@ -9,7 +9,7 @@ using UnityEngine.Splines;
 
 // This should really be like "Purchasable" or something
 [RequireComponent(typeof(Animator))]
-public class ItemChest : SpawnableInteractable {
+public class ItemChest : Interactable, Spawnable {
     [Header("Item Chest")]
     public UIFollowPlayer? UIFollowPlayer;
 
@@ -33,6 +33,9 @@ public class ItemChest : SpawnableInteractable {
     [Tooltip("Contains the path for the right interaction vfx")]
     public SplineContainer? RightInteractionVFXSplineContainer;
 
+    [Tooltip("Layer mask for the level. Used to determine where to spawn the item")]
+    public LayerMask LevelLayerMask;
+
     [Header("Item")]
     [Tooltip("All items we can pick frmo")]
     public AllItems? AllItems;
@@ -40,12 +43,11 @@ public class ItemChest : SpawnableInteractable {
     [Tooltip("Prefab we spawn when the chest is opened")]
     public ItemPickup? ItemPickupPrefab;
 
-    [Tooltip("Layer mask for the level. Used to determine where to spawn the item")]
-    public LayerMask LevelLayerMask;
-
     // TODO: We need a better way of passing this. Maybe in SetUp()?
     // Set by the Player, but ideally it'd be set by the Director when we spawn this
     public GoldWallet? GoldWallet { get; set; }
+
+    public MonoBehaviour Prefab => this;
 
     // I think the Scene Director sets this?
     private int costToPurchase = 5; // Temp default value
@@ -133,7 +135,7 @@ public class ItemChest : SpawnableInteractable {
         base.OnHover();
 
         if (!hasBeenInteractedWith) {
-            HoverEvent!.OnHover("Open chest", costToPurchase);
+            HoverEvent!.OnHover!("Open chest", costToPurchase);
         }
     }
 
@@ -148,11 +150,11 @@ public class ItemChest : SpawnableInteractable {
         CostText!.enabled = false;
     }
 
-    public override Vector3 GetSpawnPositionOffset() {
+    public Vector3 GetSpawnPositionOffset() {
         return Vector3.up * -0.5f;
     }
 
-    public override Quaternion GetSpawnRotationOffset() {
+    public Quaternion GetSpawnRotationOffset() {
         return Quaternion.Euler(x: 0, y: Random.Range(0, 360), z: 0);
     }
 
@@ -187,14 +189,13 @@ public class ItemChest : SpawnableInteractable {
         itemPickup.item = AllItems!.PickItem();
     }
 
-    private Vector3 DetermineItemSpawnPosition() {
-        // TODO: Add retry logic
+    private Vector3 DetermineItemSpawnPosition() {;
         if (Physics.Raycast(
             origin: transform.position + (transform.forward * 5f) + (Vector3.up * 10),
-            direction:  Vector3.down,
+            direction: Vector3.down,
             out RaycastHit hit,
-            maxDistance: 10f
-            // TODO: level mask should just be the level
+            maxDistance: 20f,
+            layerMask: LevelLayerMask
         )) {
             return hit.point;
         } else {

@@ -6,7 +6,7 @@ using UnityEngine;
 
 // Contains 8 gold & 4 exp
 [RequireComponent(typeof(Animator))]
-public class Barrel : SpawnableInteractable {
+public class Barrel : Interactable, Spawnable {
     public ExperienceGranter? ExperienceGranterPrefab;
 
     public Transform ExperienceGranterSpawnPoint;
@@ -14,6 +14,8 @@ public class Barrel : SpawnableInteractable {
     private Animator? animator;
 
     private const string ANIM_IS_OPEN = "IsOpen";
+
+    public MonoBehaviour Prefab => this;
 
     protected override void Start() {
         base.Start();
@@ -55,14 +57,14 @@ public class Barrel : SpawnableInteractable {
         base.OnHover();
 
         if (!hasBeenInteractedWith) {
-            HoverEvent!.OnHover("Open barrel", null);
+            HoverEvent!.OnHover!("Open barrel", null);
         }
     }
 
-    public override Vector3 GetSpawnPositionOffset() {
+    public Vector3 GetSpawnPositionOffset() {
         return Vector3.up * -1.5f;
     }
-    public override Quaternion GetSpawnRotationOffset() {
+    public Quaternion GetSpawnRotationOffset() {
         float xzRange = 15;
 
         return Quaternion.Euler(

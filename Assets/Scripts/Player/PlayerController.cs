@@ -673,16 +673,20 @@ public class PlayerController : Entity {
             queryTriggerInteraction: QueryTriggerInteraction.Collide // We want to hit triggers
         );
 
+        // Sort them by distance
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
         // Reset it
         currentAimedAtInteractable = null;
-
         foreach(RaycastHit hit in hits) {
             if (hit.collider.TryGetComponent(out ColliderInteractablePointer pointer)) {
                 currentAimedAtInteractable = pointer.Parent;
                 currentAimedAtInteractable.OnHover();
+                break; // We want the one closest to us, so stop once we've gotten it
             } else if (hit.collider.TryGetComponent(out Interactable interactable)) {
                 currentAimedAtInteractable = interactable;
                 currentAimedAtInteractable.OnHover();
+                break; // We want the one closest to us, so stop once we've gotten it
             }
         }
 

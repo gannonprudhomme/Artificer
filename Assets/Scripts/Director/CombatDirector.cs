@@ -62,7 +62,7 @@ public abstract class CombatDirector: MonoBehaviour {
 
     private float playerFactor {
         get {
-            return 1 + 0.3f * (playerCount - 1);
+            return 0.7f + (0.3f * playerCount);
         }
     }
 
@@ -74,10 +74,10 @@ public abstract class CombatDirector: MonoBehaviour {
             float difficultyValue = 2.0f; // 1 for Drizzle, 2 for Rainstorm, 3 for Monsoon
             float timeFactor = 0.0506f * difficultyValue * (float) Mathf.Pow(playerCount, 0.2f);
 
-            int stagesCompleted = 1; // TODO: Get this from some GameManager
-            float stageFactor = (float)Mathf.Pow(1.15f, stagesCompleted);
+            int stagesCompleted = 0; // TODO: Get this from some GameManager
+            float stageFactor = Mathf.Pow(1.15f, stagesCompleted);
 
-            float tempTestingTimePlayed = 5.0f; // add 5 extra minutes
+            float tempTestingTimePlayed = 0.0f; // add 5 extra minutes
             float timeInMinutes = (Time.time / 60.0f) + tempTestingTimePlayed;
 
             return (playerFactor + timeInMinutes * timeFactor) * stageFactor;

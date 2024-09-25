@@ -4,7 +4,7 @@ using UnityEngine.VFX;
 
 #nullable enable
 
-public class ItemPickup : SpawnableInteractable {
+public class ItemPickup : Interactable {
     [Header("References")]
     public MeshRenderer? MeshRenderer;
     public MeshFilter? MeshFilter;
@@ -123,7 +123,7 @@ public class ItemPickup : SpawnableInteractable {
     }
 
     public override void OnHover() {
-        HoverEvent!.OnHover(item!.itemName, null);
+        HoverEvent!.OnHover!(item!.itemName, null);
 
         foreach(Material material in GetMaterials()) {
             material.SetInt(SHADER_OUTLINE_COLOR_FLIP, 1);
