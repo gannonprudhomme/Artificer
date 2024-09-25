@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using UnityEngine.VFX;
 #nullable enable
 
 // A singular "shop" in the Multishop Terminal
-[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(Animator), typeof(CinemachineImpulseSource))]
 public class ShopTerminal : Interactable {
     [Header("Shop Terminal")]
     public SkinnedMeshRenderer? TerminalMeshRenderer;
@@ -42,6 +43,7 @@ public class ShopTerminal : Interactable {
     [Tooltip("Texture for the question mark we use when the item isn't visible")]
     public Texture? QuestionMarkTexture;
 
+    private CinemachineImpulseSource? impulseSource;
     private Animator? animator;
     private Item? item; // If this is null we'll show a question mark
     private int costToPurchase = 25;
@@ -72,6 +74,7 @@ public class ShopTerminal : Interactable {
         animator = GetComponent<Animator>();
         animator.SetBool(ANIM_HAS_OPENED, false);
 
+        impulseSource = GetComponent<CinemachineImpulseSource>();
 
         Mesh mesh;
         Texture texture;
@@ -109,6 +112,9 @@ public class ShopTerminal : Interactable {
         // Note this will also call OnOtherShopTerminalSelected() on this object
         // which is intended / what we want.
         onOpenedCallback?.Invoke();
+
+        Vector3 impulseDirection = new(1f, 1f, 0f);
+        impulseSource!.GenerateImpulseWithVelocity(impulseDirection * 0.3f);
     }
 
     // Called whenever a different shop terminal in this Multishop Terminal is selected

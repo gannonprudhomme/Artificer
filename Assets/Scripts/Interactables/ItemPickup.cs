@@ -1,9 +1,11 @@
+using Cinemachine;
 using UnityEngine;
 using UnityEngine.Splines;
 using UnityEngine.VFX;
 
 #nullable enable
 
+[RequireComponent(typeof(CinemachineImpulseSource))]
 public class ItemPickup : Interactable {
     [Header("References")]
     public MeshRenderer? MeshRenderer;
@@ -43,12 +45,15 @@ public class ItemPickup : Interactable {
     // TODO: Give this a better name lol
     private bool hasDoneWrapUpAnimation = false;
 
+    private CinemachineImpulseSource? impulseSource;
     private BezierCurve curve;
 
     private readonly string SHADER_ITEMPICKUP_TEXTURE = "_Texture";
     private readonly string SHADER_ITEMPICKUP_EMISSION_TEXTURE = "_Emission_Texture";
 
     protected override void Start() {
+        impulseSource = GetComponent<CinemachineImpulseSource>();
+
         startAnimationTime = Time.time;
 
         MeshRenderer!.enabled = false;
@@ -99,6 +104,8 @@ public class ItemPickup : Interactable {
         bool doneAnimating = Time.time - startAnimationTime >= animationDuration;
         if (doneAnimating) {
             if (!hasDoneWrapUpAnimation) {
+                hasDoneWrapUpAnimation = true;
+
                 OnSpawnVFX!.Stop();
                 OnSpawnVFX!.enabled = false;
 
@@ -108,9 +115,9 @@ public class ItemPickup : Interactable {
                 MeshRenderer!.enabled = true;
                 Light!.enabled = true;
 
-                hasDoneWrapUpAnimation = true;
-
                 ItemMeshCollider!.enabled = true;
+                impulseSource!.GenerateImpulse(force: 0.125f);
+
             }
 
             float rotate = 50f;
