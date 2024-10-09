@@ -46,13 +46,18 @@ public static class GraphGenerator {
     ) {
         OctreeNode? nearestOctLeafInDirection = FindLeafInDirectionOfSameSizeOrLarger(octLeaf, dir, octree);
 
-        if (nearestOctLeafInDirection == null || nearestOctLeafInDirection.containsCollision || !nearestOctLeafInDirection.isInBounds) {
+        if (nearestOctLeafInDirection == null ||
+            nearestOctLeafInDirection!.Value.containsCollision ||
+            !nearestOctLeafInDirection!.Value.isInBounds
+        ) {
             return;
         }
 
-        GraphNode nearestGraphNode = octreeNodeToGraphNodeDict[nearestOctLeafInDirection];
+        // TODO: probably unwrap so we don't have to do !.Value
 
-        if (octLeaf.nodeLevel == nearestOctLeafInDirection.nodeLevel) {
+        GraphNode nearestGraphNode = octreeNodeToGraphNodeDict[nearestOctLeafInDirection!.Value];
+
+        if (octLeaf.nodeLevel == nearestOctLeafInDirection!.Value.nodeLevel) {
             // If they're the same level only do it in one direction (curr -> nearest)
             // since when we iterate over nearest we'll do it in this direction
             // (though w/ the edge dictionary this doesn't actually matter)
@@ -115,7 +120,7 @@ public static class GraphGenerator {
         int currSize = 1 << currOctLeaf.nodeLevel;
 
         // Starting at the root, find the leaf closest to dir
-        OctreeNode current = octree.root!;
+        OctreeNode current = octree.root!.Value;
         for(int level = 0; level < currOctLeaf.nodeLevel; level++) { // I'm not sure if this is 1:1 to how we think about levels
             if (current.IsLeaf) { // If we reached a leaf then we got it! Return
                 return current;
@@ -125,7 +130,7 @@ public static class GraphGenerator {
             currSize = currSize >> 1; // Divide by 2 lol
 
             // For each coordinate poxition (x, y, z), we need to determine if it's a 0 or 1 basically
-            current = current.children![xIndex / currSize, yIndex / currSize, zIndex / currSize];
+            current = current.GetChildAt(xIndex / currSize, yIndex / currSize, zIndex / currSize)!.Value;
 
             // Offset xIndex, yIndex, and zIndex accordingly...?
             xIndex %= currSize;
@@ -176,21 +181,24 @@ public static class GraphGenerator {
         OctreeNode? nearestOctLeafInDirection = FindLeafInDirectionOfSameSizeOrLarger(leaf, dir, octree);
 
         // We only want to draw edges to "valid" nodes (but we can draw edges *from* nodes w/ collisions, just not to them)
-        if (nearestOctLeafInDirection == null || !nearestOctLeafInDirection.isInBounds || nearestOctLeafInDirection.containsCollision) {
+        if (nearestOctLeafInDirection == null ||
+            nearestOctLeafInDirection!.Value.containsCollision ||
+            !nearestOctLeafInDirection!.Value.isInBounds
+        ) {
             return;
         }
         
-        if (leaf.nodeLevel == nearestOctLeafInDirection.nodeLevel) {
+        if (leaf.nodeLevel == nearestOctLeafInDirection!.Value.nodeLevel) {
             // If they're the same level only do it in one direction (curr -> nearest)
             // since when we iterate over nearest we'll do it in this direction
             // (though w/ the edge dictionary this doesn't actually matter)
-            leaf.AddEdgeTo(nearestOctLeafInDirection);
+            leaf.AddEdgeTo(nearestOctLeafInDirection!.Value);
         } else {
             // Nodes are of different levels (only smaller size -> larger size actually), so add in both directions
             // since we won't do it in the opposite direction when we Connect for the nearest found node
             // (because we only find leaves of the same size or larger, not smaller)
-            leaf.AddEdgeTo(nearestOctLeafInDirection);
-            nearestOctLeafInDirection.AddEdgeTo(leaf);
+            leaf.AddEdgeTo(nearestOctLeafInDirection!.Value);
+            nearestOctLeafInDirection!.Value.AddEdgeTo(leaf);
         }
     }
 }

@@ -28,27 +28,29 @@ public class NavOctreeSpace : MonoBehaviour {
 
     private Bounds? calculatedBounds = null; // For debug displaying
     
-    public void GenerateOctree() {
+    public OctreeGenerator.GenerateOctreeJob? GenerateOctree() {
         Bounds bounds = GetBounds();
         calculatedBounds = bounds;
 
         octree = new Octree(
             min: bounds.min,
             max: bounds.max,
-            smallestActorDimension: Vector3.one * 2.5f,
+            smallestActorDimension: Vector3.one * 5f,
             center: bounds.center
         );
 
         // Generate and time it
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-        octree.Generate(this.gameObject);
-        stopwatch.Stop();
+        // var stopwatch = new System.Diagnostics.Stopwatch();
+        // stopwatch.Start();
+        OctreeGenerator.GenerateOctreeJob? job = octree.Generate(this.gameObject);
+        // stopwatch.Stop();
+
+        return job;
 
         // Debug output
-        List<OctreeNode> allNodes = octree.GetAllNodes();
-        List<OctreeNode> leaves = allNodes.FindAll((node) => node.children == null);
-        Debug.Log($"Finished generating octree with {allNodes.Count} nodes and {leaves.Count} leaves in {stopwatch.ElapsedMilliseconds} ms");
+        // List<OctreeNode> allNodes = octree.GetAllNodes();
+        // List<OctreeNode> leaves = allNodes.FindAll((node) => node.children.IsEmpty);
+        // Debug.Log($"Finished generating octree with {allNodes.Count} nodes and {leaves.Count} leaves in {stopwatch.ElapsedMilliseconds} ms");
     }
 
     public void MarkInboundsLeaves() {
@@ -109,7 +111,6 @@ public class NavOctreeSpace : MonoBehaviour {
 
     public void BuildNeighbors() {
         if (octree == null) return;
-
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
         GraphGenerator.PopulateOctreeNeighbors(octree, shouldBuildDiagonals: true);
@@ -139,6 +140,15 @@ public class NavOctreeSpace : MonoBehaviour {
         return $"{gameObject.name}.octree.bin";
     }
 
+    public void TempGetAllNodes() {
+        if (octree == null) {
+            Debug.LogError("Octree is null");
+            return;
+        }
+
+        List<OctreeNode> allNodes = octree.GetAllNodes();
+    }
+
     private void OnDrawGizmos() {
         if (calculatedBounds != null && DisplayBounds) {
             float length = calculatedBounds.Value.max.x - calculatedBounds.Value.min.x;
@@ -155,8 +165,8 @@ public class NavOctreeSpace : MonoBehaviour {
         if (octree == null) return;
 
         List<OctreeNode> allNodes = octree.GetAllNodes();
-        List<OctreeNode> allLeaves = allNodes.FindAll(node => node.children == null);
-        List<OctreeNode> notLeaves = allNodes.FindAll(node => node.children != null);
+        List<OctreeNode> allLeaves = allNodes.FindAll(node => node.children.IsEmpty);
+        List<OctreeNode> notLeaves = allNodes.FindAll(node => !node.children.IsEmpty);
         List<OctreeNode> collisionLeaves = allLeaves.FindAll(leaf => leaf.containsCollision);
         List<OctreeNode> noCollisionLeaves = allLeaves.FindAll(leaf => !leaf.containsCollision);
         List<OctreeNode> leavesOutOfBounds = allLeaves.FindAll(leaf => !leaf.isInBounds);
@@ -201,11 +211,11 @@ public class NavOctreeSpace : MonoBehaviour {
             List<(Vector3, Vector3)> validNeighbors = new();
 
             foreach(OctreeNode node in allLeaves) {
-                if (node.inBoundsNeighborsWithoutCollisions != null) {
+                //if (node.inBoundsNeighborsWithoutCollisions != null) {
                     foreach (OctreeNode neighbor in node.inBoundsNeighborsWithoutCollisions) {
                         validNeighbors.Add((node.center, neighbor.center));
                     }
-                }
+                //}
             }
 
             Gizmos.color = Color.blue;

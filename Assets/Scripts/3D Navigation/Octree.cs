@@ -1,5 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 using UnityEngine;
 
 #nullable enable
@@ -41,7 +45,8 @@ public class Octree  {
 
         Size = OctreeGenerator.CalculateSize(min, max);
 
-        MaxDivisionLevel = OctreeGenerator.CalculateMaxDivisionLevel(smallestActorDimension, Size);
+        // MaxDivisionLevel = OctreeGenerator.CalculateMaxDivisionLevel(smallestActorDimension, Size);
+        MaxDivisionLevel = 2;
         Debug.Log($"Calculated max division level: {MaxDivisionLevel} and size: {Size}");
     }
 
@@ -57,7 +62,7 @@ public class Octree  {
     }
 
     // Aka bake
-    public void Generate(GameObject rootGameObject) {
+    public OctreeGenerator.GenerateOctreeJob? Generate(GameObject rootGameObject) {
         // Shit I should probably read that research paper
         // Cause they create the Octree differently
 
@@ -71,17 +76,16 @@ public class Octree  {
 
         // Rein in a bit here though - this really doesn't need to be that complex/perfect for what I want to do
 
-        root = new OctreeNode(0, new int[] { 0, 0, 0 }, this);
+        root = new OctreeNode(0, new int[] { 0, 0, 0 }, Corner, Size);
 
-        OctreeGenerator.GenerateForGameObject(rootGameObject, root, MaxDivisionLevel, calculateForChildren: true);
+        OctreeGenerator.GenerateOctreeJob? generateJob = OctreeGenerator.CreateGenerateJob(rootGameObject, root!.Value, MaxDivisionLevel, calculateForChildren: true);
 
-        Debug.Log("Finished! Marking in bounds leaves");
+        if (generateJob is not OctreeGenerator.GenerateOctreeJob job) {
+            Debug.LogError("Couldn't create generate job");
+            return null;
+        }
 
-        // Now that the Octree is generated, mark what is/isn't in bounds
-        // by iterating through all leaves and Raycasting downwards
-        // though note that if a OctreeNode contains a collision, it is automatically marked as in bounds
-        // (not that it matters that much, since they're ignored during Graph generation)
-        OctreeGenerator.MarkInBoundsLeaves(root: root);
+        return job;
     }
 
     public void MarkInboundsLeaves() {
@@ -90,7 +94,7 @@ public class Octree  {
             return;
         }
 
-        OctreeGenerator.MarkInBoundsLeaves(root: root);
+        OctreeGenerator.MarkInBoundsLeaves(root: root!.Value);
     }
 
     public OctreeNode? FindNodeForPosition(Vector3 position) {
@@ -101,7 +105,7 @@ public class Octree  {
 
         // I should probably check if this is even in the bounds of the Octree
 
-        return root.FindNodeForPosition(position);
+        return root!.Value.FindNodeForPosition(position);
     }
 
     // Returns true if there's a collision between origin and endPosition.
@@ -120,7 +124,7 @@ public class Octree  {
         OctreeNode? currentNode = FindNodeForPosition(origin);
         if (currentNode == null) {
             Debug.LogError($"Couldn't find the node for position {origin}");
-            return true; // Since true is the "stop" case
+            return true; // Since true is the "stop" case 
         }
 
         Vector3 rayDirection = (endPosition - origin).normalized;
@@ -132,7 +136,7 @@ public class Octree  {
         while (Vector3.Distance(currentPosition, origin) < totalDistance) { // Aka while we haven't reached the end position
             currentNode = FindNodeForPosition(currentPosition);
 
-            if (currentNode!.containsCollision) {
+            if (currentNode!.Value.containsCollision) {
                 // We could theoretically figure out where we intersected this node, but it doesn't matter
                 return true;
             }
@@ -147,31 +151,115 @@ public class Octree  {
     }
 
     public List<OctreeNode> GetAllNodes(bool onlyLeaves = false) {
-        return OctreeGenerator.GetAllNodes(root: root!, onlyLeaves);
+        return OctreeGenerator.GetAllNodes(root: root!.Value, onlyLeaves);
     }
 }
 
 public class OctreeGenerator {
+    // TODO:
+    // The job system usually runs multiple chains of job dependencies, so if you break up long running tasks into multiple pieces there is a chance for multiple job chains to progress.
+    // If instead the job system is filled with long running jobs, they might completely consume all worker threads and block independent jobs from executing.
+    // This might push out the completion time of important jobs that the main thread explicitly waits for, resulting in stalls on the main thread that otherwise wouldn�t exist.
+    //
+    // Per: https://docs.unity3d.com/Manual/JobSystemCreatingJobs.html, "Avoid using long running jobs"
+    public struct GenerateOctreeJob : IJob {
+        [ReadOnly]
+        public NativeArray<int> meshTriangles;
+
+        [ReadOnly]
+        public NativeArray<Vector3> meshVertsWorldSpace;
+
+        public NativeReference<OctreeNode> root;
+
+        public int maxDivisionLevel;
+        public bool calculateForChildren;
+
+        // [NativeDisableUnsafePtrRestriction]
+        // This surprisingly works, but we def shouldn't be doing this
+        public static int status = 0;
+        public static int size = 0;
+        public static bool isDone = false;
+
+        public void Execute() {
+            size = meshTriangles.Length / 3;
+
+            for(int i = 0; i < meshTriangles.Length / 3; i++) {
+                // If we don't store & re-assign the copy
+                // which somehow gets made *regardless*
+                var copy = root.Value;
+
+                Vector3 point1 = meshVertsWorldSpace[meshTriangles[3 * i]];
+                Vector3 point2 = meshVertsWorldSpace[meshTriangles[3 * i + 1]];
+                Vector3 point3 = meshVertsWorldSpace[meshTriangles[3 * i + 2]];
+
+                copy.DivideTriangleUntilLevel(point1, point2, point3, maxDivisionLevel);
+
+                root.Value = copy;
+
+                status = i;
+            }
+
+            // status = size;
+            // isDone = true;
+
+            var all = root.Value.GetAllNodes();
+            var onlyLeaves = root.Value.GetAllNodes(onlyLeaves: true);
+
+            Debug.Log($"Job is done! Has {all.Length} children and {onlyLeaves.Length} leaves");
+        }
+    }
+
+    public static GenerateOctreeJob? CreateGenerateJob(
+        GameObject currGameObject,
+        OctreeNode root,
+        int maxDivisionLevel,
+        bool calculateForChildren = true
+    ) {
+        // Create vertsWorldSpace
+
+        if (!currGameObject.TryGetComponent(out MeshFilter meshFilter)) {
+            return null;
+        }
+
+        // Rename to managed? Is this managed? Idfk
+        Vector3[] vertsWorldSpace = CreateVertsWorldSpaceForMesh(meshFilter.sharedMesh, currGameObject);
+
+        NativeArray<Vector3> vertsWorldSpaceNative = new NativeArray<Vector3>(vertsWorldSpace, Allocator.TempJob); // wtf is tempjob
+        NativeArray<int> triangles = new NativeArray<int>(meshFilter.sharedMesh.triangles, Allocator.TempJob);
+
+        return new GenerateOctreeJob() {
+            meshTriangles = triangles,
+            meshVertsWorldSpace = vertsWorldSpaceNative,
+            root = new(root, Allocator.Persistent),
+            maxDivisionLevel = maxDivisionLevel,
+            calculateForChildren = calculateForChildren
+        };
+    }
+
     public static void GenerateForGameObject(GameObject currGameObject, OctreeNode root, int maxDivisionLevel, bool calculateForChildren = true) {
         if (currGameObject.TryGetComponent(out MeshFilter meshFilter)) {
             // We're using sharedMesh - don't modify it!
             VoxelizeForMesh(meshFilter.sharedMesh, root, currGameObject, maxDivisionLevel);
         }
 
+        /*
         if (!calculateForChildren) return;
 
+        // This entire function probably has to be split into separate jobs
+        // I'll disable it for now
         // Calculate for the children GameObjects of currGameObject (recursively)
         for(int i = 0; i < currGameObject.transform.childCount; i++) {
             GameObject childObj = currGameObject.transform.GetChild(i).gameObject;
 
             if (!childObj.activeInHierarchy) continue; // Only generate on active game objects
 
+            // Unfortunately these can't be separate jobs
             GenerateForGameObject(childObj, root, maxDivisionLevel, calculateForChildren);
         }
+        */
     }
 
-    public static void VoxelizeForMesh(Mesh mesh, OctreeNode root, GameObject currGameObject, int maxDivisionLevel) {
-        int[] triangles = mesh.triangles; // 1D matrix of the triangle point-indices, where every 3 elements is a triangle
+    private static Vector3[] CreateVertsWorldSpaceForMesh(Mesh mesh, GameObject currGameObject) {
         Vector3[] vertsLocalSpace = mesh.vertices;
         Vector3[] normals = mesh.normals;
         Vector3[] vertsWorldSpace = new Vector3[vertsLocalSpace.Length];
@@ -181,6 +269,16 @@ public class OctreeGenerator {
             // TODO: Why tf am I doing *0 here?
             vertsWorldSpace[i] = currGameObject.transform.TransformPoint(vertsLocalSpace[i]) + (currGameObject.transform.TransformDirection(normals[i]) * 0);
         }
+
+        return vertsWorldSpace;
+    }
+    
+    // We need to figure out how to pass around OctreeNode's
+    // and somehow make these fields readonly?
+    public static void VoxelizeForMesh(Mesh mesh, OctreeNode root, GameObject currGameObject, int maxDivisionLevel) {
+        int[] triangles = mesh.triangles; // 1D matrix of the triangle point-indices, where every 3 elements is a triangle
+
+        Vector3[] vertsWorldSpace = CreateVertsWorldSpaceForMesh(mesh, currGameObject);
 
         // Iterate through the 1D array of triangle point-indices,
         // where every 3 ints are a point (or rather, the index of a point in vertsWorldSpace)
@@ -203,9 +301,12 @@ public class OctreeGenerator {
         // This is not "efficient" but eh idrc
         // TODO: Should we do this for ALL nodes? Maybe if we have multiple different-sized flying enemies
         // (for if we only want all nodes at {MaxDivisionLevel-1})
-        List<OctreeNode> allLeaves = GetAllNodes(root: root).FindAll(node => node.IsLeaf);
+        List<OctreeNode> allLeaves = new List<OctreeNode>(GetAllNodes(root: root)).FindAll(node => node.IsLeaf);
         int outOfBoundsCount = 0;
-        foreach(var leaf in allLeaves) {
+        // foreach(var leaf in allLeaves) {
+        for(int i = 0; i < allLeaves.Count; i++) {
+            var leaf = allLeaves[i]; // TODO: Is this a copy?
+
             // No need to raycast if it contains a collision - we already know we care about this
             // So mark collision nodes as in bounds automatically
             if (leaf.containsCollision) {
@@ -226,12 +327,21 @@ public class OctreeGenerator {
     }
 
     public static List<OctreeNode> GetAllNodes(OctreeNode root, bool onlyLeaves = false) {
+        /*
         if (root == null) {
             Debug.LogError("GetAllNodes: Root was null!");
             return new();
         }
+        */
 
-        return root.GetAllNodes(onlyLeaves);
+        NativeList<OctreeNode> allNodesNative = root.GetAllNodes(onlyLeaves);
+        List<OctreeNode> allNodes = new(allNodesNative.Length);
+
+        for(int i = 0; i < allNodesNative.Length; i++) {
+            allNodes.Add(allNodesNative[i]);
+        }
+
+        return allNodes;
     }
 
     public static int CalculateSize(Vector3 min, Vector3 max) {

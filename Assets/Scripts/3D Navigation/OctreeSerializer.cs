@@ -33,7 +33,7 @@ public class OctreeSerializer {
         // Get the child:parent map since parents aren't stored on the nodes
         // so we can set a given's node parent index for deserializing
         Dictionary<OctreeNode, OctreeNode> childToParentMap = new();
-        List<OctreeNode> allNodes = GetAllNodesAndSetParentMap(octree.root!, null, childToParentMap);
+        List<OctreeNode> allNodes = GetAllNodesAndSetParentMap(octree.root!.Value, null, childToParentMap);
 
         // Serialize the node count (so we know how many nodes there are when we iterate)
         // May not be 100% neccessary but only costs 4 bytes and makes our life easier
@@ -48,8 +48,13 @@ public class OctreeSerializer {
 
         // Serialize all of the nodes one by one
         foreach (OctreeNode current in allNodes) {
-            OctreeNode? parent = childToParentMap!.GetValueOrDefault(current, null);
-            int parentIndex = parent != null ? nodeToIndexMap[parent] : 1; // Handling root not having a parent
+            OctreeNode? parent;
+            if (childToParentMap!.ContainsKey(current)) {
+                parent = childToParentMap[current];
+            } else {
+                parent = null;
+            }
+            int parentIndex = parent != null ? nodeToIndexMap[parent!.Value] : 1; // Handling root not having a parent
 
             SerializeNode(current, parentIndex, writer);
         }
@@ -101,7 +106,8 @@ public class OctreeSerializer {
             if (parentIndex == -1) continue; // root doesn't have a parent
 
             OctreeNode parent = allNodes[parentIndex];
-            parent.children ??= new OctreeNode[2, 2, 2]; // Init children if it's null
+            // Will already be initialized
+            // parent.children ??= new OctreeNode[2, 2, 2]; // Init children if it's null
 
             // Now figure out what index we are relative to the parent
             // which we can do using both of their indices
@@ -110,7 +116,7 @@ public class OctreeSerializer {
             int y = node.index[1] - (parent.index[1] * 2);
             int z = node.index[2] - (parent.index[2] * 2);
 
-            parent.children[x, y, z] = node;
+            parent.children[OctreeNode.Get1DIndex(x, y, z)] = node;
         }
 
         return octree;
@@ -137,7 +143,8 @@ public class OctreeSerializer {
         OctreeNode node = new OctreeNode(
             nodeLevel,
             index,
-            octree,
+            octree.Corner,
+            octree.Size,
             // center,
             containsCollision,
             childrenContainsCollision,
@@ -162,22 +169,22 @@ public class OctreeSerializer {
         Dictionary<OctreeNode, OctreeNode> childToParentMap
     ) {
         if (parent != null) { // Check since root won't have a parent
-            childToParentMap[curr] = parent;
+            childToParentMap[curr] = parent!.Value;
         }
 
         List<OctreeNode> nodes = new();
         nodes.Add(curr);
 
-        if (curr.children == null) return nodes; // No children, return early
+        if (curr.children.IsEmpty) return nodes; // No children, return early
 
         // Calculate for children of curr
         for (int x = 0; x < 2; x++) {
             for (int y = 0; y < 2; y++) {
                 for (int z = 0; z < 2; z++) {
-                    OctreeNode child = curr.children[x, y, z];
+                    OctreeNode? child = curr.GetChildAt(x, y, z);
                     if (child == null) continue;
 
-                    nodes.AddRange(GetAllNodesAndSetParentMap(child, curr, childToParentMap));
+                    nodes.AddRange(GetAllNodesAndSetParentMap(child!.Value, curr, childToParentMap));
                 }
             }
         }

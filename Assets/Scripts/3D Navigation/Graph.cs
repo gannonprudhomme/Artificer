@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 #nullable enable
@@ -51,12 +52,13 @@ public class Graph {
         // This doesn't quite work because not all OctreeNodes that contain the position
         // will be in this dict, as this dict only contains nodes that *don't* contain a collision (and are in bounds)
         // Thus we do FindClosestValidToPosition
-        if (octreeToNodesDict.TryGetValue(octreeNode, out GraphNode? node)) {
+        if (octreeToNodesDict.TryGetValue(octreeNode!.Value, out GraphNode? node)) {
             return node;
-        } else if (FindClosestValidToPosition(position, octreeNode, out GraphNode? closestNode)) {
+        } else if (FindClosestValidToPosition(position, octreeNode!.Value, out GraphNode? closestNode)) {
             return closestNode;
         } else {
-            Debug.LogError($"Couldn't find a node closest to {position}");
+            // Don't actually comment this - I have to fix this
+            // Debug.LogError($"Couldn't find a node closest to {position}");
             return null;
         }
     }
@@ -65,7 +67,9 @@ public class Graph {
     private bool FindClosestValidToPosition(Vector3 position, OctreeNode octreeNode, out GraphNode? node) {
         // Go through all of the nearest ones
 
-        List<OctreeNode>? inBoundsNeighborsWithoutCollisions = octreeNode.inBoundsNeighborsWithoutCollisions;
+        // TODO: Make this use NativeList, probably?
+        // honestly while we're here we _might_ be able to move this to jobs (unlikely w/o ECS though)
+        List<OctreeNode>? inBoundsNeighborsWithoutCollisions = octreeNode.inBoundsNeighborsWithoutCollisions.ToList();
 
         if (inBoundsNeighborsWithoutCollisions == null || inBoundsNeighborsWithoutCollisions.Count == 0) {
             node = null;
