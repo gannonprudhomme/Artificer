@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.EditorCoroutines.Editor;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -46,13 +47,18 @@ public class NewNavOctreeSpaceEditor : Editor {
         // Display buttons
 
         if (GUILayout.Button("Generate Octree")) {
+            // TODO: I could put all of this in a coroutine so I can dispose of this stuff easier,
+            // rather than having to pass it in a param just to dispose
+
             GameObject gameObject = navOctreeSpace.gameObject;
             Mesh mesh = gameObject.GetComponent<MeshFilter>().sharedMesh;
 
+            // TODO: Dispose when we're done w/ this
             NativeArray<Vector3> vertsLocalSpace = new(mesh.vertices, Allocator.Persistent);
 
             float4x4 transform = gameObject.transform.localToWorldMatrix; // Technically returns a Matrix4x4
 
+            // TODO - dispose when we're done w/ this
             NativeArray<float3> vertsWorldSpaceOutput = new(vertsLocalSpace.Length, Allocator.Persistent);
 
             ConvertVertsToWorldSpaceJob convertJob = new(vertsLocalSpace, transform, vertsWorldSpaceOutput);
@@ -62,14 +68,16 @@ public class NewNavOctreeSpaceEditor : Editor {
 
             // CREATE THE GENERATION JOBS
 
+            // UnsafeList<NativeHashMap<int4, NewOctreeNode>> allNodeMaps = new(0, Allocator.Persistent);
             List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps = new();
+
             int numTriangles = triangleVertices.Length / 3;
-            int numTrianglesPerBatch = numTriangles / navOctreeSpace.numCores; // CalculateNumTrianglesPerBatch(triangleVertices.Length / 3);
+            int numTrianglesPerBatch = numTriangles / navOctreeSpace.numCores;
             List<OctreeGenerationJob> allJobs = CreateAllGenerationJobs(
                 navOctreeSpace,
                 triangleVertices,
                 vertsWorldSpaceOutput,
-                allNodeMaps,
+                allNodeMaps, // Note this a ref
                 numTrianglesPerBatch: numTrianglesPerBatch
             );
 
@@ -82,17 +90,28 @@ public class NewNavOctreeSpaceEditor : Editor {
 
             JobHandle allGenerateJobsHandle = JobHandle.CombineDependencies(allJobHandles);
 
+            /*
+            NativeHashMap<int4, NewOctreeNode> finalOutput = new(0, Allocator.Persistent);
+            CombineAllNodesJob combineJob = new(allNodeMaps: allNodeMaps, combined: finalOutput);
+
+            JobHandle combineJobHandle = combineJob.Schedule(allGenerateJobsHandle);
+            */
+
             Bounds bounds = navOctreeSpace.GetBounds();
             long totalOctreeSize = NewNavOctreeSpace.CalculateSize(bounds.min, bounds.max);
 
             var coroutine = ReportGenerationProgress(
                 allGenerateJobsHandle,
                 allNodeMaps,
+                // combineJobHandle,
+                // combinedNodesUnmanaged: finalOutput,
                 navOctreeSpace,
                 totalOctreeSize: totalOctreeSize,
                 octreeCenter: bounds.center,
                 numCores: navOctreeSpace.numCores
             );
+
+            IEnumerator coroutine = NewOctreeGenerator.GenerateOctree(navOctreeSpace, numJobs: navOctreeSpace.numCores);
 
             EditorCoroutineUtility.StartCoroutine(coroutine, this);
         }
@@ -142,6 +161,7 @@ public class NewNavOctreeSpaceEditor : Editor {
     private IEnumerator ReportGenerationProgress(
         JobHandle jobHandle,
         List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps,
+        // NativeHashMap<int4, NewOctreeNode> combinedNodesUnmanaged,
         NewNavOctreeSpace space,
         long totalOctreeSize,
         float3 octreeCenter,
@@ -152,8 +172,8 @@ public class NewNavOctreeSpaceEditor : Editor {
 
         int progressId = Progress.Start("Generate octree");
 
-        int totalJobs = allNodeMaps.Count;
         while (!jobHandle.IsCompleted) {
+            // TODO: Consider figuring out how to do a counter, but it's low priority
             yield return null;
         }
 
@@ -165,10 +185,20 @@ public class NewNavOctreeSpaceEditor : Editor {
         Debug.Log($"Finished generating octree with cores {numCores} in {seconds} seconds");
 
         Dictionary<int4, NewOctreeNode> combinedNodes = CombineAllNodeMaps(allNodeMaps);
+        /*
+        // Convert the dictionary from unmanaged -> managed
+        Dictionary<int4, NewOctreeNode> combinedNodesManaged = new();
+        NativeKeyValueArrays<int4, NewOctreeNode> keyValues = combinedNodesUnmanaged.GetKeyValueArrays(Allocator.Temp);
+        for(int i = 0; i < keyValues.Length; i++) {
+            combinedNodesManaged.Add(keyValues.Keys[i], keyValues.Values[i]);
+        }
+        Debug.Log($"Combined managed was {combinedNodesManaged.Count} nodes, starting with {combinedNodesUnmanaged.Count}");
+        */
 
         // TODO: Probably best if we are the ones who initialized nodes in the first place
 
         // TODO: idk if I want a function for this or not
+        // NewOctree octree = new(totalOctreeSize, octreeCenter, combinedNodesManaged);
         NewOctree octree = new(totalOctreeSize, octreeCenter, combinedNodes);
         space.octree = octree;
 
@@ -176,6 +206,7 @@ public class NewNavOctreeSpaceEditor : Editor {
     }
 
     private IEnumerator CheckMarkInBoundLeaves(
+    //
         JobHandle jobHandle,
         NewNavOctreeSpace space,
         List<NewOctreeNode> leaves,
@@ -222,7 +253,7 @@ public class NewNavOctreeSpaceEditor : Editor {
         NewNavOctreeSpace space,
         NativeArray<int> triangleVertices,
         NativeArray<float3> vertsWorldSpace,
-        List<NativeHashMap<int4, NewOctreeNode>> allNodeMapsOutput, // this is also something we "return"
+        /*ref Unsafe*/List<NativeHashMap<int4, NewOctreeNode>> allNodeMapsOutput, // this is also something we "return"
         int numTrianglesPerBatch
     ) {
         Bounds bounds = space.GetBounds();
@@ -272,6 +303,11 @@ public class NewNavOctreeSpaceEditor : Editor {
         return jobs;
     }
 
+    // Honestly we might want to make this itself a job
+    // we're going to have a fuck ton of nodes to combine
+    // but whatever we'll do it later
+    // (theoretically we could divide & conquer it, but that's probably overkill)
+    //
     // This is O(N*M), where N is the number of jobs (triangles),
     // and M is the number of total nodes (upper limit, assuming each job does the max number of divisions, which is practically impossible)
     private Dictionary<int4, NewOctreeNode> CombineAllNodeMaps(
