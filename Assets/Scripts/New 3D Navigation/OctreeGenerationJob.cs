@@ -62,8 +62,6 @@ public struct OctreeGenerationJob: IJob {
 
             DivideTriangleUntilLevel(root, point1, point2, point3);
         }
-
-        // TODO: Dispose of the input properties? Where should I do that?
     }
 
     private void DivideTriangleUntilLevel(
