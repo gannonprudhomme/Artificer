@@ -2,7 +2,9 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Mathematics;
+using Unity.Burst;
 
+[BurstCompile]
 public struct OctreeGenerationJob: IJob {
     // triangles of the mesh?
     [ReadOnly]
@@ -69,11 +71,10 @@ public struct OctreeGenerationJob: IJob {
     }
 
     private void DivideTriangleUntilLevel(
-        /*ref*/ NewOctreeNode node, // TODO: Should this be ref?
+        NewOctreeNode node,
         float3 point1,
         float3 point2,
         float3 point3
-        // int maxDivisionLevel
     ) {
         if (!node.DoesIntersectTriangle(point1, point2, point3)) {
             // Base case
@@ -100,7 +101,6 @@ public struct OctreeGenerationJob: IJob {
             CreateChildrenForNode(copy);
         }
 
-
         // Iterate through all of the children
         for(int i = 0; i < 8; i++) {
             int4 childIndex = copy.GetChildKey(i);
@@ -119,19 +119,6 @@ public struct OctreeGenerationJob: IJob {
         }
     }
 
-    // TODO: Find a better name for this
-    // Can I even use this in a job? an array is managed
-    public static readonly int3[] childIndices = new int3[8]{
-        new(0, 0, 0),
-        new(0, 0, 1),
-        new(1, 0, 0),
-        new(1, 0, 1),
-        new(0, 1, 0),
-        new(0, 1, 1),                   
-        new(1, 1, 0),
-        new(1, 1, 1)
-    };
-
     private void CreateChildrenForNode(NewOctreeNode node) {
         float3 octreeCorner = octreeCenter - (new float3(1) * totalOctreeSize / 2);
 
@@ -141,7 +128,7 @@ public struct OctreeGenerationJob: IJob {
 
         // Dunno which of these we should do
         for(int i = 0; i < 8; i++) {
-            int3 childIndexOffset = childIndices[i];
+            int3 childIndexOffset = NewOctreeNode.childIndices[i];
             var (x, y, z) = (childIndexOffset[0], childIndexOffset[1], childIndexOffset[2]);
 
             int3 newChildIndex = new(
@@ -172,6 +159,7 @@ public struct OctreeGenerationJob: IJob {
     }
 }
 
+[BurstCompile]
 public struct ConvertVertsToWorldSpaceJob : IJobParallelFor {
     [ReadOnly]
     private readonly NativeArray<Vector3> vertsLocalSpaceInput;

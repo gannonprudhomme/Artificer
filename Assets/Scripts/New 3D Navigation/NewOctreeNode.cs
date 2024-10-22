@@ -18,7 +18,7 @@ public struct NewOctreeNode {
 
     public readonly int4 dictionaryKey {
         get {
-            return new int4(index[0], index[1], index[2], nodeLevel);
+            return new int4(index.x, index.y, index.z, nodeLevel);
         }
     }
 
@@ -44,12 +44,12 @@ public struct NewOctreeNode {
     }
 
     public readonly int4 GetChildKey(int i) {
-        int3 indexOffset = OctreeGenerationJob.childIndices[i];
+        int3 indexOffset = childIndices[i];
         int childLevel = nodeLevel + 1;
         int3 childIndex = new(
-            index[0] * 2 + indexOffset[0],
-            index[1] * 2 + indexOffset[1],
-            index[2] * 2 + indexOffset[2]
+            index[0] * 2 + indexOffset.x,
+            index[1] * 2 + indexOffset.y,
+            index[2] * 2 + indexOffset.z
         );
 
         return new(childIndex, childLevel);
@@ -70,21 +70,21 @@ public struct NewOctreeNode {
         p3 -= center;
 
         // Do axis check? Not sure what we're doing here
-        float xMin, xMax, yMin, yMax, zMin, zMax;
-        xMin = Mathf.Min(p1.x, p2.x, p3.x);
-        xMax = Mathf.Max(p1.x, p2.x, p3.x);
-        yMin = Mathf.Min(p1.y, p2.y, p3.y);
-        yMax = Mathf.Max(p1.y, p2.y, p3.y);
-        zMin = Mathf.Min(p1.z, p2.z, p3.z);
-        zMax = Mathf.Max(p1.z, p2.z, p3.z);
+        float xMin, xMax, yMin, yMax, zMin, zMax = 0;
+        xMin = math.min(p1.x, math.min(p2.x, p3.x));
+        xMax = math.max(p1.x, math.max(p2.x, p3.x));
+        yMin = math.min(p1.y, math.min(p2.y, p3.y));
+        yMax = math.max(p1.y, math.max(p2.y, p3.y));
+        zMin = math.min(p1.z, math.min(p2.z, p3.z));
+        zMax = math.max(p1.z, math.max(p2.z, p3.z));
 
         float radius = (size / 2) - tolerance;
         if (xMin >= radius || xMax < -radius || yMin >= radius || yMax < -radius || zMin >= radius || zMax < -radius) return false;
 
         // Wtf is n and d here
         // I'm guessing this has something to do with the plane?
-        Vector3 n = Vector3.Cross(p2 - p1, p3 - p1);
-        float d = Mathf.Abs(Vector3.Dot(p1, n));
+        float3 n = math.cross(p2 - p1, p3 - p1);
+        float d = math.abs(math.dot(p1, n));
 
         float radiusModified = radius * (Mathf.Abs(n.x) + Mathf.Abs(n.y) + Mathf.Abs(n.z));
         bool isDMoreThanRadiusModified = d > radiusModified; // If you can't tell idk what this is
@@ -93,20 +93,28 @@ public struct NewOctreeNode {
         }
 
         // Okay what the fuck is this.
-        NativeArray<Vector3> points = new(new Vector3[] { p1, p2, p3 }, Allocator.Temp); // Temp = 1 frame
-        NativeArray<Vector3> pointsSubtractedFromEachOther = new(new Vector3[] { p3 - p2, p1 - p3, p2 - p1 }, Allocator.Temp);
+        NativeArray<float3> points = new(3, Allocator.Temp); // Temp = 1 frame
+        points[0] = p1;
+        points[1] = p2;
+        points[2] = p3;
+
+        NativeArray<float3> pointsSubtractedFromEachOther = new(3, Allocator.Temp);
+        pointsSubtractedFromEachOther[0] = p3 - p2;
+        pointsSubtractedFromEachOther[1] = p1 - p3;
+        pointsSubtractedFromEachOther[2] = p2 - p1;
+
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                Vector3 a = Vector3.zero;
+                float3 a = float3.zero;
                 a[i] = 1; // WHAT
-                a = Vector3.Cross(a, pointsSubtractedFromEachOther[j]);
+                a = math.cross(a, pointsSubtractedFromEachOther[j]);
 
-                float d1 = Vector3.Dot(points[j], a);
-                float d2 = Vector3.Dot(points[(j + 1) % 3], a);
+                float d1 = math.dot(points[j], a);
+                float d2 = math.dot(points[(j + 1) % 3], a);
 
-                float rr = radius * (Mathf.Abs(a[(i + 1) % 3]) + Mathf.Abs(a[(i + 2) % 3]));
+                float rr = radius * (Mathf.Abs(a[(i + 1) % 3]) + math.abs(a[(i + 2) % 3]));
 
-                if (Mathf.Min(d1, d2) > rr || Mathf.Max(d1, d2) < -rr) {
+                if (math.min(d1, d2) > rr || math.max(d1, d2) < -rr) {
                     points.Dispose();
                     pointsSubtractedFromEachOther.Dispose();
 
@@ -124,21 +132,19 @@ public struct NewOctreeNode {
 
     }
 
-    private static readonly Color[] colors = new Color[] {
-        Color.red,
-        Color.green,
-        Color.blue,
-        Color.yellow,
-        Color.magenta,
-        Color.cyan,
-        Color.white,
-        Color.black,
-        Color.gray
+    public static readonly int3[] childIndices = new int3[8]{
+        new(0, 0, 0),
+        new(0, 0, 1),
+        new(1, 0, 0),
+        new(1, 0, 1),
+        new(0, 1, 0),
+        new(0, 1, 1),
+        new(1, 1, 0),
+        new(1, 1, 1)
     };
 
     // TODO: Idk if I should have this in here
     public readonly void DrawGizmos(bool displayIndicesText, Color textColor) {
-
         Gizmos.color = colors[nodeLevel % colors.Length];
         Gizmos.DrawWireCube(center, Vector3.one * size);
 
@@ -154,5 +160,17 @@ public struct NewOctreeNode {
             #endif
         }
     }
+
+    private static readonly Color[] colors = new Color[] {
+        Color.red,
+        Color.green,
+        Color.blue,
+        Color.yellow,
+        Color.magenta,
+        Color.cyan,
+        Color.white,
+        Color.black,
+        Color.gray
+    };
 }
 

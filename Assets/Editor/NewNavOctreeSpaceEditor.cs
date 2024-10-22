@@ -63,16 +63,20 @@ public class NewNavOctreeSpaceEditor : Editor {
             // CREATE THE GENERATION JOBS
 
             List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps = new();
+            int numTriangles = triangleVertices.Length / 3;
+            int numTrianglesPerBatch = numTriangles / navOctreeSpace.numCores; // CalculateNumTrianglesPerBatch(triangleVertices.Length / 3);
             List<OctreeGenerationJob> allJobs = CreateAllGenerationJobs(
                 navOctreeSpace,
                 triangleVertices,
                 vertsWorldSpaceOutput,
-                allNodeMaps
+                allNodeMaps,
+                numTrianglesPerBatch: numTrianglesPerBatch
             );
 
-            int numTriangles = triangleVertices.Length / 3;
-            NativeArray<JobHandle> allJobHandles = new(numTriangles, Allocator.Persistent);
-            for(int i = 0; i < numTriangles; i++) {
+            int numJobs = allJobs.Count;
+            Debug.Log($"Creating {numJobs} jobs for {triangleVertices.Length / 3} triangles with triangles per batch {numTrianglesPerBatch}");
+            NativeArray<JobHandle> allJobHandles = new(numJobs, Allocator.Persistent);
+            for(int i = 0; i < numJobs; i++) {
                 allJobHandles[i] = allJobs[i].Schedule(convertJobHandle);
             }
 
@@ -86,7 +90,8 @@ public class NewNavOctreeSpaceEditor : Editor {
                 allNodeMaps,
                 navOctreeSpace,
                 totalOctreeSize: totalOctreeSize,
-                octreeCenter: bounds.center
+                octreeCenter: bounds.center,
+                numCores: navOctreeSpace.numCores
             );
 
             EditorCoroutineUtility.StartCoroutine(coroutine, this);
@@ -139,7 +144,8 @@ public class NewNavOctreeSpaceEditor : Editor {
         List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps,
         NewNavOctreeSpace space,
         int totalOctreeSize,
-        float3 octreeCenter
+        float3 octreeCenter,
+        int numCores // Just for debug output for doing benchmarks, not really needed
     ) {
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
@@ -153,6 +159,11 @@ public class NewNavOctreeSpaceEditor : Editor {
 
         jobHandle.Complete();
 
+        stopwatch.Stop();
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+        Debug.Log($"Finished generating octree with cores {numCores} in {seconds} seconds");
+
         Dictionary<int4, NewOctreeNode> combinedNodes = CombineAllNodeMaps(allNodeMaps);
 
         // TODO: Probably best if we are the ones who initialized nodes in the first place
@@ -160,10 +171,6 @@ public class NewNavOctreeSpaceEditor : Editor {
         // TODO: idk if I want a function for this or not
         NewOctree octree = new(totalOctreeSize, octreeCenter, combinedNodes);
         space.octree = octree;
-
-        stopwatch.Stop();
-        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        Debug.Log($"Finish generating octree with {combinedNodes.Count} nodes in {ms} ms");
 
         Progress.Remove(progressId);
     }
@@ -215,7 +222,8 @@ public class NewNavOctreeSpaceEditor : Editor {
         NewNavOctreeSpace space,
         NativeArray<int> triangleVertices,
         NativeArray<float3> vertsWorldSpace,
-        List<NativeHashMap<int4, NewOctreeNode>> allNodeMapsOutput // this is also something we "return"
+        List<NativeHashMap<int4, NewOctreeNode>> allNodeMapsOutput, // this is also something we "return"
+        int numTrianglesPerBatch
     ) {
         Bounds bounds = space.GetBounds();
 
@@ -232,14 +240,24 @@ public class NewNavOctreeSpaceEditor : Editor {
         int numTriangles = triangleVertices.Length / 3;
         List<OctreeGenerationJob> jobs = new();
 
-        for (int i = 0; i < numTriangles; i++) {
+        // Determine how many batches we need, based on numTriangles
+        // ensuring that we get the last batch if it's not a perfect multiple
+        int numBatches = numTriangles / numTrianglesPerBatch;
+        if (numTriangles % numTrianglesPerBatch != 0) {
+            numBatches++;
+        }
+
+        for (int i = 0; i < numBatches; i++) {
             NativeHashMap<int4, NewOctreeNode> nodes = new(0, Allocator.Persistent); // TODO: Ensure we're disposing of this
             nodes[new int4(0)] = root;
 
-            allNodeMapsOutput.Add(nodes);
+            int startIndexInclusive = i * numTrianglesPerBatch;
+            int endIndexExclusive = math.min((i + 1) * numTrianglesPerBatch, numTriangles); // Ensure's we don't overflow
 
+            allNodeMapsOutput.Add(nodes);
             var job = new OctreeGenerationJob(
-                trianglesIndex: i,
+                startIndexInclusive: startIndexInclusive,
+                endIndexExclusive: endIndexExclusive,
                 meshTriangles: triangleVertices,
                 meshVertsWorldSpace: vertsWorldSpace,
                 nodes: nodes,
@@ -260,6 +278,8 @@ public class NewNavOctreeSpaceEditor : Editor {
         List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps
     ) {
         Dictionary<int4, NewOctreeNode> combined = new();
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
 
         // For every hashmap, iterate through all of the keys and add it to the "Combined" dictionary
         // if there's a collision, then prioritize the node in the order so that:
@@ -290,6 +310,10 @@ public class NewNavOctreeSpaceEditor : Editor {
             nodes.Dispose();
             nodesMap.Dispose(); // I think we want to do this here? Cause we're now done w/ them
         }
+        stopwatch.Stop();
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+
+        Debug.Log($"Combined all nodes with {combined.Count} nodes in {ms} ms");
 
 
         return combined;
