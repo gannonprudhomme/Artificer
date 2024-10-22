@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 
 public struct NewOctreeNode {
-    public readonly int nodeLevel; // TODO: byte maybe? This will only be max of maybe 16?
+    public readonly byte nodeLevel;
 
     // Length of a side
     public readonly float size;
@@ -29,7 +29,7 @@ public struct NewOctreeNode {
     }
 
     public NewOctreeNode(
-        int nodeLevel,
+        byte nodeLevel,
         float size,
         int3 index,
         float3 center

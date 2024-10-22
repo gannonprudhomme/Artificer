@@ -47,7 +47,11 @@ public class NewNavOctreeSpaceEditor : Editor {
         // Display buttons
 
         if (GUILayout.Button("Generate Octree")) {
-            IEnumerator coroutine = NewOctreeGenerator.GenerateOctree(navOctreeSpace, numJobs: navOctreeSpace.numCores);
+            IEnumerator coroutine = NewOctreeGenerator.GenerateOctree(
+                navOctreeSpace,
+                maxDivisionLevel: 9,
+                numJobs: navOctreeSpace.numCores
+            );
 
             EditorCoroutineUtility.StartCoroutine(coroutine, this);
         }

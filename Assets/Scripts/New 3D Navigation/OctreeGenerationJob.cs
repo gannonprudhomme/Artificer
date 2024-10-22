@@ -140,7 +140,7 @@ public struct OctreeGenerationJob: IJob {
             float3 childCenter = childCorner + (new float3(1) * (childSize / 2)); // Move it by e.g. (0.5, 0.5, 0.5) when size = 1
 
             NewOctreeNode child = new(
-                nodeLevel: node.nodeLevel + 1,
+                nodeLevel: (byte) (node.nodeLevel + 1),
                 size: node.size / 2,
                 index: newChildIndex,
                 center: childCenter

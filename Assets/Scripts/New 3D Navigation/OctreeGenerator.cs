@@ -222,8 +222,6 @@ public static class NewOctreeGenerator {
                     }
                 }
             }
-
-            nodes.Dispose();
         }
 
         return combined;

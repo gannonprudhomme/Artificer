@@ -65,7 +65,7 @@ public class NewNavOctreeSpace : MonoBehaviour {
     }
     */
 
-    private Bounds GetBounds() {
+    public Bounds GetBounds() {
         // This gets renderers from this GameObject(Component), as well as it's children recursively
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         // if (renderers.Count == 0) return new Bounds
