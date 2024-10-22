@@ -83,7 +83,7 @@ public class NewNavOctreeSpaceEditor : Editor {
             JobHandle allGenerateJobsHandle = JobHandle.CombineDependencies(allJobHandles);
 
             Bounds bounds = navOctreeSpace.GetBounds();
-            int totalOctreeSize = NewNavOctreeSpace.CalculateSize(bounds.min, bounds.max);
+            long totalOctreeSize = NewNavOctreeSpace.CalculateSize(bounds.min, bounds.max);
 
             var coroutine = ReportGenerationProgress(
                 allGenerateJobsHandle,
@@ -143,7 +143,7 @@ public class NewNavOctreeSpaceEditor : Editor {
         JobHandle jobHandle,
         List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps,
         NewNavOctreeSpace space,
-        int totalOctreeSize,
+        long totalOctreeSize,
         float3 octreeCenter,
         int numCores // Just for debug output for doing benchmarks, not really needed
     ) {
@@ -227,7 +227,7 @@ public class NewNavOctreeSpaceEditor : Editor {
     ) {
         Bounds bounds = space.GetBounds();
 
-        int size = NewNavOctreeSpace.CalculateSize(bounds.min, bounds.max);
+        long size = NewNavOctreeSpace.CalculateSize(bounds.min, bounds.max);
 
          // Create root node
         NewOctreeNode root = new(
@@ -312,37 +312,11 @@ public class NewNavOctreeSpaceEditor : Editor {
         }
         stopwatch.Stop();
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
 
-        Debug.Log($"Combined all nodes with {combined.Count} nodes in {ms} ms");
+        Debug.Log($"Combined all nodes with {combined.Count} nodes in {seconds} seconds");
 
 
         return combined;
     }
-
-    /*
-    private IEnumerator ReportVertsWorldspaceProgress(JobHandle jobHandle, ConvertVertsToWorldSpaceJob job) {
-        yield return null;
-    }
-    */
-
-    /*
-    private Dictionary CreateOctreeFromMap(
-        NativeHashMap<int4, NewOctreeNode> nodes
-    ) {
-        // Convert it to a managed version
-        Dictionary<int4, NewOctreeNode> managedNodes = new();
-        foreach (var node in nodes) {
-            managedNodes.Add(node.Key, node.Value);
-        }
-
-        nodes.Dispose();
-
-        /*
-        return new NewOctree(
-            size: size,
-            center: octreeCenter,
-            managedNodes
-        );
-    }
-        */
 }

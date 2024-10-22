@@ -78,7 +78,7 @@ public class NewNavOctreeSpace : MonoBehaviour {
         return bounds;
     }
 
-    private static int CalculateSize(Vector3 boundsMin, Vector3 boundsMax) {
+    public static long CalculateSize(Vector3 boundsMin, Vector3 boundsMax) {
         float length = boundsMax.x - boundsMin.x;
         float height = boundsMax.y - boundsMin.y;
         float width = boundsMax.z - boundsMin.z;
@@ -87,13 +87,11 @@ public class NewNavOctreeSpace : MonoBehaviour {
         float longestSide = Mathf.Max(length, Mathf.Max(width, height));
         float volume = longestSide * longestSide * longestSide;
 
-        int currMinSize = 1;
+        long currMinSize = 1;
         while ((currMinSize * currMinSize * currMinSize) < volume) {
             currMinSize *= 2; // Power of 2's!
         }
 
-        int totalVolume = currMinSize * currMinSize * currMinSize;
-        // Debug.Log($"With dimensions of {length}, {height}, {width} and volume {volume} got min size of {currMinSize} and min volume {totalVolume}");
         return currMinSize;
     }
 

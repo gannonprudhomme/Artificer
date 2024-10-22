@@ -13,7 +13,7 @@ public class NewOctree {
     /*private*/ public float3 center;
 
     public NewOctree(
-        int size,
+        long size,
         float3 center, // TODO: I'm not even sure if we need this. Also might want to make it a Vector3
         Dictionary<int4, NewOctreeNode> nodes
     ) {

@@ -17,19 +17,15 @@ public struct OctreeGenerationJob: IJob {
     public readonly float3 octreeCenter;
 
     [ReadOnly]
-    public readonly int totalOctreeSize; // Should be input
+    public readonly long totalOctreeSize;
 
     [ReadOnly]
-    public readonly int maxDivisionLevel; // Should be an input
+    public readonly int maxDivisionLevel;
 
     // wtf should the key be? morton code? does that even make sense?
     // honestly byte4 would be ideal
     // TODO: Add "output" to this?
     public NativeHashMap<int4, NewOctreeNode> nodes; // This is what we'll return, probably?
-
-    // TODO: Ideally we wouldn't make these static
-    public static int size = 0;
-    public static int status = 0;
 
     private int startIndexInclusive;
     private int endIndexExclusive;
@@ -41,7 +37,7 @@ public struct OctreeGenerationJob: IJob {
         NativeArray<float3> meshVertsWorldSpace,
         NativeHashMap<int4, NewOctreeNode> nodes, // the output
         float3 octreeCenter,
-        int totalOctreeSize,
+        long totalOctreeSize,
         int maxDivisionLevel
     ) {
         this.startIndexInclusive = startIndexInclusive;
