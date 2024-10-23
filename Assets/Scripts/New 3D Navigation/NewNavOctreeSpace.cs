@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using Unity.Mathematics;
+using System.Linq;
 
 #nullable enable
 
@@ -13,6 +15,8 @@ public class NewNavOctreeSpace : MonoBehaviour {
     public bool DisplayCollisions = false;
     public bool DisplayIndices = false;
     public bool DisplayIsInBounds = false;
+    [Tooltip("In Bounds & no collisions, aka what we use for pathfinding")]
+    public bool DisplayValidLeaves = false;
     public bool DisplayOutOfBounds = false;
 
     public bool DisplayBounds = false;
@@ -93,6 +97,7 @@ public class NewNavOctreeSpace : MonoBehaviour {
         gizmosCollisionLeaves = null;
         gizmosLeavesOutOfBounds = null;
         gizmosLeavesInBounds = null;
+        gizmosValidLeaves = null;
         gizmosNeighborsLines = null;
     }
 
@@ -103,6 +108,7 @@ public class NewNavOctreeSpace : MonoBehaviour {
     private List<NewOctreeNode>? gizmosCollisionLeaves = null;
     private List<NewOctreeNode>? gizmosLeavesOutOfBounds = null;
     private List<NewOctreeNode>? gizmosLeavesInBounds = null;
+    private List<NewOctreeNode>? gizmosValidLeaves = null;
     private Vector3[]? gizmosNeighborsLines = null;
 
     private void OnDrawGizmos() {
@@ -121,50 +127,57 @@ public class NewNavOctreeSpace : MonoBehaviour {
             }
         }
        
-        if (!(DisplayLeaves || DisplayCollisions || DisplayIndices || DisplayIsInBounds || DisplayOutOfBounds || DisplayNonLeaves || DisplayNeighbors)) return;
+        if (!(DisplayLeaves || DisplayCollisions || DisplayIndices || DisplayIsInBounds || DisplayOutOfBounds || DisplayNonLeaves || DisplayNeighbors || DisplayValidLeaves)) return;
 
         if (octree == null) return;
 
-        gizmosAllNodes ??= octree.GetAllNodes();
+        // Sort it by node level so we can prioritize drawing the smaller leaves last (makes the Gizmos look better / more clear)
+        gizmosAllNodes ??= octree.GetAllNodes().OrderBy(node => node.nodeLevel).ToList();
         gizmosAllLeaves ??= gizmosAllNodes.FindAll(node => node.isLeaf);
         gizmosNotLeaves ??= gizmosAllNodes.FindAll(node => !node.isLeaf);
         gizmosCollisionLeaves ??= gizmosAllLeaves.FindAll(leaf => leaf.containsCollision);
-        // List<NewOctreeNode> noCollisionLeaves = allLeaves.FindAll(leaf => !leaf.containsCollision);
         gizmosLeavesOutOfBounds ??= gizmosAllLeaves.FindAll(leaf => !leaf.inBounds);
         gizmosLeavesInBounds ??= gizmosAllLeaves.FindAll(leaf => leaf.inBounds);
+        gizmosValidLeaves ??= gizmosLeavesInBounds.FindAll(leaf => !leaf.containsCollision);
 
         if (DisplayLeaves) { // Display the leaves
             Gizmos.color = Color.green;
             foreach(NewOctreeNode leaf in gizmosAllLeaves) {
-                leaf.DrawGizmos(DisplayIndices, Color.white);
+                leaf.DrawGizmos(DisplayIndices, textColor: Color.white);
             }
         }
 
         if (DisplayNonLeaves) {
             Gizmos.color = Color.blue;
             foreach(var notLeaf in gizmosNotLeaves) {
-                notLeaf.DrawGizmos(DisplayIndices, Color.white);
+                notLeaf.DrawGizmos(DisplayIndices, textColor: Color.white);
             }
         }
 
         if (DisplayCollisions) {
             Gizmos.color = Color.red;
             foreach(var collisionLeaf in gizmosCollisionLeaves) {
-                collisionLeaf.DrawGizmos(DisplayIndices, Color.white);
+                collisionLeaf.DrawGizmos(DisplayIndices, textColor: Color.white);
             }
         }
 
         if (DisplayOutOfBounds) {
             Gizmos.color = Color.magenta;
             foreach(var outOfBoundsLeaf in gizmosLeavesOutOfBounds) {
-                outOfBoundsLeaf.DrawGizmos(DisplayIndices, Color.white);
+                outOfBoundsLeaf.DrawGizmos(DisplayIndices, textColor: Color.white);
             }
         }
 
         if (DisplayIsInBounds) {
             Gizmos.color = Color.yellow;
             foreach(NewOctreeNode inBoundsLeaf in gizmosLeavesInBounds) {
-                inBoundsLeaf.DrawGizmos(DisplayIndices, Color.white);
+                inBoundsLeaf.DrawGizmos(DisplayIndices, textColor: Color.white);
+            }
+        }
+
+        if (DisplayValidLeaves) {
+            foreach(var validLeaf in gizmosValidLeaves) {
+                validLeaf.DrawGizmos(DisplayIndices, textColor: Color.white);
             }
         }
 
@@ -172,7 +185,7 @@ public class NewNavOctreeSpace : MonoBehaviour {
             gizmosNeighborsLines ??= GetNeighborLines(gizmosAllLeaves);
 
             if (gizmosNeighborsLines != null) {
-                Gizmos.color = Color.blue;
+                Gizmos.color = Color.cyan;
                 Gizmos.DrawLineList(gizmosNeighborsLines);
             }
         }
