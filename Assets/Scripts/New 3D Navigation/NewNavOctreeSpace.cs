@@ -171,12 +171,16 @@ public class NewNavOctreeSpace : MonoBehaviour {
         if (DisplayNeighbors) {
             gizmosNeighborsLines ??= GetNeighborLines(gizmosAllLeaves);
 
-            Gizmos.color = Color.blue;
-            Gizmos.DrawLineList(gizmosNeighborsLines);
+            if (gizmosNeighborsLines != null) {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawLineList(gizmosNeighborsLines);
+            }
         }
     }
 
-    private Vector3[] GetNeighborLines(List<NewOctreeNode> allLeaves) {
+    private Vector3[]? GetNeighborLines(List<NewOctreeNode> allLeaves) {
+        if (allLeaves.Count == 0) return null;
+
         List<(Vector3, Vector3)> validNeighbors = new();
 
         foreach(NewOctreeNode node in allLeaves) {
@@ -189,6 +193,8 @@ public class NewNavOctreeSpace : MonoBehaviour {
                 validNeighbors.Add((node.center, neighbor.center));
             }
         }
+
+        if (validNeighbors.Count == 0) return null;
 
         int currIndex = 0;
         Vector3[] linesToDraw = new Vector3[validNeighbors.Count * 2];
