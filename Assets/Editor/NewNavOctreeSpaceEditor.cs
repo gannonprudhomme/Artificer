@@ -49,11 +49,24 @@ public class NewNavOctreeSpaceEditor : Editor {
         if (GUILayout.Button("Generate Octree")) {
             IEnumerator coroutine = NewOctreeGenerator.GenerateOctree(
                 navOctreeSpace,
-                maxDivisionLevel: 9,
+                maxDivisionLevel: navOctreeSpace.maxDivisionLevel,
                 numJobs: navOctreeSpace.numCores
             );
 
             EditorCoroutineUtility.StartCoroutine(coroutine, this);
+        }
+
+        if (GUILayout.Button("Build Neighbors")) {
+            if (navOctreeSpace.octree == null) return;
+
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+            var ret = NewGraphGenerator.GenerateNeighbors(navOctreeSpace.octree);
+            stopwatch.Stop();
+            double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+            Debug.Log($"Built neighbors in {ms} ms");
+
+            navOctreeSpace.octree.edges = ret;
         }
 
         /*

@@ -27,6 +27,10 @@ public class NewNavOctreeSpace : MonoBehaviour {
 
     private Bounds? calculatedBounds = null;
 
+    public int maxDivisionLevel = 9;
+
+    public int numCores = 8;
+
     // TODO: I don't love doing this in here
     public JobHandle CreateRaycastInBoundCommands(
         List<NewOctreeNode> leaves,
