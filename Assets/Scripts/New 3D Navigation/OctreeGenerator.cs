@@ -310,7 +310,8 @@ public static class NewOctreeGenerator {
             edges = edges.AsParallelWriter()
         };
 
-        JobHandle jobHandle = job.Schedule();
+        int batchSize = allValidLeaves.Count / space.batchThing;
+        JobHandle jobHandle = job.Schedule(allValidLeaves.Count, batchSize);
 
         yield return WaitForJobToComplete(jobHandle);
 

@@ -11,7 +11,7 @@ using UnityEngine;
 
 // I wouldn't be surprised if generating this parallelized would be faster than loading & deserializing the edges
 [BurstCompile]
-public struct GraphGenerationJob: IJob { // Maybe IJobParallelFor? IJobParallelForBatch?
+public struct GraphGenerationJob: IJobParallelFor {
     private static readonly int3[] allFaceDirs = { new(1, 0, 0), new(-1, 0, 0), new(0, 1, 0), new(0, -1, 0), new(0, 0, 1), new(0, 0, -1) };
     private static readonly int3[] allDiagonalDirs = { new(0, 1, 1), new(0, 1, -1), new(0, -1, 1), new(0, -1, -1), new(1, 0, 1), new(-1, 0, 1), new(1, 0, -1), new(-1, 0, -1), new(1, 1, 0), new(1, -1, 0), new(-1, 1, 0), new(-1, -1, 0) };
 
@@ -25,19 +25,17 @@ public struct GraphGenerationJob: IJob { // Maybe IJobParallelFor? IJobParallelF
     public NativeArray<int4> allValidLeafKeys;
 
     [WriteOnly]
-    public NativeParallelMultiHashMap<int4, int4> edges;
+    public NativeParallelMultiHashMap<int4, int4>.ParallelWriter edges;
 
-    public void Execute() {
-        for (int i = 0; i < allValidLeafKeys.Length; i++) {
-            int4 currentLeafKey = allValidLeafKeys[i];
+    public void Execute(int index) {
+        int4 currentLeafKey = allValidLeafKeys[index];
 
-            for (int face = 0; face < 6; face++) { // 6 = num faces
-                FindAndConnectNearestNodeInDirection(currentLeafKey, allFaceDirs[face]);
-            }
+        for (int face = 0; face < 6; face++) { // 6 = num faces
+            FindAndConnectNearestNodeInDirection(currentLeafKey, allFaceDirs[face]);
+        }
 
-            for (int diagonal = 0; diagonal < 12; diagonal++) { // 12 = num corners (diagonals)
-                FindAndConnectNearestNodeInDirection(currentLeafKey, allDiagonalDirs[diagonal]);
-            }
+        for (int diagonal = 0; diagonal < 12; diagonal++) { // 12 = num corners (diagonals)
+            FindAndConnectNearestNodeInDirection(currentLeafKey, allDiagonalDirs[diagonal]);
         }
     }
  
