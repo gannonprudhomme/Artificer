@@ -4,6 +4,8 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Burst;
 
+#nullable enable
+
 [BurstCompile]
 public struct OctreeGenerationJob: IJob {
     // triangles of the mesh?
@@ -123,12 +125,14 @@ public struct OctreeGenerationJob: IJob {
         // Dunno which of these we should do
         for(int i = 0; i < 8; i++) {
             int3 childIndexOffset = NewOctreeNode.childIndices[i];
+            // x, y, z are all either 0 or 1
             var (x, y, z) = (childIndexOffset[0], childIndexOffset[1], childIndexOffset[2]);
 
+            // E.g. the children of (1, 1, 1) (nodeLevel 1) will be (2, 2, 2), (2, 2, 3), (2, 3, 2), (2, 3, 3), ..., (3, 3, 3) (all w/ nodeLevel 2)
             int3 newChildIndex = new(
-                node.index[0] * 2 + x,
-                node.index[1] * 2 + y,
-                node.index[2] * 2 + z
+                (node.index.x * 2) + x,
+                (node.index.y * 2) + y,
+                (node.index.z * 2) + z
             );
 
             // TODO: Wondering if I should make this a custom constructor for OctreeNode

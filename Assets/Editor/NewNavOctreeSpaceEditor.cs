@@ -59,14 +59,9 @@ public class NewNavOctreeSpaceEditor : Editor {
         if (GUILayout.Button("Build Neighbors")) {
             if (navOctreeSpace.octree == null) return;
 
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-            var ret = NewGraphGenerator.GenerateNeighbors(navOctreeSpace.octree);
-            stopwatch.Stop();
-            double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-            Debug.Log($"Built neighbors in {ms} ms");
+            IEnumerator coroutine = NewOctreeGenerator.GenerateNeighbors(navOctreeSpace);
 
-            navOctreeSpace.octree.edges = ret;
+            EditorCoroutineUtility.StartCoroutine(coroutine, this);
         }
 
         /*

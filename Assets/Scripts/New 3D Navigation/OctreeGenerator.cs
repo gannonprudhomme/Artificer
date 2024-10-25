@@ -191,6 +191,10 @@ public static class NewOctreeGenerator {
     // to be used to create the Octree
     //
     // This is step 3
+    //
+    // This absolutely should be a Job, but I couldn't figure out how to do it in a reasonable time
+    // and this only takes a few seconds anyways
+    //
     private static Dictionary<int4, NewOctreeNode> CombineAllNodeMaps(
         List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps
     ) {
@@ -253,6 +257,8 @@ public static class NewOctreeGenerator {
 
         yield return WaitForJobToComplete(raycastJobHandle);
 
+        // Go through all of the RaycastHit results
+        // and mark the corresponding node as in or out of bounds depending on if it hit anything
         for(int i = 0; i < leaves.Count; i++) {
             NewOctreeNode leafCopy = leaves[i];
             RaycastHit hit = raycastHitResults[i];
@@ -267,9 +273,95 @@ public static class NewOctreeGenerator {
             leaves[i] = leafCopy;
         }
 
+        // Because we're dealing with copies (as OctreeNode is a struct)
+        // we need to re-update the list
         navOctreeSpace.octree.UpdateDictionaryWithNodes(leaves);
         commands.Dispose();
         raycastHitResults.Dispose();
+    }
+
+    public static IEnumerator GenerateNeighbors(NewNavOctreeSpace space) {
+        if (space.octree == null) yield break;
+
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+
+        List<NewOctreeNode> allValidLeaves = space.octree!.GetAllNodes().FindAll(
+            (node) => node.isLeaf && !node.containsCollision && node.inBounds
+        );
+
+        NativeArray<int4> allValidLeafKeys = new(allValidLeaves.Count, Allocator.Persistent);
+        for (int i = 0; i < allValidLeaves.Count; i++) {
+            allValidLeafKeys[i] = allValidLeaves[i].dictionaryKey;
+        }
+
+        NativeHashMap<int4, NewOctreeNode> nodes = new(space.octree!.nodes.Count, Allocator.Persistent);
+        foreach(KeyValuePair<int4, NewOctreeNode> kvp in space.octree!.nodes) {
+            nodes.Add(kvp.Key, kvp.Value);
+        }
+
+        // Output
+        // TODO: Idk what size this should be, and I honestly don't think we can confidently figure it out
+        NativeParallelMultiHashMap<int4, int4> edges = new(allValidLeaves.Count * 32, Allocator.Persistent);
+
+        var job = new GraphGenerationJob() {
+            nodes = nodes,
+            allValidLeafKeys = allValidLeafKeys,
+            edges = edges.AsParallelWriter()
+        };
+
+        JobHandle jobHandle = job.Schedule();
+
+        yield return WaitForJobToComplete(jobHandle);
+
+        stopwatch.Stop();
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+
+        stopwatch.Reset();
+        stopwatch.Start();
+
+        // int count = edges.GetKeyArray(Allocator.Temp).Length;
+        // Debug.Log($"neighbors job w/ {count:n0} (allocated {allValidLeaves.Count * 32:n0}) took {seconds:F2} sec ({ms:F0} ms) with batch size {batchSize}");
+        Debug.Log($"neighbors job w/ took {seconds:F2} sec ({ms:F0} ms) with batch size {batchSize}");
+
+        // We're done! Now put them back to a Dictionary<int4, List<NewOctreeNode>> edges so we can put it back to the NewOctree
+
+        // Convert the NativeParallelMultiHashMap -> Dictionary<int4, List<int4>>
+        // we can't do this - it's too slow
+        /*
+        Dictionary<int4, List<int4>> edgesDict = new();
+
+        int count = 0;
+
+        NativeArray<int4> nonUniqueKeys = edges.GetKeyArray(Allocator.Temp);
+        for(int i = 0; i < nonUniqueKeys.Length; i++) {
+            count++;
+            int4 key = nonUniqueKeys[i];
+
+            List<int4> valuesList = edgesDict.GetValueOrDefault(key, new());
+
+            var values = edges.GetValuesForKey(key);
+            foreach(var value in values) {
+                valuesList.Add(value);
+            }
+
+            edgesDict[key] = valuesList;
+        }
+
+        space.octree!.edges = edgesDict;
+
+        stopwatch.Stop();
+        ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        seconds = ms / 1000d;
+
+        Debug.Log($"Converting managed to unmanaged of with {allValidLeaves.Count} leaves & {count:n0} edges took {seconds:F2} sec ({ms:F0} ms)");
+        */
+
+        // Dispose of edges, nodes, leaves
+        allValidLeafKeys.Dispose();
+        edges.Dispose();
+        nodes.Dispose();
     }
 
     private static void GetAllChildrenRecursively(
