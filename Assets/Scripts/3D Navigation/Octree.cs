@@ -6,8 +6,13 @@ using UnityEngine;
 
 // An Octree is a tree data structure in which each internal node has exactly eight children.
 // They are used here to divide the level by recursively subdividing the space into eight octants, or OctreeNodes in this codebase.
+//
+// This is specifically a pointer-based spare-voxel octree, in which we only store the root node, and we access other nodes (e.g. leaf nodes) by traversing the tree.
+// The "sparse-voxel" means we only subdivide an octree node if there is actually a collision in it - if it's empty space, it will be represented by a larger node.
+// More collisions = more subdivisions.
+// This allows to significantly reduce the number of nodes in the octree, and thus the memory usage.
 // 
-// This class is intended as the data structure which holds the OctreeNodes, just like a LinkedList really just contains functions to operate w/ the nodes
+// This class is intended as the data structure which holds the OctreeNodes, just like a LinkedList contains functions to operate w/ the nodes
 // It uses the class OctreeGenerator to generate itself
 // 
 // It is held by NavOctreeSpace (equivalent of NavMeshSurface), which itself is accessed through OctreeManager (singleton)
@@ -56,14 +61,14 @@ public class Octree  {
     //
     // While this does run pretty fast, it could be much faster:
     //
-    // Currently we sample by moving along the ray by a fixed distance (0.25f) and checking if we hit anything then move forward.
+    // Currently we sample by moving along the ray by a fixed distance (sampleDistance) and checking if we hit anything then move forward.
     // In actuality we should use the DDA Algorithm, which is like a "smart step" in that it knows exactly how far forward
-    // along the ray we should move to find the bounds of the next entry, in our case to the next OctreeNode.
+    // along the ray we need move to find the bounds of the next entry, in our case to the next OctreeNode.
     //
     // But I'm currently too lazy to figure out the math, as it's complicated given we need to know the size of the OctreeNode we're in,
     // on top of the DDA Algorithm itself.
     public bool Raycast(Vector3 origin, Vector3 endPosition) {
-        float sampleDistance = 1f; // TODO: Replace this with DDA Algorithm later
+        const float sampleDistance = 1f; // TODO: Replace this with DDA Algorithm later
 
         OctreeNode? currentNode = FindNodeForPosition(origin);
         if (currentNode == null) {
@@ -95,17 +100,16 @@ public class Octree  {
     }
 
     public List<OctreeNode> GetAllNodes(bool onlyLeaves = false) {
-        return OctreeGenerator.GetAllNodes(root: root!, onlyLeaves);
-    }
-}
-
-public class OctreeGenerator {
-    public static List<OctreeNode> GetAllNodes(OctreeNode root, bool onlyLeaves = false) {
         if (root == null) {
-            Debug.LogError("GetAllNodes: Root was null!");
+            Debug.LogError("Root was null!");
             return new();
         }
 
-        return root.GetAllNodes(onlyLeaves);
+        List<OctreeNode> ret = new();
+
+        root.GetAllNodes(ret, onlyLeaves);
+
+        return ret;
     }
 }
+

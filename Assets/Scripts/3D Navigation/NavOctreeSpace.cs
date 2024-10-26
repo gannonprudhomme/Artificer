@@ -32,30 +32,6 @@ public class NavOctreeSpace : MonoBehaviour {
     public Octree? octree { get; private set; }
 
     private Bounds? calculatedBounds = null; // For debug displaying
-    
-    // Save the generated octree to a file
-    public void Save() {
-        if (octree == null) {
-            Debug.LogError("No octree to save!");
-            return;
-        }
-
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-
-        using (var stream = File.Open(GetFileName(), FileMode.Create))
-        using(var writer = new BinaryWriter(stream)) {
-            OctreeSerializer.Serialize(octree, writer);
-        }
-
-        stopwatch.Stop();
-
-        int nodeCount = octree.GetAllNodes().Count;
-
-        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        double seconds = ms / 1000d;
-        Debug.Log($"Wrote Octree with {nodeCount} nodes to '{GetFileName()}' in {seconds:F2} sec ({ms:F0} ms)");
-    }
 
     public void LoadIfNeeded() {
         if (octree != null) return;
@@ -68,7 +44,7 @@ public class NavOctreeSpace : MonoBehaviour {
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
-        using (var stream = File.Open(GetFileName(), FileMode.Open)) {
+        using (Stream stream = File.Open(GetFileName(), FileMode.Open)) {
             // Read all of the data at once, rather than reading bytes at a time
             // Led to a ~27% speed up (2.2 sec -> 1.6 sec)
             byte[] buffer = new byte[stream.Length];
@@ -90,7 +66,7 @@ public class NavOctreeSpace : MonoBehaviour {
     }
 
     public void BuildNeighbors() {
-        if (octree == null) return;
+        if (octree == null) { Debug.LogError("No octree!"); return;}
 
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
@@ -117,12 +93,12 @@ public class NavOctreeSpace : MonoBehaviour {
 
     // Retrieves the filename 
     // Should probably be based off the GameObject name?
-    private string GetFileName() {
+    public string GetFileName() {
         return $"{gameObject.name}.octree.bin";
     }
 
-    public void SetOctree(Octree octre) {
-        this.octree = octree;
+    public void SetOctree(Octree newOctree) {
+        this.octree = newOctree;
     }
 
     private void OnDrawGizmos() {

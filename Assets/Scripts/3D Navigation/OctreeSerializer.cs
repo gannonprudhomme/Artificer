@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 #nullable enable
 
@@ -17,7 +18,37 @@ using UnityEngine;
 // We assign each node an index (where root has 0) based on the order Octree.GetAllNodes() returns
 // then when we serialize the nodes we also serialize their parent's index
 // so when we deserlialize we can re-construct each OctreeNode.children correctly (i.e. figure out which parent it should connect to)
+//
+// Performance optimizations attempted:
+// 1. Only saving leaves, then generating their parents upon load/deserialization
+//    a. This was unfortunately slower than just saving & deserializing all nodes
 public class OctreeSerializer {
+    public static void Save(NavOctreeSpace space) {
+        string filename = space.GetFileName();
+        Octree? octree = space.octree;
+        
+        if (space.octree == null) {
+            Debug.LogError("No octree to save!");
+            return;
+        }
+
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+
+        using (var stream = File.Open(filename, FileMode.Create))
+        using(var writer = new BinaryWriter(stream)) {
+            OctreeSerializer.Serialize(octree, writer);
+        }
+
+        stopwatch.Stop();
+
+        int nodeCount = octree.GetAllNodes().Count;
+
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+        Debug.Log($"Wrote Octree with {nodeCount} nodes to '{filename}' in {seconds:F2} sec ({ms:F0} ms)");
+    }
+    
     // Writes the given Octree to a file in binary format using the given BinaryWriter
     public static void Serialize(Octree octree, BinaryWriter writer) {
 
