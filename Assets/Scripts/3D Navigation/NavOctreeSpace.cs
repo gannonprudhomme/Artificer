@@ -95,9 +95,16 @@ public class NavOctreeSpace : MonoBehaviour {
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
-        using (var stream = File.Open(GetFileName(), FileMode.Open))
-        using (var reader = new BinaryReader(stream)) {
-            octree = OctreeSerializer.Deserialize(reader);
+        using (var stream = File.Open(GetFileName(), FileMode.Open)) {
+            // Read all of the data at once, rather than reading bytes at a time
+            // Led to a ~27% speed up (2.2 sec -> 1.6 sec)
+            byte[] buffer = new byte[stream.Length];
+            stream.Read(buffer, 0, buffer.Length);
+            using (var memoryStream = new MemoryStream(buffer)) {
+                using (var reader = new BinaryReader(memoryStream)) {
+                    octree = OctreeSerializer.Deserialize(reader);
+                }
+            }
         }
 
         stopwatch.Stop();
