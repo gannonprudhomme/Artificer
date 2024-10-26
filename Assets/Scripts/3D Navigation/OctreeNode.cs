@@ -10,9 +10,6 @@ using UnityEngine;
 public class OctreeNode {
     public readonly int nodeLevel;
     public readonly int[] index;
-    // We really shouldn't need this
-    // We just have it for bounds / sizes
-    private readonly Octree octree;
 
     // These are public only for gizmos in NavOctreeSpace
 
@@ -48,14 +45,14 @@ public class OctreeNode {
     public OctreeNode(
         int nodeLevel,
         int[] index,
-        Octree octree
+        int octreeSize,
+        Vector3 octreeCorner
     ) {
         this.nodeLevel = nodeLevel;
         this.index = index;
-        this.octree = octree;
 
-        this.nodeSize = octree.Size / (1 << nodeLevel);
-        this.center = CalculateCenter(index, nodeSize, octree);
+        this.nodeSize = octreeSize / (1 << nodeLevel);
+        this.center = CalculateCenter(index, nodeSize, octreeCorner);
 
         containsCollision = false;
         childrenContainsCollision = false;
@@ -72,13 +69,12 @@ public class OctreeNode {
     ) {
         this.nodeLevel = nodeLevel;
         this.index = index;
-        this.octree = octree;
         this.containsCollision = containsCollision;
         this.childrenContainsCollision = childrenContainsCollision;
         this.isInBounds = isInBounds;
 
         nodeSize = octree.Size / (1 << nodeLevel);
-        this.center = CalculateCenter(index, nodeSize, octree);
+        this.center = CalculateCenter(index, nodeSize, octree.Corner);
     }
 
     // Finds the node that contains this position, recursively,
@@ -132,7 +128,9 @@ public class OctreeNode {
         Vector3 point1,
         Vector3 point2,
         Vector3 point3,
-        int maxDivisionLevel
+        int maxDivisionLevel,
+        Vector3 octreeCorner,
+        int octreeSize
     ) {
         if (!DoesThisIntersectTriangle(point1, point2, point3)) return;
 
@@ -143,13 +141,13 @@ public class OctreeNode {
             childrenContainsCollision = true;
 
             // Create children if necessary
-            CreateChildrenIfHaventYet();
+            CreateChildrenIfHaventYet(octreeCorner, octreeSize);
     
             // Call it for all of the children
             for(int x = 0; x < 2; x++) {
                 for(int y = 0; y < 2; y++) {
                     for(int z = 0; z < 2; z++) {
-                        children![x, y, z].DivideTriangleUntilLevel(point1, point2, point3, maxDivisionLevel);
+                        children![x, y, z].DivideTriangleUntilLevel(point1, point2, point3, maxDivisionLevel, octreeCorner, octreeSize);
                     }
                 } 
             }
@@ -217,7 +215,7 @@ public class OctreeNode {
 
     // Divide this node into children
     // Makes this no longer a leaf node!
-    private void CreateChildrenIfHaventYet() {
+    private void CreateChildrenIfHaventYet(Vector3 octreeCorner, int octreeSize) {
         if (children != null) {
             // Debug.LogError("We've already split up this! Why are we doing it again?");
             return;
@@ -235,7 +233,7 @@ public class OctreeNode {
                         index[2] * 2 + z
                     };
 
-                    children[x, y, z] = new OctreeNode(nodeLevel + 1, newIndex, octree);
+                    children[x, y, z] = new OctreeNode(nodeLevel + 1, newIndex, octreeSize, octreeCorner);
                 }
             }
         }
@@ -284,11 +282,11 @@ public class OctreeNode {
     private static Vector3 CalculateCenter(
         int[] index,
         int size,
-        Octree octree
+        Vector3 octreeCorner
     ) {
         // Get the bottom-left (?) corner
         Vector3 indexVec = new(index[0], index[1], index[2]);
-        Vector3 nodeCorner = octree.Corner + (size * indexVec);
+        Vector3 nodeCorner = octreeCorner + (size * indexVec);
 
         // Then move it by (0.5, 0.5, 0.5) [when size = 1] to get it to the center
         return nodeCorner + (Vector3.one * (size / 2));

@@ -71,9 +71,9 @@ public class Octree  {
 
         // Rein in a bit here though - this really doesn't need to be that complex/perfect for what I want to do
 
-        root = new OctreeNode(0, new int[] { 0, 0, 0 }, this);
+        root = new OctreeNode(0, new int[] { 0, 0, 0 }, this.Size, this.Corner);
 
-        OctreeGenerator.GenerateForGameObject(rootGameObject, root, MaxDivisionLevel, calculateForChildren: true);
+        OctreeGenerator.GenerateForGameObject(rootGameObject, root, MaxDivisionLevel, Corner, Size, calculateForChildren: true);
 
         Debug.Log("Finished! Marking in bounds leaves");
 
@@ -152,10 +152,12 @@ public class Octree  {
 }
 
 public class OctreeGenerator {
-    public static void GenerateForGameObject(GameObject currGameObject, OctreeNode root, int maxDivisionLevel, bool calculateForChildren = true) {
+    // We have to pass octreeCorner & octreeSize solely to pass it to the OctreeNode so it can figure out its center
+    // This is unnecessary, and a point of improvement.
+    public static void GenerateForGameObject(GameObject currGameObject, OctreeNode root, int maxDivisionLevel, Vector3 octreeCorner, int octreeSize, bool calculateForChildren = true) {
         if (currGameObject.TryGetComponent(out MeshFilter meshFilter)) {
             // We're using sharedMesh - don't modify it!
-            VoxelizeForMesh(meshFilter.sharedMesh, root, currGameObject, maxDivisionLevel);
+            VoxelizeForMesh(meshFilter.sharedMesh, root, currGameObject, maxDivisionLevel, octreeCorner, octreeSize);
         }
 
         if (!calculateForChildren) return;
@@ -166,11 +168,11 @@ public class OctreeGenerator {
 
             if (!childObj.activeInHierarchy) continue; // Only generate on active game objects
 
-            GenerateForGameObject(childObj, root, maxDivisionLevel, calculateForChildren);
+            GenerateForGameObject(childObj, root, maxDivisionLevel, octreeCorner, octreeSize, calculateForChildren);
         }
     }
 
-    public static void VoxelizeForMesh(Mesh mesh, OctreeNode root, GameObject currGameObject, int maxDivisionLevel) {
+    public static void VoxelizeForMesh(Mesh mesh, OctreeNode root, GameObject currGameObject, int maxDivisionLevel, Vector3 octreeCorner, int octreeSize) {
         int[] triangles = mesh.triangles; // 1D matrix of the triangle point-indices, where every 3 elements is a triangle
         Vector3[] vertsLocalSpace = mesh.vertices;
         Vector3[] normals = mesh.normals;
@@ -189,7 +191,7 @@ public class OctreeGenerator {
             Vector3 point2 = vertsWorldSpace[triangles[3 * i + 1]];
             Vector3 point3 = vertsWorldSpace[triangles[3 * i + 2]];
 
-            root.DivideTriangleUntilLevel(point1, point2, point3, maxDivisionLevel);
+            root.DivideTriangleUntilLevel(point1, point2, point3, maxDivisionLevel, octreeCorner, octreeSize);
         }
     }
 
