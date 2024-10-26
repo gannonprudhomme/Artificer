@@ -5,6 +5,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
+#nullable enable
+
 public static class NewOctreeGenerator {
     public static IEnumerator GenerateOctree(
         NewNavOctreeSpace navOctreeSpace,
@@ -17,6 +19,10 @@ public static class NewOctreeGenerator {
         mainStopwatch.Start();
 
         // Create ConvertToWorldSpace jobs
+
+        // TODO: I'm treating this like what game object a vertex is on matters - it absolutely doesn't
+        // so part of me wants to just combine them *all* into one big NativeArray and treat it like it's the same thing
+        // but stretch goal - it really doesn't matter (thought might simplify things)
 
         // Each index in this corresponds to a gameObject, with 0 being the root
         List<NativeArray<Vector3>> allVertsLocalSpace = new();
@@ -54,8 +60,8 @@ public static class NewOctreeGenerator {
                 root: root,
                 maxDivisionLevel: maxDivisionLevel,
                 numJobs: numJobs,
-                triangleVertices: allTriangles[i],
-                vertsWorldSpace: allVertsWorldSpace[i],
+                triangleVertices: allTriangles[i], // not a copy?
+                vertsWorldSpace: allVertsWorldSpace[i], // not a copy?
                 allNodeMapsOutput: allNodeMaps
             );
 
@@ -72,7 +78,13 @@ public static class NewOctreeGenerator {
         JobHandle allGenerateJobsHandle = JobHandle.CombineDependencies(allJobHandles);
         allJobHandles.Dispose();
         
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
         yield return WaitForJobToComplete(allGenerateJobsHandle);
+        stopwatch.Stop();
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+        // Debug.Log($"Convert + Generate took {seconds:F2} seconds");
 
         // Combine all of the node maps into one
 
@@ -80,7 +92,7 @@ public static class NewOctreeGenerator {
 
         // Create the octree!
         NewOctree octree = new(totalSize, bounds.center, combinedManaged);
-        navOctreeSpace.octree = octree;
+        navOctreeSpace.SetOctree(octree);
 
         // Mark in-bound leaves
         yield return MarkInBoundLeaves(navOctreeSpace);
@@ -90,6 +102,10 @@ public static class NewOctreeGenerator {
         foreach(NativeArray<int> triangles in allTriangles) { triangles.Dispose(); }
         foreach(NativeHashMap<int4, NewOctreeNode> nodesMap in allNodeMaps) { nodesMap.Dispose();}
 
+        mainStopwatch.Stop();
+        ms = ((double)mainStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        seconds = ms / 1000d;
+        Debug.Log($"Total octree generation finished in {seconds:F2} seconds");
     }
 
     // Creates all of the jobs to convert the vertices from local space to world space
@@ -146,18 +162,23 @@ public static class NewOctreeGenerator {
         long totalSize,
         float3 octreeCenter,
         NewOctreeNode root,
+        // Num jobs to split the work into? Honestly idek the best way to do this cause it'll vary greatly
+        // E.g. one of our game objects will have 1M triangles, and others might only have 1k
+        // so in actuality we might need a min triangles per job or something to strike a balance
+        // the big mesh is absolutely the focus though
         int maxDivisionLevel,
         int numJobs,
-        NativeArray<int> triangleVertices,
+        NativeArray<int> triangleVertices, // input
         NativeArray<float3> vertsWorldSpace,
-        List<NativeHashMap<int4, NewOctreeNode>> allNodeMapsOutput
+        List<NativeHashMap<int4, NewOctreeNode>> allNodeMapsOutput // this is also something we "return"
     ) {
         List<OctreeGenerationJob> jobs = new();
 
         int numTriangles = triangleVertices.Length / 3;
         int numTrianglesPerBatch = numTriangles / numJobs;
 
-        int numBatches = numJobs;
+        // TODO: Check this, I can't tell how dumb it is
+        int numBatches = numJobs; // this is obviously stupid
         if (numTriangles % numTrianglesPerBatch != 0) {
             numBatches++;
         }
@@ -193,8 +214,7 @@ public static class NewOctreeGenerator {
     // This is step 3
     //
     // This absolutely should be a Job, but I couldn't figure out how to do it in a reasonable time
-    // and this only takes a few seconds anyways
-    //
+    // and this only takes maybe a few seconds anyways
     private static Dictionary<int4, NewOctreeNode> CombineAllNodeMaps(
         List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps
     ) {
@@ -217,6 +237,7 @@ public static class NewOctreeGenerator {
                 } else {
                     NewOctreeNode existingNode = combined[key];
 
+                    // TODO: Try to make this more readable bleh
                     if (node.hasChildren && !existingNode.hasChildren) {
                         combined[key] = node;
                     } else if (node.hasChildren == existingNode.hasChildren) {
@@ -227,6 +248,11 @@ public static class NewOctreeGenerator {
                 }
             }
         }
+        stopwatch.Stop();
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+
+        // Debug.Log($"Combined all nodes with {combined.Count:n0} nodes in {seconds:F2} seconds");
 
         return combined;
     }
@@ -237,11 +263,16 @@ public static class NewOctreeGenerator {
     private static IEnumerator MarkInBoundLeaves(
         NewNavOctreeSpace navOctreeSpace
     ) {
-        List<NewOctreeNode> leaves = navOctreeSpace.octree.GetAllNodes().FindAll((node) => node.isLeaf);
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+        List<NewOctreeNode> leaves = navOctreeSpace.octree!.GetAllNodes().FindAll((node) => node.isLeaf);
 
         NativeArray<RaycastCommand> commands = new(leaves.Count, Allocator.Persistent);
 
         for (int i = 0; i < leaves.Count; i++) {
+            // TODO: We can skip leaves that contain a collision & mark them as in boundssince we know that they're in bounds?
+            // I'm not even sure if that's true - it could contain a collision but be at the bottom of/under the map
+
             NewOctreeNode leaf = leaves[i];
 
             commands[i] = new RaycastCommand(from: leaf.center, direction: Vector3.down, QueryParameters.Default);
@@ -251,7 +282,7 @@ public static class NewOctreeGenerator {
         JobHandle raycastJobHandle = RaycastCommand.ScheduleBatch(
             commands: commands,
             results: raycastHitResults,
-            minCommandsPerJob: 1,
+            minCommandsPerJob: 1, // Idk what to set this to
             maxHits: 1 // We only need 1 to determine if this is "in bounds" or not
         );
 
@@ -275,7 +306,15 @@ public static class NewOctreeGenerator {
 
         // Because we're dealing with copies (as OctreeNode is a struct)
         // we need to re-update the list
+        // TODO: We could actually avoid this relatively easily, but we'd have to be able to modify the Octree's nodes dict
+        // directly, which probably isn't a good idea to allow
         navOctreeSpace.octree.UpdateDictionaryWithNodes(leaves);
+
+        stopwatch.Stop();
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+        // Debug.Log($"Marked {leaves.Count:n0} leaves as in-bounds / out-of-bounds in {seconds:F2} seconds");
+
         commands.Dispose();
         raycastHitResults.Dispose();
     }

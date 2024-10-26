@@ -173,7 +173,6 @@ public class AtGMissileProjectile : MonoBehaviour {
         }
 
         if (nearbyEntities.Count == 0) {
-            Debug.LogError("No entities found nearby, returning null");
             return null;
         }
 

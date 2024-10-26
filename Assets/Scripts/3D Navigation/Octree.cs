@@ -240,15 +240,19 @@ public class OctreeGenerator {
         float width = max.z - min.z;
 
         // We need to use the longest side since we can only calculate Size as a cube
-        float longestSide = Mathf.Max(length, Mathf.Max(width, height));
-        float volume = longestSide * longestSide * longestSide;
+        double longestSide = (double) Mathf.Max(length, Mathf.Max(width, height));
+        double volume = longestSide * longestSide * longestSide;
 
         int currMinSize = 1;
-        while ((currMinSize * currMinSize * currMinSize) < volume) {
+        long currVolume = 1;
+        while ((currVolume) < volume) {
             currMinSize *= 2; // Power of 2's!
+            // I'm terrified of integer overflow and am too lazy to figure out how to do this confidently
+            long minSize = currMinSize;
+            currVolume = minSize * minSize * minSize;
         }
 
-        int totalVolume = currMinSize * currMinSize * currMinSize;
+        long totalVolume = currMinSize * currMinSize * currMinSize;
         // Debug.Log($"With dimensions of {length}, {height}, {width} and volume {volume} got min size of {currMinSize} and min volume {totalVolume}");
         return currMinSize;
     }

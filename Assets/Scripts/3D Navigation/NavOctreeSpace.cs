@@ -80,7 +80,8 @@ public class NavOctreeSpace : MonoBehaviour {
         int nodeCount = octree.GetAllNodes().Count;
 
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        Debug.Log($"Wrote Octree with {nodeCount} nodes to '{GetFileName()}' in {ms} ms");
+        double seconds = ms / 1000d;
+        Debug.Log($"Wrote Octree with {nodeCount} nodes to '{GetFileName()}' in {seconds:F2} sec ({ms:F0} ms)");
     }
 
     public void LoadIfNeeded() {
@@ -104,7 +105,8 @@ public class NavOctreeSpace : MonoBehaviour {
         int nodeCount = octree.GetAllNodes().Count;
 
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        Debug.Log($"Read Octree from '{GetFileName()}' and got {nodeCount} nodes in {ms} ms");
+        double seconds = ms / 1000d;
+        Debug.Log($"Read Octree from '{GetFileName()}' and got {nodeCount} nodes in {seconds:F2} sec ({ms:F0} ms)");
     }
 
     public void BuildNeighbors() {

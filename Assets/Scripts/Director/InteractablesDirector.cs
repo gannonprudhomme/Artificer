@@ -52,7 +52,7 @@ public class InteractablesDirector : MonoBehaviour {
             new(
                 identifier: "ItemChest",
                 spawnCost: 15,
-                spawnLimit: 45,
+                spawnLimit: 45, // TODO: I'm not even sure if spawn limit is a thing
                 weight: 24,
                 baseGoldCost: 25,
                 prefab: ItemChestPrefab!

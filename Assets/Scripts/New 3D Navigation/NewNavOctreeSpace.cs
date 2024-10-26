@@ -29,6 +29,12 @@ public class NewNavOctreeSpace : MonoBehaviour {
 
     public int maxDivisionLevel = 9;
 
+    public int batchThing = 1024;
+
+    // TODO: Probably remove this? It shouldn't really be used
+    // though honestly it's not a bad idea to expose
+    // This can be incredibly high and still give improvements
+    // so this should really be Num Jobs
     public int numCores = 8;
 
     // TODO: I don't love doing this in here
@@ -39,8 +45,13 @@ public class NewNavOctreeSpace : MonoBehaviour {
         NativeArray<RaycastCommand> commands = new(leaves.Count, Allocator.Persistent);
 
         for(int i = 0; i < leaves.Count; i++) {
+            // TODO: We can skip leaves that contain a collision & mark them as in boundssince we know that they're in bounds?
+            // I'm not even sure if that's true - it could contain a collision but be at the bottom of/under the map
+
             NewOctreeNode leaf = leaves[i];
 
+            // Below are the default parametes (for now)
+            // if I don't change them just use QueryParameters.Default
             QueryParameters queryParams = new(hitMultipleFaces: false, hitTriggers: QueryTriggerInteraction.UseGlobal, hitBackfaces: false);
 
             commands[i] = new RaycastCommand(from: leaf.center, direction: Vector3.down, queryParams);
@@ -94,6 +105,7 @@ public class NewNavOctreeSpace : MonoBehaviour {
     public void SetOctree(NewOctree octree) {
         this.octree = octree;
 
+        #if UNITY_EDITOR
         // Destroy the previously cached gizmo lists
         gizmosAllNodes = null;
         gizmosAllLeaves = null;
@@ -103,8 +115,10 @@ public class NewNavOctreeSpace : MonoBehaviour {
         gizmosLeavesInBounds = null;
         gizmosValidLeaves = null;
         gizmosNeighborsLines = null;
+        #endif
     }
 
+#if UNITY_EDITOR
     // Cached gizmo lists so we don't do this every frame
     private List<NewOctreeNode>? gizmosAllNodes = null;
     private List<NewOctreeNode>? gizmosAllLeaves = null;
@@ -207,7 +221,10 @@ public class NewNavOctreeSpace : MonoBehaviour {
             foreach(int4 neighborKey in neighbors) {
                 NewOctreeNode neighbor = octree.nodes[neighborKey];
 
-                validNeighbors.Add((node.center, neighbor.center));
+                // Not doing this check since generating the neighbors should do it
+                //if (neighbor.inBounds && !neighbor.containsCollision) {
+                    validNeighbors.Add((node.center, neighbor.center));
+                //}
             }
         }
 
@@ -224,4 +241,5 @@ public class NewNavOctreeSpace : MonoBehaviour {
 
         return linesToDraw;
     }
+#endif
 }

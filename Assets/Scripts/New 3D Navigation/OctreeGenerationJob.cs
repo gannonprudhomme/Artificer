@@ -66,7 +66,7 @@ public struct OctreeGenerationJob: IJob {
         }
     }
 
-    private void DivideTriangleUntilLevel(
+    private void DivideTriangleUntilLevel( // TODO: Better name?
         NewOctreeNode node,
         float3 point1,
         float3 point2,
@@ -139,7 +139,7 @@ public struct OctreeGenerationJob: IJob {
             // similar to what we do for the OOP version
 
             float childSize = node.size / 2;
-            // TODO: check float3 conversion & see if I should just do this separate
+            // TODO: check float3 conversion & see if I should just do this separate?
             float3 childCorner = octreeCorner + (childSize * new float3(newChildIndex));
             float3 childCenter = childCorner + (new float3(1) * (childSize / 2)); // Move it by e.g. (0.5, 0.5, 0.5) when size = 1
 
@@ -226,6 +226,8 @@ public struct OctreeGenerationJob: IJob {
         return true;
     }
 }
+
+// TODO: Comment this & explain it
 [BurstCompile]
 public struct ConvertVertsToWorldSpaceJob : IJobParallelFor {
     [ReadOnly]
@@ -233,6 +235,10 @@ public struct ConvertVertsToWorldSpaceJob : IJobParallelFor {
 
     [ReadOnly]
     private readonly float4x4 transform;
+
+    // TODO: Idk why I don't use this (or why it does or doesn't matter?)
+    // [ReadOnly]
+    // NativeArray<Vector3> normals; // input
 
     [WriteOnly]
     public NativeArray<float3> vertsWorldSpaceOutput;
@@ -254,20 +260,59 @@ public struct ConvertVertsToWorldSpaceJob : IJobParallelFor {
     private static float3 LocalToWorld(float4x4 transform, float3 point) {
         return math.transform(transform, point);
     }
+}
 
-    public static ConvertVertsToWorldSpaceJob CreateJob(
-        GameObject gameObject
+// TODO: Stretch goal, but I can't figure this out so it's probably not worth my time
+// I keep getting some "trying to read from a [WriteOnly]" thing for GetValueArray, which I really don't get
+//
+// There should only be one of these jobs
+// [BurstCompile]
+/*
+public struct CombineAllNodesJob: IJob {
+    // [ReadOnly]
+    // [NativeDisableContainerSafetyRestriction]
+    [ReadOnly]
+    private UnsafeList<NativeHashMap<int4, NewOctreeNode>> allNodeMaps;
+
+    private NativeHashMap<int4, NewOctreeNode> combined;
+
+    public CombineAllNodesJob(
+        UnsafeList<NativeHashMap<int4, NewOctreeNode>> allNodeMaps,
+        NativeHashMap<int4, NewOctreeNode> combined
     ) {
-        if (!gameObject.TryGetComponent(out MeshFilter meshFilter)) {
-            Debug.LogError("no mesh!");
+        this.allNodeMaps = allNodeMaps;
+        this.combined = combined;
+    }
+
+    public void Execute() {
+        Debug.Log("Beginning to combine!");
+        foreach (NativeHashMap<int4, NewOctreeNode> nodesMap in allNodeMaps) {
+            Debug.Log("Combining!");
+            NativeArray<NewOctreeNode> nodes = nodesMap.GetValueArray(Allocator.Temp);
+
+            foreach(NewOctreeNode node in nodes) {
+                int4 key = node.dictionaryKey;
+
+                if (!combined.ContainsKey(key)) {
+                    combined.Add(key, node);
+                } else {
+                    NewOctreeNode existingNode = combined[key];
+
+                    // TODO: Try to make this more readable bleh
+                    if (node.hasChildren && !existingNode.hasChildren) {
+                        combined[key] = node;
+                    } else if (node.hasChildren == existingNode.hasChildren) {
+                        if (node.containsCollision && !existingNode.containsCollision) {
+                            combined[key] = node;
+                        }
+                    }
+                }
+            }
+
+            nodes.Dispose();
+            nodesMap.Dispose(); // I think we want to do this here? Cause we're now done w/ them
         }
-
-        NativeArray<Vector3> vertsLocalSpace = new(meshFilter.sharedMesh.vertices, Allocator.Persistent);
-
-        float4x4 transform = gameObject.transform.localToWorldMatrix; // Technically returns a Matrix4x4
-
-        NativeArray<float3> vertsWorldSpaceOutput = new(vertsLocalSpace.Length, Allocator.Persistent);
-
-        return new(vertsLocalSpace, transform, vertsWorldSpaceOutput);
+        Debug.Log("Done combining!");
     }
 }
+*/

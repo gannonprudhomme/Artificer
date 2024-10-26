@@ -8,9 +8,12 @@ using UnityEngine;
 // TODO: Do even want this to be a class? I assume so to avoid copies
 // but using classes bit us in the ass last time so idk
 public class NewOctree {
-    // Can we do an array instead of a hashmap?
-    private Dictionary<int4, NewOctreeNode> nodes;
-    /*private*/ public float3 center;
+    public readonly Dictionary<int4, NewOctreeNode> nodes;
+    public readonly float3 center; // TODO: Make private?
+
+    // TODO: name
+    // TODO: This *really* should be private - just did it to get a quick debug output
+    public Dictionary<int4, List<int4>> edges = new(); 
 
     public NewOctree(
         long size,
@@ -22,13 +25,23 @@ public class NewOctree {
     }
 
     public NewOctreeNode[]? GetChildrenForNode(NewOctreeNode node) {
+        // Precondition: Should only do this if it has children / isn't a leaf?
         if (!node.hasChildren) return null;
 
         NewOctreeNode[] children = new NewOctreeNode[8];
-        // Precondition: Should only do this if it has children / isn't a leaf?
-
         // TODO
         return children;
+    }
+
+
+    // Replacement for GraphNode.edges
+    public List<int4>? GetNeighborsForNode(NewOctreeNode node) {
+        if (!edges.ContainsKey(node.dictionaryKey)) return null;
+
+        // We could have a version of this which returns List<NewOctreeNode>
+        // it just depends when we want to make copies
+
+        return edges[node.dictionaryKey];
     }
 
     // TODO: Ideally I wouldn't have to do this
@@ -48,6 +61,10 @@ public class NewOctree {
     public List<NewOctreeNode> GetAllNodes() {
         // List<NewOctreeNode> ret = new(nodes.Count);
         return nodes.Values.ToList(); // Do I even want to do ToList?
+    }
+
+    public NewOctreeNode GetRoot() {
+        return nodes[new int4(0)];
     }
 }
 
