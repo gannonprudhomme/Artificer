@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 #nullable enable
@@ -38,6 +39,13 @@ public class OctreeNode {
     // this will still be populated (assuming it has valid in bounds / no collision neighbors)
     // but those valid neighbors won't have an edge to *this* node. (i.e. it will be one-directional invalid -> valid, not invalid <-> valid)
     public List<OctreeNode>? inBoundsNeighborsWithoutCollisions = null;
+
+    // Used for deserializing
+    public int4 dictionaryKey {
+        get {
+            return new(index[0], index[1], index[2], nodeLevel);
+        }
+    }
 
     // Used when generating the Octree from a mesh
     public OctreeNode(

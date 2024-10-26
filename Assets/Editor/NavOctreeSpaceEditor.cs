@@ -1,7 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Unity.EditorCoroutines.Editor;
 
 
 [CustomEditor(typeof(NavOctreeSpace))]
@@ -41,7 +41,13 @@ public class NavOctreeSpaceEditor : Editor {
         // Display buttons
 
         if (GUILayout.Button("Generate Octree")) {
-            navOctreeSpace.GenerateOctree();
+            IEnumerator coroutine = NewOctreeGenerator.GenerateOctree(
+                navOctreeSpace,
+                maxDivisionLevel: navOctreeSpace.MaxDivisionLevel,
+                numJobs: 12 
+            );
+
+            EditorCoroutineUtility.StartCoroutine(coroutine, this);
         }
 
         if (GUILayout.Button("Mark In-Bounds leaves")) {

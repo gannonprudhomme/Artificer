@@ -30,21 +30,6 @@ public class Octree  {
 
     public OctreeNode? root; // Is public so we can do GetAllNodesAndSetParentMap in OctreeSerializer, and set root during Deserializing
 
-    // When generating it based on mesh(es)
-    public Octree(
-        Vector3 min, // Used for size calculation
-        Vector3 max,  // Used for size calculation
-        Vector3 smallestActorDimension, // Used for calculating MaxDivisionLevel,
-        Vector3 center // The center of the Octree
-    ) {
-        Center = center;
-
-        Size = OctreeGenerator.CalculateSize(min, max);
-
-        MaxDivisionLevel = OctreeGenerator.CalculateMaxDivisionLevel(smallestActorDimension, Size);
-        Debug.Log($"Calculated max division level: {MaxDivisionLevel} and size: {Size}");
-    }
-
     // When created from Deserializing / loading from a file
     public Octree(
         int size,

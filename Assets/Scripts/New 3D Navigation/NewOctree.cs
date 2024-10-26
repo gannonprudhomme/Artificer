@@ -9,6 +9,7 @@ using UnityEngine;
 // but using classes bit us in the ass last time so idk
 public class NewOctree {
     public readonly Dictionary<int4, NewOctreeNode> nodes;
+    public readonly int size;
     public readonly float3 center; // TODO: Make private?
 
     // TODO: name
@@ -20,6 +21,7 @@ public class NewOctree {
         float3 center, // TODO: I'm not even sure if we need this. Also might want to make it a Vector3
         Dictionary<int4, NewOctreeNode> nodes
     ) {
+        this.size = (int) size; // it's not a long anyways, I need to fix this
         this.center = center;
         this.nodes = nodes;
     }

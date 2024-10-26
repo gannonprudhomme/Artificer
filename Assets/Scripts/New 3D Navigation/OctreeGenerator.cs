@@ -282,7 +282,7 @@ public static class NewOctreeGenerator {
         JobHandle raycastJobHandle = RaycastCommand.ScheduleBatch(
             commands: commands,
             results: raycastHitResults,
-            minCommandsPerJob: 1, // Idk what to set this to
+            minCommandsPerJob: navOctreeSpace.minCommandsPerRaycastJob, // Idk what to set this to
             maxHits: 1 // We only need 1 to determine if this is "in bounds" or not
         );
 
@@ -317,6 +317,71 @@ public static class NewOctreeGenerator {
 
         commands.Dispose();
         raycastHitResults.Dispose();
+    }
+
+    // Recursively builds a pointer-based octree from the flat (jobs) octree
+    public static Octree ConvertFlatOctreeToPointer(NewOctree flatOctree) {
+        Dictionary<int4, NewOctreeNode> flatNodesMap = flatOctree.nodes;
+        Dictionary<int4, OctreeNode> pointerNodesMap = new(flatNodesMap.Count);
+
+        Vector3 octreeCorner = flatOctree.center - (new float3(1) * (flatOctree.size / 2f));
+
+        int4 rootKey = new(0);
+        ConvertFloatNodeAndChildrenToPointersBased(rootKey, flatNodesMap, pointerNodesMap, flatOctree.size, octreeCorner);
+
+        Octree ret = new(flatOctree.size, maxDivisionLevel: 0, flatOctree.center) { // maxDivisionLevel doesn't matter, it's only used by UI
+            root = pointerNodesMap[rootKey]
+        };
+
+        return ret;
+    }
+
+    // Create a new pointers-based node from the flat node & add it to the pointers-based dictionary
+    // Then see if the node has children, if it does, calculate their indices, and repeat for each child
+    private static void ConvertFloatNodeAndChildrenToPointersBased(
+        int4 currentKey,
+        Dictionary<int4, NewOctreeNode> flatNodesMap,
+        Dictionary<int4, OctreeNode> pointersNodesMap, // pointersBasedNodeMap is really what this means
+        int octreeSize,
+        Vector3 octreeCorner
+    ) {
+        NewOctreeNode currentFlatNode = flatNodesMap[currentKey];
+        OctreeNode pointersNode = new(
+            nodeLevel: currentFlatNode.nodeLevel,
+            index: new int[] { currentKey.x, currentKey.y, currentKey.z },
+            octreeSize,
+            octreeCorner
+        );
+
+        pointersNodesMap[currentKey] = pointersNode;
+
+        // Reached a leaf - don't need to create children!
+        if (!currentFlatNode.hasChildren) {
+            return;
+        }
+
+        pointersNode.children = new OctreeNode[2, 2, 2];
+
+        for (int x = 0; x < 2; x++) {
+            for(int y = 0; y < 2; y++) {
+                for(int z = 0; z < 2; z++) {
+                    int4 childKey = new(
+                        (currentKey.x * 2) + x,
+                        (currentKey.y * 2) + y,
+                        (currentKey.z * 2) + z,
+                        pointersNode.nodeLevel + 1
+                    );
+
+                    ConvertFloatNodeAndChildrenToPointersBased(
+                        currentKey: childKey,
+                        flatNodesMap: flatNodesMap,
+                        pointersNodesMap: pointersNodesMap,
+                        octreeSize: octreeSize / 2,
+                        octreeCorner: octreeCorner + new Vector3(x, y, z) * (octreeSize / 2f)
+                    );
+                }
+            }
+        }
     }
 
     public static IEnumerator GenerateNeighbors(NewNavOctreeSpace space) {

@@ -76,6 +76,18 @@ public class NewNavOctreeSpaceEditor : Editor {
             navOctreeSpace.octree.edges = ret;
         }
 
+        if (GUILayout.Button("Convert to pointers based")) {
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+            var pointersBasedOctree = NewOctreeGenerator.ConvertFlatOctreeToPointer(navOctreeSpace.octree);
+
+            stopwatch.Stop();
+            double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+            double seconds = ms / 1000d;
+            Debug.Log($"Converted to pointers based in {seconds:F2} sec ({ms:F0}) ms");
+        }
+
         /*
         if (GUILayout.Button("Save")) {
             navOctreeSpace.Save();

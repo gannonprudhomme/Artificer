@@ -23,34 +23,16 @@ public class NavOctreeSpace : MonoBehaviour {
 
     public bool DisplayNeighbors = false;
 
+    public int MaxDivisionLevel = 9;
+
+    [Tooltip("How many jobs to use for subdividing the octree")]
+    public int NumberOfJobs = 12;
+
     // Must call Load() / LoadIfNeeded() to populate this
     public Octree? octree { get; private set; }
 
     private Bounds? calculatedBounds = null; // For debug displaying
     
-    public void GenerateOctree() {
-        Bounds bounds = GetBounds();
-        calculatedBounds = bounds;
-
-        octree = new Octree(
-            min: bounds.min,
-            max: bounds.max,
-            smallestActorDimension: Vector3.one * 2.5f,
-            center: bounds.center
-        );
-
-        // Generate and time it
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-        octree.Generate(this.gameObject);
-        stopwatch.Stop();
-
-        // Debug output
-        List<OctreeNode> allNodes = octree.GetAllNodes();
-        List<OctreeNode> leaves = allNodes.FindAll((node) => node.children == null);
-        Debug.Log($"Finished generating octree with {allNodes.Count} nodes and {leaves.Count} leaves in {stopwatch.ElapsedMilliseconds} ms");
-    }
-
     public void MarkInboundsLeaves() {
         if (octree == null) {
             Debug.LogError("No Octree Loaded!");
@@ -113,7 +95,7 @@ public class NavOctreeSpace : MonoBehaviour {
 
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         double seconds = ms / 1000d;
-        Debug.Log($"Read Octree from '{GetFileName()}' and got {nodeCount} nodes in {seconds:F2} sec ({ms:F0} ms)");
+        Debug.Log($"Read Octree from '{GetFileName()}' and got {nodeCount:N0} nodes in {seconds:F2} sec ({ms:F0} ms)");
     }
 
     public void BuildNeighbors() {
@@ -125,16 +107,16 @@ public class NavOctreeSpace : MonoBehaviour {
         stopwatch.Stop();
 
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
 
-        Debug.Log($"Finished building neighbors in {ms} ms");
+        Debug.Log($"Finished building neighbors in {seconds:F2} sec ({ms:F0} ms)");
     }
 
-    private Bounds GetBounds() {
+    // needs to be public for OctreeGenerator
+    public Bounds GetBounds() {
         // This gets renderers from this GameObject(Component), as well as it's children recursively
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
-        // if (renderers.Count == 0) return new Bounds
         Bounds bounds = renderers[0].bounds;
-        // Debug.Log($"Bounds: {bounds}");
         foreach(var renderer in renderers) {
             bounds.Encapsulate(renderer.bounds);
         }
@@ -146,6 +128,10 @@ public class NavOctreeSpace : MonoBehaviour {
     // Should probably be based off the GameObject name?
     private string GetFileName() {
         return $"{gameObject.name}.octree.bin";
+    }
+
+    public void SetOctree(Octree octre) {
+        this.octree = octree;
     }
 
     private void OnDrawGizmos() {
