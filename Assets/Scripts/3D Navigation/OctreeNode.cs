@@ -177,8 +177,21 @@ public class OctreeNode {
         // Then move it by (0.5, 0.5, 0.5) [when size = 1] to get it to the center
         return nodeCorner + (Vector3.one * (size / 2));
     }
+    
+    private static readonly Color[] colors = new Color[] {
+        Color.red,
+        Color.green,
+        Color.blue,
+        Color.yellow,
+        Color.magenta,
+        Color.cyan,
+        Color.white,
+        Color.black,
+        Color.gray
+    };
 
     public void DrawGizmos(bool displayIndicesText, Color textColor) {
+        Gizmos.color = colors[nodeLevel % colors.Length];
         Gizmos.DrawWireCube(center, Vector3.one * nodeSize);
 
         if (displayIndicesText) {

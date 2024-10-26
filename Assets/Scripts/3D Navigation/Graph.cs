@@ -26,7 +26,7 @@ public class GraphNode {
 public class Graph {
     // Need both of these so we can do FindNearestToPosition (which when doing brute force took a lot of CPU time)
     public Dictionary<OctreeNode, GraphNode> octreeToNodesDict;
-    private Octree octree;
+    private readonly Octree octree;
 
     public IEnumerable<GraphNode> nodes {
         get {

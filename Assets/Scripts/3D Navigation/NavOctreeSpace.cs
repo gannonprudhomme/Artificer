@@ -29,7 +29,7 @@ public class NavOctreeSpace : MonoBehaviour {
     public int NumberOfJobs = 12;
 
     // Must call Load() / LoadIfNeeded() to populate this
-    public Octree? octree { get; private set; }
+    public Octree? octree; // This should really be private(set), but it's not b/c the editor
 
     private Bounds? calculatedBounds = null; // For debug displaying
 
@@ -73,7 +73,29 @@ public class NavOctreeSpace : MonoBehaviour {
 
     public void SetOctree(Octree newOctree) {
         this.octree = newOctree;
+        
+        #if UNITY_EDITOR
+        // Destroy the previously cached gizmos list
+        gizmosAllNodes = null;
+        gizmosAllLeaves = null;
+        gizmosNotLeaves = null;
+        gizmosCollisionLeaves = null;
+        gizmosNoCollisionLeaves = null;
+        gizmosLeavesOutOfBounds = null;
+        gizmosLeavesInBounds = null;
+        gizmosNeighborsLines = null;
+        #endif
     }
+    
+    #if UNITY_EDITOR
+    private List<OctreeNode>? gizmosAllNodes = null;
+    private List<OctreeNode>? gizmosAllLeaves = null;
+    private List<OctreeNode>? gizmosNotLeaves = null;
+    private List<OctreeNode>? gizmosCollisionLeaves = null;
+    private List<OctreeNode>? gizmosNoCollisionLeaves = null;
+    private List<OctreeNode>? gizmosLeavesOutOfBounds = null;
+    private List<OctreeNode>? gizmosLeavesInBounds = null;
+    private Vector3[]? gizmosNeighborsLines = null;
 
     private void OnDrawGizmos() {
         if (calculatedBounds != null && DisplayBounds) {
@@ -90,75 +112,85 @@ public class NavOctreeSpace : MonoBehaviour {
 
         if (octree == null) return;
 
-        List<OctreeNode> allNodes = octree.GetAllNodes();
-        List<OctreeNode> allLeaves = allNodes.FindAll(node => node.children == null);
-        List<OctreeNode> notLeaves = allNodes.FindAll(node => node.children != null);
-        List<OctreeNode> collisionLeaves = allLeaves.FindAll(leaf => leaf.containsCollision);
-        List<OctreeNode> noCollisionLeaves = allLeaves.FindAll(leaf => !leaf.containsCollision);
-        List<OctreeNode> leavesOutOfBounds = allLeaves.FindAll(leaf => !leaf.isInBounds);
-        List<OctreeNode> leavesInBounds = allLeaves.FindAll(leaf => leaf.isInBounds);
+        gizmosAllNodes ??= octree.GetAllNodes();
+        gizmosAllLeaves ??= octree.GetAllNodes(onlyLeaves: true);
+        gizmosNotLeaves ??= gizmosAllNodes.FindAll(node => node.children != null);
+        gizmosCollisionLeaves ??= gizmosAllLeaves.FindAll(leaf => leaf.containsCollision);
+        gizmosNoCollisionLeaves ??= gizmosAllLeaves.FindAll(leaf => !leaf.containsCollision);
+        gizmosLeavesOutOfBounds ??= gizmosAllLeaves.FindAll(leaf => !leaf.isInBounds);
+        gizmosLeavesInBounds ??= gizmosAllLeaves.FindAll(leaf => leaf.isInBounds);
 
         if (DisplayLeaves) { // Display the leaves
             Gizmos.color = Color.green;
-            foreach(OctreeNode leaf in allLeaves) {
+            foreach(OctreeNode leaf in gizmosAllLeaves) {
                 leaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayNonLeaves) {
             Gizmos.color = Color.blue;
-            foreach(OctreeNode notLeaf in notLeaves) {
+            foreach(OctreeNode notLeaf in gizmosNotLeaves) {
                 notLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayCollisions) {
             Gizmos.color = Color.red;
-            foreach(OctreeNode collisionLeaf in collisionLeaves) {
+            foreach(OctreeNode collisionLeaf in gizmosCollisionLeaves) {
                 collisionLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayOutOfBounds) {
             Gizmos.color = Color.magenta;
-            foreach(OctreeNode outOfBoundsLeaf in leavesOutOfBounds) {
+            foreach(OctreeNode outOfBoundsLeaf in gizmosLeavesOutOfBounds) {
                 outOfBoundsLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayIsInBounds) {
             Gizmos.color = Color.yellow;
-            foreach(OctreeNode inBoundsLeaf in leavesInBounds) {
+            foreach(OctreeNode inBoundsLeaf in gizmosLeavesInBounds) {
                 inBoundsLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayNeighbors) {
-            List<(Vector3, Vector3)> validNeighbors = new();
+            gizmosNeighborsLines ??= GetNeighborLines(gizmosAllLeaves);
 
-            foreach(OctreeNode node in allLeaves) {
-                if (node.inBoundsNeighborsWithoutCollisions != null) {
-                    foreach (OctreeNode neighbor in node.inBoundsNeighborsWithoutCollisions) {
-                        validNeighbors.Add((node.center, neighbor.center));
-                    }
-                }
+            if (gizmosNeighborsLines != null) {
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawLineList(gizmosNeighborsLines);
             }
-
-            Gizmos.color = Color.blue;
-            DrawLineList(validNeighbors);
         }
     }
 
-    private static void DrawLineList(List<(Vector3, Vector3)> lines) {
+    private static Vector3[]? GetNeighborLines(List<OctreeNode> allLeaves) {
+        if (allLeaves.Count == 0) return null;
+
+        List<(Vector3, Vector3)> validNeighbors = new();
+
+        foreach(OctreeNode node in allLeaves) {
+            List<OctreeNode>? neighbors = node.inBoundsNeighborsWithoutCollisions;
+            if (neighbors == null) continue;
+
+            foreach(OctreeNode neighbor in neighbors) {
+                validNeighbors.Add((node.center, neighbor.center));
+            }
+        }
+
+        if (validNeighbors.Count == 0) return null;
+
         int currIndex = 0;
-        Vector3[] linesToDraw = new Vector3[lines.Count * 2];
-        foreach((Vector3, Vector3) pair in lines) {
+        Vector3[] linesToDraw = new Vector3[validNeighbors.Count * 2];
+        foreach((Vector3, Vector3) pair in validNeighbors) {
             linesToDraw[currIndex] = pair.Item1;
             linesToDraw[currIndex + 1] = pair.Item2;
 
             currIndex += 2;
         }
 
-        Gizmos.DrawLineList(linesToDraw);
+        return linesToDraw;
     }
+    #endif
 }
