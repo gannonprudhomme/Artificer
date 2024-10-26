@@ -9,7 +9,7 @@ using UnityEngine;
 
 public static class NewOctreeGenerator {
     public static IEnumerator GenerateOctree(
-        NewNavOctreeSpace navOctreeSpace,
+        NavOctreeSpace navOctreeSpace,
         int maxDivisionLevel,
         int numJobs
     ) {
@@ -39,7 +39,7 @@ public static class NewOctreeGenerator {
         // Create generation jobs
 
         Bounds bounds = navOctreeSpace.GetBounds();
-        long totalSize = NewNavOctreeSpace.CalculateSize(bounds.min, bounds.max);
+        long totalSize = CalculateSize(bounds.min, bounds.max);
 
         NewOctreeNode root = new(
             nodeLevel: 0,
@@ -84,18 +84,30 @@ public static class NewOctreeGenerator {
         stopwatch.Stop();
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         double seconds = ms / 1000d;
-        // Debug.Log($"Convert + Generate took {seconds:F2} seconds");
+        Debug.Log($"Convert + Generate took {seconds:F2} sec ({ms:F0} ms)");
 
-        // Combine all of the node maps into one
+        // Combine all node maps into one
 
         Dictionary<int4, NewOctreeNode> combinedManaged = CombineAllNodeMaps(allNodeMaps);
 
-        // Create the octree!
-        NewOctree octree = new(totalSize, bounds.center, combinedManaged);
-        navOctreeSpace.SetOctree(octree);
+        // Create the flat octree!
+        NewOctree flatOctree = new(totalSize, bounds.center, combinedManaged);
 
         // Mark in-bound leaves
-        yield return MarkInBoundLeaves(navOctreeSpace);
+        yield return MarkInBoundLeaves(flatOctree, navOctreeSpace);
+
+        // Convert it to a pointer-based octree
+        stopwatch.Restart();
+
+        Octree pointersBasedOctree = ConvertFlatOctreeToPointer(flatOctree);
+
+        stopwatch.Stop();
+        ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        seconds = ms / 1000d;
+        Debug.Log($"Converted to pointers based in {seconds:F2} sec ({ms:F0}) ms");
+
+        // Assign it to the NavOctreeSpace
+        navOctreeSpace.SetOctree(pointersBasedOctree);
 
         foreach(NativeArray<Vector3> verts in allVertsLocalSpace) { verts.Dispose(); }
         foreach(NativeArray<float3> verts in allVertsWorldSpace) { verts.Dispose(); }
@@ -105,12 +117,10 @@ public static class NewOctreeGenerator {
         mainStopwatch.Stop();
         ms = ((double)mainStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         seconds = ms / 1000d;
-        Debug.Log($"Total octree generation finished in {seconds:F2} seconds");
-    }
-
-    // Creates all of the jobs to convert the vertices from local space to world space
+        Debug.Log($"Total octree generation finished in {seconds:F2} sec ({ms:F0} ms)");
+    // Creates jobs to convert the vertices from local space to world space
     //
-    // This is step 1
+    // This is step 1 of octree generation
     private static JobHandle CreateConvertToWorldSpaceJobs(
         GameObject rootGameObject,
         List<NativeArray<Vector3>> allVertsLocalSpaceOutput, // output
@@ -123,11 +133,10 @@ public static class NewOctreeGenerator {
 
         int batchSize = 128;
         NativeList<JobHandle> allJobHandles = new(rootAndChildren.Count, Allocator.Temp);
-        for(int i = 0; i < rootAndChildren.Count; i++) {
-            GameObject currGameObject = rootAndChildren[i];
-
+        foreach(GameObject currGameObject in rootAndChildren) {
+            // Ensure we only do this with active game objects that have a MeshFilter component that is actually populated
             if (!currGameObject.TryGetComponent(out MeshFilter meshFilter)) continue;
-            if (meshFilter.sharedMesh == null) continue; // Shouldn't be needed - really just for the empty grash mesh
+            if (meshFilter.sharedMesh == null) continue; 
 
             Mesh mesh = meshFilter.sharedMesh;
             NativeArray<int> triangleVertices = new(mesh.triangles, Allocator.Persistent);
@@ -208,7 +217,7 @@ public static class NewOctreeGenerator {
         return jobs;
     }
 
-    // Combines all of the node maps from each OctreeGenerationJob into a final Dictionary
+    // Combines all the node maps from each OctreeGenerationJob into a final Dictionary
     // to be used to create the Octree
     //
     // This is step 3
@@ -222,7 +231,7 @@ public static class NewOctreeGenerator {
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
-        // For every hashmap, iterate through all of the keys and add it to the "Combined" dictionary
+        // For every hashmap, iterate through all keys and add it to the "Combined" dictionary
         // if there's a collision, then prioritize the node in the order so that:
         // 1. hasChildren == true
         // 2. Then if hasChildren is the same, pick the one where containsCollision == true
@@ -252,7 +261,7 @@ public static class NewOctreeGenerator {
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         double seconds = ms / 1000d;
 
-        // Debug.Log($"Combined all nodes with {combined.Count:n0} nodes in {seconds:F2} seconds");
+        Debug.Log($"Combined all nodes with {combined.Count:n0} nodes in {seconds:F2} sec ({ms:F0} ms)");
 
         return combined;
     }
@@ -261,17 +270,19 @@ public static class NewOctreeGenerator {
     //
     // This is step 4
     private static IEnumerator MarkInBoundLeaves(
-        NewNavOctreeSpace navOctreeSpace
+        NewOctree octree,
+        NavOctreeSpace navOctreeSpace
     ) {
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
-        List<NewOctreeNode> leaves = navOctreeSpace.octree!.GetAllNodes().FindAll((node) => node.isLeaf);
+        List<NewOctreeNode> leaves = octree!.GetAllNodes().FindAll((node) => node.isLeaf);
 
         NativeArray<RaycastCommand> commands = new(leaves.Count, Allocator.Persistent);
 
         for (int i = 0; i < leaves.Count; i++) {
-            // TODO: We can skip leaves that contain a collision & mark them as in boundssince we know that they're in bounds?
-            // I'm not even sure if that's true - it could contain a collision but be at the bottom of/under the map
+            // We might be able to skip leaves that contain a collision & mark them as in bounds since we know that they're in bounds?
+            // well, do we want leaves under the level to be in bounds? Probably not.
+            // So we actually can't do this.
 
             NewOctreeNode leaf = leaves[i];
 
@@ -282,13 +293,13 @@ public static class NewOctreeGenerator {
         JobHandle raycastJobHandle = RaycastCommand.ScheduleBatch(
             commands: commands,
             results: raycastHitResults,
-            minCommandsPerJob: navOctreeSpace.minCommandsPerRaycastJob, // Idk what to set this to
+            minCommandsPerJob: 100, // Idk what to set this to
             maxHits: 1 // We only need 1 to determine if this is "in bounds" or not
         );
 
         yield return WaitForJobToComplete(raycastJobHandle);
 
-        // Go through all of the RaycastHit results
+        // Go through all RaycastHit results
         // and mark the corresponding node as in or out of bounds depending on if it hit anything
         for(int i = 0; i < leaves.Count; i++) {
             NewOctreeNode leafCopy = leaves[i];
@@ -308,37 +319,37 @@ public static class NewOctreeGenerator {
         // we need to re-update the list
         // TODO: We could actually avoid this relatively easily, but we'd have to be able to modify the Octree's nodes dict
         // directly, which probably isn't a good idea to allow
-        navOctreeSpace.octree.UpdateDictionaryWithNodes(leaves);
+        octree.UpdateDictionaryWithNodes(leaves);
 
         stopwatch.Stop();
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         double seconds = ms / 1000d;
-        // Debug.Log($"Marked {leaves.Count:n0} leaves as in-bounds / out-of-bounds in {seconds:F2} seconds");
+        Debug.Log($"Marked in-bound leaves ({leaves.Count:n0}) in {seconds:F2} sec ({ms:F0} ms)");
 
         commands.Dispose();
         raycastHitResults.Dispose();
     }
 
     // Recursively builds a pointer-based octree from the flat (jobs) octree
-    public static Octree ConvertFlatOctreeToPointer(NewOctree flatOctree) {
+    private static Octree ConvertFlatOctreeToPointer(NewOctree flatOctree) {
         Dictionary<int4, NewOctreeNode> flatNodesMap = flatOctree.nodes;
         Dictionary<int4, OctreeNode> pointerNodesMap = new(flatNodesMap.Count);
 
         Vector3 octreeCorner = flatOctree.center - (new float3(1) * (flatOctree.size / 2f));
 
         int4 rootKey = new(0);
-        ConvertFloatNodeAndChildrenToPointersBased(rootKey, flatNodesMap, pointerNodesMap, flatOctree.size, octreeCorner);
+        OctreeNode root = ConvertFloatNodeAndChildrenToPointersBased(rootKey, flatNodesMap, pointerNodesMap, flatOctree.size, octreeCorner);
 
         Octree ret = new(flatOctree.size, maxDivisionLevel: 0, flatOctree.center) { // maxDivisionLevel doesn't matter, it's only used by UI
-            root = pointerNodesMap[rootKey]
+            root = root
         };
 
         return ret;
     }
 
-    // Create a new pointers-based node from the flat node & add it to the pointers-based dictionary
+    // Create a new pointers-based node from the flat node (using currentKey) & add it to the pointers-based dictionary
     // Then see if the node has children, if it does, calculate their indices, and repeat for each child
-    private static void ConvertFloatNodeAndChildrenToPointersBased(
+    private static OctreeNode ConvertFloatNodeAndChildrenToPointersBased(
         int4 currentKey,
         Dictionary<int4, NewOctreeNode> flatNodesMap,
         Dictionary<int4, OctreeNode> pointersNodesMap, // pointersBasedNodeMap is really what this means
@@ -357,7 +368,7 @@ public static class NewOctreeGenerator {
 
         // Reached a leaf - don't need to create children!
         if (!currentFlatNode.hasChildren) {
-            return;
+            return pointersNode;
         }
 
         pointersNode.children = new OctreeNode[2, 2, 2];
@@ -372,26 +383,29 @@ public static class NewOctreeGenerator {
                         pointersNode.nodeLevel + 1
                     );
 
-                    ConvertFloatNodeAndChildrenToPointersBased(
+                    OctreeNode child = ConvertFloatNodeAndChildrenToPointersBased(
                         currentKey: childKey,
                         flatNodesMap: flatNodesMap,
                         pointersNodesMap: pointersNodesMap,
                         octreeSize: octreeSize / 2,
                         octreeCorner: octreeCorner + new Vector3(x, y, z) * (octreeSize / 2f)
                     );
+                    
+                    // Connect the child we created to the parent
+                    pointersNode.children[x, y, z] = child;
                 }
             }
         }
+
+        return pointersNode;
     }
 
-    public static IEnumerator GenerateNeighbors(NewNavOctreeSpace space) {
-        if (space.octree == null) yield break;
-
+    public static IEnumerator GenerateNeighbors(NewOctree octree) {
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
-        List<NewOctreeNode> allValidLeaves = space.octree!.GetAllNodes().FindAll(
-            (node) => node.isLeaf && !node.containsCollision && node.inBounds
+        List<NewOctreeNode> allValidLeaves = octree!.GetAllNodes().FindAll(
+            (node) => node is { isLeaf: true, containsCollision: false, inBounds: true }
         );
 
         NativeArray<int4> allValidLeafKeys = new(allValidLeaves.Count, Allocator.Persistent);
@@ -399,8 +413,8 @@ public static class NewOctreeGenerator {
             allValidLeafKeys[i] = allValidLeaves[i].dictionaryKey;
         }
 
-        NativeHashMap<int4, NewOctreeNode> nodes = new(space.octree!.nodes.Count, Allocator.Persistent);
-        foreach(KeyValuePair<int4, NewOctreeNode> kvp in space.octree!.nodes) {
+        NativeHashMap<int4, NewOctreeNode> nodes = new(octree!.nodes.Count, Allocator.Persistent);
+        foreach(KeyValuePair<int4, NewOctreeNode> kvp in octree!.nodes) {
             nodes.Add(kvp.Key, kvp.Value);
         }
 
@@ -414,7 +428,7 @@ public static class NewOctreeGenerator {
             edges = edges.AsParallelWriter()
         };
 
-        int batchSize = allValidLeaves.Count / space.batchThing;
+        int batchSize = allValidLeaves.Count / 1024;
         JobHandle jobHandle = job.Schedule(allValidLeaves.Count, batchSize);
 
         yield return WaitForJobToComplete(jobHandle);
@@ -481,6 +495,32 @@ public static class NewOctreeGenerator {
         for(int i = 0; i < gameObject.transform.childCount; i++) {
             GetAllChildrenRecursively(gameObject.transform.GetChild(i).gameObject, ret);
         }
+    }
+    
+    // Calculates the minimum length of a side as a power of 2 that encompasses the entire bounds
+    //
+    // I'm not positive how necessary this is, but it does make things simpler / cleaner
+    private static int CalculateSize(Vector3 min, Vector3 max) {
+        float length = max.x - min.x;
+        float height = max.y - min.y;
+        float width = max.z - min.z;
+
+        // We need to use the longest side since we can only calculate Size as a cube
+        double longestSide = (double) Mathf.Max(length, Mathf.Max(width, height));
+        double volume = longestSide * longestSide * longestSide;
+
+        int currMinSize = 1;
+        long currVolume = 1;
+        while ((currVolume) < volume) {
+            currMinSize *= 2; // Power of 2's!
+            // I'm terrified of integer overflow and am too lazy to figure out how to do this confidently
+            long minSize = currMinSize;
+            currVolume = minSize * minSize * minSize;
+        }
+
+        long totalVolume = currMinSize * currMinSize * currMinSize;
+        // Debug.Log($"With dimensions of {length}, {height}, {width} and volume {volume} got min size of {currMinSize} and min volume {totalVolume}");
+        return currMinSize;
     }
 
     private static IEnumerator WaitForJobToComplete(

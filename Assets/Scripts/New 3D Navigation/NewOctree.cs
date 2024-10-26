@@ -38,17 +38,17 @@ public class NewOctree {
 
     // Replacement for GraphNode.edges
     public List<int4>? GetNeighborsForNode(NewOctreeNode node) {
-        if (!edges.ContainsKey(node.dictionaryKey)) return null;
+        if (!edges.TryGetValue(node.dictionaryKey, out List<int4>? neighbors)) return null;
 
         // We could have a version of this which returns List<NewOctreeNode>
         // it just depends when we want to make copies
 
-        return edges[node.dictionaryKey];
+        return neighbors;
     }
 
     // TODO: Ideally I wouldn't have to do this
     public void UpdateDictionaryWithNodes(List<NewOctreeNode> newNodes) {
-        foreach(var node in newNodes) {
+        foreach(NewOctreeNode node in newNodes) {
             if (!nodes.ContainsKey(node.dictionaryKey)) {
                 Debug.LogError("Node isn't in the dictionary!");
                 continue;

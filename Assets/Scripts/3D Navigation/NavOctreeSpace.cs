@@ -33,15 +33,6 @@ public class NavOctreeSpace : MonoBehaviour {
 
     private Bounds? calculatedBounds = null; // For debug displaying
     
-    public void MarkInboundsLeaves() {
-        if (octree == null) {
-            Debug.LogError("No Octree Loaded!");
-            return;
-        }
-
-        octree.MarkInboundsLeaves();
-    }
-
     // Save the generated octree to a file
     public void Save() {
         if (octree == null) {
