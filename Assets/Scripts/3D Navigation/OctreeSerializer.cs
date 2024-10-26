@@ -65,7 +65,7 @@ public class OctreeSerializer {
         writer.Write(node.nodeLevel);
         writer.Write(parentIndex);
         writer.Write(node.containsCollision);
-        writer.Write(node.childrenContainsCollision);
+        writer.Write(false); // TODO: This was childrenContainsCollision, remove it when I have time to generate again
         writer.Write(node.isInBounds);
     }
 
@@ -131,7 +131,6 @@ public class OctreeSerializer {
         int nodeLevel = reader.ReadInt32();
         int parentIndex = reader.ReadInt32();
         bool containsCollision = reader.ReadBoolean();
-        bool childrenContainsCollision = reader.ReadBoolean();
         bool isInBounds = reader.ReadBoolean();
 
         OctreeNode node = new OctreeNode(
@@ -140,7 +139,6 @@ public class OctreeSerializer {
             octree,
             // center,
             containsCollision,
-            childrenContainsCollision,
             isInBounds
         );
 

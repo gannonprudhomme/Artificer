@@ -21,8 +21,6 @@ public class OctreeNode {
     public OctreeNode[,,]? children; 
     public bool containsCollision { get; private set; }
 
-    public bool childrenContainsCollision { get; private set; }
-
     public bool isInBounds = false;
 
     public bool IsLeaf {
@@ -55,7 +53,6 @@ public class OctreeNode {
         this.center = CalculateCenter(index, nodeSize, octreeCorner);
 
         containsCollision = false;
-        childrenContainsCollision = false;
     } 
 
     public OctreeNode(
@@ -64,13 +61,11 @@ public class OctreeNode {
         Octree octree,
         // Vector3 center,
         bool containsCollision,
-        bool childrenContainsCollision,
         bool isInBounds
     ) {
         this.nodeLevel = nodeLevel;
         this.index = index;
         this.containsCollision = containsCollision;
-        this.childrenContainsCollision = childrenContainsCollision;
         this.isInBounds = isInBounds;
 
         nodeSize = octree.Size / (1 << nodeLevel);
@@ -136,10 +131,6 @@ public class OctreeNode {
 
         // It does intersect the triangle! Lets break it up
         if (nodeLevel < maxDivisionLevel) { // If we're not at the smallest node level yet (we can keep dividing)
-            // We're breaking it up because there's a collision
-            // Thus we know this one's children will contains collisions, so mark it as such
-            childrenContainsCollision = true;
-
             // Create children if necessary
             CreateChildrenIfHaventYet(octreeCorner, octreeSize);
     
