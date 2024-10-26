@@ -100,6 +100,36 @@ public class OctreeSerializer {
         writer.Write(node.isInBounds);
     }
 
+    // Load the generated octree from a file into memory (put in this.octree)
+    public static Octree Load(string filename) {
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+
+        Octree octree;
+
+        using (Stream stream = File.Open(filename, FileMode.Open)) {
+            // Read all of the data at once, rather than reading bytes at a time
+            // Led to a ~27% speed up (2.2 sec -> 1.6 sec)
+            byte[] buffer = new byte[stream.Length];
+            stream.Read(buffer, 0, buffer.Length);
+            using (var memoryStream = new MemoryStream(buffer)) {
+                using (var reader = new BinaryReader(memoryStream)) {
+                    octree = OctreeSerializer.Deserialize(reader);
+                }
+            }
+        }
+
+        stopwatch.Stop();
+
+        int nodeCount = octree.GetAllNodes().Count;
+
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+        Debug.Log($"Read Octree from '{filename}' and got {nodeCount:N0} nodes in {seconds:F2} sec ({ms:F0} ms)");
+
+        return octree;
+    } 
+
     public static Octree Deserialize(BinaryReader reader) {
         int maxDivisionLevel = reader.ReadInt32();
         int size = reader.ReadInt32();
