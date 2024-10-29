@@ -361,7 +361,9 @@ public static class NewOctreeGenerator {
             nodeLevel: currentFlatNode.nodeLevel,
             index: new int[] { currentKey.x, currentKey.y, currentKey.z },
             octreeSize,
-            octreeCorner
+            octreeCorner,
+            isInBounds: currentFlatNode.inBounds,
+            containsCollision: currentFlatNode.containsCollision
         );
 
         pointersNodesMap[currentKey] = pointersNode;

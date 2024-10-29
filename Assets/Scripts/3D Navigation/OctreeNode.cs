@@ -39,19 +39,14 @@ public class OctreeNode {
     // but those valid neighbors won't have an edge to *this* node. (i.e. it will be one-directional invalid -> valid, not invalid <-> valid)
     public List<OctreeNode>? inBoundsNeighborsWithoutCollisions = null;
 
-    // Used for deserializing
-    public int4 dictionaryKey {
-        get {
-            return new(index[0], index[1], index[2], nodeLevel);
-        }
-    }
-
     // Used when generating the Octree from a mesh
     public OctreeNode(
         int nodeLevel,
         int[] index,
         int octreeSize,
-        Vector3 octreeCorner
+        Vector3 octreeCorner,
+        bool isInBounds,
+        bool containsCollision
     ) {
         this.nodeLevel = nodeLevel;
         this.index = index;
@@ -59,7 +54,8 @@ public class OctreeNode {
         this.nodeSize = octreeSize / (1 << nodeLevel);
         this.center = CalculateCenter(index, nodeSize, octreeCorner);
 
-        containsCollision = false;
+        this.isInBounds = isInBounds;
+        this.containsCollision = containsCollision;
     } 
 
     public OctreeNode(
@@ -112,7 +108,10 @@ public class OctreeNode {
             float childEdgeSize = nodeSize / 2;
             Vector3 relativePosition = (position - center) / childEdgeSize;
 
-            // Now that we know the "direction" of it, we can get which indiex
+            // Now that we know the "direction" of it, we can get which index
+            // TODO: This can be simplifed, using either:
+            // 1. Fast Parallel Surface & Solid Voxelization on GPUs
+            // 2. https://geidav.wordpress.com/2014/08/18/advanced-octrees-2-node-representations/
             int xIdx = relativePosition.x < 0 ? 0 : 1;
             int yIdx = relativePosition.y < 0 ? 0 : 1;
             int zIdx = relativePosition.z < 0 ? 0 : 1;
@@ -124,13 +123,16 @@ public class OctreeNode {
         }
     }
 
-    public List<OctreeNode> GetAllNodes(bool onlyLeaves = false) {
-        List<OctreeNode> ret = new();
-
+    // Optimization made: Changing this to share the same List between all calls reduced this total execution on 1.7M nodes from 0.5 sec -> 0.07 sec (reduction of ~86%)
+    // Getting all nodes in a flat based is still faster (0.01 sec vs 0.07 sec for 1.7M nodes), but if we only get leaves then the pointer-based is faster (0.07 sec vs 0.35 sec)
+    // since we don't have to do List.FindAll
+    //
+    // onlyLeaves = true doesn't change how long this takes in practice, which makes sense.
+    public void GetAllNodes(List<OctreeNode> ret, bool onlyLeaves = false) {
         if (IsLeaf) { // if this one is a leaf
             // return just a list with just this and don't try to iterate over children
             ret.Add(this);
-            return ret;
+            return;
         };
 
         // Only adds this node if we're asking for all nodes (and not only leaves)
@@ -177,6 +179,12 @@ public class OctreeNode {
         return x + (y * 2) + (z * 4);
     }
 
+    public static (int x, int y, int z) GetCoordinatesFrom1D(int index) {
+        int z = index / 4;
+        int y = (index % 4) / 2;
+        int x = index % 2;
+        return (x, y, z);
+    }
     
     private static readonly Color[] colors = new Color[] {
         Color.red,
