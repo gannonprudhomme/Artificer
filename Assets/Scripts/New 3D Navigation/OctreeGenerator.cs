@@ -338,7 +338,7 @@ public static class NewOctreeGenerator {
         Vector3 octreeCorner = flatOctree.center - (new float3(1) * (flatOctree.size / 2f));
 
         int4 rootKey = new(0);
-        OctreeNode root = ConvertFloatNodeAndChildrenToPointersBased(rootKey, flatNodesMap, pointerNodesMap, flatOctree.size, octreeCorner);
+        OctreeNode root = ConvertFlatNodeAndChildrenToPointersBased(rootKey, flatNodesMap, pointerNodesMap, flatOctree.size, octreeCorner);
 
         Octree ret = new(flatOctree.size, maxDivisionLevel: 0, flatOctree.center) { // maxDivisionLevel doesn't matter, it's only used by UI
             root = root
@@ -349,7 +349,7 @@ public static class NewOctreeGenerator {
 
     // Create a new pointers-based node from the flat node (using currentKey) & add it to the pointers-based dictionary
     // Then see if the node has children, if it does, calculate their indices, and repeat for each child
-    private static OctreeNode ConvertFloatNodeAndChildrenToPointersBased(
+    private static OctreeNode ConvertFlatNodeAndChildrenToPointersBased(
         int4 currentKey,
         Dictionary<int4, NewOctreeNode> flatNodesMap,
         Dictionary<int4, OctreeNode> pointersNodesMap, // pointersBasedNodeMap is really what this means
@@ -371,30 +371,28 @@ public static class NewOctreeGenerator {
             return pointersNode;
         }
 
-        pointersNode.children = new OctreeNode[2, 2, 2];
+        pointersNode.children = new OctreeNode[8];
 
-        for (int x = 0; x < 2; x++) {
-            for(int y = 0; y < 2; y++) {
-                for(int z = 0; z < 2; z++) {
-                    int4 childKey = new(
-                        (currentKey.x * 2) + x,
-                        (currentKey.y * 2) + y,
-                        (currentKey.z * 2) + z,
-                        pointersNode.nodeLevel + 1
-                    );
+        for (int i = 0; i < 8; i++) {
+            var (x, y, z) = OctreeNode.GetCoordinatesFrom1D(i);
+            
+            int4 childKey = new(
+                (currentKey.x * 2) + x,
+                (currentKey.y * 2) + y,
+                (currentKey.z * 2) + z,
+                pointersNode.nodeLevel + 1
+            );
 
-                    OctreeNode child = ConvertFloatNodeAndChildrenToPointersBased(
-                        currentKey: childKey,
-                        flatNodesMap: flatNodesMap,
-                        pointersNodesMap: pointersNodesMap,
-                        octreeSize: octreeSize / 2,
-                        octreeCorner: octreeCorner + new Vector3(x, y, z) * (octreeSize / 2f)
-                    );
-                    
-                    // Connect the child we created to the parent
-                    pointersNode.children[x, y, z] = child;
-                }
-            }
+            OctreeNode child = ConvertFlatNodeAndChildrenToPointersBased(
+                currentKey: childKey,
+                flatNodesMap: flatNodesMap,
+                pointersNodesMap: pointersNodesMap,
+                octreeSize: octreeSize / 2,
+                octreeCorner: octreeCorner + new Vector3(x, y, z) * (octreeSize / 2f)
+            );
+            
+            // Connect the child we created to the parent
+            pointersNode.children[i] = child;
         }
 
         return pointersNode;

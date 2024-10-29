@@ -3,6 +3,7 @@ using Unity.Jobs;
 using UnityEngine;
 using Unity.Mathematics;
 using Unity.Burst;
+using Unity.Collections.LowLevel.Unsafe;
 
 #nullable enable
 
@@ -267,7 +268,6 @@ public struct ConvertVertsToWorldSpaceJob : IJobParallelFor {
 //
 // There should only be one of these jobs
 // [BurstCompile]
-/*
 public struct CombineAllNodesJob: IJob {
     // [ReadOnly]
     // [NativeDisableContainerSafetyRestriction]
@@ -315,4 +315,3 @@ public struct CombineAllNodesJob: IJob {
         Debug.Log("Done combining!");
     }
 }
-*/

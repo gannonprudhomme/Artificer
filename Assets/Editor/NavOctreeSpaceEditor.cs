@@ -50,16 +50,13 @@ public class NavOctreeSpaceEditor : Editor {
             EditorCoroutineUtility.StartCoroutine(coroutine, this);
         }
 
-        if (GUILayout.Button("Mark In-Bounds leaves")) {
-            navOctreeSpace.MarkInboundsLeaves();
-        }
-
         if (GUILayout.Button("Save")) {
-            navOctreeSpace.Save();
+            OctreeSerializer.Save(navOctreeSpace);
         }
 
         if (GUILayout.Button("Load")) {
-            navOctreeSpace.Load();
+            Octree octree = OctreeSerializer.Load(navOctreeSpace.GetFileName());
+            navOctreeSpace.octree = octree;
         }
 
         if (GUILayout.Button("Build Neighbors")) {

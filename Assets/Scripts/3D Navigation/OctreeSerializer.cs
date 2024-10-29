@@ -141,9 +141,9 @@ public class OctreeSerializer {
 
         int nodeCount = reader.ReadInt32();
 
-        // Get the first node, which is the root
-        Dictionary<OctreeNode, int> childToParentIndexMap = new();
+        Dictionary<OctreeNode, int> childToParentIndexMap = new(nodeCount);
 
+        // Get the first node, which is the root
         OctreeNode root = DeserializeNode(reader, octree, childToParentIndexMap);
         octree.root = root;
 
@@ -162,7 +162,7 @@ public class OctreeSerializer {
             if (parentIndex == -1) continue; // root doesn't have a parent
 
             OctreeNode parent = allNodes[parentIndex];
-            parent.children ??= new OctreeNode[2, 2, 2]; // Init children if it's null
+            parent.children ??= new OctreeNode[8]; // Init children if it's null
 
             // Now figure out what index we are relative to the parent
             // which we can do using both of their indices
@@ -171,7 +171,7 @@ public class OctreeSerializer {
             int y = node.index[1] - (parent.index[1] * 2);
             int z = node.index[2] - (parent.index[2] * 2);
 
-            parent.children[x, y, z] = node;
+            parent.children[OctreeNode.Get1DIndex(x, y, z)] = node;
         }
 
         return octree;
@@ -194,7 +194,7 @@ public class OctreeSerializer {
         bool containsCollision = reader.ReadBoolean();
         bool isInBounds = reader.ReadBoolean();
 
-        OctreeNode node = new OctreeNode(
+        OctreeNode node = new(
             nodeLevel,
             index,
             octree,
@@ -233,7 +233,7 @@ public class OctreeSerializer {
         for (int x = 0; x < 2; x++) {
             for (int y = 0; y < 2; y++) {
                 for (int z = 0; z < 2; z++) {
-                    OctreeNode child = curr.children[x, y, z];
+                    OctreeNode child = curr.children[OctreeNode.Get1DIndex(x, y, z)];
                     if (child == null) continue;
 
                     nodes.AddRange(GetAllNodesAndSetParentMap(child, curr, childToParentMap));

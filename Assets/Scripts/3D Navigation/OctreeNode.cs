@@ -19,14 +19,13 @@ public class OctreeNode {
     public readonly int nodeSize;
     public readonly Vector3 center;
 
-    public OctreeNode[,,]? children; 
+    // 1D array that's actually 2x2x2 (8 total)
+    public OctreeNode[]? children; 
     public bool containsCollision { get; private set; }
 
     public bool isInBounds = false;
 
-    public bool IsLeaf {
-        get { return children == null; }
-    }
+    public bool IsLeaf => children == null;
 
     // All leaf neighbors
     //
@@ -120,7 +119,7 @@ public class OctreeNode {
 
             // Since this isn't a leaf (it has children)
             // we can go into the child for it
-            OctreeNode child = children![xIdx, yIdx, zIdx];
+            OctreeNode child = children![Get1DIndex(xIdx, yIdx, zIdx)];
             return child.FindNodeForPosition(position);
         }
     }
@@ -138,18 +137,12 @@ public class OctreeNode {
         if (!onlyLeaves) {
             ret.Add(this);
         }
+        
+        for(int i = 0; i < 8; i++) {
+            OctreeNode child = children![i];
 
-        for (int x = 0; x < 2; x++) {
-            for (int y = 0; y < 2; y++) {
-                for (int z = 0; z < 2; z++) {
-                    OctreeNode child = children![x, y, z];
-
-                    ret.AddRange(child.GetAllNodes(onlyLeaves));
-                }
-            }
+            child.GetAllNodes(ret, onlyLeaves);
         }
-
-        return ret;
     }
 
     public void AddEdgeTo(OctreeNode neighbor) {
@@ -177,6 +170,13 @@ public class OctreeNode {
         // Then move it by (0.5, 0.5, 0.5) [when size = 1] to get it to the center
         return nodeCorner + (Vector3.one * (size / 2));
     }
+   
+    // Get the 1D index of a 2x2x2 array
+    public static int Get1DIndex(int x, int y, int z) {
+        // x + (y * xMax) + (z * xMax * yMax)
+        return x + (y * 2) + (z * 4);
+    }
+
     
     private static readonly Color[] colors = new Color[] {
         Color.red,

@@ -112,7 +112,7 @@ public static class GraphGenerator {
 
         // This is more like currRelativeSize
         // since the actual size is (octree.Size / (1 << nodeLevel))
-        int currSize = 1 << currOctLeaf.nodeLevel;
+        int currSize = 1 << currOctLeaf.nodeLevel; // 2^nodeLevel
 
         // Starting at the root, find the leaf closest to dir
         OctreeNode current = octree.root!;
@@ -125,7 +125,7 @@ public static class GraphGenerator {
             currSize = currSize >> 1; // Divide by 2 lol
 
             // For each coordinate poxition (x, y, z), we need to determine if it's a 0 or 1 basically
-            current = current.children![xIndex / currSize, yIndex / currSize, zIndex / currSize];
+            current = current.children![OctreeNode.Get1DIndex(xIndex / currSize, yIndex / currSize, zIndex / currSize)];
 
             // Offset xIndex, yIndex, and zIndex accordingly...?
             xIndex %= currSize;

@@ -13,12 +13,8 @@ public class OctreeManager : MonoBehaviour {
     // Used to load the Octree from memory
     public NavOctreeSpace? NavSpace = null;
 
-    public Octree? Octree { 
-        get {
-            return NavSpace!.octree;
-        }
-    } 
-    public Graph? Graph { get; set; } // Used to be "WispGraph"
+    public Octree? Octree => NavSpace!.octree;
+    public Graph? Graph { get; private set; } // Used to be "WispGraph"
 
     private void Awake() {
         if (shared != null) {
