@@ -96,7 +96,6 @@ public class OctreeSerializer {
         writer.Write(node.nodeLevel);
         writer.Write(parentIndex);
         writer.Write(node.containsCollision);
-        writer.Write(false); // TODO: This was childrenContainsCollision, remove it when I have time to generate again
         writer.Write(node.isInBounds);
     }
 
