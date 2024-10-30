@@ -174,13 +174,12 @@ public struct OctreeGenerationJob: IJob {
         p3 -= node.center;
 
         // Do axis check? Not sure what we're doing here
-        float xMin, xMax, yMin, yMax, zMin, zMax = 0;
-        xMin = math.min(p1.x, math.min(p2.x, p3.x));
-        xMax = math.max(p1.x, math.max(p2.x, p3.x));
-        yMin = math.min(p1.y, math.min(p2.y, p3.y));
-        yMax = math.max(p1.y, math.max(p2.y, p3.y));
-        zMin = math.min(p1.z, math.min(p2.z, p3.z));
-        zMax = math.max(p1.z, math.max(p2.z, p3.z));
+        float xMin = math.min(p1.x, math.min(p2.x, p3.x));
+        float xMax = math.max(p1.x, math.max(p2.x, p3.x));
+        float yMin = math.min(p1.y, math.min(p2.y, p3.y));
+        float yMax = math.max(p1.y, math.max(p2.y, p3.y));
+        float zMin = math.min(p1.z, math.min(p2.z, p3.z));
+        float zMax = math.max(p1.z, math.max(p2.z, p3.z));
 
         float radius = (node.size / 2) - tolerance;
         if (xMin >= radius || xMax < -radius || yMin >= radius || yMax < -radius || zMin >= radius || zMax < -radius) return false;
@@ -242,7 +241,7 @@ public struct ConvertVertsToWorldSpaceJob : IJobParallelFor {
     // NativeArray<Vector3> normals; // input
 
     [WriteOnly]
-    public NativeArray<float3> vertsWorldSpaceOutput;
+    private NativeArray<float3> vertsWorldSpaceOutput;
 
     public ConvertVertsToWorldSpaceJob(
         NativeArray<Vector3> vertsLocalSpaceInput,

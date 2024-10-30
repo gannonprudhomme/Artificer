@@ -118,6 +118,8 @@ public static class NewOctreeGenerator {
         ms = ((double)mainStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         seconds = ms / 1000d;
         Debug.Log($"Total octree generation finished in {seconds:F2} sec ({ms:F0} ms)");
+    }
+
     // Creates jobs to convert the vertices from local space to world space
     //
     // This is step 1 of octree generation

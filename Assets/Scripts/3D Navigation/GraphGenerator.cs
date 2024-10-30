@@ -6,8 +6,9 @@ using UnityEngine;
 
 // Helper class for generating a Graph from an Octree
 public static class GraphGenerator {
-    public static readonly int[,] allFaceDirs = { { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 } };
-    public static readonly int[,] allDiagonalDirs = { { 0, 1, 1 }, { 0, 1, -1 }, { 0, -1, 1 }, { 0, -1, -1 }, { 1, 0, 1 }, { -1, 0, 1 }, { 1, 0, -1 }, { -1, 0, -1 }, { 1, 1, 0 }, { 1, -1, 0 }, { -1, 1, 0 }, { -1, -1, 0 } };
+    // TODO: Convert to 1D array?
+    private static readonly int[,] allFaceDirs = { { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 } };
+    private static readonly int[,] allDiagonalDirs = { { 0, 1, 1 }, { 0, 1, -1 }, { 0, -1, 1 }, { 0, -1, -1 }, { 1, 0, 1 }, { -1, 0, 1 }, { 1, 0, -1 }, { -1, 0, -1 }, { 1, 1, 0 }, { 1, -1, 0 }, { -1, 1, 0 }, { -1, -1, 0 } };
 
     public static Graph GenerateGraph(Octree octree, bool shouldBuildDiagonals = true) {
         // Also creates all of the GraphNodes we need
@@ -116,7 +117,7 @@ public static class GraphGenerator {
 
         // Starting at the root, find the leaf closest to dir
         OctreeNode current = octree.root!;
-        for(int level = 0; level < currOctLeaf.nodeLevel; level++) { // I'm not sure if this is 1:1 to how we think about levels
+        for(int level = 0; level < currOctLeaf.nodeLevel; level++) {
             if (current.IsLeaf) { // If we reached a leaf then we got it! Return
                 return current;
             }
