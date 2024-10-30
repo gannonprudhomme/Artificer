@@ -6,9 +6,9 @@ using UnityEngine;
 
 // Component to go on the (parent-most) Level game object
 //
-// Intended to be the equivalent of NavMeshSurface
+// _Intended_ to be the equivalent of NavMeshSurface (ended up just being the editor version of it)
 //
-// Generate the Octree in the editor using NavOctreeSpaceEditor 
+// Intended to be the "gatekeeper" of the Octree, in practice it's really just for the editor (debug displaying, filename)
 public class NavOctreeSpace : MonoBehaviour {
     [Header("Debug")]
     public bool DisplayLeaves = false; // Displays the leaves
