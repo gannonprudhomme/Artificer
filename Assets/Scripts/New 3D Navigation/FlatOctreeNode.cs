@@ -4,7 +4,7 @@ using Unity.Collections;
 
 #nullable enable
 
-public struct NewOctreeNode {
+public struct FlatOctreeNode {
     public readonly byte nodeLevel;
 
     // Length of a side
@@ -27,7 +27,7 @@ public struct NewOctreeNode {
 
     public readonly bool isLeaf => !hasChildren;
 
-    public NewOctreeNode(
+    public FlatOctreeNode(
         byte nodeLevel,
         float size,
         int3 index,

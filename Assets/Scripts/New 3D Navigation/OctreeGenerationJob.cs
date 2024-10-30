@@ -28,7 +28,7 @@ public struct OctreeGenerationJob: IJob {
     // wtf should the key be? morton code? does that even make sense?
     // honestly byte4 would be ideal
     // TODO: Add "output" to this?
-    public NativeHashMap<int4, NewOctreeNode> nodes; // This is what we'll return, probably?
+    public NativeHashMap<int4, FlatOctreeNode> nodes; // This is what we'll return, probably?
 
     private int startIndexInclusive;
     private int endIndexExclusive;
@@ -38,7 +38,7 @@ public struct OctreeGenerationJob: IJob {
         int endIndexExclusive,
         NativeArray<int> meshTriangles,
         NativeArray<float3> meshVertsWorldSpace,
-        NativeHashMap<int4, NewOctreeNode> nodes, // the output
+        NativeHashMap<int4, FlatOctreeNode> nodes, // the output
         float3 octreeCenter,
         long totalOctreeSize,
         int maxDivisionLevel
@@ -68,7 +68,7 @@ public struct OctreeGenerationJob: IJob {
     }
 
     private void DivideTriangleUntilLevel( // TODO: Better name?
-        NewOctreeNode node,
+        FlatOctreeNode node,
         float3 point1,
         float3 point2,
         float3 point3
@@ -82,7 +82,7 @@ public struct OctreeGenerationJob: IJob {
         // Debug.Log($"Dividing for node {node.index}; {node.nodeLevel}");
 
         // I think this is making a copy anyways, so I'm just doing this to be explicit
-        NewOctreeNode copy = node;
+        FlatOctreeNode copy = node;
 
         bool cantDivideAnyFurther = node.nodeLevel >= maxDivisionLevel;
         if (cantDivideAnyFurther) {
@@ -102,7 +102,7 @@ public struct OctreeGenerationJob: IJob {
         for(int i = 0; i < 8; i++) {
             int4 childIndex = copy.GetChildKey(i);
 
-            if (!nodes.TryGetValue(childIndex, out NewOctreeNode child)) {
+            if (!nodes.TryGetValue(childIndex, out FlatOctreeNode child)) {
                 Debug.LogError("Tried to get a child that doesn't exist?");
                 continue;
             }
@@ -116,16 +116,16 @@ public struct OctreeGenerationJob: IJob {
         }
     }
 
-    private void CreateChildrenForNode(NewOctreeNode node) {
+    private void CreateChildrenForNode(FlatOctreeNode node) {
         float3 octreeCorner = octreeCenter - (new float3(1) * totalOctreeSize / 2);
 
-        NewOctreeNode currCopy = node;
+        FlatOctreeNode currCopy = node;
         currCopy.hasChildren = true;
         nodes[currCopy.dictionaryKey] = currCopy;
 
         // Dunno which of these we should do
         for(int i = 0; i < 8; i++) {
-            int3 childIndexOffset = NewOctreeNode.childIndices[i];
+            int3 childIndexOffset = FlatOctreeNode.childIndices[i];
             // x, y, z are all either 0 or 1
             var (x, y, z) = (childIndexOffset[0], childIndexOffset[1], childIndexOffset[2]);
 
@@ -144,7 +144,7 @@ public struct OctreeGenerationJob: IJob {
             float3 childCorner = octreeCorner + (childSize * new float3(newChildIndex));
             float3 childCenter = childCorner + (new float3(1) * (childSize / 2)); // Move it by e.g. (0.5, 0.5, 0.5) when size = 1
 
-            NewOctreeNode child = new(
+            FlatOctreeNode child = new(
                 nodeLevel: (byte) (node.nodeLevel + 1),
                 size: node.size / 2,
                 index: newChildIndex,
@@ -161,7 +161,7 @@ public struct OctreeGenerationJob: IJob {
     //
     // Heavily based off of https://github.com/supercontact/PathFindingEnhanced
     private static bool DoesNodeIntersectTriangle(
-        NewOctreeNode node,
+        FlatOctreeNode node,
         float3 p1, float3 p2, float3 p3,
         float tolerance = 0
     ) {
@@ -271,13 +271,13 @@ public struct CombineAllNodesJob: IJob {
     // [ReadOnly]
     // [NativeDisableContainerSafetyRestriction]
     [ReadOnly]
-    private UnsafeList<NativeHashMap<int4, NewOctreeNode>> allNodeMaps;
+    private UnsafeList<NativeHashMap<int4, FlatOctreeNode>> allNodeMaps;
 
-    private NativeHashMap<int4, NewOctreeNode> combined;
+    private NativeHashMap<int4, FlatOctreeNode> combined;
 
     public CombineAllNodesJob(
-        UnsafeList<NativeHashMap<int4, NewOctreeNode>> allNodeMaps,
-        NativeHashMap<int4, NewOctreeNode> combined
+        UnsafeList<NativeHashMap<int4, FlatOctreeNode>> allNodeMaps,
+        NativeHashMap<int4, FlatOctreeNode> combined
     ) {
         this.allNodeMaps = allNodeMaps;
         this.combined = combined;
@@ -285,17 +285,17 @@ public struct CombineAllNodesJob: IJob {
 
     public void Execute() {
         Debug.Log("Beginning to combine!");
-        foreach (NativeHashMap<int4, NewOctreeNode> nodesMap in allNodeMaps) {
+        foreach (NativeHashMap<int4, FlatOctreeNode> nodesMap in allNodeMaps) {
             Debug.Log("Combining!");
-            NativeArray<NewOctreeNode> nodes = nodesMap.GetValueArray(Allocator.Temp);
+            NativeArray<FlatOctreeNode> nodes = nodesMap.GetValueArray(Allocator.Temp);
 
-            foreach(NewOctreeNode node in nodes) {
+            foreach(FlatOctreeNode node in nodes) {
                 int4 key = node.dictionaryKey;
 
                 if (!combined.ContainsKey(key)) {
                     combined.Add(key, node);
                 } else {
-                    NewOctreeNode existingNode = combined[key];
+                    FlatOctreeNode existingNode = combined[key];
 
                     // TODO: Try to make this more readable bleh
                     if (node.hasChildren && !existingNode.hasChildren) {

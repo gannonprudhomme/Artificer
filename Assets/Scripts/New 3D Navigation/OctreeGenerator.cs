@@ -41,14 +41,14 @@ public static class NewOctreeGenerator {
         Bounds bounds = navOctreeSpace.GetBounds();
         long totalSize = CalculateSize(bounds.min, bounds.max);
 
-        NewOctreeNode root = new(
+        FlatOctreeNode root = new(
             nodeLevel: 0,
             size: totalSize,
             index: new(0, 0, 0),
             center: bounds.center
         );
 
-        List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps = new();
+        List<NativeHashMap<int4, FlatOctreeNode>> allNodeMaps = new();
         List<OctreeGenerationJob> allJobs = new();
 
         // Create the jobs for each game object (root or children)
@@ -88,10 +88,10 @@ public static class NewOctreeGenerator {
 
         // Combine all node maps into one
 
-        Dictionary<int4, NewOctreeNode> combinedManaged = CombineAllNodeMaps(allNodeMaps);
+        Dictionary<int4, FlatOctreeNode> combinedManaged = CombineAllNodeMaps(allNodeMaps);
 
         // Create the flat octree!
-        NewOctree flatOctree = new(totalSize, bounds.center, combinedManaged);
+        FlatOctree flatOctree = new(totalSize, bounds.center, combinedManaged);
 
         // Mark in-bound leaves
         yield return MarkInBoundLeaves(flatOctree, navOctreeSpace);
@@ -112,7 +112,7 @@ public static class NewOctreeGenerator {
         foreach(NativeArray<Vector3> verts in allVertsLocalSpace) { verts.Dispose(); }
         foreach(NativeArray<float3> verts in allVertsWorldSpace) { verts.Dispose(); }
         foreach(NativeArray<int> triangles in allTriangles) { triangles.Dispose(); }
-        foreach(NativeHashMap<int4, NewOctreeNode> nodesMap in allNodeMaps) { nodesMap.Dispose();}
+        foreach(NativeHashMap<int4, FlatOctreeNode> nodesMap in allNodeMaps) { nodesMap.Dispose();}
 
         mainStopwatch.Stop();
         ms = ((double)mainStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
@@ -172,7 +172,7 @@ public static class NewOctreeGenerator {
     private static List<OctreeGenerationJob> CreateGenerateJobsForGameObject(
         long totalSize,
         float3 octreeCenter,
-        NewOctreeNode root,
+        FlatOctreeNode root,
         // Num jobs to split the work into? Honestly idek the best way to do this cause it'll vary greatly
         // E.g. one of our game objects will have 1M triangles, and others might only have 1k
         // so in actuality we might need a min triangles per job or something to strike a balance
@@ -181,7 +181,7 @@ public static class NewOctreeGenerator {
         int numJobs,
         NativeArray<int> triangleVertices, // input
         NativeArray<float3> vertsWorldSpace,
-        List<NativeHashMap<int4, NewOctreeNode>> allNodeMapsOutput // this is also something we "return"
+        List<NativeHashMap<int4, FlatOctreeNode>> allNodeMapsOutput // this is also something we "return"
     ) {
         List<OctreeGenerationJob> jobs = new();
 
@@ -195,7 +195,7 @@ public static class NewOctreeGenerator {
         }
 
         for(int i = 0; i < numBatches; i++) {
-            NativeHashMap<int4, NewOctreeNode> nodes = new(0, Allocator.Persistent);
+            NativeHashMap<int4, FlatOctreeNode> nodes = new(0, Allocator.Persistent);
             nodes[new int4(0)] = root;
             allNodeMapsOutput.Add(nodes);
 
@@ -226,10 +226,10 @@ public static class NewOctreeGenerator {
     //
     // This absolutely should be a Job, but I couldn't figure out how to do it in a reasonable time
     // and this only takes maybe a few seconds anyways
-    private static Dictionary<int4, NewOctreeNode> CombineAllNodeMaps(
-        List<NativeHashMap<int4, NewOctreeNode>> allNodeMaps
+    private static Dictionary<int4, FlatOctreeNode> CombineAllNodeMaps(
+        List<NativeHashMap<int4, FlatOctreeNode>> allNodeMaps
     ) {
-        Dictionary<int4, NewOctreeNode> combined = new();
+        Dictionary<int4, FlatOctreeNode> combined = new();
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
@@ -237,16 +237,16 @@ public static class NewOctreeGenerator {
         // if there's a collision, then prioritize the node in the order so that:
         // 1. hasChildren == true
         // 2. Then if hasChildren is the same, pick the one where containsCollision == true
-        foreach (NativeHashMap<int4, NewOctreeNode> nodesMap in allNodeMaps) {
-            NativeArray<NewOctreeNode> nodes = nodesMap.GetValueArray(Allocator.Temp); // This is a copy
+        foreach (NativeHashMap<int4, FlatOctreeNode> nodesMap in allNodeMaps) {
+            NativeArray<FlatOctreeNode> nodes = nodesMap.GetValueArray(Allocator.Temp); // This is a copy
 
-            foreach(NewOctreeNode node in nodes) {
+            foreach(FlatOctreeNode node in nodes) {
                 int4 key = node.dictionaryKey;
 
                 if (!combined.ContainsKey(key)) {
                     combined.Add(key, node);
                 } else {
-                    NewOctreeNode existingNode = combined[key];
+                    FlatOctreeNode existingNode = combined[key];
 
                     // TODO: Try to make this more readable bleh
                     if (node.hasChildren && !existingNode.hasChildren) {
@@ -272,12 +272,12 @@ public static class NewOctreeGenerator {
     //
     // This is step 4
     private static IEnumerator MarkInBoundLeaves(
-        NewOctree octree,
+        FlatOctree octree,
         NavOctreeSpace navOctreeSpace
     ) {
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
-        List<NewOctreeNode> leaves = octree!.GetAllNodes().FindAll((node) => node.isLeaf);
+        List<FlatOctreeNode> leaves = octree!.GetAllNodes().FindAll((node) => node.isLeaf);
 
         NativeArray<RaycastCommand> commands = new(leaves.Count, Allocator.Persistent);
 
@@ -286,7 +286,7 @@ public static class NewOctreeGenerator {
             // well, do we want leaves under the level to be in bounds? Probably not.
             // So we actually can't do this.
 
-            NewOctreeNode leaf = leaves[i];
+            FlatOctreeNode leaf = leaves[i];
 
             commands[i] = new RaycastCommand(from: leaf.center, direction: Vector3.down, QueryParameters.Default);
         }
@@ -304,7 +304,7 @@ public static class NewOctreeGenerator {
         // Go through all RaycastHit results
         // and mark the corresponding node as in or out of bounds depending on if it hit anything
         for(int i = 0; i < leaves.Count; i++) {
-            NewOctreeNode leafCopy = leaves[i];
+            FlatOctreeNode leafCopy = leaves[i];
             RaycastHit hit = raycastHitResults[i];
 
             bool didHit = hit.collider != null;
@@ -333,8 +333,8 @@ public static class NewOctreeGenerator {
     }
 
     // Recursively builds a pointer-based octree from the flat (jobs) octree
-    private static Octree ConvertFlatOctreeToPointer(NewOctree flatOctree) {
-        Dictionary<int4, NewOctreeNode> flatNodesMap = flatOctree.nodes;
+    private static Octree ConvertFlatOctreeToPointer(FlatOctree flatOctree) {
+        Dictionary<int4, FlatOctreeNode> flatNodesMap = flatOctree.nodes;
         Dictionary<int4, OctreeNode> pointerNodesMap = new(flatNodesMap.Count);
 
         Vector3 octreeCorner = flatOctree.center - (new float3(1) * (flatOctree.size / 2f));
@@ -353,12 +353,12 @@ public static class NewOctreeGenerator {
     // Then see if the node has children, if it does, calculate their indices, and repeat for each child
     private static OctreeNode ConvertFlatNodeAndChildrenToPointersBased(
         int4 currentKey,
-        Dictionary<int4, NewOctreeNode> flatNodesMap,
+        Dictionary<int4, FlatOctreeNode> flatNodesMap,
         Dictionary<int4, OctreeNode> pointersNodesMap, // pointersBasedNodeMap is really what this means
         int octreeSize,
         Vector3 octreeCorner
     ) {
-        NewOctreeNode currentFlatNode = flatNodesMap[currentKey];
+        FlatOctreeNode currentFlatNode = flatNodesMap[currentKey];
         OctreeNode pointersNode = new(
             nodeLevel: currentFlatNode.nodeLevel,
             index: new int[] { currentKey.x, currentKey.y, currentKey.z },
