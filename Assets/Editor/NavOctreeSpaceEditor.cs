@@ -56,11 +56,21 @@ public class NavOctreeSpaceEditor : Editor {
 
         if (GUILayout.Button("Load")) {
             Octree octree = OctreeSerializer.Load(navOctreeSpace.GetFileName());
-            navOctreeSpace.octree = octree;
-        }
 
-        if (GUILayout.Button("Build Neighbors")) {
-            navOctreeSpace.BuildNeighbors();
+        if (GUILayout.Button("Build Neighbors (Octree)")) {
+            if (navOctreeSpace.octree == null) { Debug.LogError("No octree!"); return;}
+
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+            GraphGenerator.PopulateOctreeNeighbors(navOctreeSpace.octree, shouldBuildDiagonals: true);
+            stopwatch.Stop();
+
+            double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+            double seconds = ms / 1000d;
+
+            Debug.Log($"Finished building neighbors in {seconds:F2} sec ({ms:F0} ms)");
+        }
+        
         }
     }
 }

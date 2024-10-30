@@ -17,11 +17,11 @@ public class NewOctree {
     public Dictionary<int4, List<int4>> edges = new(); 
 
     public NewOctree(
-        long size,
+        long size, // TODO: This should be an int - size^3 needs to be a long, but size itself doesn't
         float3 center, // TODO: I'm not even sure if we need this. Also might want to make it a Vector3
         Dictionary<int4, NewOctreeNode> nodes
     ) {
-        this.size = (int) size; // it's not a long anyways, I need to fix this
+        this.size = (int) size; // it's not a long anyways, I need to fix this and make it back (it's size^3 that needs to be a long)
         this.center = center;
         this.nodes = nodes;
     }

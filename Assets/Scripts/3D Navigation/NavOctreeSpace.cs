@@ -29,7 +29,7 @@ public class NavOctreeSpace : MonoBehaviour {
     public int NumberOfJobs = 12;
 
     // Must call Load() / LoadIfNeeded() to populate this
-    public Octree? octree; // This should really be private(set), but it's not b/c the editor
+    public Octree? octree { get; private set; }
 
     private Bounds? calculatedBounds = null; // For debug displaying
 
@@ -37,20 +37,6 @@ public class NavOctreeSpace : MonoBehaviour {
         if (octree != null) return;
 
         octree = OctreeSerializer.Load(GetFileName());
-    }
-
-    public void BuildNeighbors() {
-        if (octree == null) { Debug.LogError("No octree!"); return;}
-
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-        GraphGenerator.PopulateOctreeNeighbors(octree, shouldBuildDiagonals: true);
-        stopwatch.Stop();
-
-        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        double seconds = ms / 1000d;
-
-        Debug.Log($"Finished building neighbors in {seconds:F2} sec ({ms:F0} ms)");
     }
 
     // needs to be public for OctreeGenerator

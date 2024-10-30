@@ -21,11 +21,9 @@ public struct NewOctreeNode {
     public bool containsCollision;
     public bool inBounds;
 
-    public readonly int4 dictionaryKey {
-        get {
-            return new int4(index.x, index.y, index.z, nodeLevel);
-        }
-    }
+    // Somehow computed this every time it's needed is faster than creating it & storing it upon initialization.
+    // I do not understand how. 
+    public readonly int4 dictionaryKey => new int4(index.x, index.y, index.z, nodeLevel);
 
     public readonly bool isLeaf {
         get {

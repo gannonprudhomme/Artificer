@@ -78,7 +78,7 @@ public class OctreeNode {
     // Finds the node that contains this position, recursively,
     // assuming the position is in bounds of the node.
     //
-    // This is pretty fast - it runs in constant time, or rather O(maxNumberOfDivisions), which is usually around 8.j
+    // This is pretty fast - it runs in constant time, or rather O(maxDepth), which is usually around 8.
     // since, starting from the root, we only go into the node which contains the position.
     public OctreeNode? FindNodeForPosition(Vector3 position) {
         // Check bounds
@@ -105,7 +105,7 @@ public class OctreeNode {
 
             // It's in bounds of this, so "normalize" it w/ the center
             // so if the center is index: (0, 0, 0) the signs of the relative position will indicate which index it is
-            float childEdgeSize = nodeSize / 2;
+            float childEdgeSize = nodeSize / 2f;
             Vector3 relativePosition = (position - center) / childEdgeSize;
 
             // Now that we know the "direction" of it, we can get which index
@@ -170,7 +170,7 @@ public class OctreeNode {
         Vector3 nodeCorner = octreeCorner + (size * indexVec);
 
         // Then move it by (0.5, 0.5, 0.5) [when size = 1] to get it to the center
-        return nodeCorner + (Vector3.one * (size / 2));
+        return nodeCorner + (Vector3.one * (size / 2f));
     }
    
     // Get the 1D index of a 2x2x2 array

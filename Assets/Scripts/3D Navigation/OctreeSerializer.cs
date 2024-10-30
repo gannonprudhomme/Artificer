@@ -27,7 +27,7 @@ public class OctreeSerializer {
         string filename = space.GetFileName();
         Octree? octree = space.octree;
         
-        if (space.octree == null) {
+        if (octree == null) {
             Debug.LogError("No octree to save!");
             return;
         }
@@ -50,7 +50,7 @@ public class OctreeSerializer {
     }
     
     // Writes the given Octree to a file in binary format using the given BinaryWriter
-    public static void Serialize(Octree octree, BinaryWriter writer) {
+    private static void Serialize(Octree octree, BinaryWriter writer) {
 
         // Serialize octree properties
         writer.Write(octree.MaxDivisionLevel);
@@ -129,7 +129,7 @@ public class OctreeSerializer {
         return octree;
     } 
 
-    public static Octree Deserialize(BinaryReader reader) {
+    private static Octree Deserialize(BinaryReader reader) {
         int maxDivisionLevel = reader.ReadInt32();
         int size = reader.ReadInt32();
 
@@ -197,7 +197,6 @@ public class OctreeSerializer {
             nodeLevel,
             index,
             octree,
-            // center,
             containsCollision,
             isInBounds
         );
@@ -210,7 +209,7 @@ public class OctreeSerializer {
     /** HELPERS **/
 
     private static float[] VectorToArray(Vector3 vector) {
-        return new float[] { vector.x, vector.y, vector.z };
+        return new[] { vector.x, vector.y, vector.z };
     }
 
     // Used for serializing the nodes

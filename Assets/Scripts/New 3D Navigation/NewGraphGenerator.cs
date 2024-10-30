@@ -100,6 +100,7 @@ public struct GraphGenerationJob: IJobParallelFor {
         }
 
         // Starting at our current node level, attempt to find the node in the direction of the same size or larger (aka same level or smaller)
+        // If we can't find it, go up a level (aka find what would be its parent), then continue
         //
         // The key for finding a larger node in the same direction is the currRelativeSize - more about this below.  
         for (int level = leafNodeLevel; level >= 0; level--) {
