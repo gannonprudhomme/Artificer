@@ -19,7 +19,8 @@ using UnityEngine;
 //
 // Heavily based off of https://github.com/supercontact/PathFindingEnhanced
 public class Octree  {
-    // Should be calculated based on the smallest agent's size
+    // TODO: we don't even need to store this - it's only used to display in the UI
+    // we can just calculate it anyways when we do 
     public int MaxDivisionLevel { get; private set; }
 
     // Should be calculated based on the max size of the mesh
