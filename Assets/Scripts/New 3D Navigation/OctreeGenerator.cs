@@ -288,7 +288,12 @@ public static class NewOctreeGenerator {
 
             FlatOctreeNode leaf = leaves[i];
 
-            commands[i] = new RaycastCommand(from: leaf.center, direction: Vector3.down, QueryParameters.Default);
+            // We raycast from the center of the top face, rather than the actual center
+            // as there are nodes that are colliding w/ e.g. the floor of the mesh, whose center is technically below the floor
+            // but I'd still consider being in-bounds
+            float3 topFaceCenter = leaf.center + (leaf.size / 2);
+
+            commands[i] = new RaycastCommand(from: topFaceCenter, direction: Vector3.down, QueryParameters.Default);
         }
 
         NativeArray<RaycastHit> raycastHitResults = new(leaves.Count, Allocator.Persistent);
