@@ -160,7 +160,7 @@ public class NavOctreeSpace : MonoBehaviour {
         List<(Vector3, Vector3)> validNeighbors = new();
 
         foreach(OctreeNode node in allLeaves) {
-            Dictionary<OctreeNode, float>? neighbors = node.inBoundsNeighborsWithoutCollisions;
+            Dictionary<OctreeNode, float>? neighbors = node.neighbors;
             if (neighbors == null) continue;
 
             foreach(OctreeNode neighbor in neighbors.Keys) {

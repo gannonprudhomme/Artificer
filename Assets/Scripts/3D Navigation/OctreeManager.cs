@@ -22,8 +22,25 @@ public class OctreeManager : MonoBehaviour {
 
         shared = this;
 
+        // TODO: probably remove these timings, but leaving for now
+
+        var mainStopwatch = new System.Diagnostics.Stopwatch();
+        mainStopwatch.Start();
         NavSpace!.LoadIfNeeded();
 
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Restart();
+        
         GraphGenerator.PopulateOctreeNeighbors(NavSpace!.octree!, shouldBuildDiagonals: true);
+        
+        stopwatch.Stop();
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+        Debug.Log($"Populated neighbors in {seconds:F2} sec ({ms:F0} ms)");
+
+        mainStopwatch.Stop();
+        ms = ((double)mainStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        seconds = ms / 1000d;
+        Debug.Log($"Total loading took {seconds:F2} sec ({ms:F0} ms)");
     }
 }

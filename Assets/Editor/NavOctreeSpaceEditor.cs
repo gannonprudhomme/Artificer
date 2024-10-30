@@ -72,7 +72,5 @@ public class NavOctreeSpaceEditor : Editor {
 
             Debug.Log($"Finished building neighbors in {seconds:F2} sec ({ms:F0} ms)");
         }
-        
-        }
     }
 }

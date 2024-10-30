@@ -54,6 +54,7 @@ public class Octree  {
 
         // I should probably check if this is even in the bounds of the Octree
 
+        // TODO: Move this from OctreeNode into here, probably
         return root.FindNodeForPosition(position);
     }
     
@@ -96,7 +97,7 @@ public class Octree  {
     //
     // This is only called when the nodeAtPosition isn't valid
     private OctreeNode? FindClosestNeighborToNode(OctreeNode node) {
-        Dictionary<OctreeNode, float>? neighbors = node.inBoundsNeighborsWithoutCollisions;
+        Dictionary<OctreeNode, float>? neighbors = node.neighbors;
 
         if (neighbors == null || neighbors.Count == 0) {
             Debug.LogError($"Neighbors was null / empty for node at {node.center} / {node.nodeLevel}!");

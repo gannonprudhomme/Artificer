@@ -61,7 +61,7 @@ public static class Pathfinder {
             }
 
             // Populate all current node's neighbors
-            foreach (KeyValuePair<OctreeNode, float> keyValuePair in current.inBoundsNeighborsWithoutCollisions!) {
+            foreach (KeyValuePair<OctreeNode, float> keyValuePair in current.neighbors!) {
                 OctreeNode neighbor = keyValuePair.Key;
                 float edgeDistance = keyValuePair.Value;
 

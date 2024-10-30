@@ -14,8 +14,8 @@ It uses two types / implementations of octrees:
 
 We use the flat-based for generation, as we can significantly parallelize this operation. (98% speed-up from the single-threaded / pointers-based version)
 Once generation has completed, we convert it to pointers-based and use the pointer-based operation during actual runtime
-as pointers-based (in my experience) is much better for actual usage; it's both easier to reason with,
-and in my experience traversing the tree is faster than traversing using t
+as its much better for actual usage; it's both easier to reason with,
+and traversing the tree is seemingly faster than having to get each child from the dictionary each time (like we do for flat-based)
 
 ## Other features
 

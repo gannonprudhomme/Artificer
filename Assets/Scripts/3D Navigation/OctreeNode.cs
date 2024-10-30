@@ -10,7 +10,7 @@ using UnityEngine;
 // If this is a leaf, it will be used as a node in the Graph that we use for pathfinding 
 public class OctreeNode {
     public readonly int nodeLevel;
-    public readonly int[] index;
+    public readonly int[] index; // TODO: consider converting this to an int3
 
     // These are public only for gizmos in NavOctreeSpace
 
@@ -27,17 +27,12 @@ public class OctreeNode {
 
     public bool IsLeaf => children == null;
 
-    // All leaf neighbors
-    //
-    // Only populated for leaves (regardless of whether they contain a collision or not)
-    public List<OctreeNode>? neighbors = null;
-
     // All of our leaf neighbors that are in bounds & don't contain a collision
     //
     // If *this* node contains a collision this will still be populated (assuming it has valid in bounds / no collision neighbors)
     // but those valid neighbors won't have an edge to *this* node. (i.e. it will be one-directional invalid -> valid, not invalid <-> valid)
     // We do this so we can find the nearest valid node to a position, even if the position contains a collision
-    public Dictionary<OctreeNode, float>? inBoundsNeighborsWithoutCollisions = null;
+    public Dictionary<OctreeNode, float>? neighbors = null;
     // Used when generating the Octree from a mesh
     public OctreeNode(
         int nodeLevel,
@@ -141,12 +136,12 @@ public class OctreeNode {
         // We only want to connect to neighbors that are valid (in bounds & no collisions)
         bool neighborValid = neighbor.isInBounds && !neighbor.containsCollision;
         if (neighborValid) {
-            inBoundsNeighborsWithoutCollisions ??= new();
+            neighbors ??= new();
             // TODO: Square magnitude might be fine? I think it's only used as a relative value
             float distance = Vector3.Distance(center, neighbor.center);
 
             // TODO: We're apparently adding duplicate keys - change this to .Add(key, value) and you'll see
-            inBoundsNeighborsWithoutCollisions[neighbor] = distance;
+            neighbors[neighbor] = distance;
         }
     }
 
