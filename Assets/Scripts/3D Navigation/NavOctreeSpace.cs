@@ -101,8 +101,9 @@ public class NavOctreeSpace : MonoBehaviour {
 
         if (octree == null) return;
 
-        gizmosAllNodes ??= octree.GetAllNodes();
-        gizmosAllLeaves ??= octree.GetAllNodes(onlyLeaves: true);
+        // We sort by node level so the lines don't overlap inconsisently
+        gizmosAllNodes ??= octree.GetAllNodes().OrderBy(node => node.nodeLevel).ToList();
+        gizmosAllLeaves ??= octree.GetAllNodes(onlyLeaves: true).OrderBy(node => node.nodeLevel).ToList();
         gizmosNotLeaves ??= gizmosAllNodes.FindAll(node => node.children != null);
         gizmosCollisionLeaves ??= gizmosAllLeaves.FindAll(leaf => leaf.containsCollision);
         gizmosNoCollisionLeaves ??= gizmosAllLeaves.FindAll(leaf => !leaf.containsCollision);

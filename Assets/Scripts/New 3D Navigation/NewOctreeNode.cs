@@ -25,11 +25,7 @@ public struct NewOctreeNode {
     // I do not understand how. 
     public readonly int4 dictionaryKey => new int4(index.x, index.y, index.z, nodeLevel);
 
-    public readonly bool isLeaf {
-        get {
-            return !hasChildren;
-        }
-    }
+    public readonly bool isLeaf => !hasChildren;
 
     public NewOctreeNode(
         byte nodeLevel,
@@ -70,36 +66,6 @@ public struct NewOctreeNode {
         new(0, 1, 1),
         new(1, 1, 0),
         new(1, 1, 1)
-    };
-
-    // TODO: Idk if I should have this in here
-    public readonly void DrawGizmos(bool displayIndicesText, Color textColor) {
-        Gizmos.color = colors[nodeLevel % colors.Length];
-        Gizmos.DrawWireCube(center, Vector3.one * size);
-
-        if (displayIndicesText) {
-            #if UNITY_EDITOR
-            UnityEditor.Handles.color = Color.red;
-            Vector3 offsetPosition = new Vector3(center[0], center[1], center[2]) + new Vector3(0, 0.5f, 0.0f);
-
-            string output = $"{index[0]}, {index[1]}, {index[2]} ({nodeLevel})";
-            GUIStyle style = new();
-            style.normal.textColor = textColor;
-            UnityEditor.Handles.Label(offsetPosition, output, style);
-            #endif
-        }
-    }
-
-    private static readonly Color[] colors = new Color[] {
-        Color.red,
-        Color.green,
-        Color.blue,
-        Color.yellow,
-        Color.magenta,
-        Color.cyan,
-        Color.white,
-        Color.black,
-        Color.gray
     };
 }
 

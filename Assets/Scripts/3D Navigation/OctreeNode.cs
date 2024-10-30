@@ -9,21 +9,19 @@ using UnityEngine;
 //
 // If this is a leaf, it will be used as a node in the Graph that we use for pathfinding 
 public class OctreeNode {
-    public readonly int nodeLevel;
+    public readonly int nodeLevel; // TODO: change to byte
     public readonly int[] index; // TODO: consider converting this to an int3
-
-    // These are public only for gizmos in NavOctreeSpace
 
     // The size of the node in world space.
     // This is an integer because it's how octree's work! Dividing by 2, cleanly
-    public readonly int nodeSize;
+    private readonly int nodeSize; // TODO: Could be a ushort
     public readonly Vector3 center;
 
     // 1D array that's actually 2x2x2 (8 total)
-    public OctreeNode[]? children; 
-    public bool containsCollision { get; private set; }
+    public OctreeNode[]? children;
+    public readonly bool containsCollision;
 
-    public bool isInBounds = false;
+    public readonly bool isInBounds;
 
     public bool IsLeaf => children == null;
 
