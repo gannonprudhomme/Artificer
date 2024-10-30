@@ -34,11 +34,10 @@ public class OctreeNode {
 
     // All of our leaf neighbors that are in bounds & don't contain a collision
     //
-    // If *this* node contains a collision/isn't in bounds,
-    // this will still be populated (assuming it has valid in bounds / no collision neighbors)
+    // If *this* node contains a collision this will still be populated (assuming it has valid in bounds / no collision neighbors)
     // but those valid neighbors won't have an edge to *this* node. (i.e. it will be one-directional invalid -> valid, not invalid <-> valid)
-    public List<OctreeNode>? inBoundsNeighborsWithoutCollisions = null;
-
+    // We do this so we can find the nearest valid node to a position, even if the position contains a collision
+    public Dictionary<OctreeNode, float>? inBoundsNeighborsWithoutCollisions = null;
     // Used when generating the Octree from a mesh
     public OctreeNode(
         int nodeLevel,
@@ -81,15 +80,6 @@ public class OctreeNode {
     // This is pretty fast - it runs in constant time, or rather O(maxDepth), which is usually around 8.
     // since, starting from the root, we only go into the node which contains the position.
     public OctreeNode? FindNodeForPosition(Vector3 position) {
-        // Check bounds
-        bool isPositionInBoundsOfOctree = true; // We can do this with the node
-        if (!isPositionInBoundsOfOctree) {
-            Debug.LogError("Checking for position which isn't even in the bounds of this!");
-            return null;
-        }
-
-        // Imagine we're starting at the root? Idk
-
         // We need the bounds of this to first check if the position is even in the bounds
         Bounds bounds = new(center, size: Vector3.one * nodeSize);
 
@@ -152,11 +142,16 @@ public class OctreeNode {
         bool neighborValid = neighbor.isInBounds && !neighbor.containsCollision;
         if (neighborValid) {
             inBoundsNeighborsWithoutCollisions ??= new();
+            // TODO: Square magnitude might be fine? I think it's only used as a relative value
+            float distance = Vector3.Distance(center, neighbor.center);
 
-            inBoundsNeighborsWithoutCollisions.Add(neighbor);
+            // TODO: We're apparently adding duplicate keys - change this to .Add(key, value) and you'll see
+            inBoundsNeighborsWithoutCollisions[neighbor] = distance;
         }
     }
 
+    // TODO: This is unnecessary - if we passed in the center in the constructor
+    // then we could just use the parent's center for the children (like we do for NewOctreeNode)
     // Calculate what the center for this node is
     // 
     // Called upon initialization to set OctreeNode.center
@@ -187,15 +182,15 @@ public class OctreeNode {
     }
     
     private static readonly Color[] colors = new Color[] {
-        Color.red,
-        Color.green,
-        Color.blue,
+        Color.black,
         Color.yellow,
         Color.magenta,
         Color.cyan,
         Color.white,
-        Color.black,
-        Color.gray
+        Color.gray,
+        Color.blue,
+        Color.green,
+        Color.red,
     };
 
     public void DrawGizmos(bool displayIndicesText, Color textColor) {

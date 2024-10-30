@@ -14,7 +14,6 @@ public class OctreeManager : MonoBehaviour {
     public NavOctreeSpace? NavSpace = null;
 
     public Octree? Octree => NavSpace!.octree;
-    public Graph? Graph { get; private set; } // Used to be "WispGraph"
 
     private void Awake() {
         if (shared != null) {
@@ -24,8 +23,6 @@ public class OctreeManager : MonoBehaviour {
         shared = this;
 
         NavSpace!.LoadIfNeeded();
-
-        Graph = GraphGenerator.GenerateGraph(NavSpace!.octree!, shouldBuildDiagonals: true);
 
         GraphGenerator.PopulateOctreeNeighbors(NavSpace!.octree!, shouldBuildDiagonals: true);
     }

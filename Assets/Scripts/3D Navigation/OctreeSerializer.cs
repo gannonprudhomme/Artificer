@@ -106,7 +106,7 @@ public class OctreeSerializer {
 
         Octree octree;
 
-        using (Stream stream = File.Open(filename, FileMode.Open)) {
+        using (Stream stream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
             // Read all of the data at once, rather than reading bytes at a time
             // Led to a ~27% speed up (2.2 sec -> 1.6 sec)
             byte[] buffer = new byte[stream.Length];

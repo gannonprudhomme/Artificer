@@ -10,89 +10,9 @@ public static class GraphGenerator {
     private static readonly int[,] allFaceDirs = { { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 } };
     private static readonly int[,] allDiagonalDirs = { { 0, 1, 1 }, { 0, 1, -1 }, { 0, -1, 1 }, { 0, -1, -1 }, { 1, 0, 1 }, { -1, 0, 1 }, { 1, 0, -1 }, { -1, 0, -1 }, { 1, 1, 0 }, { 1, -1, 0 }, { -1, 1, 0 }, { -1, -1, 0 } };
 
-    public static Graph GenerateGraph(Octree octree, bool shouldBuildDiagonals = true) {
-        // Also creates all of the GraphNodes we need
-        Dictionary<OctreeNode, GraphNode> octreeNodeToGraphNodeDict = GetOctreeNodeToGraphNodeDict(octree);
-
-        foreach(KeyValuePair<OctreeNode, GraphNode> keyPair in octreeNodeToGraphNodeDict) {
-            var (octLeaf, currGraphNode) = keyPair;
-
-            // For each face of the octLeaf, find all the nodes that should be connected to it
-            for(int i = 0; i < 6; i++) { // 6 = num faces
-                int[] faceDir = { allFaceDirs[i, 0], allFaceDirs[i, 1], allFaceDirs[i, 2] };
-                
-                FindAndConnectNearestNodeInDirection(octLeaf, currGraphNode, faceDir, octree, octreeNodeToGraphNodeDict);
-            }
-
-            if (!shouldBuildDiagonals) continue;
-
-            // Do the same thing as above, but for the corners (diagonals)
-            for(int i = 0; i < 12; i++) { // 12 = num corners
-                int[] diagDir = { allDiagonalDirs[i, 0], allDiagonalDirs[i, 1], allDiagonalDirs[i, 2] };
-
-                FindAndConnectNearestNodeInDirection(octLeaf, currGraphNode, diagDir, octree, octreeNodeToGraphNodeDict);
-            }
-        }
-        return new Graph(octreeNodeToGraphNodeDict, octree);
-    }
-
-    // Connect this node to the nearest node in dir of the same size or larger (same nodeLevel or "smaller")
-    // Note that this is banking on the fact that we don't do this the other way (larger -> smaller connection), so it's "bottom-up" in a sense
-    private static void FindAndConnectNearestNodeInDirection(
-        OctreeNode octLeaf,
-        GraphNode currGraphNode,
-        int[] dir,
-        Octree octree,
-        Dictionary<OctreeNode, GraphNode> octreeNodeToGraphNodeDict
-    ) {
-        OctreeNode? nearestOctLeafInDirection = FindLeafInDirectionOfSameSizeOrLarger(octLeaf, dir, octree);
-
-        if (nearestOctLeafInDirection == null || nearestOctLeafInDirection.containsCollision || !nearestOctLeafInDirection.isInBounds) {
-            return;
-        }
-
-        GraphNode nearestGraphNode = octreeNodeToGraphNodeDict[nearestOctLeafInDirection];
-
-        if (octLeaf.nodeLevel == nearestOctLeafInDirection.nodeLevel) {
-            // If they're the same level only do it in one direction (curr -> nearest)
-            // since when we iterate over nearest we'll do it in this direction
-            // (though w/ the edge dictionary this doesn't actually matter)
-            currGraphNode.AddEdgeTo(nearestGraphNode);
-        } else {
-            // Nodes are of different levels (only smaller size -> larger size actually), so add in both directions
-            // since we won't do it in the opposite direction when we Connect for the nearest found node
-            // (because we only find leaves of the same size or larger, not smaller)
-            currGraphNode.AddEdgeTo(nearestGraphNode);
-            nearestGraphNode.AddEdgeTo(currGraphNode);
-        }
-    }
-
-    // Find all of the leaves in the Octree that don't contain a collision and are in bounds
-    // create an according GraphNode for it, then puts them as the key & value respectively into the returned dictionary.
-    private static Dictionary<OctreeNode, GraphNode> GetOctreeNodeToGraphNodeDict(Octree octree) {
-        Dictionary<OctreeNode, GraphNode> ret = new();
-
-        int count = 0;
-        List<OctreeNode> octLeaves = octree.GetAllNodes(onlyLeaves: true);
-        foreach(OctreeNode octLeaf in octLeaves) {
-            // We don't want to make a graph node if it contains a collision or is out of bounds
-            if (octLeaf.containsCollision || !octLeaf.isInBounds) continue;
-
-            GraphNode newNode = new(octLeaf.center);
-            count++;
-
-            if (ret.ContainsKey(octLeaf)) Debug.LogError("There are duplicates but there shouldn't be!");
-            ret[octLeaf] = newNode;
-        }
-
-        if (count == 0) {
-            Debug.LogError("GraphGenerator: Input Octree didn't have any leaves in-bounds or without collisions!");
-        }
-
-        return ret;
-    }
 
     private static OctreeNode? FindLeafInDirectionOfSameSizeOrLarger(OctreeNode currOctLeaf, int[] dir, Octree octree) {
+        // TODO: I really feel like using an int3 here would be better
         int[] goalIndex = { currOctLeaf.index[0] + dir[0], currOctLeaf.index[1] + dir[1], currOctLeaf.index[2] + dir[2] };
 
         int xIndex = goalIndex[0], yIndex = goalIndex[1], zIndex = goalIndex[2];
@@ -115,6 +35,8 @@ public static class GraphGenerator {
         // since the actual size is (octree.Size / (1 << nodeLevel))
         int currSize = 1 << currOctLeaf.nodeLevel; // 2^nodeLevel
 
+        // Attempted to optimize this using a map (like I initially had this written w/ the flat-based version of the Octree)
+        // but this is faster, which I suppose isn't that surprising (but it's a little surprising)
         // Starting at the root, find the leaf closest to dir
         OctreeNode current = octree.root!;
         for(int level = 0; level < currOctLeaf.nodeLevel; level++) {
@@ -149,7 +71,11 @@ public static class GraphGenerator {
         List<OctreeNode> leaves = octree.GetAllNodes(onlyLeaves: true);
 
         foreach(OctreeNode leaf in leaves) {
-            if (!leaf.isInBounds) continue; // Skip out of bounds leaves (but we're fine w/ leaves w/ collisions)
+             // Skip out of bounds leaves (but we're fine w/ leaves w/ collisions)
+             // in fact, we *want* to connect nodes with collisions (invalid nodes) -> valid nodes
+             // as it assists us in finding the nearest valid node to a given position
+             // we just don't want to connect valid nodes -> invalid nodes
+            if (!leaf.isInBounds) continue;
 
             // For each face of the octLeaf, find all the nodes that should be connected to it
             for (int i = 0; i < 6; i ++) { // 6 = num faces

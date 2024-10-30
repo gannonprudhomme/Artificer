@@ -147,11 +147,8 @@ public abstract class CombatDirector: MonoBehaviour {
         Vector3 spawnPosition;
 
         if (enemyCard.isFlyingEnemy) {
-            // Ok but I like actually need a reference to the graph for this enemy
-            // for this
-            // I guess for now I'll just get it
-            Graph? enemyGraph = OctreeManager.shared!.Graph;
-            if (enemyGraph != null && FindFlyingSpawnPosition(playerPosition: target.AimPoint!.position, enemyGraph, out Vector3 result)) {
+            Octree? octree = OctreeManager.shared!.Octree;
+            if (octree != null && FindFlyingSpawnPosition(playerPosition: target.AimPoint!.position, octree, out Vector3 result)) {
                 spawnPosition = result;
             } else {
                 // Debug.LogError("Not spawning a flying enemy!!");
@@ -221,7 +218,7 @@ public abstract class CombatDirector: MonoBehaviour {
         return false;
     }
 
-    private bool FindFlyingSpawnPosition(Vector3 playerPosition, Graph graph, out Vector3 result) {
+    private bool FindFlyingSpawnPosition(Vector3 playerPosition, Octree octree, out Vector3 result) {
         int i;
         for(i = 0; i < 5; i++) {
             // TODO: This should only be for horizontal
@@ -229,14 +226,11 @@ public abstract class CombatDirector: MonoBehaviour {
             float maxSpawnDistanceFromPlayer = minAndMaxSpawnDistanceFromPlayer.Item2;
             Vector3 randomPosition = playerPosition + Random.insideUnitSphere * maxSpawnDistanceFromPlayer;
 
-            // Honestly we should be checking if:
-            // 1. We're inside of an existing OctreeNode / the one we're in isn't marked out of bounds
-            // 2. If the (smallest) Octreenode we're in contains a collision
-            // but we don't have access to the Octree :( so brute forcing it is!
-            GraphNode? nearestNode = graph.FindNearestToPosition(randomPosition);
+            // TODO: It might be faster to just only do FindExactNodeForPosition and retry
+            // but this isn't called that often so it's probably fine (for now at least)
+            OctreeNode? nearestNode = octree.FindClosestValidToPosition(randomPosition);
 
             if (nearestNode == null) {
-                Debug.LogError($"Couldn't find nearest node to position {randomPosition}");
                 continue;
             }
 
@@ -251,7 +245,7 @@ public abstract class CombatDirector: MonoBehaviour {
             //. Debug.Log($"Try {i + 1} for Wisp didn't work w/ pos {randomPosition} and nearest node {nearestNode.center} and player pos {playerPosition}, trying again");
         }
 
-        // Debug.LogError("Failed to find a position after {i+1} iterations for Wisp");
+        Debug.LogError($"Failed to find a position after {i+1} iterations for Wisp");
 
         result = Vector3.negativeInfinity;
         return false;
@@ -274,8 +268,8 @@ public abstract class CombatDirector: MonoBehaviour {
     }
     
     // Public getters just for CombatDirectorEdtitor
-    public EnemyCard? GetSelectedCard() { return selectedCard; }
-    public float GetNumCredits() { return numCredits; }
-    public float GetDifficultyCoefficient() { return difficultyCoefficient; }
+    public EnemyCard? GetSelectedCard() => selectedCard;
+    public float GetNumCredits() => numCredits;
+    public float GetDifficultyCoefficient() => difficultyCoefficient;
     // public float GetCreditsPerSecond() { return creditsPerSecond; }
 }

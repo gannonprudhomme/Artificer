@@ -47,7 +47,6 @@ public class AtGMissileProjectile : MonoBehaviour {
 
         octreeNavigator = new OctreeNavigator(
             ownerTransform: transform,
-            graph: OctreeManager.shared!.Graph!,
             octree: OctreeManager.shared!.Octree!,
             speed: speed,
             colliderCast: ColliderCast

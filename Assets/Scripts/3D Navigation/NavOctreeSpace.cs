@@ -31,6 +31,7 @@ public class NavOctreeSpace : MonoBehaviour {
     // Must call Load() / LoadIfNeeded() to populate this
     public Octree? octree { get; private set; }
 
+    // TODO: Do we set this anywhere?
     private Bounds? calculatedBounds = null; // For debug displaying
 
     public void LoadIfNeeded() {
@@ -39,6 +40,8 @@ public class NavOctreeSpace : MonoBehaviour {
         octree = OctreeSerializer.Load(GetFileName());
     }
 
+    // TODO: No need for this to be in here! We can move it to OctreeGenerationJob probably?
+    // it's only used in there anyways
     // needs to be public for OctreeGenerator
     public Bounds GetBounds() {
         // This gets renderers from this GameObject(Component), as well as it's children recursively
@@ -157,10 +160,10 @@ public class NavOctreeSpace : MonoBehaviour {
         List<(Vector3, Vector3)> validNeighbors = new();
 
         foreach(OctreeNode node in allLeaves) {
-            List<OctreeNode>? neighbors = node.inBoundsNeighborsWithoutCollisions;
+            Dictionary<OctreeNode, float>? neighbors = node.inBoundsNeighborsWithoutCollisions;
             if (neighbors == null) continue;
 
-            foreach(OctreeNode neighbor in neighbors) {
+            foreach(OctreeNode neighbor in neighbors.Keys) {
                 validNeighbors.Add((node.center, neighbor.center));
             }
         }

@@ -56,6 +56,8 @@ public class NavOctreeSpaceEditor : Editor {
 
         if (GUILayout.Button("Load")) {
             Octree octree = OctreeSerializer.Load(navOctreeSpace.GetFileName());
+            navOctreeSpace.SetOctree(octree);
+        }
 
         if (GUILayout.Button("Build Neighbors (Octree)")) {
             if (navOctreeSpace.octree == null) { Debug.LogError("No octree!"); return;}
