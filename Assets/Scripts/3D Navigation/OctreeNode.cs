@@ -31,7 +31,8 @@ public class OctreeNode {
     // but those valid neighbors won't have an edge to *this* node. (i.e. it will be one-directional invalid -> valid, not invalid <-> valid)
     // We do this so we can find the nearest valid node to a position, even if the position contains a collision
     public Dictionary<OctreeNode, float>? neighbors = null;
-    // Used when generating the Octree from a mesh
+    
+    // Used for converting from FlatOctreeNode -> this
     public OctreeNode(
         int nodeLevel,
         int[] index,
@@ -43,18 +44,18 @@ public class OctreeNode {
         this.nodeLevel = nodeLevel;
         this.index = index;
 
-        this.nodeSize = octreeSize / (1 << nodeLevel);
-        this.center = CalculateCenter(index, nodeSize, octreeCorner);
+        nodeSize = octreeSize / (1 << nodeLevel);
+        center = CalculateCenter(index, nodeSize, octreeCorner);
 
         this.isInBounds = isInBounds;
         this.containsCollision = containsCollision;
     } 
 
+    // Used for loading from the file
     public OctreeNode(
         int nodeLevel,
         int[] index,
         Octree octree,
-        // Vector3 center,
         bool containsCollision,
         bool isInBounds
     ) {
@@ -64,7 +65,7 @@ public class OctreeNode {
         this.isInBounds = isInBounds;
 
         nodeSize = octree.Size / (1 << nodeLevel);
-        this.center = CalculateCenter(index, nodeSize, octree.Corner);
+        center = CalculateCenter(index, nodeSize, octree.Corner);
     }
 
     // Finds the node that contains this position, recursively,

@@ -39,7 +39,7 @@ public static class NewOctreeGenerator {
         // Create generation jobs
 
         Bounds bounds = navOctreeSpace.GetBounds();
-        long totalSize = CalculateSize(bounds.min, bounds.max);
+        int totalSize = CalculateSize(bounds.min, bounds.max);
 
         FlatOctreeNode root = new(
             nodeLevel: 0,
@@ -342,10 +342,15 @@ public static class NewOctreeGenerator {
         Dictionary<int4, FlatOctreeNode> flatNodesMap = flatOctree.nodes;
         Dictionary<int4, OctreeNode> pointerNodesMap = new(flatNodesMap.Count);
 
-        Vector3 octreeCorner = flatOctree.center - (new float3(1) * (flatOctree.size / 2f));
-
+        Vector3 octreeCorner = flatOctree.center - (new float3(1, 1, 1) * (flatOctree.size / 2f));
         int4 rootKey = new(0);
-        OctreeNode root = ConvertFlatNodeAndChildrenToPointersBased(rootKey, flatNodesMap, pointerNodesMap, flatOctree.size, octreeCorner);
+        OctreeNode root = ConvertFlatNodeAndChildrenToPointersBased(
+            currentKey: rootKey,
+            flatNodesMap: flatNodesMap,
+            pointersNodesMap: pointerNodesMap,
+            octreeSize: flatOctree.size,
+            octreeCorner: octreeCorner
+        );
 
         Octree ret = new(flatOctree.size, maxDivisionLevel: 0, flatOctree.center) { // maxDivisionLevel doesn't matter, it's only used by UI
             root = root
@@ -367,8 +372,8 @@ public static class NewOctreeGenerator {
         OctreeNode pointersNode = new(
             nodeLevel: currentFlatNode.nodeLevel,
             index: new int[] { currentKey.x, currentKey.y, currentKey.z },
-            octreeSize,
-            octreeCorner,
+            octreeSize: octreeSize,
+            octreeCorner: octreeCorner,
             isInBounds: currentFlatNode.inBounds,
             containsCollision: currentFlatNode.containsCollision
         );
@@ -396,8 +401,8 @@ public static class NewOctreeGenerator {
                 currentKey: childKey,
                 flatNodesMap: flatNodesMap,
                 pointersNodesMap: pointersNodesMap,
-                octreeSize: octreeSize / 2,
-                octreeCorner: octreeCorner + new Vector3(x, y, z) * (octreeSize / 2f)
+                octreeSize: octreeSize,
+                octreeCorner: octreeCorner
             );
             
             // Connect the child we created to the parent

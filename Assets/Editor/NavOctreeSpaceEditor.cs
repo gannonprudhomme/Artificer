@@ -41,6 +41,7 @@ public class NavOctreeSpaceEditor : Editor {
         // Display buttons
 
         if (GUILayout.Button("Generate Octree")) {
+            navOctreeSpace.SetOctree(null); // TODO: It looks weird sometimes
             IEnumerator coroutine = NewOctreeGenerator.GenerateOctree(
                 navOctreeSpace,
                 maxDivisionLevel: navOctreeSpace.MaxDivisionLevel,
@@ -55,6 +56,7 @@ public class NavOctreeSpaceEditor : Editor {
         }
 
         if (GUILayout.Button("Load")) {
+            navOctreeSpace.SetOctree(null);
             Octree octree = OctreeSerializer.Load(navOctreeSpace.GetFileName());
             navOctreeSpace.SetOctree(octree);
         }

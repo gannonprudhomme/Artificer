@@ -16,11 +16,11 @@ public class FlatOctree {
     public readonly float3 center;
 
     public FlatOctree(
-        long size, // TODO: This should be an int - size^3 needs to be a long, but size itself doesn't
-        float3 center, // TODO: I'm not even sure if we need this. Also might want to make it a Vector3
+        int size,
+        float3 center,
         Dictionary<int4, FlatOctreeNode> nodes
     ) {
-        this.size = (int) size; // it's not a long anyways, I need to fix this and make it back (it's size^3 that needs to be a long)
+        this.size = size;
         this.center = center;
         this.nodes = nodes;
     }

@@ -113,7 +113,7 @@ public class OctreeSerializer {
             stream.Read(buffer, 0, buffer.Length);
             using (var memoryStream = new MemoryStream(buffer)) {
                 using (var reader = new BinaryReader(memoryStream)) {
-                    octree = OctreeSerializer.Deserialize(reader);
+                    octree = Deserialize(reader);
                 }
             }
         }
