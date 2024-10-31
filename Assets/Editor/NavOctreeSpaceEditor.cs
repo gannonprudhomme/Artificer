@@ -1,7 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Unity.EditorCoroutines.Editor;
 
 
 [CustomEditor(typeof(NavOctreeSpace))]
@@ -41,23 +41,38 @@ public class NavOctreeSpaceEditor : Editor {
         // Display buttons
 
         if (GUILayout.Button("Generate Octree")) {
-            navOctreeSpace.GenerateOctree();
-        }
+            navOctreeSpace.SetOctree(null); // TODO: It looks weird sometimes
+            IEnumerator coroutine = NewOctreeGenerator.GenerateOctree(
+                navOctreeSpace,
+                maxDivisionLevel: navOctreeSpace.MaxDivisionLevel,
+                numJobs: 12 
+            );
 
-        if (GUILayout.Button("Mark In-Bounds leaves")) {
-            navOctreeSpace.MarkInboundsLeaves();
+            EditorCoroutineUtility.StartCoroutine(coroutine, this);
         }
 
         if (GUILayout.Button("Save")) {
-            navOctreeSpace.Save();
+            OctreeSerializer.Save(navOctreeSpace);
         }
 
         if (GUILayout.Button("Load")) {
-            navOctreeSpace.Load();
+            navOctreeSpace.SetOctree(null);
+            Octree octree = OctreeSerializer.Load(navOctreeSpace.GetFileName());
+            navOctreeSpace.SetOctree(octree);
         }
 
-        if (GUILayout.Button("Build Neighbors")) {
-            navOctreeSpace.BuildNeighbors();
+        if (GUILayout.Button("Build Neighbors (Octree)")) {
+            if (navOctreeSpace.octree == null) { Debug.LogError("No octree!"); return;}
+
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+            GraphGenerator.PopulateOctreeNeighbors(navOctreeSpace.octree, shouldBuildDiagonals: true);
+            stopwatch.Stop();
+
+            double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+            double seconds = ms / 1000d;
+
+            Debug.Log($"Finished building neighbors in {seconds:F2} sec ({ms:F0} ms)");
         }
     }
 }

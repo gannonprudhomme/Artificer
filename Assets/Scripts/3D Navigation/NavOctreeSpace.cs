@@ -1,15 +1,14 @@
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
+using System.Linq;
 using UnityEngine;
 
 #nullable enable
 
 // Component to go on the (parent-most) Level game object
 //
-// Intended to be the equivalent of NavMeshSurface
+// _Intended_ to be the equivalent of NavMeshSurface (ended up just being the editor version of it)
 //
-// Generate the Octree in the editor using NavOctreeSpaceEditor 
+// Intended to be the "gatekeeper" of the Octree, in practice it's really just for the editor (debug displaying, filename)
 public class NavOctreeSpace : MonoBehaviour {
     [Header("Debug")]
     public bool DisplayLeaves = false; // Displays the leaves
@@ -23,109 +22,30 @@ public class NavOctreeSpace : MonoBehaviour {
 
     public bool DisplayNeighbors = false;
 
+    public int MaxDivisionLevel = 9;
+
+    [Tooltip("How many jobs to use for subdividing the octree")]
+    public int NumberOfJobs = 12;
+
     // Must call Load() / LoadIfNeeded() to populate this
     public Octree? octree { get; private set; }
 
+    // TODO: Do we set this anywhere?
     private Bounds? calculatedBounds = null; // For debug displaying
-    
-    public void GenerateOctree() {
-        Bounds bounds = GetBounds();
-        calculatedBounds = bounds;
-
-        octree = new Octree(
-            min: bounds.min,
-            max: bounds.max,
-            smallestActorDimension: Vector3.one * 2.5f,
-            center: bounds.center
-        );
-
-        // Generate and time it
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-        octree.Generate(this.gameObject);
-        stopwatch.Stop();
-
-        // Debug output
-        List<OctreeNode> allNodes = octree.GetAllNodes();
-        List<OctreeNode> leaves = allNodes.FindAll((node) => node.children == null);
-        Debug.Log($"Finished generating octree with {allNodes.Count} nodes and {leaves.Count} leaves in {stopwatch.ElapsedMilliseconds} ms");
-    }
-
-    public void MarkInboundsLeaves() {
-        if (octree == null) {
-            Debug.LogError("No Octree Loaded!");
-            return;
-        }
-
-        octree.MarkInboundsLeaves();
-    }
-
-    // Save the generated octree to a file
-    public void Save() {
-        if (octree == null) {
-            Debug.LogError("No octree to save!");
-            return;
-        }
-
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-
-        using (var stream = File.Open(GetFileName(), FileMode.Create))
-        using(var writer = new BinaryWriter(stream)) {
-            OctreeSerializer.Serialize(octree, writer);
-        }
-
-        stopwatch.Stop();
-
-        int nodeCount = octree.GetAllNodes().Count;
-
-        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        Debug.Log($"Wrote Octree with {nodeCount} nodes to '{GetFileName()}' in {ms} ms");
-    }
 
     public void LoadIfNeeded() {
         if (octree != null) return;
 
-        Load();
+        octree = OctreeSerializer.Load(GetFileName());
     }
 
-    // Load the generated octree from a file into memory (put in this.octree)
-    public void Load() {
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-
-        using (var stream = File.Open(GetFileName(), FileMode.Open))
-        using (var reader = new BinaryReader(stream)) {
-            octree = OctreeSerializer.Deserialize(reader);
-        }
-
-        stopwatch.Stop();
-
-        int nodeCount = octree.GetAllNodes().Count;
-
-        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        Debug.Log($"Read Octree from '{GetFileName()}' and got {nodeCount} nodes in {ms} ms");
-    }
-
-    public void BuildNeighbors() {
-        if (octree == null) return;
-
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-        GraphGenerator.PopulateOctreeNeighbors(octree, shouldBuildDiagonals: true);
-        stopwatch.Stop();
-
-        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-
-        Debug.Log($"Finished building neighbors in {ms} ms");
-    }
-
-    private Bounds GetBounds() {
+    // TODO: No need for this to be in here! We can move it to OctreeGenerationJob probably?
+    // it's only used in there anyways
+    // needs to be public for OctreeGenerator
+    public Bounds GetBounds() {
         // This gets renderers from this GameObject(Component), as well as it's children recursively
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
-        // if (renderers.Count == 0) return new Bounds
         Bounds bounds = renderers[0].bounds;
-        // Debug.Log($"Bounds: {bounds}");
         foreach(var renderer in renderers) {
             bounds.Encapsulate(renderer.bounds);
         }
@@ -135,9 +55,35 @@ public class NavOctreeSpace : MonoBehaviour {
 
     // Retrieves the filename 
     // Should probably be based off the GameObject name?
-    private string GetFileName() {
+    public string GetFileName() {
         return $"{gameObject.name}.octree.bin";
     }
+
+    public void SetOctree(Octree newOctree) {
+        this.octree = newOctree;
+        
+        #if UNITY_EDITOR
+        // Destroy the previously cached gizmos list
+        gizmosAllNodes = null;
+        gizmosAllLeaves = null;
+        gizmosNotLeaves = null;
+        gizmosCollisionLeaves = null;
+        gizmosNoCollisionLeaves = null;
+        gizmosLeavesOutOfBounds = null;
+        gizmosLeavesInBounds = null;
+        gizmosNeighborsLines = null;
+        #endif
+    }
+    
+    #if UNITY_EDITOR
+    private List<OctreeNode>? gizmosAllNodes = null;
+    private List<OctreeNode>? gizmosAllLeaves = null;
+    private List<OctreeNode>? gizmosNotLeaves = null;
+    private List<OctreeNode>? gizmosCollisionLeaves = null;
+    private List<OctreeNode>? gizmosNoCollisionLeaves = null;
+    private List<OctreeNode>? gizmosLeavesOutOfBounds = null;
+    private List<OctreeNode>? gizmosLeavesInBounds = null;
+    private Vector3[]? gizmosNeighborsLines = null;
 
     private void OnDrawGizmos() {
         if (calculatedBounds != null && DisplayBounds) {
@@ -154,75 +100,86 @@ public class NavOctreeSpace : MonoBehaviour {
 
         if (octree == null) return;
 
-        List<OctreeNode> allNodes = octree.GetAllNodes();
-        List<OctreeNode> allLeaves = allNodes.FindAll(node => node.children == null);
-        List<OctreeNode> notLeaves = allNodes.FindAll(node => node.children != null);
-        List<OctreeNode> collisionLeaves = allLeaves.FindAll(leaf => leaf.containsCollision);
-        List<OctreeNode> noCollisionLeaves = allLeaves.FindAll(leaf => !leaf.containsCollision);
-        List<OctreeNode> leavesOutOfBounds = allLeaves.FindAll(leaf => !leaf.isInBounds);
-        List<OctreeNode> leavesInBounds = allLeaves.FindAll(leaf => leaf.isInBounds);
+        // We sort by node level so the lines don't overlap inconsisently
+        gizmosAllNodes ??= octree.GetAllNodes().OrderBy(node => node.nodeLevel).ToList();
+        gizmosAllLeaves ??= octree.GetAllNodes(onlyLeaves: true).OrderBy(node => node.nodeLevel).ToList();
+        gizmosNotLeaves ??= gizmosAllNodes.FindAll(node => node.children != null);
+        gizmosCollisionLeaves ??= gizmosAllLeaves.FindAll(leaf => leaf.containsCollision);
+        gizmosNoCollisionLeaves ??= gizmosAllLeaves.FindAll(leaf => !leaf.containsCollision);
+        gizmosLeavesOutOfBounds ??= gizmosAllLeaves.FindAll(leaf => !leaf.isInBounds);
+        gizmosLeavesInBounds ??= gizmosAllLeaves.FindAll(leaf => leaf.isInBounds);
 
         if (DisplayLeaves) { // Display the leaves
             Gizmos.color = Color.green;
-            foreach(OctreeNode leaf in allLeaves) {
+            foreach(OctreeNode leaf in gizmosAllLeaves) {
                 leaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayNonLeaves) {
             Gizmos.color = Color.blue;
-            foreach(OctreeNode notLeaf in notLeaves) {
+            foreach(OctreeNode notLeaf in gizmosNotLeaves) {
                 notLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayCollisions) {
             Gizmos.color = Color.red;
-            foreach(OctreeNode collisionLeaf in collisionLeaves) {
+            foreach(OctreeNode collisionLeaf in gizmosCollisionLeaves) {
                 collisionLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayOutOfBounds) {
             Gizmos.color = Color.magenta;
-            foreach(OctreeNode outOfBoundsLeaf in leavesOutOfBounds) {
+            foreach(OctreeNode outOfBoundsLeaf in gizmosLeavesOutOfBounds) {
                 outOfBoundsLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayIsInBounds) {
             Gizmos.color = Color.yellow;
-            foreach(OctreeNode inBoundsLeaf in leavesInBounds) {
+            foreach(OctreeNode inBoundsLeaf in gizmosLeavesInBounds) {
                 inBoundsLeaf.DrawGizmos(DisplayIndices, Color.white);
             }
         }
 
         if (DisplayNeighbors) {
-            List<(Vector3, Vector3)> validNeighbors = new();
+            gizmosNeighborsLines ??= GetNeighborLines(gizmosAllLeaves);
 
-            foreach(OctreeNode node in allLeaves) {
-                if (node.inBoundsNeighborsWithoutCollisions != null) {
-                    foreach (OctreeNode neighbor in node.inBoundsNeighborsWithoutCollisions) {
-                        validNeighbors.Add((node.center, neighbor.center));
-                    }
-                }
+            if (gizmosNeighborsLines != null) {
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawLineList(gizmosNeighborsLines);
             }
-
-            Gizmos.color = Color.blue;
-            DrawLineList(validNeighbors);
         }
     }
 
-    private static void DrawLineList(List<(Vector3, Vector3)> lines) {
+    private static Vector3[]? GetNeighborLines(List<OctreeNode> allLeaves) {
+        if (allLeaves.Count == 0) return null;
+
+        List<(Vector3, Vector3)> validNeighbors = new();
+
+        foreach(OctreeNode node in allLeaves) {
+            Dictionary<OctreeNode, float>? neighbors = node.neighbors;
+            if (neighbors == null) continue;
+
+            foreach(OctreeNode neighbor in neighbors.Keys) {
+                validNeighbors.Add((node.center, neighbor.center));
+            }
+        }
+
+        if (validNeighbors.Count == 0) return null;
+
         int currIndex = 0;
-        Vector3[] linesToDraw = new Vector3[lines.Count * 2];
-        foreach((Vector3, Vector3) pair in lines) {
+        Vector3[] linesToDraw = new Vector3[validNeighbors.Count * 2];
+        foreach((Vector3, Vector3) pair in validNeighbors) {
             linesToDraw[currIndex] = pair.Item1;
             linesToDraw[currIndex + 1] = pair.Item2;
 
             currIndex += 2;
         }
 
-        Gizmos.DrawLineList(linesToDraw);
+        return linesToDraw;
     }
+    #endif
 }

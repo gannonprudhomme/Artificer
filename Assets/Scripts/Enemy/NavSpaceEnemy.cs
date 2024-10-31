@@ -30,7 +30,6 @@ public abstract class NavSpaceEnemy : Enemy {
 
         navigator = new OctreeNavigator(
             ownerTransform: transform,
-            graph: OctreeManager.shared!.Graph!,
             octree: OctreeManager.shared!.Octree!,
             speed: Speed,
             colliderCast: ColliderCast

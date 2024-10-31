@@ -6,31 +6,29 @@ using UnityEngine.Profiling;
 
 #nullable enable
 
-// Helper class for generating a path against the Graph (generated from an Octree) using the A* algoritm
-//
-// Pathsmoothing needs the Octree so can do a Raycast
+// Helper class for generating a path using standard A* on the Octree
 public static class Pathfinder {
     // Generates a path using A*
     //
     // Runs pretty damn fast as-is so didn't look into theta* or lazy theta*
-    public static List<Vector3> GeneratePath(Graph graph, Vector3 start, Vector3 end) {
-        GraphNode? startNode = graph.FindNearestToPosition(start);
-        GraphNode? endNode = graph.FindNearestToPosition(end);
+    public static List<Vector3> GeneratePath(Octree octree, Vector3 start, Vector3 end) {
+        OctreeNode? startNode = octree.FindClosestValidToPosition(start);
+        OctreeNode? endNode = octree.FindClosestValidToPosition(end);
 
         if (startNode == null || endNode == null) {
             Debug.LogError("Couldn't find start/end node for GeneratePath!");
             return new();
         }
 
-        HashSet<GraphNode> closedSet = new();
+        HashSet<OctreeNode> closedSet = new();
 
         // F cost = G cost + H cost, and it's the main thing we sort on for the min-heap
         // G cost is our distance from the node to the start (or end?), and increased over time as we calculate stuff
-        Dictionary<GraphNode, float> gCosts = new();
+        Dictionary<OctreeNode, float> gCosts = new();
         // H cost is the distance from the node to the end (or end?)
-        Dictionary<GraphNode, float> hCosts = new();
-        Dictionary<GraphNode, GraphNode> parents = new();
-        Dictionary<GraphNode, C5.IPriorityQueueHandle<GraphNode>> handlesDict = new();
+        Dictionary<OctreeNode, float> hCosts = new();
+        Dictionary<OctreeNode, OctreeNode> parents = new();
+        Dictionary<OctreeNode, C5.IPriorityQueueHandle<OctreeNode>> handlesDict = new();
 
         if (startNode == endNode) {
             return new List<Vector3>() {
@@ -39,18 +37,18 @@ public static class Pathfinder {
             };
         }
 
-        HashSet<GraphNode> openSet = new(); // Only used b/c heap.Contains is really slow for some reason
-        var heap = new C5.IntervalHeap<GraphNode>(new GraphNodeComparer(gCosts, hCosts));
+        HashSet<OctreeNode> openSet = new(); // Only used b/c heap.Contains is really slow for some reason
+        var heap = new C5.IntervalHeap<OctreeNode>(new OctreeNodeComparer(gCosts, hCosts));
 
         #nullable disable // Nullable won't work here inherently
-        C5.IPriorityQueueHandle<GraphNode> currHandle = null;
+        C5.IPriorityQueueHandle<OctreeNode> currHandle = null;
         heap.Add(ref currHandle, startNode); // Do we want to do the handle stuff?
         openSet.Add(startNode);
         #nullable enable
 
         handlesDict[startNode] = currHandle;
 
-        GraphNode current = startNode; // Redundant (we're about to pop it), just ensures it's never null
+        OctreeNode current = startNode; // Redundant (we're about to pop it), just ensures it's never null
         while(!heap.IsEmpty) {
             // Pop the top of the heap, which is the minimum f-cost node (f = g + h) and mark it as the current node
             current = heap.DeleteMin();
@@ -63,8 +61,8 @@ public static class Pathfinder {
             }
 
             // Populate all current node's neighbors
-            foreach (KeyValuePair<GraphNode, float> keyValuePair in current.edges) {
-                GraphNode neighbor = keyValuePair.Key;
+            foreach (KeyValuePair<OctreeNode, float> keyValuePair in current.neighbors!) {
+                OctreeNode neighbor = keyValuePair.Key;
                 float edgeDistance = keyValuePair.Value;
 
                 if (closedSet.Contains(neighbor)) continue; // Skip this if neighbor we've already visited it
@@ -87,14 +85,14 @@ public static class Pathfinder {
 
                     if (!isNeighborInHeap) {
                         #nullable disable
-                        C5.IPriorityQueueHandle<GraphNode> neighborHandle = null;
+                        C5.IPriorityQueueHandle<OctreeNode> neighborHandle = null;
                         heap.Add(ref neighborHandle, neighbor);
                         openSet.Add(neighbor);
                         #nullable enable
 
                         handlesDict[neighbor] = neighborHandle;
                     } else {
-                        C5.IPriorityQueueHandle<GraphNode> neighborHandle = handlesDict[neighbor];
+                        C5.IPriorityQueueHandle<OctreeNode> neighborHandle = handlesDict[neighbor];
 
                         heap.Replace(neighborHandle, neighbor); // Update it with the new values we set above
                     }
@@ -105,7 +103,7 @@ public static class Pathfinder {
         List<Vector3> path = new();
         path.Add(end); // note we're adding the end position, not the end (nearest) GraphNode
 
-        while (parents.TryGetValue(current, out GraphNode currParent) && current != startNode) {
+        while (parents.TryGetValue(current, out OctreeNode currParent) && current != startNode) {
             path.Add(current.center);
 
             parents.Remove(current);
@@ -122,22 +120,23 @@ public static class Pathfinder {
         return path;
     }
 
+    // Generates a "smoothed" path using A*, which is a path that contains no "redundant" points
+    // 
+    // E.g. if there are 3 points in the resulting path, you cannot draw a straight-line without colliding between the first & last points 
     public static List<Vector3> GenerateSmoothedPath(
         Vector3 start,
         Vector3 end,
-        Graph graph,
         Octree octree,
         HashSet<Vector3>? positionsToKeep = null
     ) {
-        List<Vector3> rawPath = GeneratePath(graph, start, end);
+        List<Vector3> rawPath = GeneratePath(octree, start, end);
 
-        return SmoothPath(rawPath, graph, octree, positionsToKeep); // Technically this modified rawPath
+        return SmoothPath(rawPath, octree, positionsToKeep); // Technically this modified rawPath
     }
 
     // We need to be able to *not* smooth certain positions
     private static List<Vector3> SmoothPath(
         List<Vector3> inputPath,
-        Graph graph,
         Octree octree,
         HashSet<Vector3>? positionsToKeep = null
     ) {
@@ -214,18 +213,18 @@ public static class Pathfinder {
     }
 }
 
-public class GraphNodeComparer : IComparer<GraphNode> {
-    public Dictionary<GraphNode, float> gCosts, hCosts;
+public class OctreeNodeComparer : IComparer<OctreeNode> {
+    public Dictionary<OctreeNode, float> gCosts, hCosts;
 
-    public GraphNodeComparer(
-        Dictionary<GraphNode, float> gCosts,
-        Dictionary<GraphNode, float> hCosts
+    public OctreeNodeComparer(
+        Dictionary<OctreeNode, float> gCosts,
+        Dictionary<OctreeNode, float> hCosts
     ) {
         this.gCosts = gCosts;
         this.hCosts = hCosts;
     }
 
-    public int Compare(GraphNode left, GraphNode right) {
+    public int Compare(OctreeNode left, OctreeNode right) {
         float leftFCost = gCosts[left] + hCosts[left];
         float rightFCost = gCosts[right] + hCosts[right];
 

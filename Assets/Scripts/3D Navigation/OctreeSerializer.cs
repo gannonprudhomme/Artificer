@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 #nullable enable
 
@@ -17,9 +18,39 @@ using UnityEngine;
 // We assign each node an index (where root has 0) based on the order Octree.GetAllNodes() returns
 // then when we serialize the nodes we also serialize their parent's index
 // so when we deserlialize we can re-construct each OctreeNode.children correctly (i.e. figure out which parent it should connect to)
+//
+// Performance optimizations attempted:
+// 1. Only saving leaves, then generating their parents upon load/deserialization
+//    a. This was unfortunately slower than just saving & deserializing all nodes
 public class OctreeSerializer {
+    public static void Save(NavOctreeSpace space) {
+        string filename = space.GetFileName();
+        Octree? octree = space.octree;
+        
+        if (octree == null) {
+            Debug.LogError("No octree to save!");
+            return;
+        }
+
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+
+        using (var stream = File.Open(filename, FileMode.Create))
+        using(var writer = new BinaryWriter(stream)) {
+            OctreeSerializer.Serialize(octree, writer);
+        }
+
+        stopwatch.Stop();
+
+        int nodeCount = octree.GetAllNodes().Count;
+
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+        Debug.Log($"Wrote Octree with {nodeCount} nodes to '{filename}' in {seconds:F2} sec ({ms:F0} ms)");
+    }
+    
     // Writes the given Octree to a file in binary format using the given BinaryWriter
-    public static void Serialize(Octree octree, BinaryWriter writer) {
+    private static void Serialize(Octree octree, BinaryWriter writer) {
 
         // Serialize octree properties
         writer.Write(octree.MaxDivisionLevel);
@@ -65,11 +96,40 @@ public class OctreeSerializer {
         writer.Write(node.nodeLevel);
         writer.Write(parentIndex);
         writer.Write(node.containsCollision);
-        writer.Write(node.childrenContainsCollision);
         writer.Write(node.isInBounds);
     }
 
-    public static Octree Deserialize(BinaryReader reader) {
+    // Load the generated octree from a file into memory (put in this.octree)
+    public static Octree Load(string filename) {
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+
+        Octree octree;
+
+        using (Stream stream = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+            // Read all of the data at once, rather than reading bytes at a time
+            // Led to a ~27% speed up (2.2 sec -> 1.6 sec)
+            byte[] buffer = new byte[stream.Length];
+            stream.Read(buffer, 0, buffer.Length);
+            using (var memoryStream = new MemoryStream(buffer)) {
+                using (var reader = new BinaryReader(memoryStream)) {
+                    octree = Deserialize(reader);
+                }
+            }
+        }
+
+        stopwatch.Stop();
+
+        int nodeCount = octree.GetAllNodes().Count;
+
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+        Debug.Log($"Read Octree from '{filename}' and got {nodeCount:N0} nodes in {seconds:F2} sec ({ms:F0} ms)");
+
+        return octree;
+    } 
+
+    private static Octree Deserialize(BinaryReader reader) {
         int maxDivisionLevel = reader.ReadInt32();
         int size = reader.ReadInt32();
 
@@ -80,9 +140,9 @@ public class OctreeSerializer {
 
         int nodeCount = reader.ReadInt32();
 
-        // Get the first node, which is the root
-        Dictionary<OctreeNode, int> childToParentIndexMap = new();
+        Dictionary<OctreeNode, int> childToParentIndexMap = new(nodeCount);
 
+        // Get the first node, which is the root
         OctreeNode root = DeserializeNode(reader, octree, childToParentIndexMap);
         octree.root = root;
 
@@ -101,7 +161,7 @@ public class OctreeSerializer {
             if (parentIndex == -1) continue; // root doesn't have a parent
 
             OctreeNode parent = allNodes[parentIndex];
-            parent.children ??= new OctreeNode[2, 2, 2]; // Init children if it's null
+            parent.children ??= new OctreeNode[8]; // Init children if it's null
 
             // Now figure out what index we are relative to the parent
             // which we can do using both of their indices
@@ -110,7 +170,7 @@ public class OctreeSerializer {
             int y = node.index[1] - (parent.index[1] * 2);
             int z = node.index[2] - (parent.index[2] * 2);
 
-            parent.children[x, y, z] = node;
+            parent.children[OctreeNode.Get1DIndex(x, y, z)] = node;
         }
 
         return octree;
@@ -131,16 +191,13 @@ public class OctreeSerializer {
         int nodeLevel = reader.ReadInt32();
         int parentIndex = reader.ReadInt32();
         bool containsCollision = reader.ReadBoolean();
-        bool childrenContainsCollision = reader.ReadBoolean();
         bool isInBounds = reader.ReadBoolean();
 
-        OctreeNode node = new OctreeNode(
+        OctreeNode node = new(
             nodeLevel,
             index,
             octree,
-            // center,
             containsCollision,
-            childrenContainsCollision,
             isInBounds
         );
 
@@ -152,7 +209,7 @@ public class OctreeSerializer {
     /** HELPERS **/
 
     private static float[] VectorToArray(Vector3 vector) {
-        return new float[] { vector.x, vector.y, vector.z };
+        return new[] { vector.x, vector.y, vector.z };
     }
 
     // Used for serializing the nodes
@@ -174,7 +231,7 @@ public class OctreeSerializer {
         for (int x = 0; x < 2; x++) {
             for (int y = 0; y < 2; y++) {
                 for (int z = 0; z < 2; z++) {
-                    OctreeNode child = curr.children[x, y, z];
+                    OctreeNode child = curr.children[OctreeNode.Get1DIndex(x, y, z)];
                     if (child == null) continue;
 
                     nodes.AddRange(GetAllNodesAndSetParentMap(child, curr, childToParentMap));

@@ -209,7 +209,8 @@ public class Wisp : NavSpaceEnemy {
 
             // Check that this is a valid position that we can move to
             // If we don't do this then we'll end up in invalid positions, e.g. below the map
-            OctreeNode? nearestNode = OctreeManager.shared!.Octree!.FindNodeForPosition(randomMove);
+            // TODO: Should this be exact? Or nearest?
+            OctreeNode? nearestNode = OctreeManager.shared!.Octree!.FindClosestValidToPosition(randomMove);
 
             if (nearestNode == null || nearestNode.containsCollision || !nearestNode.isInBounds) {
                 continue;

@@ -13,12 +13,7 @@ public class OctreeManager : MonoBehaviour {
     // Used to load the Octree from memory
     public NavOctreeSpace? NavSpace = null;
 
-    public Octree? Octree { 
-        get {
-            return NavSpace!.octree;
-        }
-    } 
-    public Graph? Graph { get; set; } // Used to be "WispGraph"
+    public Octree? Octree => NavSpace!.octree;
 
     private void Awake() {
         if (shared != null) {
@@ -27,10 +22,25 @@ public class OctreeManager : MonoBehaviour {
 
         shared = this;
 
+        // TODO: probably remove these timings, but leaving for now
+
+        var mainStopwatch = new System.Diagnostics.Stopwatch();
+        mainStopwatch.Start();
         NavSpace!.LoadIfNeeded();
 
-        Graph = GraphGenerator.GenerateGraph(NavSpace!.octree!, shouldBuildDiagonals: true);
-
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Restart();
+        
         GraphGenerator.PopulateOctreeNeighbors(NavSpace!.octree!, shouldBuildDiagonals: true);
+        
+        stopwatch.Stop();
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+        Debug.Log($"Populated neighbors in {seconds:F2} sec ({ms:F0} ms)");
+
+        mainStopwatch.Stop();
+        ms = ((double)mainStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        seconds = ms / 1000d;
+        Debug.Log($"Total loading took {seconds:F2} sec ({ms:F0} ms)");
     }
 }

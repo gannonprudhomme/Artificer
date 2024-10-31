@@ -9,8 +9,6 @@ using System.Linq;
 public class OctreeNavigator {
     private readonly float speed;
 
-    // Graph we use to navigate
-    private readonly Graph graph;
     private readonly Octree octree;
     private readonly Transform ownerTransform;
     private readonly ColliderCastDelegate colliderCast;
@@ -42,13 +40,11 @@ public class OctreeNavigator {
 
     public OctreeNavigator(
         Transform ownerTransform,
-        Graph graph,
         Octree octree,
         float speed,
         ColliderCastDelegate colliderCast
     ) {
         this.ownerTransform = ownerTransform;
-        this.graph = graph;
         this.octree = octree;
         this.speed = speed;
         this.colliderCast = colliderCast;
@@ -56,14 +52,9 @@ public class OctreeNavigator {
 
     // Called on every frame in sub-classes of this (when we want to move)
     public void TraversePath() {
-        if (graph == null) {
-            Debug.LogError("Graph was null - it should be set in the sub-classes Start()!");
-            return;
-        }
-
         if (currentSplinePath != null) {
             currT += Time.deltaTime / timeToTravel; // TODO: This is not right lol
-            ownerTransform.position = SplineUtility.EvaluatePosition(currentSplinePath, currT);
+            ownerTransform.position = currentSplinePath.EvaluatePosition(currT);
         }
     }
 
@@ -72,11 +63,6 @@ public class OctreeNavigator {
     // TODO: Combine this with the CreatePathTo fucntion
     // This function is pretty hyper focused on the AtG Missile's use case
     public void CreatePathGuaranteeingPositions(Vector3 goalPosition, Vector3 pathStartPosition, Vector3 originalPosition) {
-        if (graph == null) {
-            Debug.LogError("Graph was null - it should be set in the sub-classes Start()!");
-            return;
-        }
-
         // Positions we don't want to be "smoothed"
         HashSet<Vector3> positionsToNotSmooth = new() { pathStartPosition, originalPosition };
 
@@ -113,11 +99,6 @@ public class OctreeNavigator {
     // positions to determine their shape/curve.
     // Thus, new paths will consist of [previousNearestKnot, currentPositionKnot, newPathKnot1, ..., goalPosition]
     public void CreatePathTo(Vector3 goalPosition) {
-        if (graph == null) {
-            Debug.LogError("Graph was null - it should be set in the sub-classes Start()!");
-            return;
-        }
-
         List<Vector3> path = GetNewPath(goalPosition: goalPosition, startPosition: ownerTransform.transform.position);
 
         if (currentSplinePath != null) {
@@ -155,7 +136,6 @@ public class OctreeNavigator {
             return Pathfinder.GenerateSmoothedPath(
                 start: startPosition,
                 end: goalPosition,
-                graph: graph,
                 octree: octree,
                 positionsToKeep: positionsToKeep
             );
@@ -176,11 +156,7 @@ public class OctreeNavigator {
     // Get the closest (previous) knot to the position we're at
     private static Vector3 GetPreviousKnot(Spline spline, float currTime) {
         // Find the closest knot to this position, behind it (from cast to int/floor)
-        int knotIndex =  (int) SplineUtility.ConvertIndexUnit(
-            spline,
-            currTime,
-            PathIndexUnit.Knot
-        );
+        int knotIndex =  (int) spline.ConvertIndexUnit(currTime, PathIndexUnit.Knot);
 
         return spline.Knots.ToArray()[knotIndex].Position; // Get position of Knots[knotIndex]
     }

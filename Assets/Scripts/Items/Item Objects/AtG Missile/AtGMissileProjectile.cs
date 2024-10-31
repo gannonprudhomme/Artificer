@@ -47,7 +47,6 @@ public class AtGMissileProjectile : MonoBehaviour {
 
         octreeNavigator = new OctreeNavigator(
             ownerTransform: transform,
-            graph: OctreeManager.shared!.Graph!,
             octree: OctreeManager.shared!.Octree!,
             speed: speed,
             colliderCast: ColliderCast
@@ -173,7 +172,6 @@ public class AtGMissileProjectile : MonoBehaviour {
         }
 
         if (nearbyEntities.Count == 0) {
-            Debug.LogError("No entities found nearby, returning null");
             return null;
         }
 
