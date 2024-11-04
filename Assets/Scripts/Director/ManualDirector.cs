@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+
+#nullable enable
 
 // A Director used for testing
 //
@@ -11,24 +14,28 @@ using UnityEngine.AI;
 // The component is placed on the player
 public class ManualDirector : MonoBehaviour {
     [Header("Reference")]
-    [Tooltip("Reference to the main camera used for the player")]
-    public Camera PlayerCamera;
 
-    public Target PlayerTarget;
+    public Target? PlayerTarget;
 
-    public StoneGolem StoneGolemPrefab;
-    public Lemurian LemurianPrefab;
-    public Wisp WispPrefab;
+    public StoneGolem? StoneGolemPrefab;
+    public Lemurian? LemurianPrefab;
+    public Wisp? WispPrefab;
 
     // What transform to place the enemies under
     [Tooltip("The transform to place the enemies under. Probably the Level")]
-    public Transform SpawnTransform;
+    public Transform? SpawnTransform;
 
-    private EnemyManager enemyManager = EnemyManager.shared;
+    private EnemyManager? enemyManager = EnemyManager.shared;
+    // Reference to the main camera used for the player
+    private Camera? PlayerCamera;
 
     private bool spawnLemurianWasHeld = false;
     private bool spawnStoneGolemWasHeld = false;
     private bool spawnWispWasHeld = false;
+
+    private void Start() {
+        PlayerCamera = Camera.main; // does this work? Idk
+    }
 
     private void Update() {
         // Should probs be an enum, but just for testing so w/e
@@ -52,12 +59,12 @@ public class ManualDirector : MonoBehaviour {
                 Enemy enemyToSpawn;
 
                 if (lemurianPressed) {
-                    enemyToSpawn = Instantiate(LemurianPrefab, SpawnTransform);
+                    enemyToSpawn = Instantiate(LemurianPrefab!, SpawnTransform);
                 } else if (golemPressed) {
                     // enemyToSpawn = Instantiate(StoneGolemPrefab, SpawnTransform);
-                    enemyToSpawn = Instantiate(StoneGolemPrefab, _position, Quaternion.identity);
+                    enemyToSpawn = Instantiate(StoneGolemPrefab!, _position, Quaternion.identity);
                 } else { // Wisp pressed
-                    enemyToSpawn = Instantiate(WispPrefab, _position, Quaternion.identity);
+                    enemyToSpawn = Instantiate(WispPrefab!, _position, Quaternion.identity);
                 }
 
                 enemyToSpawn.transform.position = _position;

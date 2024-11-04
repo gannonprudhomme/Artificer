@@ -64,7 +64,7 @@ public abstract class Enemy : Entity {
         health!.OnDeath += OnDeath;
 
         if (Target) {
-            HealthAndStatusBarFollowPlayer!.Target = Target!.Camera!.transform;
+            HealthAndStatusBarFollowPlayer!.Target = Target!.PlayerCamera!.transform;
 		}
 
         StunnedStatusVFXInstance!.Stop();

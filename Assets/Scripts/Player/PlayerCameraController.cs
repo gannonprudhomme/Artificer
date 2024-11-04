@@ -5,8 +5,8 @@ using Cinemachine;
 
 #nullable enable
 
-public class PlayerCameraController : MonoBehaviour {
-    public CinemachineVirtualCamera? VirtualCamera;
+// Increases the FOV when the player is sprinting
+public sealed class PlayerCameraController : MonoBehaviour {
 
     [Tooltip("The default FOV when the player isn't sprinting")]
     public int DefaultFOV;
@@ -21,12 +21,18 @@ public class PlayerCameraController : MonoBehaviour {
 
     public bool IsPlayerSprinting { get; set; }
 
+    private CinemachineVirtualCamera? VirtualCamera;
+
     private readonly float smoothTime = 0.2f;
     private float currentDampVelocity = 0f;
 
+    private void Start() {
+        VirtualCamera = CameraObjects.instance!.VirtualCamera;
+    }
+
     // Start is called before the first frame update
     // Update is called once per frame
-    void Update() {
+    private void Update() {
         if (VirtualCamera == null) { return; }
 
         float goalFOV =  IsPlayerSprinting ? MaxSprintFOV : DefaultFOV;

@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+#nullable enable
+
 // Health bar for the player
 //
 // Ideally we'd pass in a curve to this (start fast then slow down) for the damage fill, but this is good enough for now
@@ -17,8 +19,7 @@ public class HealthBarUI : MonoBehaviour {
     [Tooltip("Optional health text. Will display like {CurrHealth}/{MaxHealth}")]
     public TextMeshProUGUI CurrentHealthText;
 
-    [Tooltip("Reference to the Player's health component")]
-    public Health health;
+    private Health? health;
 
     // TODO: Should this increase with damage taken? Yes!
     // How long in seconds we want to animate the damage taken fill image
@@ -34,7 +35,9 @@ public class HealthBarUI : MonoBehaviour {
     private float damageToAnimate = 0f;
 
     void Start() {
-        health.OnDamaged += OnDamaged;
+        health = PlayerController.instance!.health;
+        
+        health!.OnDamaged += OnDamaged;
     }
 
     void Update() {
@@ -54,7 +57,7 @@ public class HealthBarUI : MonoBehaviour {
 
     private void SetHealthFillAndColor() {
         // Do I really want this to be casted to an int? What does it matter if it's a float?
-        float healthFillAmount = ((int) health.CurrentHealth) / health.MaxHealth;
+        float healthFillAmount = ((int) health!.CurrentHealth) / health.MaxHealth;
         HealthFillImage.fillAmount = healthFillAmount;
 
         // TODO: If we have < 25% health we should change the HealthFillImage color to red
@@ -63,7 +66,7 @@ public class HealthBarUI : MonoBehaviour {
 
     // Animate the damaged-taken fill image, to provide extra feedback to the player on how much health they recently lost
     private void AnimateDamageTaken() {
-        float healthFillAmount = ((int) health.CurrentHealth) / health.MaxHealth;
+        float healthFillAmount = ((int) health!.CurrentHealth) / health.MaxHealth;
 
         // We should remove a certain amount of damage in one frame (seconds * Time.deltaTime)
         // And that remaining damage is how big the thing bar should be. No Lerp'ing!

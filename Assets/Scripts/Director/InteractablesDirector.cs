@@ -29,7 +29,7 @@ class InteractableCard {
     }
 }
 
-public class InteractablesDirector : MonoBehaviour {
+public sealed class InteractablesDirector : MonoBehaviour {
 
     [Header("Player/Level references")]
     public Target? Target;
@@ -43,7 +43,8 @@ public class InteractablesDirector : MonoBehaviour {
 
     private InteractableCard[]? interactableCards;
 
-    public const float difficultyCoefficient = 1f; // Difficulty coefficient at the start. TODO: pass this in
+    // TODO: Pass this in
+    private const float difficultyCoefficient = 1f; // Difficulty coefficient at the start.
 
     private int numCredits = 0;
 
@@ -76,12 +77,12 @@ public class InteractablesDirector : MonoBehaviour {
         };
     }
 
-    void Start() {
+    private void Start() {
         numCredits = 220; // Depends on level, but we'll set it for Titanic Planes
 
         InteractableCard? selectedCard = GetRandomAffordableAndSpawnableCard();
         while (numCredits > 0 && selectedCard != null) {
-            SpawnInteratable(selectedCard);
+            SpawnInteractable(selectedCard);
 
             selectedCard.numberSpawned++;
             numCredits -= selectedCard.spawnCost;
@@ -92,7 +93,7 @@ public class InteractablesDirector : MonoBehaviour {
         // Done spawning
     }
 
-    private void SpawnInteratable(InteractableCard interactableCard) {
+    private void SpawnInteractable(InteractableCard interactableCard) {
         // I guess we can query the NavMesh?
 
         if (!TryFindRandomSpawnPosition(Level!, out Vector3 spawnPosition, out Vector3 spawnNormal)) {

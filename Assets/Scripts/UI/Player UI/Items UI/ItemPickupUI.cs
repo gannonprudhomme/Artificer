@@ -6,31 +6,34 @@ using UnityEngine.UI;
 #nullable enable
 
 [RequireComponent(typeof(Canvas))]
-public class ItemPickupUI : MonoBehaviour {
+public sealed class ItemPickupUI : MonoBehaviour {
     public RawImage? ItemImage;
     public TextMeshProUGUI? ItemTitleText;
     public TextMeshProUGUI? ItemSubtitleText;
-    public PlayerItemsController? itemsController;
+    
+    private PlayerItemsController? itemsController;
 
     private Canvas? canvas;
 
-    private Queue<Item> itemsToDisplay = new();
+    private readonly Queue<Item> itemsToDisplay = new();
 
     // TODO: I don't think we need this?
     private Item? displayingItem = null;
 
-    private readonly float displayDuration = 2.0f;
+    private const float displayDuration = 2.0f;
     private float timeOfDisplayStart = Mathf.NegativeInfinity;
     private bool isDisplaying = false;
 
-    void Start() {
+    private void Start() {
+        itemsController = PlayerController.instance!.itemsController;
+        
         canvas = GetComponent<Canvas>();
         canvas.enabled = false;
 
         itemsController!.OnItemPickedUp += OnItemPickedUp;
     }
 
-    void Update() {
+    private void Update() {
         if (itemsToDisplay.Count > 0 && !isDisplaying) {
             displayingItem = itemsToDisplay.Dequeue();
             DisplayItem(displayingItem);

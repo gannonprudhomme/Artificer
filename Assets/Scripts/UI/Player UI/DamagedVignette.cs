@@ -10,8 +10,6 @@ public class DamagedVignette : MonoBehaviour {
     [Tooltip("Reference to the material which contains the damage vignette full screen shader (that's used as a URP renderer feature)")]
     public Material VignetteMaterial;
 
-    [Tooltip("Health instance of the playerr")]
-    public Health PlayerHealth;
 
     [Tooltip("The curve for how the vignette fades out over time")]
     public AnimationCurve FadeOutCurve;
@@ -22,6 +20,8 @@ public class DamagedVignette : MonoBehaviour {
     // The minimum strength this can be
     // Set depending on if the player is at "critical health"
     // private float MinStrength = 0.0f;
+    
+    private Health playerHealth;
 
     // TODO: This should scale with the damage taken (just like the starting strength)
     // public const float DamageTakenAnimationDuration = HealthBarUI.DamageTakenAnimationDuration;
@@ -32,7 +32,9 @@ public class DamagedVignette : MonoBehaviour {
     private const string SHADER_STRENGTH = "_Strength";
 
     void Start() {
-        PlayerHealth.OnDamaged += OnDamaged;
+        playerHealth = PlayerController.instance.health;
+        
+        playerHealth.OnDamaged += OnDamaged;
         ResetShader();
     }
 
@@ -47,13 +49,13 @@ public class DamagedVignette : MonoBehaviour {
 
     private void AnimateDamageTaken() { 
         // Calculate the time ([0, 1]) that has elapsed to feed into the animation curve
-	    float ratePerSec = PlayerHealth.MaxHealth * 0.3f;
+	    float ratePerSec = playerHealth.MaxHealth * 0.3f;
 
 	    damageLeftToAnimate -= (ratePerSec * Time.deltaTime);
 	    damageLeftToAnimate = Mathf.Max(0.0f, damageLeftToAnimate); // Prevent it from being negative
 
 	    const float multiplier = 12.0f; // I could probably do this more logically
-        float percent = (damageLeftToAnimate * multiplier) / (PlayerHealth.MaxHealth);
+        float percent = (damageLeftToAnimate * multiplier) / (playerHealth.MaxHealth);
 	    percent = Mathf.Clamp(percent, 0, 1);
 
         float strength = MaxStrength * percent;

@@ -35,20 +35,20 @@ public class InputHandler : MonoBehaviour {
     bool interactWasHeld;
 
     // Start is called before the first frame update
-    void Start() {
+    private void Start() {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     // Wtf is this
-    void LateUpdate() {
+    private void LateUpdate() {
         firstAttackWasHeld = GetFirstAttackInputHeld();
         secondAttackWasHeld = GetSecondAttackInputHeld();
         sprintWasHeld = GetSprintInputHeld();
         interactWasHeld = GetInteractInputHeld();
     }
 
-    public bool CanProcessInput() {
+    private bool CanProcessInput() {
         // return true;
         return Cursor.lockState == CursorLockMode.Locked; // &&!gameFlowManager.GameIsEnding
     }

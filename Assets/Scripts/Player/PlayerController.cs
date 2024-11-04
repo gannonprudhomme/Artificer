@@ -9,29 +9,26 @@ using UnityEngine.VFX;
 [RequireComponent(
     typeof(CharacterController),
     typeof(InputHandler),
-    typeof(PlayerSpellsController))
-]
+    typeof(Animator)
+)]
 [RequireComponent(
     typeof(Target),
     typeof(Experience),
     typeof(GoldWallet)
 )]
 [RequireComponent(
-    typeof(Animator),
+    typeof(PlayerSpellsController),
     typeof(PlayerCameraController),
     typeof(PlayerItemsController)
 )]
-public class PlayerController : Entity {
+public sealed class PlayerController : Entity {
+    // Singleton for the player so we can get its reference easily between Scenes
+    // since the Player GameObject will be in the Level's scene, but the UI & etc will be in a separate persistent scene
+    public static PlayerController? instance { get; private set; }
+    
     /** PROPERTIES **/
 
     [Header("References")]
-    [Tooltip("Reference to the main camera used for the player")]
-    public Camera? PlayerCamera;
-
-    // Note this should be a transform with a PositionConstraint constrained to the player
-    // and should be a bit above the player (around where the reticle is)
-    [Tooltip("Transform which we will rotate with the mouse in order to control the camera")]
-    public Transform? CameraAimPoint;
 
     [Tooltip("Reference to the MeshRenderer for the player model so we can change its shader values")]
     public SkinnedMeshRenderer? PlayerMeshRenderer;
@@ -39,8 +36,12 @@ public class PlayerController : Entity {
     [Tooltip("Transform for the MultiAimConstraint-constrained bone, used to calculate look at position")]
     public Transform? LookAtAnchor;
 
-    [Tooltip("Transform for where the look at transform is for the Multi-Aim Constraint")]
+    [Tooltip("Transform for where the look at transform is for the Multi-Aim Constraint. This is for the player model, not the camera.")]
     public Transform? PlayerLookAt;
+
+    // We store this solely so CameraObjects.cs can reference 
+    [Tooltip("Transform that's a child of the Player that the camera looks at.")]
+    public Transform? MainCameraLookAt;
 
     [Header("General")]
     [Tooltip("Force applied downward when in the air in meters per second")]
@@ -110,17 +111,24 @@ public class PlayerController : Entity {
     public InteractableHoverEvent? InteractableHoverEvent;
 
     /** LOCAL VARIABLES **/
-    private Experience? experience;
-    private GoldWallet? goldWallet;
+    public Experience? experience { get; private set; }
+    public GoldWallet? goldWallet { get; private set; }
 
     [HideInInspector]
     public Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
 
-    private PlayerSpellsController? playerSpellsController;
+    public PlayerItemsController? itemsController { get; private set; }
+    public PlayerSpellsController? spellsController { get; private set; }
+    
+    // Note this should be a transform with a PositionConstraint constrained to the player
+    // and should be a bit above the player (around where the reticle is)
+    // Transform which we will rotate with the mouse in order to control the camera.
+    // This is under Camera Objects - not the player
+    private Transform? cameraAimPoint;
+    private Camera? playerCamera;
     private InputHandler? inputHandler;
     private CharacterController? characterController;
     private PlayerCameraController? cameraController;
-    private PlayerItemsController? itemsController;
     private Animator? animator;
     private Vector3 groundNormal;
     private Animator? leftJetpackFlamesAnimator;
@@ -168,32 +176,38 @@ public class PlayerController : Entity {
     private int currentNumberOfJumpsBeforeGrounded = 1;
 
     /** FUNCTIONS **/
+    protected override void Awake() {
+        base.Awake();
+        
+        instance = this;
+        
+        inputHandler = GetComponent<InputHandler>();
+
+        experience = GetComponent<Experience>();
+        experience.OnLevelUp += OnLevelUp; 
+        
+        goldWallet = GetComponent<GoldWallet>();
+        target = GetComponent<Target>();
+
+        spellsController = GetComponent<PlayerSpellsController>();
+        cameraController = GetComponent<PlayerCameraController>();
+        itemsController = GetComponent<PlayerItemsController>();
+        
+        characterController = GetComponent<CharacterController>();
+        characterController.enableOverlapRecovery = true;
+        animator = GetComponent<Animator>();
+
+        leftJetpackFlamesAnimator = LeftJetpackFlames!.GetComponent<Animator>();
+        rightJetpackFlamesAnimator = RightJetpackFlames!.GetComponent<Animator>();
+    }
 
     protected override void Start() {
         base.Start();
 
-        characterController = GetComponent<CharacterController>();
-        characterController.enableOverlapRecovery = true;
-
-        inputHandler = GetComponent<InputHandler>();
-
-        experience = GetComponent<Experience>();
-        goldWallet = GetComponent<GoldWallet>();
-        target = GetComponent<Target>();
-
-        playerSpellsController = GetComponent<PlayerSpellsController>();
-        cameraController = GetComponent<PlayerCameraController>();
-        itemsController = GetComponent<PlayerItemsController>();
-
-        animator = GetComponent<Animator>();
-
-        experience.OnLevelUp += OnLevelUp; 
-
-
+        playerCamera = CameraObjects.instance!.MainCamera;
+        cameraAimPoint = CameraObjects.instance!.CameraAimPoint;
+        
         previousLookAtRotation = GetClampedPlayerLookAtAngle();
-
-        leftJetpackFlamesAnimator = LeftJetpackFlames!.GetComponent<Animator>();
-        rightJetpackFlamesAnimator = RightJetpackFlames!.GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -318,7 +332,7 @@ public class PlayerController : Entity {
 
             // We do the same horizontal movement as ground movement (Lerp + movement sharpness)
             // except for vertical (as its affected by gravity), which is handled separately
-            Vector3 targetVelocity = worldSpaceMoveInput * MaxSpeedInAir * speedModifier;
+            Vector3 targetVelocity = worldSpaceMoveInput * (MaxSpeedInAir * speedModifier);
 
             // Treat only horizontal movement like we do with ground movement
             float x = Mathf.Lerp(
@@ -414,11 +428,11 @@ public class PlayerController : Entity {
         // We only really want these when we're moving
         // we also don't care about them when we're force aiming forward
         float movementAngleDeg = Mathf.Atan2(moveInputDir.x, moveInputDir.z) * Mathf.Rad2Deg;
-        float targetAngle = movementAngleDeg + PlayerCamera!.transform.eulerAngles.y;
+        float targetAngle = movementAngleDeg + playerCamera!.transform.eulerAngles.y;
 
         // Determine rotation of the player
-        if (playerSpellsController!.IsForcingAimLookForward) {
-            float newTargetAngle = PlayerCamera!.transform.eulerAngles.y;
+        if (spellsController!.IsForcingAimLookForward) {
+            float newTargetAngle = playerCamera!.transform.eulerAngles.y;
 
             float forceAimForwardAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, newTargetAngle, ref turnSmoothVelocity, turnSmoothTime);
             transform.rotation = Quaternion.Euler(0f, forceAimForwardAngle, 0f);
@@ -441,10 +455,10 @@ public class PlayerController : Entity {
 
     // Called by Update()
     private void HandleCameraRotation() {
-        if (CameraAimPoint == null) return;
+        if (cameraAimPoint == null) return;
 
         Vector2 mouseInput = new(x: inputHandler!.GetLookInputsHorizontal(), y: inputHandler!.GetLookInputsVertical());
-        Vector3 rotEulerAngles = CameraAimPoint.localRotation.eulerAngles;
+        Vector3 rotEulerAngles = cameraAimPoint.localRotation.eulerAngles;
         
         // Calculate vertical rotation (rotation along x-axis)
         rotEulerAngles.x -= mouseInput.y * RotationSpeed; // why tf is this minus
@@ -458,7 +472,7 @@ public class PlayerController : Entity {
         // Handle horizontal rotation (rotating along y-axis)
         rotEulerAngles.y += mouseInput.x * RotationSpeed;
 
-        CameraAimPoint.localRotation = Quaternion.Euler(rotEulerAngles);
+        cameraAimPoint.localRotation = Quaternion.Euler(rotEulerAngles);
     }
 
     // Called by Update()
@@ -510,7 +524,7 @@ public class PlayerController : Entity {
     // TODO: Might want to prevent it from looking too far downwards (especially if we're looking backwards)
     private Vector3 GetClampedPlayerLookAtAngle() {
         // We  convert the camera direction to the local space of the player in order to tell what "backwards" actually is
-        Vector3 localCameraDirection = transform.InverseTransformDirection(PlayerCamera!.transform.forward);
+        Vector3 localCameraDirection = transform.InverseTransformDirection(playerCamera!.transform.forward);
         Vector3 localCameraAngle = Quaternion.LookRotation(localCameraDirection, Vector3.up).eulerAngles;
 
         // Convert the local camera angle to [-180, 180]
@@ -595,7 +609,7 @@ public class PlayerController : Entity {
     private void HandlePlayerShader() {
         Material material = PlayerMeshRenderer!.material;
 
-        float cameraVertAngle = CameraAimPoint!.transform.localEulerAngles.x;
+        float cameraVertAngle = cameraAimPoint!.transform.localEulerAngles.x;
         if (cameraVertAngle > 180) // "Normalize" it to [-180, 180] (really [VerticalRotationMin, VerticalRotationMax])
             cameraVertAngle -= 360;
 
@@ -637,7 +651,7 @@ public class PlayerController : Entity {
         bool isAnyInteractableInScreenBounds = false;
         foreach (Interactable nearbyInteractable in nearbyInteractables) {
             // First check if it's even in our FOV
-            Vector3 screenPoint = PlayerCamera!.WorldToScreenPoint(nearbyInteractable.transform.position);
+            Vector3 screenPoint = playerCamera!.WorldToScreenPoint(nearbyInteractable.transform.position);
 
             // TODO: this negate is dumb, flip it
             if (!(screenPoint.z > 0 && // if it's positive it's in front of us, negative if behind
@@ -660,11 +674,11 @@ public class PlayerController : Entity {
 
         // There's an interactable in the screen bounds, now raycast and see if we're aiming at anything
 
-        float distanceFromCameraToPlayer = Vector3.Distance(PlayerCamera!.transform.position, transform.position);
+        float distanceFromCameraToPlayer = Vector3.Distance(playerCamera!.transform.position, transform.position);
 
         RaycastHit[] hits = Physics.RaycastAll(
-            origin: PlayerCamera!.transform.position,
-            direction: PlayerCamera!.transform.forward,
+            origin: playerCamera!.transform.position,
+            direction: playerCamera!.transform.forward,
             // Because minDistanceToInteractableToBeHovering is the distance from the camera to the player,
             // we need to add the distance from the camera to the player to it
             maxDistance: minDistanceToInteractableToBeHovering + distanceFromCameraToPlayer,
@@ -712,7 +726,7 @@ public class PlayerController : Entity {
         bool isForwardButtonHeld = inputHandler!.GetMoveInput().z > 0.1f;
 
         // If we're not holding forward or a spell is preventing us from sprinting, cancel sprinting
-        if (!isForwardButtonHeld || playerSpellsController!.ShouldCancelSprinting()) {
+        if (!isForwardButtonHeld || spellsController!.ShouldCancelSprinting()) {
             isSprintToggled = false;
         }
 
@@ -736,7 +750,7 @@ public class PlayerController : Entity {
     public CrosshairReplacementImage? GetCurrentAimTexture() {
         if (isSprinting) {
             return CrosshairReplacementImage.Sprinting;
-        } else if (playerSpellsController!.DetermineCurrentAimTexture() is CrosshairReplacementImage texture) {
+        } else if (spellsController!.DetermineCurrentAimTexture() is CrosshairReplacementImage texture) {
             return texture;
         } else {
             return null;
@@ -746,11 +760,11 @@ public class PlayerController : Entity {
     // Unnecessary layer of indirection - we should just be able to reference the PlayerSpellsController in AimUI directly
     // however it needs to get the aim texture from the PlayerController since we need to control the texture for sprinting
     public float? GetCurrentReticleOffsetMultiplier() {
-        return playerSpellsController!.DetermineCurrentReticleOffsetMultipler();
+        return spellsController!.DetermineCurrentReticleOffsetMultipler();
     }
 
     public int GetPrimarySpellChargesCount() {
-        return playerSpellsController!.GetPrimarySpellChargesCount();
+        return spellsController!.GetPrimarySpellChargesCount();
     }
 
     // Gets the center point of the bottom hemisphere of the character controller capsule

@@ -6,13 +6,10 @@ using UnityEngine.UI;
 #nullable enable
 
 // I should probably just rename this to Crosshair UI
-public class AimUI : MonoBehaviour {
+public sealed class AimUI : MonoBehaviour {
     [Header("General")]
     [Tooltip("The parent of the crosshair images. Used so we can hide it when sprinting / etc")]
     public GameObject? CrosshairParent;
-
-    [Tooltip("Reference to the Player Controller")]
-    public PlayerController? aimDelegate; // Shouldn't this be the spells controller?
 
     [Header("Replacement Images")]
     [Tooltip("The image that replaces the crosshair when we're sprinting / aiming the ice wall / etc")]
@@ -34,11 +31,11 @@ public class AimUI : MonoBehaviour {
     public PrimarySpellChargeUI?[] primarySpellChargeImages = new PrimarySpellChargeUI[4];
 
     public readonly float animatedReticleStartPosition = 22.5f;
+    
+    private PlayerController? aimDelegate;
 
     private void Start() {
-        if (aimDelegate == null) {
-            Debug.LogError("AimUI was not passed an AimDelegate!");
-        }
+        aimDelegate = PlayerController.instance;
 
         UpdateInnerReticlePositions(multiplier: 1f);
     }
@@ -80,7 +77,7 @@ public class AimUI : MonoBehaviour {
         }
     }
 
-    public void UpdateInnerReticlePositions(float multiplier) {
+    private void UpdateInnerReticlePositions(float multiplier) {
         TopInnerReticle!.localPosition = new(
             x: TopInnerReticle!.localPosition.x,
             y: animatedReticleStartPosition * multiplier,
@@ -106,7 +103,7 @@ public class AimUI : MonoBehaviour {
         );
     }
 
-    public void SetShowingPrimarySpellChargeImages(int amount) {
+    private void SetShowingPrimarySpellChargeImages(int amount) {
         if (amount > primarySpellChargeImages.Length) {
             Debug.LogError("Tried to set more primary spell charge images than we have!");
             return;

@@ -8,7 +8,7 @@ using UnityEngine;
     typeof(PlayerItemsController)
 )]
 [RequireComponent(typeof(InputHandler), typeof(Animator))]
-public class PlayerSpellsController : MonoBehaviour {
+public sealed class PlayerSpellsController : MonoBehaviour {
     [Header("References")]
     public InputHandler? inputHandler;
 
@@ -22,10 +22,6 @@ public class PlayerSpellsController : MonoBehaviour {
     [Tooltip("Right arm for where the spell should be spawned / shot out of")] // Tooltip won't apply to lightning jump or ice wall
     public Transform? RightArmSpellSpawnPoint;
 
-    // I still don't really understand this
-    [Tooltip("Secondary camera used to avoid seeing weapon go through geometries?")]
-    public Camera? SpellCamera;
-
     [Header("Spells")]
     public FireballSpell? FireballSpell;
 
@@ -37,6 +33,9 @@ public class PlayerSpellsController : MonoBehaviour {
 
     public Spell[] spells { get; } = new Spell[4];
 
+    // I still don't really understand this
+    // camera used to avoid seeing weapon go through geometries?
+    private Camera? spellCamera;
     private PlayerController? player;
     private PlayerItemsController? itemsController;
     private Animator? animator;
@@ -46,7 +45,7 @@ public class PlayerSpellsController : MonoBehaviour {
     public bool IsForcingAimLookForward { get; private set; }
 
     // Start is called before the first frame update
-    void Awake() {
+    private void Awake() {
         playerLayerMask = LayerMask.GetMask("Player");
 
         // This is obviously a shit way of doing this
@@ -78,6 +77,8 @@ public class PlayerSpellsController : MonoBehaviour {
     private void Start() {
         inputHandler = GetComponent<InputHandler>();
         itemsController = GetComponent<PlayerItemsController>();
+
+        spellCamera = CameraObjects.instance!.MainCamera;
     }
 
     private void Update() {
@@ -97,7 +98,7 @@ public class PlayerSpellsController : MonoBehaviour {
                 spells[i].AttackButtonHeld(
                     muzzlePositions: (LeftArmSpellSpawnPoint!.transform.position, RightArmSpellSpawnPoint!.transform.position),
                     owner: player!,
-                    spellCamera: SpellCamera!,
+                    spellCamera: spellCamera!,
                     currDamage: player!.CurrentBaseDamage,
                     layerToIgnore: playerLayerMask
                 );

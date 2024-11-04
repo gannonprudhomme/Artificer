@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,6 +20,11 @@ public class Target : MonoBehaviour {
     [Tooltip("Colliders enemies will use to determine line of sight")]
     public CapsuleCollider? TargetCollider;
 
-    [Tooltip("Reference to the player camera. Used for the UIFollowPlayer so we can rotate it to look at the camera at all times")]
-    public Camera? Camera;
+    // Reference to the player camera.
+    // Used for the UIFollowPlayer so we can rotate it to look at the camera at all times
+    public Camera? PlayerCamera { get; private set; }
+
+    private void Start() {
+        PlayerCamera = Camera.main; // Hope this works
+    }
 }

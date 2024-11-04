@@ -4,17 +4,19 @@ using UnityEngine;
 #nullable enable
 
 public class ItemsBarUI : MonoBehaviour {
-    [Tooltip("Reference to items controller so we can get all of the current items")]
-    public PlayerItemsController? ItemsController;
 
     [Tooltip("Prefab we use for making more Item UIs when we pick up items")]
     public ItemUI? ItemUIPrefab;
 
     // Store a mapping to the UI elements so we can update their count when we pick up
     private Dictionary<string, ItemUI> itemUIs = new();
+    
+    private PlayerItemsController? itemsController;
 
     private void Start() {
-        ItemsController!.OnItemPickedUp += OnItemPickedUp;
+        itemsController = PlayerController.instance!.itemsController;
+        
+        itemsController!.OnItemPickedUp += OnItemPickedUp;
     }
 
     private void OnItemPickedUp(Item item, int count) {
