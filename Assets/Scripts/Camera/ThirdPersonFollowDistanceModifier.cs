@@ -1,3 +1,4 @@
+using System.Collections;
 using Cinemachine;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ using UnityEngine;
 //
 // Basically entirely copied from the Cinemachine AimRigging sample 
 [RequireComponent(typeof(CinemachineVirtualCamera))]
-public class ThirdPersonFollowDistanceModifier : MonoBehaviour {
+public sealed class ThirdPersonFollowDistanceModifier : MonoBehaviour {
 
     [Tooltip("Defines how the camera distance scales a fucntion of vertical Camera angle." + 
              "X axis of graph is from [0, 1]; Y-Axis is the multipler applied to base dist")]
@@ -25,12 +26,16 @@ public class ThirdPersonFollowDistanceModifier : MonoBehaviour {
     private Transform? followTarget = null;
     private float baseDistance = Mathf.Infinity;
 
-    void Start() {
+    private IEnumerator Start() {
+        while (PlayerController.instance == null) {
+            yield return null;
+        }
+        
         playerController = PlayerController.instance;
         
         if (!TryGetComponent(out CinemachineVirtualCamera virtualCamera)) {
             Debug.LogError("Couldn't find vcam in child!");
-            return;
+            yield break;
         }
 
         thirdPersonFollow = virtualCamera.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
@@ -44,7 +49,7 @@ public class ThirdPersonFollowDistanceModifier : MonoBehaviour {
         }
     }
 
-    void Update() {
+    private void Update() {
         if (thirdPersonFollow == null || followTarget == null) {
             Debug.LogError("ThirdPersonFollow/FollowTarget are null!");
             return;

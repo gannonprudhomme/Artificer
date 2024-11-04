@@ -1761,8 +1761,6 @@ MonoBehaviour:
   OnEndFreezeSfx: {fileID: 0}
   BleedVFXSpawnTransform: {fileID: 5788154168514574372}
   OnEntityHitEvent: {fileID: 11400000, guid: 7840444d77c364448922a63c5b113761, type: 2}
-  PlayerCamera: {fileID: 0}
-  CameraAimPoint: {fileID: 0}
   PlayerMeshRenderer: {fileID: 7152185002000507461}
   LookAtAnchor: {fileID: 2209735551376407989}
   PlayerLookAt: {fileID: 6702375350450175713}
@@ -1820,7 +1818,6 @@ MonoBehaviour:
   SpellEffectsFireSpawnPoint: {fileID: 8009151639064891985}
   LeftArmSpellSpawnPoint: {fileID: 5287596396576582660}
   RightArmSpellSpawnPoint: {fileID: 8009151639064891985}
-  SpellCamera: {fileID: 0}
   FireballSpell: {fileID: 4857897018764386295}
   IceWallSpell: {fileID: 4276017042026391231}
   IonSurgeJumpSpell: {fileID: 152916059270972665}
@@ -1906,7 +1903,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AimPoint: {fileID: 3891283934947796380}
   TargetCollider: {fileID: 1162894015005027175}
-  Camera: {fileID: 0}
 --- !u!114 &7115923844761297679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1919,7 +1915,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3b057deeaab0484fad6d8ac6874e527, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerCamera: {fileID: 0}
   PlayerTarget: {fileID: 2876704207433603849}
   StoneGolemPrefab: {fileID: 227309694435722584, guid: 0db40c0dd54e96045b23b1695a405c38,
     type: 3}
@@ -2072,7 +2067,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30700803d14a2e54bb3664fe6b2f9410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VirtualCamera: {fileID: 0}
   DefaultFOV: 55
   MaxSprintFOV: 70
   MaxPlayerWalkSpeed: 15
@@ -4143,17 +4137,17 @@ PrefabInstance:
     - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.1130099
+      value: -1.1130574
       objectReference: {fileID: 0}
     - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.69999
+      value: 3.6999938
       objectReference: {fileID: 0}
     - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.3953722
+      value: 0.39537224
       objectReference: {fileID: 0}
     - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
         type: 3}
@@ -4369,17 +4363,17 @@ PrefabInstance:
     - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.1071777
+      value: 1.1071243
       objectReference: {fileID: 0}
     - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.6946266
+      value: 3.6946278
       objectReference: {fileID: 0}
     - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.39228654
+      value: 0.39229694
       objectReference: {fileID: 0}
     - target: {fileID: 357045989310987706, guid: f48b65e8dafa00b488b84b31997ef0db,
         type: 3}

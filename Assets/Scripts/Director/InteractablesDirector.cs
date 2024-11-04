@@ -32,8 +32,6 @@ class InteractableCard {
 public sealed class InteractablesDirector : MonoBehaviour {
 
     [Header("Player/Level references")]
-    public Target? Target;
-    public GoldWallet? GoldWallet;
     public GameObject? Level;
 
     [Header("Interactables")]
@@ -41,6 +39,8 @@ public sealed class InteractablesDirector : MonoBehaviour {
     public Barrel? BarrelPrefab;
     public MultishopTerminal? MultishopTerminalPrefab;
 
+    private Target? Target;
+    private GoldWallet? GoldWallet;
     private InteractableCard[]? interactableCards;
 
     // TODO: Pass this in
@@ -77,7 +77,13 @@ public sealed class InteractablesDirector : MonoBehaviour {
         };
     }
 
-    private void Start() {
+    private IEnumerator Start() {
+        while (PlayerController.instance == null) {
+            yield return null;
+        }
+        Target = PlayerController.instance!.target;
+        GoldWallet = PlayerController.instance!.goldWallet;
+        
         numCredits = 220; // Depends on level, but we'll set it for Titanic Planes
 
         InteractableCard? selectedCard = GetRandomAffordableAndSpawnableCard();
@@ -124,13 +130,13 @@ public sealed class InteractablesDirector : MonoBehaviour {
             itemChest.SetUp(
                 costToPurchase: costToPurchase,
                 target: Target!,
-                goldWallet: FindObjectOfType<GoldWallet>() // This is awful but fuck it whatever
+                goldWallet: GoldWallet!
             );
         } else if (spawnable is MultishopTerminal multishopTerminal) {
             multishopTerminal.SetUp(
                 costToPurchase: costToPurchase,
                 target: Target!,
-                goldWallet: FindAnyObjectByType<GoldWallet>()
+                goldWallet: GoldWallet!
             );
         }
     }

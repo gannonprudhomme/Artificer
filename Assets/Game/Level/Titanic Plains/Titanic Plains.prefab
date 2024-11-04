@@ -204,6 +204,37 @@ Transform:
   - {fileID: 7662181166024070184}
   m_Father: {fileID: 1284685009078891471}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5389697558630594442
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2038736587415147204}
+  m_Layer: 8
+  m_Name: Player Spawn Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2038736587415147204
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5389697558630594442}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 14.4, y: 65.3, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1284685009078891471}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7787033194526967673
 GameObject:
   m_ObjectHideFlags: 0
@@ -318,12 +349,18 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1284685009078891471}
+  - component: {fileID: 5329056890442279058}
   - component: {fileID: 8486841424776336044}
   - component: {fileID: 7173125922453035496}
   - component: {fileID: 1012918822815103014}
   - component: {fileID: 1546955391672173486}
   - component: {fileID: 857635241860735809}
   - component: {fileID: 1045881384008694058}
+  - component: {fileID: 3611127352544002799}
+  - component: {fileID: 6219547884241360656}
+  - component: {fileID: 5157084549891806580}
+  - component: {fileID: 8421206005113470498}
+  - component: {fileID: 5286991121497852227}
   m_Layer: 8
   m_Name: Titanic Plains
   m_TagString: Untagged
@@ -344,6 +381,7 @@ Transform:
   m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2038736587415147204}
   - {fileID: 196690718406526413}
   - {fileID: 4008290343286935206}
   - {fileID: 3015949956277866822}
@@ -352,6 +390,20 @@ Transform:
   - {fileID: 4450985074041061780}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5329056890442279058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8792906675731632673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ade196f6aea919c44881a0d9387ab220, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerSpawnPoint: {fileID: 2038736587415147204}
+  SceneName: Distant Roost
 --- !u!33 &8486841424776336044
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -508,6 +560,80 @@ MonoBehaviour:
   DisplayNeighbors: 0
   MaxDivisionLevel: 8
   NumberOfJobs: 12
+--- !u!114 &3611127352544002799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8792906675731632673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40e4693fb61dc024cb88d7240837ad5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NavSpace: {fileID: 1045881384008694058}
+--- !u!114 &6219547884241360656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8792906675731632673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcc121c63fd6b574e96096f8700e27a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StoneGolemPrefab: {fileID: 0}
+  LemurianPrefab: {fileID: 0}
+  WispPrefab: {fileID: 0}
+--- !u!114 &5157084549891806580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8792906675731632673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce40fdee22f9d1b4c950a7b05b74271e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StoneGolemPrefab: {fileID: 0}
+  LemurianPrefab: {fileID: 0}
+  WispPrefab: {fileID: 0}
+--- !u!114 &8421206005113470498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8792906675731632673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ef4a3a9e11bb2044aa760b827b67a58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StoneGolemPrefab: {fileID: 0}
+  LemurianPrefab: {fileID: 0}
+  WispPrefab: {fileID: 0}
+--- !u!114 &5286991121497852227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8792906675731632673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c0801202e331e408b4db81ab4dd36f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Level: {fileID: 0}
+  ItemChestPrefab: {fileID: 0}
+  BarrelPrefab: {fileID: 0}
+  MultishopTerminalPrefab: {fileID: 0}
 --- !u!1001 &93811494496009733
 PrefabInstance:
   m_ObjectHideFlags: 0

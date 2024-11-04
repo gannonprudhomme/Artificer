@@ -111,14 +111,14 @@ public sealed class PlayerController : Entity {
     public InteractableHoverEvent? InteractableHoverEvent;
 
     /** LOCAL VARIABLES **/
-    public Experience? experience { get; private set; }
-    public GoldWallet? goldWallet { get; private set; }
-
     [HideInInspector]
     public Vector3 CharacterVelocity; // may need to be public, as enemies will need this to predict for aiming
 
+    public Experience? experience { get; private set; }
+    public GoldWallet? goldWallet { get; private set; }
     public PlayerItemsController? itemsController { get; private set; }
     public PlayerSpellsController? spellsController { get; private set; }
+    public Target? target { get; private set; }
     
     // Note this should be a transform with a PositionConstraint constrained to the player
     // and should be a bit above the player (around where the reticle is)
@@ -133,7 +133,6 @@ public sealed class PlayerController : Entity {
     private Vector3 groundNormal;
     private Animator? leftJetpackFlamesAnimator;
     private Animator? rightJetpackFlamesAnimator;
-    private Target? target;
 
     [HideInInspector]
     public float lastTimeJumped = Mathf.NegativeInfinity;

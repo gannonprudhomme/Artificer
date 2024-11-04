@@ -85,13 +85,13 @@ public class ManualDirector : MonoBehaviour {
         // Handle spawning a wisp (which we'll do by looking at the air)
         if (agentName == "Wisp") {
             // Spawn it some direction away in the air
-            Vector3 spawnPos = PlayerCamera.transform.position + (PlayerCamera.transform.forward * 60.0f); // Spawn 30m away
+            Vector3 spawnPos = PlayerCamera!.transform.position + (PlayerCamera.transform.forward * 60.0f); // Spawn 30m away
             Debug.Log($"Spawning wisp at {spawnPos}");
             return spawnPos;
         }
 
         if (Physics.Raycast(
-            PlayerCamera.transform.position,
+            PlayerCamera!.transform.position,
             PlayerCamera.transform.forward,
             out RaycastHit raycastHit
         )) {

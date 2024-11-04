@@ -9,8 +9,8 @@ public class InstantDirector: CombatDirector {
     protected override float experienceMultipler => 1f / 15f; // 0.06666 repeating;
     protected override (float, float) minAndMaxSpawnDistanceFromPlayer => (50.0f, 300.0f);
 
-    protected override void Start() {
-        base.Start();
+    protected override IEnumerator Start() {
+        yield return StartCoroutine(base.Start());
 
         int monsterLimit = 30;
         int monstersSpawned = 0;
@@ -31,7 +31,7 @@ public class InstantDirector: CombatDirector {
         while (selectedCard != null && monstersSpawned <= monsterLimit) {
             // Debug.Log($"Instant: Spawning {selectedCard.Value.identifier}");
             // Try to spawn it I guess?
-            SpawnEnemy(selectedCard.Value, Target!);
+            SpawnEnemy(selectedCard.Value, target!);
 
             // Select the next one
             selectedCard = SelectRandomCardWeCanAfford();

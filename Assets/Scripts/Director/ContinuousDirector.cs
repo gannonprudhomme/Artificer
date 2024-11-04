@@ -21,7 +21,7 @@ public abstract class ContinuousDirector: CombatDirector {
     // How many credits we generate per second
     private float creditsPerSecond {
         get {
-            float playerCount = 1;
+            const float playerCount = 1;
             return (creditMultipler * (1 + 0.4f * difficultyCoefficient) * (playerCount + 1) ) / 2f;
         }
     }
@@ -35,7 +35,7 @@ public abstract class ContinuousDirector: CombatDirector {
         GenerateCredits();
     }
 
-    protected void HandleSpawnLoop() {
+    private void HandleSpawnLoop() {
         if (Time.time < timeOfNextSpawnAttempt) { // We haven't waited long enough to try again
             // We can't spawn anything; don't move forward
             return;
@@ -50,7 +50,7 @@ public abstract class ContinuousDirector: CombatDirector {
         EnemyCard _selectedCard = (EnemyCard) selectedCard; // Idk why it won't let me force unwrap
         if (CanSpawnSelectedCard(_selectedCard)) {
             // Debug.Log($"Attempting to spawn: {_selectedCard.identifier} for {_selectedCard.spawnCost} with {numCredits} credits");
-            SpawnEnemy(_selectedCard, target: Target);
+            SpawnEnemy(_selectedCard, target: target!);
             // Spawn succeeded - keep this card (though above can technically fail ack)
 
             // numCredits -= _selectedCard.spawnCost;

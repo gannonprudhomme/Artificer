@@ -1,3 +1,4 @@
+using System.Collections;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -26,7 +27,11 @@ public sealed class CameraObjects : MonoBehaviour {
         instance = this;
     }
 
-    private void Start() {
+    private IEnumerator Start() {
+        while (PlayerController.instance == null) {
+            yield return null;
+        }
+        
         SetCameraLookAt();
     }
 

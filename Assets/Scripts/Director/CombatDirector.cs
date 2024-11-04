@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -49,7 +50,8 @@ public abstract class CombatDirector: MonoBehaviour {
     public StoneGolem? StoneGolemPrefab;
     public Lemurian? LemurianPrefab;
     public Wisp? WispPrefab;
-    public Target? Target;
+    
+    protected Target? target;
 
     // EnemyManager is where the list of enemies will live.
     // We probably don't need to do this, but could serve as a dependency injection entrypoint?
@@ -131,7 +133,12 @@ public abstract class CombatDirector: MonoBehaviour {
         }
     }
 
-    protected virtual void Start() {
+    protected virtual IEnumerator Start() {
+        while (PlayerController.instance == null) {
+            yield return null;
+        }
+        
+        target = PlayerController.instance!.target;
         enemyManager = FindObjectOfType<EnemyManager>();
         if (enemyManager == null) {
             Debug.LogError("CombatDirector couldn't find EnemyManager!");
@@ -167,7 +174,7 @@ public abstract class CombatDirector: MonoBehaviour {
 
         Enemy enemy = Instantiate(enemyCard.prefab, spawnPosition, Quaternion.identity);
         enemy.transform.position = spawnPosition;
-        enemy.Target = Target;
+        enemy.Target = this.target;
         enemy.Level = enemyLevel;
         // Set the XP reward for killing this monster
         // This also sets gold granted on death (which is 2x experience granted on death)
