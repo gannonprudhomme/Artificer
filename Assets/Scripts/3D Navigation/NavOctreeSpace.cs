@@ -56,7 +56,12 @@ public class NavOctreeSpace : MonoBehaviour {
     // Retrieves the filename 
     // Should probably be based off the GameObject name?
     public string GetFileName() {
-        return $"{gameObject.name}.octree.bin";
+        string sceneName = gameObject.name; // This is quite the assumption
+        
+        string folder = $"Assets/Scenes/{sceneName}";
+        string filename = $"{gameObject.name}.octree.bin";
+        
+        return $"{folder}/{filename}";
     }
 
     public void SetOctree(Octree newOctree) {

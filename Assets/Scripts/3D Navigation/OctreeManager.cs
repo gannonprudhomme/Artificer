@@ -17,7 +17,7 @@ public class OctreeManager : MonoBehaviour {
 
     private void Awake() {
         if (shared != null) {
-            Debug.LogError("There are two instances of Enemy Manager!");
+            Debug.LogError("There are two instances of Octree Manager!");
         }
 
         shared = this;
