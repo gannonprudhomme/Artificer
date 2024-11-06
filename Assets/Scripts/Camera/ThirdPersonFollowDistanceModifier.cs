@@ -51,7 +51,9 @@ public sealed class ThirdPersonFollowDistanceModifier : MonoBehaviour {
 
     private void Update() {
         if (thirdPersonFollow == null || followTarget == null) {
-            Debug.LogError("ThirdPersonFollow/FollowTarget are null!");
+            // This is fine - this might happen before Start() has ended
+            // so we don't necessarily need to log
+            // we'll get an error elsewhere
             return;
         };
 

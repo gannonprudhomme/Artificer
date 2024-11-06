@@ -36,7 +36,8 @@ public class MultishopTerminal : MonoBehaviour, Spawnable {
         // Should be temporary, but I'm going to leave it cause it should be fine
         if (goldWallet == null) {
             goldWallet = FindObjectOfType<GoldWallet>();
-            Debug.LogError("Having to manually find GoldWallet!");
+            // Honestly idek if I care about this
+            // Debug.LogError("Having to manually find GoldWallet!");
         }
 
         // Pick items for the individual ShopTerminals

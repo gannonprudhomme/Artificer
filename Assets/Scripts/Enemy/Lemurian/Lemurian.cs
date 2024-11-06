@@ -100,11 +100,15 @@ public class Lemurian : Enemy {
         // Set rotation if animator includes rotations here if needed, same as above
     }
 
-    protected override void Start() {
-        base.Start();
-
+    protected override void Awake() {
+        base.Awake();
+        
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+    }
+
+    protected override void Start() {
+        base.Start();
 
         lemurianMask = LayerMask.GetMask("Lemurian");
 

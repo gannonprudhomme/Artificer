@@ -17,7 +17,8 @@ public class OctreeManager : MonoBehaviour {
 
     private void Awake() {
         if (shared != null) {
-            Debug.LogError("There are two instances of Octree Manager!");
+            // This is fine when we're switching scenes
+            // Debug.LogError("There are two instances of Octree Manager!");
         }
 
         shared = this;
@@ -36,11 +37,11 @@ public class OctreeManager : MonoBehaviour {
         stopwatch.Stop();
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         double seconds = ms / 1000d;
-        Debug.Log($"Populated neighbors in {seconds:F2} sec ({ms:F0} ms)");
+        // Debug.Log($"Populated neighbors in {seconds:F2} sec ({ms:F0} ms)");
 
         mainStopwatch.Stop();
         ms = ((double)mainStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         seconds = ms / 1000d;
-        Debug.Log($"Total loading took {seconds:F2} sec ({ms:F0} ms)");
+        Debug.Log($"Octree loading took {seconds:F2} sec ({ms:F0} ms)");
     }
 }

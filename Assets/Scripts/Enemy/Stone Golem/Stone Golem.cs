@@ -104,14 +104,18 @@ public class StoneGolem : Enemy {
         // Set rotation if animator includes rotations here if needed, same as above
     }
 
-    protected override void Start() {
-        base.Start();
-
+    protected override void Awake() {
+        base.Awake();
+        
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         laserLineRenderer = GetComponent<LineRenderer>();
+    }
 
-        animator.speed = 1.3f;
+    protected override void Start() {
+        base.Start();
+
+        animator!.speed = 1.3f;
 
         laserAttack = new GolemLaserAttack(
             laserLineRenderer, AimPoint, Target!.AimPoint, LaserDamageArea, LaserSizeCurve, LaserChargeSfx, LaserFireSfx

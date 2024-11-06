@@ -109,7 +109,7 @@ public abstract class CombatDirector: MonoBehaviour {
     // protected abstract float creditMultiplers { get; }
     
     private void Awake() {
-        if (StoneGolemPrefab != null && LemurianPrefab != null) {
+        if (StoneGolemPrefab != null && LemurianPrefab != null && WispPrefab != null) {
             enemyCards = new EnemyCard[] {
                 new(
                     identifier: "Stone Golem",
@@ -127,9 +127,11 @@ public abstract class CombatDirector: MonoBehaviour {
                     identifier: "Wisp",
                     spawnCost: 10f * 2f,
                     isFlyingEnemy: true,
-                    prefab : WispPrefab!
+                    prefab : WispPrefab
                 )
             };
+        } else {
+            Debug.LogError("CombatDirector is missing a prefab!");
         }
     }
 
@@ -148,7 +150,6 @@ public abstract class CombatDirector: MonoBehaviour {
     protected virtual void Update() {
         // HandleSpawnLoop();
     }
-
 
     protected void SpawnEnemy(EnemyCard enemyCard, Target target) {
         Vector3 spawnPosition;

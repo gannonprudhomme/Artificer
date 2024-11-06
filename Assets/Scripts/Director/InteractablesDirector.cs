@@ -77,10 +77,12 @@ public sealed class InteractablesDirector : MonoBehaviour {
         };
     }
 
-    private IEnumerator Start() {
-        while (PlayerController.instance == null) {
-            yield return null;
+    private void Start() {
+        if (PlayerController.instance == null) {
+            Debug.LogError("InteractablesDirector shouldn't be activated without a PlayerController available!");
+            return;
         }
+
         Target = PlayerController.instance!.target;
         GoldWallet = PlayerController.instance!.goldWallet;
         

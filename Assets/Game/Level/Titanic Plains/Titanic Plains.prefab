@@ -403,7 +403,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerSpawnPoint: {fileID: 2038736587415147204}
-  SceneName: Distant Roost
+  SceneName: Titanic Plains
 --- !u!33 &8486841424776336044
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -585,9 +585,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcc121c63fd6b574e96096f8700e27a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StoneGolemPrefab: {fileID: 0}
-  LemurianPrefab: {fileID: 0}
-  WispPrefab: {fileID: 0}
+  StoneGolemPrefab: {fileID: 227309694435722584, guid: 0db40c0dd54e96045b23b1695a405c38,
+    type: 3}
+  LemurianPrefab: {fileID: 6455767772848805017, guid: 413499d33476b4bdf84b8890e63e4acd,
+    type: 3}
+  WispPrefab: {fileID: 7668814627267589394, guid: 2b74273b6737fce4abd723e22c55d71c,
+    type: 3}
 --- !u!114 &5157084549891806580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -600,9 +603,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce40fdee22f9d1b4c950a7b05b74271e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StoneGolemPrefab: {fileID: 0}
-  LemurianPrefab: {fileID: 0}
-  WispPrefab: {fileID: 0}
+  StoneGolemPrefab: {fileID: 227309694435722584, guid: 0db40c0dd54e96045b23b1695a405c38,
+    type: 3}
+  LemurianPrefab: {fileID: 6455767772848805017, guid: 413499d33476b4bdf84b8890e63e4acd,
+    type: 3}
+  WispPrefab: {fileID: 7668814627267589394, guid: 2b74273b6737fce4abd723e22c55d71c,
+    type: 3}
 --- !u!114 &8421206005113470498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -615,9 +621,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ef4a3a9e11bb2044aa760b827b67a58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StoneGolemPrefab: {fileID: 0}
-  LemurianPrefab: {fileID: 0}
-  WispPrefab: {fileID: 0}
+  StoneGolemPrefab: {fileID: 227309694435722584, guid: 0db40c0dd54e96045b23b1695a405c38,
+    type: 3}
+  LemurianPrefab: {fileID: 6455767772848805017, guid: 413499d33476b4bdf84b8890e63e4acd,
+    type: 3}
+  WispPrefab: {fileID: 7668814627267589394, guid: 2b74273b6737fce4abd723e22c55d71c,
+    type: 3}
 --- !u!114 &5286991121497852227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -630,10 +639,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1c0801202e331e408b4db81ab4dd36f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Level: {fileID: 0}
-  ItemChestPrefab: {fileID: 0}
-  BarrelPrefab: {fileID: 0}
-  MultishopTerminalPrefab: {fileID: 0}
+  Level: {fileID: 8792906675731632673}
+  ItemChestPrefab: {fileID: 7796664314628845922, guid: 2160479dbb634b94d84d73c1d02a7804,
+    type: 3}
+  BarrelPrefab: {fileID: 7448950240430336365, guid: 7cf8bc7669efdad46a80cb071e6da326,
+    type: 3}
+  MultishopTerminalPrefab: {fileID: 8900318483760352102, guid: 9b726bd6802604b40a35387f952bf846,
+    type: 3}
 --- !u!1001 &93811494496009733
 PrefabInstance:
   m_ObjectHideFlags: 0
