@@ -11,13 +11,13 @@ using TMPro;
 // Ideally we'd pass in a curve to this (start fast then slow down) for the damage fill, but this is good enough for now
 public class HealthBarUI : MonoBehaviour {
     [Tooltip("The image used to show how much health the player has.")]
-    public Image HealthFillImage;
+    public Image? HealthFillImage;
 
     [Tooltip("The image used to show how much damage was just taken.")]
-    public Image DamageFillImage;
+    public Image? DamageFillImage;
 
     [Tooltip("Optional health text. Will display like {CurrHealth}/{MaxHealth}")]
-    public TextMeshProUGUI CurrentHealthText;
+    public TextMeshProUGUI? CurrentHealthText;
 
     private Health? health;
 
@@ -34,13 +34,13 @@ public class HealthBarUI : MonoBehaviour {
     // Stacks with each damage we take
     private float damageToAnimate = 0f;
 
-    void Start() {
+    private void Start() {
         health = PlayerController.instance!.health;
         
         health!.OnDamaged += OnDamaged;
     }
 
-    void Update() {
+    private void Update() {
         if (health == null) {
             Debug.LogError($"{this.name}'s health was not passed, returning");
             return;
@@ -58,7 +58,7 @@ public class HealthBarUI : MonoBehaviour {
     private void SetHealthFillAndColor() {
         // Do I really want this to be casted to an int? What does it matter if it's a float?
         float healthFillAmount = ((int) health!.CurrentHealth) / health.MaxHealth;
-        HealthFillImage.fillAmount = healthFillAmount;
+        HealthFillImage!.fillAmount = healthFillAmount;
 
         // TODO: If we have < 25% health we should change the HealthFillImage color to red
         // (otherwise set it to green). Need to pass in the colors.
@@ -79,7 +79,7 @@ public class HealthBarUI : MonoBehaviour {
         damageToAnimate = Mathf.Max(0.0f, damageToAnimate); // Prevent it from being negative
 
         float curr = (damageToAnimate / health.MaxHealth) + healthFillAmount;
-        DamageFillImage.fillAmount = curr;
+        DamageFillImage!.fillAmount = curr;
     }
 
     // Every time we get damaged 

@@ -75,7 +75,7 @@ public class LevelManager : MonoBehaviour {
         CameraObjects!.gameObject.SetActive(true);
         
         currentLevel!.LoadCompleted();
-        OnLevelLoaded!.Event!.Invoke(); // not really used for anything rn
+        OnLevelLoaded!.Event?.Invoke(); // not really used for anything rn
 
         stopwatch.Stop();
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
