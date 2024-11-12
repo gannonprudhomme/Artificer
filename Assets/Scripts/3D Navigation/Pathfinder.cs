@@ -1,8 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.Profiling;
 using UnityEngine;
-using UnityEngine.Profiling;
+using Priority_Queue;
 
 #nullable enable
 
@@ -16,7 +15,7 @@ public static class Pathfinder {
         OctreeNode? endNode = octree.FindClosestValidToPosition(end);
 
         if (startNode == null || endNode == null) {
-            Debug.LogError("Couldn't find start/end node for GeneratePath!");
+            Debug.LogError($"Couldn't find start/end node for GeneratePath! Start {start}, End: {end}");
             return new();
         }
 
@@ -38,20 +37,19 @@ public static class Pathfinder {
         }
 
         HashSet<OctreeNode> openSet = new(); // Only used b/c heap.Contains is really slow for some reason
-        var heap = new C5.IntervalHeap<OctreeNode>(new OctreeNodeComparer(gCosts, hCosts));
+        // Tried to use SortedList / SortedDictionary but it didn't really help much
+        SimplePriorityQueue<OctreeNode, OctreeNode> priorityQueue = new(new OctreeNodeComparer(gCosts, hCosts));
 
         #nullable disable // Nullable won't work here inherently
-        C5.IPriorityQueueHandle<OctreeNode> currHandle = null;
-        heap.Add(ref currHandle, startNode); // Do we want to do the handle stuff?
+        priorityQueue.Enqueue(startNode, startNode);
         openSet.Add(startNode);
         #nullable enable
 
-        handlesDict[startNode] = currHandle;
 
         OctreeNode current = startNode; // Redundant (we're about to pop it), just ensures it's never null
-        while(!heap.IsEmpty) {
+        while(priorityQueue.Count > 0) {
             // Pop the top of the heap, which is the minimum f-cost node (f = g + h) and mark it as the current node
-            current = heap.DeleteMin();
+            current = priorityQueue.Dequeue();
             openSet.Remove(current);
 
             closedSet.Add(current);
@@ -82,17 +80,10 @@ public static class Pathfinder {
                     parents[neighbor] = current;
 
                     if (!isNeighborInHeap) {
-                        #nullable disable
-                        C5.IPriorityQueueHandle<OctreeNode> neighborHandle = null;
-                        heap.Add(ref neighborHandle, neighbor);
+                        priorityQueue.Enqueue(neighbor, neighbor);
                         openSet.Add(neighbor);
-                        #nullable enable
-
-                        handlesDict[neighbor] = neighborHandle;
                     } else {
-                        C5.IPriorityQueueHandle<OctreeNode> neighborHandle = handlesDict[neighbor];
-
-                        heap.Replace(neighborHandle, neighbor); // Update it with the new values we set above
+                        priorityQueue.UpdatePriority(neighbor, neighbor);
                     }
                 }
             }

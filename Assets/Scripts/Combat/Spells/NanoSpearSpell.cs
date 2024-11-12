@@ -63,6 +63,8 @@ public class NanoSpearSpell : Spell {
     private readonly float chargeDuration = 2.0f; // It's honestly like 2 seconds? Play w/ it
     private bool didReleaseEarly = false;
 
+    // TODO: Make this work I need it to
+    private bool hasReleasedSinceFiring = true;
     private float cooldownBetweenFires = 0.2f;
 
     private float entityBaseDamage;
@@ -302,7 +304,8 @@ public class NanoSpearSpell : Spell {
 
     protected override bool CanShoot() {
         // I might need to do something here w/ this
-        return CurrentCharge >= CHARGE_PER_SHOT && !IsBlockingSpellActive;
+        // TODO: We should be fine with not having reached the min duration if we released & clicked it again probably?
+        return CurrentCharge >= CHARGE_PER_SHOT && !IsBlockingSpellActive && hasReachedMinDurationBetweenFires /* && hasReleasedSinceFiring */;
     }
 
     private void Recharge() {

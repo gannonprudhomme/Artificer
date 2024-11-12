@@ -175,8 +175,8 @@ MonoBehaviour:
   CameraObjects: {fileID: 508906072}
   OnLevelLoaded: {fileID: 11400000, guid: 6b66040874843fc4cb3f8053cc339698, type: 2}
   SceneNames:
-  - Distant Roost
   - Titanic Plains
+  - Distant Roost
 --- !u!114 &508906072 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3659159791262111982, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
@@ -463,6 +463,11 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: 0.54094064
       objectReference: {fileID: 0}
+    - target: {fileID: 3204303504915595513, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: totalExperience
+      value: 300
+      objectReference: {fileID: 0}
     - target: {fileID: 3383268071864035161, guid: 809bd9093307112498109f7137d945f4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -562,6 +567,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.39537433
+      objectReference: {fileID: 0}
+    - target: {fileID: 6764804481775821007, guid: 809bd9093307112498109f7137d945f4,
+        type: 3}
+      propertyPath: MaxHealth
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 7451926264492169468, guid: 809bd9093307112498109f7137d945f4,
         type: 3}
@@ -2203,6 +2213,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6523497636477959976, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
         type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 115.505165
+      objectReference: {fileID: 0}
+    - target: {fileID: 6523497636477959976, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
       propertyPath: m_LocalPosition.z
       value: 284.31235
       objectReference: {fileID: 0}
@@ -2210,6 +2225,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.x
       value: 1191.7538
+      objectReference: {fileID: 0}
+    - target: {fileID: 7057261442278373558, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 115.505165
       objectReference: {fileID: 0}
     - target: {fileID: 7057261442278373558, guid: c50af82ccfba0da40a02c5d7eeb3ac4e,
         type: 3}
