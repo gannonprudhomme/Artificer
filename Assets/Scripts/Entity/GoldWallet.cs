@@ -8,7 +8,7 @@ public class GoldWallet : MonoBehaviour {
 
     private void Start() {
         // Player starts out with 15 gold
-        goldAmount = 15;
+        goldAmount = 150;
     }
 
     public void GainGold(int amountToGain) {

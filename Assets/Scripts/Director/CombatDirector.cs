@@ -76,10 +76,10 @@ public abstract class CombatDirector: MonoBehaviour {
             float difficultyValue = 2.0f; // 1 for Drizzle, 2 for Rainstorm, 3 for Monsoon
             float timeFactor = 0.0506f * difficultyValue * (float) Mathf.Pow(playerCount, 0.2f);
 
-            int stagesCompleted = 0; // TODO: Get this from some GameManager
+            int stagesCompleted = 2; // TODO: Get this from some GameManager
             float stageFactor = Mathf.Pow(1.15f, stagesCompleted);
 
-            float tempTestingTimePlayed = 0.0f; // add 5 extra minutes
+            float tempTestingTimePlayed = 15.0f; // add 5 extra minutes
             float timeInMinutes = (Time.time / 60.0f) + tempTestingTimePlayed;
 
             return (playerFactor + timeInMinutes * timeFactor) * stageFactor;

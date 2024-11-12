@@ -86,7 +86,7 @@ public sealed class InteractablesDirector : MonoBehaviour {
         Target = PlayerController.instance!.target;
         GoldWallet = PlayerController.instance!.goldWallet;
         
-        numCredits = 220; // Depends on level, but we'll set it for Titanic Planes
+        numCredits = 350; // Depends on level, but we'll set it for Titanic Planes
 
         InteractableCard? selectedCard = GetRandomAffordableAndSpawnableCard();
         while (numCredits > 0 && selectedCard != null) {

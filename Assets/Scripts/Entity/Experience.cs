@@ -8,7 +8,7 @@ using UnityEngine.Events;
 //
 // Each subsequent level requires 1.55 times as much experience as the previous one
 public class Experience : MonoBehaviour {
-    public int totalExperience { get; private set; } 
+    public int totalExperience; // { get; private set; } 
 
     public UnityAction<int> OnLevelUp;
 
@@ -19,7 +19,7 @@ public class Experience : MonoBehaviour {
     }
 
     void Start() {
-        totalExperience = 0;
+        // totalExperience = 0;
     }
 
     public void GainExperience(int numExperience) {

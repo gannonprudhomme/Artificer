@@ -25,7 +25,7 @@ public class AtGMissile : Item {
         int itemCount,
         OnEntityHitData onHitData
     ) {
-        float chance = 0.1f * onHitData.procCoefficient; // 10% chance of firing a missle (multiplied by proc coefficient)
+        float chance = 0.5f * onHitData.procCoefficient; // 10% chance of firing a missle (multiplied by proc coefficient)
         bool didTrigger = Random.value <= chance;
 
         bool didDebugTrigger = DebugFireOnAllHits && onHitData.procCoefficient > 0.75f;

@@ -42,7 +42,7 @@ public class AllItems : ScriptableObject {
         // [0, 79.2) -> Common
         // [79.2, 99) -> Uncommon
         // [99, 100] -> Rare
-        if (randomNumber < 0.792f) {
+        if (randomNumber < 0.5f) {
             return Item.Rarity.COMMON;
         } else if (randomNumber < 0.99f) {
             return Item.Rarity.UNCOMMON;
