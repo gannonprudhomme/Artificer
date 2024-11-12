@@ -61,9 +61,7 @@ public static class Pathfinder {
             }
 
             // Populate all current node's neighbors
-            foreach (KeyValuePair<OctreeNode, float> keyValuePair in current.neighbors!) {
-                OctreeNode neighbor = keyValuePair.Key;
-                float edgeDistance = keyValuePair.Value;
+            foreach ((OctreeNode neighbor, float edgeDistance) in current.neighbors!) {
 
                 if (closedSet.Contains(neighbor)) continue; // Skip this if neighbor we've already visited it
 

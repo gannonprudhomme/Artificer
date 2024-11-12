@@ -23,7 +23,7 @@ public class OctreeNavigator {
 
     private float currT = 0;
     private float pathLength = -1f;
-    private float timeToTravel { get { return pathLength / speed; } }
+    private float timeToTravel => pathLength / speed;
 
     public Vector3 CurrentSplineTangent {
         get {
@@ -32,7 +32,7 @@ public class OctreeNavigator {
                 return Vector3.zero;
             }
 
-            return SplineUtility.EvaluateTangent(currentSplinePath, currT);
+            return currentSplinePath.EvaluateTangent(currT);
         }
     }
 

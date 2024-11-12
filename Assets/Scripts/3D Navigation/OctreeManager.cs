@@ -32,12 +32,14 @@ public class OctreeManager : MonoBehaviour {
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Restart();
         
-        GraphGenerator.PopulateOctreeNeighbors(NavSpace!.octree!, shouldBuildDiagonals: true);
+        // Changed shouldBuildDiagonals to false as a last ditch effort to try to get pathfinding to be faster
+        // for Distant Rooster
+        GraphGenerator.PopulateOctreeNeighbors(NavSpace!.octree!, shouldBuildDiagonals: false);
         
         stopwatch.Stop();
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         double seconds = ms / 1000d;
-        // Debug.Log($"Populated neighbors in {seconds:F2} sec ({ms:F0} ms)");
+        Debug.Log($"Populated neighbors in {seconds:F2} sec ({ms:F0} ms)");
 
         mainStopwatch.Stop();
         ms = ((double)mainStopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;

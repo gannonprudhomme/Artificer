@@ -15,7 +15,7 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
   m_Fog: 1
-  m_FogColor: {r: 0.5647059, g: 0.6666667, b: 0.7372549, a: 1}
+  m_FogColor: {r: 0.3972499, g: 0.6029058, b: 0.745283, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.001
   m_LinearFogStart: 0
@@ -136,7 +136,7 @@ PrefabInstance:
     - target: {fileID: 1284685009078891471, guid: a20d026c81583784fb7b9a5d8be13c2d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1226
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1284685009078891471, guid: a20d026c81583784fb7b9a5d8be13c2d,
         type: 3}
@@ -146,7 +146,7 @@ PrefabInstance:
     - target: {fileID: 1284685009078891471, guid: a20d026c81583784fb7b9a5d8be13c2d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -224.1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1284685009078891471, guid: a20d026c81583784fb7b9a5d8be13c2d,
         type: 3}
@@ -189,7 +189,8 @@ PrefabInstance:
       value: Titanic Plains
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7787033194526967673, guid: a20d026c81583784fb7b9a5d8be13c2d, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a20d026c81583784fb7b9a5d8be13c2d, type: 3}
@@ -324,10 +325,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: DebugTeleporter
       objectReference: {fileID: 0}
+    - target: {fileID: 7281149671829238456, guid: e65f9721fa802ce4a9d3488770b13212,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8857314388487149297, guid: e65f9721fa802ce4a9d3488770b13212,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8857314388487149297, guid: e65f9721fa802ce4a9d3488770b13212,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8857314388487149297, guid: e65f9721fa802ce4a9d3488770b13212,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 8857314388487149297, guid: e65f9721fa802ce4a9d3488770b13212,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1174.4
+      value: 51.59998
       objectReference: {fileID: 0}
     - target: {fileID: 8857314388487149297, guid: e65f9721fa802ce4a9d3488770b13212,
         type: 3}
@@ -337,7 +358,7 @@ PrefabInstance:
     - target: {fileID: 8857314388487149297, guid: e65f9721fa802ce4a9d3488770b13212,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -236
+      value: -11.9
       objectReference: {fileID: 0}
     - target: {fileID: 8857314388487149297, guid: e65f9721fa802ce4a9d3488770b13212,
         type: 3}
