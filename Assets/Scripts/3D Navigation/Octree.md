@@ -45,7 +45,7 @@ General, single-threaded approach:
    a. Theoretically `size` could be a non-power-of-2, but making it a power-of-2 means we can cleanly store `OctreeNode.size` as an integer. (which also might not matter depending on usecases)
 3. Retrieve all of the vertices for the mesh and convert them to world coordinates
 
-   a. Still not sure if I need to do this, but w/e
+   a. Most likely not necessary, but made operations easier to reason about.
 5. For each triangle, starting from the root, see if the triangle intersects with the current node
 6. If it does, subdivide the node (if it hasn't already) by creating 8 children, then repeat until we've reached the max depth
 
@@ -93,7 +93,7 @@ This still isn't as fast as I'd like it to be though - it takes ~0.3 sec for 170
    that I could surely do to reduce this, but I'm not releasing this so I don't mind too much.
 4. Using the digital differential analyzer algorithm for more efficiently stepping through nodes during the `Octree.Raycast` operation
 
-   a. I currently use a fixed step lengt, and didn't optimize further as it was fast enough for my purposes
+   a. I currently use a fixed step length, and didn't optimize further as it was fast enough for my purposes
 5. Use Lazy* / Lazy Theta* for pathfinding
 6. Morton code usages? I could never figure out how they'd be applied
 7. Perform loading & neighbor generation asynchronously / on a background thread
@@ -109,7 +109,7 @@ This still isn't as fast as I'd like it to be though - it takes ~0.3 sec for 170
    - This was my jumping off point for using Octrees for 3D pathfinding!
 - [Advanced Octrees 2: node representations](https://geidav.wordpress.com/2014/08/18/advanced-octrees-2-node-representations)
 - [Fast Parallel Surface And Solid Voxelization on GPUs](https://michael-schwarz.com/research/publ/files/vox-siga10.pdf)
-   - I can't confidently say how much of my implementation uses this, though iti s a good resource regardless.
+   - I can't confidently say how much of my implementation uses this, though it is a good resource regardless.
 
 ## What this is not:
 
@@ -118,5 +118,4 @@ This still isn't as fast as I'd like it to be though - it takes ~0.3 sec for 170
 
 ## Videos
 
-- Show AtG Missile
-- Show Wisp
+You can see this in action in the videos in the README. 
