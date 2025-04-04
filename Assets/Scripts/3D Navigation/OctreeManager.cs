@@ -15,6 +15,10 @@ public class OctreeManager : MonoBehaviour {
 
     public Octree? Octree => NavSpace!.octree;
 
+    public void DebugLoad() {
+        NavSpace!.LoadIfNeeded();
+    }
+
     private void Awake() {
         if (shared != null) {
             // This is fine when we're switching scenes

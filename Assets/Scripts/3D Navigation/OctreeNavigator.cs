@@ -94,8 +94,8 @@ public class OctreeNavigator {
     // 
     // May skip traditional pathfinding if we can do a straight-shot to the given position
     //
-    // General idea is that because we use Catcull-Rom splines, we don't want to *entirely* replace the path (spline)
-    // instead, we want to keep the previous position (knot), as Catcull-Rom splines/knots use their previous and next knot
+    // General idea is that because we use Catmull-Rom splines, we don't want to *entirely* replace the path (spline)
+    // instead, we want to keep the previous position (knot), as Catmull-Rom splines/knots use their previous and next knot
     // positions to determine their shape/curve.
     // Thus, new paths will consist of [previousNearestKnot, currentPositionKnot, newPathKnot1, ..., goalPosition]
     public void CreatePathTo(Vector3 goalPosition) {
@@ -161,7 +161,8 @@ public class OctreeNavigator {
         return spline.Knots.ToArray()[knotIndex].Position; // Get position of Knots[knotIndex]
     }
 
-    private static Spline? ConvertToSpline(List<Vector3> path) {
+    // only public for demo
+    public static Spline? ConvertToSpline(List<Vector3> path) {
         if (path.Count == 0) return null;
 
         // Convert List<Vector3> to float[3] for Spline

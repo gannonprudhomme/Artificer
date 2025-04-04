@@ -101,8 +101,8 @@ public class OctreeSerializer {
 
     // Load the generated octree from a file into memory (put in this.octree)
     public static Octree Load(string filename) {
-        // var stopwatch = new System.Diagnostics.Stopwatch();
-        // stopwatch.Start();
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
 
         Octree octree;
 
@@ -122,9 +122,12 @@ public class OctreeSerializer {
 
         int nodeCount = octree.GetAllNodes().Count;
 
-        // double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
-        // double seconds = ms / 1000d;
-        // Debug.Log($"Read Octree from '{filename}' and got {nodeCount:N0} nodes in {seconds:F2} sec ({ms:F0} ms)");
+        double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
+        double seconds = ms / 1000d;
+
+        int leafCount = octree.GetAllNodes().FindAll(node => node.IsLeaf).Count;
+        
+        Debug.Log($"Read Octree from '{filename}' and got {nodeCount:N0} nodes ({leafCount:N0} leaves) in {seconds:F2} sec ({ms:F0} ms)");
 
         return octree;
     } 

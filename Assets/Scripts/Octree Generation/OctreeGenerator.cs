@@ -262,7 +262,7 @@ public static class NewOctreeGenerator {
         stopwatch.Stop();
         double ms = ((double)stopwatch.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000d;
         double seconds = ms / 1000d;
-
+        
         Debug.Log($"Combined all nodes with {combined.Count:n0} nodes in {seconds:F2} sec ({ms:F0} ms)");
 
         return combined;
