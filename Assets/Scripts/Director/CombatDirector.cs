@@ -152,6 +152,7 @@ public abstract class CombatDirector: MonoBehaviour {
     }
 
     protected void SpawnEnemy(EnemyCard enemyCard, Target target) {
+        /*
         Vector3 spawnPosition;
 
         if (enemyCard.isFlyingEnemy) {
@@ -186,6 +187,7 @@ public abstract class CombatDirector: MonoBehaviour {
         numCredits -= enemyCard.spawnCost;
 
         // Give it "Boost" items to apply HP & damage multiplers???
+        */
     }
 
     // Pick a point a random distance from the player on the Nav Mesh
