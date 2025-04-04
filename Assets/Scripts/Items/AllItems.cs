@@ -14,9 +14,23 @@ public class AllItems : ScriptableObject {
     [Tooltip("When set, only drops this")]
     public Item? OnlyItem = null;
 
+    [HideInInspector]
+    public static bool hasDroppedAtGMissile = false;
+
     public Item PickItem(Item.Rarity? specifiedRarity = null) {
         if (OnlyItem != null) {
             return OnlyItem;
+        }
+
+        if (!hasDroppedAtGMissile) {
+            Item? atgMissile = UncommonItems.Find(item => item.itemType == ItemType.ATG_MISSILE);
+            if (atgMissile != null) {
+                hasDroppedAtGMissile = true;
+                Debug.Log("Dropping AtG Missile");
+                return atgMissile;
+            } else {
+                Debug.Log("AtG Missile not found!");
+            }
         }
 
         Item.Rarity rarity;

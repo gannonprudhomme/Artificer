@@ -181,12 +181,28 @@ public class ItemChest : Interactable, Spawnable {
         SpawnItem();
     }
 
+    public static bool hasDroppedAtGMissile = false;
+
     // We wait to call this until the interaction VFX is done playing
     private void SpawnItem() {
         ItemPickup itemPickup = Instantiate(ItemPickupPrefab!, transform.position, Quaternion.identity);
         itemPickup.startPosition = transform.position;
         itemPickup.endPosition = DetermineItemSpawnPosition();
-        itemPickup.item = AllItems!.PickItem();
+
+        if (!hasDroppedAtGMissile) {
+            Item? atgMissile = AllItems.UncommonItems.Find(item => item.itemType == ItemType.ATG_MISSILE);
+            if (atgMissile != null) {
+                hasDroppedAtGMissile = true;
+                Debug.Log("Dropping AtG Missile");
+                itemPickup.item = atgMissile;
+            } else {
+                itemPickup.item = AllItems!.PickItem();
+                Debug.Log("AtG Missile not found!");
+            }
+        } else {
+            itemPickup.item = AllItems!.PickItem();
+        }
+
     }
 
     private Vector3 DetermineItemSpawnPosition() {;

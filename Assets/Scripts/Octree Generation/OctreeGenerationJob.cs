@@ -7,7 +7,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 #nullable enable
 
-[BurstCompile]
+// [BurstCompile]
 public struct OctreeGenerationJob: IJob {
     // triangles of the mesh?
     [ReadOnly]
@@ -228,7 +228,7 @@ public struct OctreeGenerationJob: IJob {
 }
 
 // TODO: Comment this & explain it
-[BurstCompile]
+// [BurstCompile]
 public struct ConvertVertsToWorldSpaceJob : IJobParallelFor {
     [ReadOnly]
     private readonly NativeArray<Vector3> vertsLocalSpaceInput;

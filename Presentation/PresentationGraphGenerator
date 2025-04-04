@@ -1,0 +1,19 @@
+
+
+for each valid-leaf
+    for each direction (8)
+        calculate goal-node index
+        
+        starting from root, search for goalNode in direction recursively
+            if goalNode is not leaf
+                recurse on correct-direction child (using index)
+            else
+                if goalNode is same size
+                    add edge from this node -> goalNode
+                else if goal node is larger
+                    add edge in both directions
+                else // goal node is smaller
+                    do nothing
+
+
+
